@@ -47,8 +47,18 @@ run_Auger_Analysis.sh
 Lidar_Analysis_Interface/
 signalsTest/
 
+# AUGER LIBRARIES
 Lidar_Configuration_Files/analysisParameters_Auger*.conf
 libLidar/libLidarROOT.hpp
+libLidar/TLEventDict.cpp
+libLidar/TLEventLinkDef.h
+libLidar/TLEvent.h
+libLidar/TLRunState.h
+libLidar/TLRunStateLinkDef.h
+libLidar/LicelData.h
+libLidar/LPower.h
+libLidar/CMolecularDataAuger.*
+
 
 
 
