@@ -34,9 +34,12 @@
 
 # IGNORING (MAINLY) AUGER STUFF...
 
-git_upload.sh
-Octave/
 .vscode/
+git_upload.sh
+markdown-cheat-sheet.md
+
+Octave/
+
 AugerLidarAnalysis/
 root2NetCDF/
 runAuger/
