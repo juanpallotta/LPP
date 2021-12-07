@@ -281,7 +281,6 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
    char    used_channel[20] ;
 // READ THE CHANNEL (TELESCOPE) NUMBER TO READ IN ch
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "used_channel", "string", (char*)used_channel ) ; // used_channel = long_range_2 - long_range_1 - nothing
-    // glbParam->nChMax    = MAX_CH ; // MAX NUMBER OF CHANNELS: LL=2, LA=LM=CO=3
 	glbParam->chSel     = (int)ReadChannelSelected( glbParam ) ;
 	// printf( "\n Channel used: %d \n", glbParam->chSel ) ;
 	assert( glbParam->chSel != -1 ) ;  // SI SE CUMPLE, SIGUE.
@@ -959,10 +958,10 @@ void save_Auger_to_LPP_NetCDF( char *lidarFileOUT_NetCDF, strcGlobalParameters *
     start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
     start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
     start[2] = 0;   count[2] = dimsSize[2] ; // glbParam->nBins_in_File ;
-    for( int e=0 ; e <dimsSize[0] ; e++ )
+    for( int e=0 ; e <dimsSize[0] ; e++ ) // dimsSize[0] = glbParam->nEvents
     {
         start[0] =e ;
-        for ( int c=0 ; c <dimsSize[1] ; c++ )
+        for ( int c=0 ; c <dimsSize[1] ; c++ ) // dimsSize[1] = glbParam->nCh 
         {
             start[1] =c ;
             if ( (retval = nc_put_vara_double((int)nc_id, (int)var_ids[0], start, count, (double*)&Raw_Lidar_Data[e][c][0] ) ) )
