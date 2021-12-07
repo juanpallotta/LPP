@@ -268,14 +268,30 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
 	char *pch = strstr( strLidarFile, "/lidar-" ) ;
 	sscanf(pch+7, "%2s-%4d%2d%2d-%2d%2d%2d-R%5d.root",
 		   glbParam->site, &glbParam->year, &glbParam->month, &glbParam->day, &glbParam->hour, &glbParam->min, &glbParam->sec, &glbParam->run ) ;
-		 if ( strncmp( glbParam->site, "ll", 2 ) == 0 )
-		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LL_ASL" , "double", (double*)&glbParam->siteASL ) ; // glbParam->siteASL = 1416.4 ;
+		if ( strncmp( glbParam->site, "ll", 2 ) == 0 )
+		{		
+			ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LL_ASL" , "double", (double*)&glbParam->siteASL  ) ; // glbParam->siteASL = 1416.4 ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LL_LAT" , "double", (double*)&glbParam->siteLat  ) ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LL_LON" , "double", (double*)&glbParam->siteLong ) ;
+		}
 	else if ( strncmp( glbParam->site, "ch", 2 ) == 0 )
+		{
 			ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "CH_ASL" , "double", (double*)&glbParam->siteASL ) ; // glbParam->siteASL = 1712.3 ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "CH_LAT" , "double", (double*)&glbParam->siteLat  ) ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "CH_LON" , "double", (double*)&glbParam->siteLong ) ;
+		} 
 	else if ( strncmp( glbParam->site, "lm", 2 ) == 0 )
+		{
 			ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LM_ASL" , "double", (double*)&glbParam->siteASL ) ; // glbParam->siteASL = 1416.4 ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LM_LAT" , "double", (double*)&glbParam->siteLat  ) ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LM_LON" , "double", (double*)&glbParam->siteLong ) ;
+		}
 	else if ( strncmp( glbParam->site, "la", 2 ) == 0 )
+		{
 			ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LA_ASL" , "double", (double*)&glbParam->siteASL ) ; // glbParam->siteASL = 1476.7 ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LA_LAT" , "double", (double*)&glbParam->siteLat  ) ;
+		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LA_LON" , "double", (double*)&glbParam->siteLong ) ;
+		}
 // printf("\n\nsite: %s \n", glbParam->site) ;
 // printf("Site ASL: %lf \n", glbParam->siteASL) ;
    char    used_channel[20] ;
@@ -916,40 +932,31 @@ void save_Auger_to_LPP_NetCDF( char *lidarFileOUT_NetCDF, strcGlobalParameters *
 	int  var_ids[NVARS] ;
     string  strNameVars[NVARS] ;
     strNameVars[0].assign("Raw_Lidar_Data");
-    strNameVars[1].assign("Height") ;
-    strNameVars[2].assign("Raw_Data_Start_Time") ;
-    strNameVars[3].assign("Zeniths") ;
-    strNameVars[4].assign("Azimuths") ;
-    strNameVars[5].assign("Range") ;
-    strNameVars[6].assign("RCLS") ;
-    strNameVars[7].assign("Alpha_Aer_Cloud_Mask") ;
-    strNameVars[8].assign("Photon_Counting_MHz") ;
-    strNameVars[9].assign("Mol_RCLS") ;
+    strNameVars[1].assign("Raw_Data_Start_Time") ;
+    strNameVars[2].assign("Zeniths") ;
+    strNameVars[3].assign("Azimuths") ;
 
 	// DEFINE VARIABLE Raw_Lidar_Data AND ITS DIMENSIONS (USED FOR THE REST OF VARIABLES)
 	oNCL.DefineVarDims(  (int)nc_id, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dim_ids, (char*)strNameVars[0].c_str(), (const char*)"double", (int*)&var_ids[0] ) ;
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[1].c_str(), (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[1]  ) ; // Height
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[2].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[2]  ) ; // GPS_Time
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[3].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[3]  ) ; // Zeniths
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[4].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[4]  ) ; // Azimuths
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[5].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[1], (int*)&var_ids[5]  ) ; // Range
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[6].c_str(), (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[6]  ) ; // RCLS
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[7].c_str(), (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[7]  ) ; // Alpha_Aer_Cloud_Mask
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[8].c_str(), (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[8]  ) ; // Photon_Counting_MHz
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[9].c_str(), (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[9]  ) ; // Mol_RCLS
+    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[1].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[1]  ) ; // GPS_Time
+    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[2].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[2]  ) ; // Zeniths
+    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[3].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[3]  ) ; // Azimuths
 
     string strAttListName[10], strAttList[2] ;
     strAttListName[0] = "Site_Name"             ;   strAttList[0].assign(glbParam->site)     ;
     strAttListName[1] = "Log. File"             ;   strAttList[1].assign(glbParam->infoFile) ;
         oNCL.Putt_Bulk_Att_Text( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)strAttList ) ;
 
+    // DOUBLE GLOBAL ATTRIBUTES
     double dblAttList[5] ;
-    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL ;
-    strAttListName[1] = "Range_Resolution" 		 ;   dblAttList[1] = (double)glbParam->dr	   ;
-        oNCL.Putt_Bulk_Att_Double( (int)nc_id, (int)NC_GLOBAL, (int)2, (string*)strAttListName, (double*)dblAttList ) ;
+    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL  ;
+    strAttListName[1] = "Latitude_degrees_north" ;   dblAttList[1] = (double)glbParam->siteLat  ;
+    strAttListName[2] = "Longitude_degrees_east" ;   dblAttList[2] = (double)glbParam->siteLong ;
+    strAttListName[3] = "Range_Resolution"       ;   dblAttList[3] = (double)glbParam->dr       ;
+        oNCL.Putt_Bulk_Att_Double( (int)nc_id, (int)NC_GLOBAL, (int)4, (string*)strAttListName, (double*)dblAttList ) ;
 
-    strAttListName[0] = "Numbers_of_Events"      ;   
-        oNCL.Putt_Bulk_Att_Int( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (int*)&glbParam->nEvents ) ;
+    strAttListName[0] = "ADC_Bits"      ;	int ADC_Bits = 12 ;
+        oNCL.Putt_Bulk_Att_Int( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (int*)&ADC_Bits ) ;
 
 				if ( (retval = nc_enddef(nc_id)) )
 					ERR(retval);
@@ -967,32 +974,14 @@ void save_Auger_to_LPP_NetCDF( char *lidarFileOUT_NetCDF, strcGlobalParameters *
             start[1] =c ;
             if ( (retval = nc_put_vara_double((int)nc_id, (int)var_ids[0], start, count, (double*)&Raw_Lidar_Data[e][c][0] ) ) )
                 ERR(retval);
+			// if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[8], start, count, (double*)&dataToSave->phMHz[e][c][0] ) ) )
+            //     ERR(retval);
         }
     }
-    // size_t start[2], count[2];
-    // start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
-    // start[1] = 0;   count[1] = glbParam->nBins ;
-    // for( int e=0 ; e <glbParam->nEventsAVG ; e++ )
-    // {
-	// 	start[0] =e ;
-	// 	if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[1], start, count, (double*)&dataToSave->zr[e][0] ) ) )
-	// 		ERR(retval);
-	// 	if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[0], start, count, (double*)&dataToSave->pr[e][0] ) ) )
-	// 		ERR(retval);
-	// 	if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[6], start, count, (double*)&dataToSave->pr2[e][0] ) ) )
-	// 		ERR(retval);
-	// 	if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[7], start, count, (double*)&dataToSave->alphaAerCloud[e][0] ) ) )
-	// 		ERR(retval);
-	// 	if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[8], start, count, (double*)&dataToSave->phMHz[e][0] ) ) )
-	// 		ERR(retval);
-	// 	if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[9], start, count, (double*)&dataToSave->pr2Mol[e][0] ) ) )
-	// 		ERR(retval);
-    // }
 
-	oNCL.PutVar( (int)nc_id, (int)var_ids[2], (const char*)"int"   , (int*)glbParam->event_gps_sec   ) ; 
-    // oNCL.PutVar( (int)nc_id, (int)var_ids[3], (const char*)"double", (double*)glbParam->zeniths   ) ;
-    // oNCL.PutVar( (int)nc_id, (int)var_ids[4], (const char*)"double", (double*)glbParam->azimuth   ) ;
-    // oNCL.PutVar( (int)nc_id, (int)var_ids[5], (const char*)"double", (double*)glbParam->r  			) ;
+	oNCL.PutVar( (int)nc_id, (int)var_ids[1], (const char*)"int"   , (int*)glbParam->event_gps_sec ) ; 
+    oNCL.PutVar( (int)nc_id, (int)var_ids[2], (const char*)"double", (double*)glbParam->aZenith    ) ;
+    oNCL.PutVar( (int)nc_id, (int)var_ids[3], (const char*)"double", (double*)glbParam->aAzimuth   ) ;
 
 	if ( (retval = nc_close(nc_id)) )
 	    ERR(retval);
