@@ -1,0 +1,37 @@
+
+SCC NetCDF format:
+
+nb_of_time_scales: no se lo que es.
+
+Seria bueno tener la posibilidad de subir a SCC un archivo generado por esta herramienta, para saber definitivamente si lo estamos generando bien.
+
+
+_________________________________________________________________________________________
+
+LALINET NetCDF format:
+
+Raw_Data_Start_Time
+Raw_Data_Stop_Time
+
+Representado como el timpo UTC en segundos desde January 1, 1970 (Calendar time is the number of seconds since epoch, which was at 00:00:00 Coordinated Universal Time (UTC) January 1, 1970)
+
++ es lo mejor para hacer calculos con el tiempo.
+- poco representativo para humanos en una simple vista.
+
+si guardo un string: ¿como?, ¿en que formato?
+
+____________________________________________
+
+
+Me faltan guardar algunas variables que en los archivos binarios estan como informacion de cada canal, pero para mi es informacion global. Por ejemplo:
+
+- Cantidad de bines (4000)
+- Resolucion de bits (12)
+- Resolucion espacial (7.5)
+- Cantidad de perfiles acumulados --> ahora esta como vector, con dimension de chanales, pero para mi tiene que ser global.
+
+¿Los guardo como globales o como variables con dimension de tiempo? --> para mi, tienen que ser globales.
+
+____________________________________________
+
+Cualquier comentario es bienvenido.
