@@ -13,6 +13,9 @@ echo ""
 cd ./Lidar_Analysis_PDL0/
 make -f makefile_lidarAnalysis_PDL0
 
+
+
+
 sleep 1
 
 echo ""
