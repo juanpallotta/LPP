@@ -281,7 +281,7 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
    char    used_channel[20] ;
 // READ THE CHANNEL (TELESCOPE) NUMBER TO READ IN ch
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "used_channel", "string", (char*)used_channel ) ; // used_channel = long_range_2 - long_range_1 - nothing
-    glbParam->nChMax    = MAX_CH ; // MAX NUMBER OF CHANNELS: LL=2, LA=LM=CO=3
+    // glbParam->nChMax    = MAX_CH ; // MAX NUMBER OF CHANNELS: LL=2, LA=LM=CO=3
 	glbParam->chSel     = (int)ReadChannelSelected( glbParam ) ;
 	// printf( "\n Channel used: %d \n", glbParam->chSel ) ;
 	assert( glbParam->chSel != -1 ) ;  // SI SE CUMPLE, SIGUE.
@@ -340,7 +340,7 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
 					if ( i==0 )
 					{
 						lp.Get_nCh_nBinsRaw( (const TLEvent*)levent, (int*)&glbParam->nCh, (int*)&glbParam->nBins_in_File ) ;
-						// glbParam->nChMax	= MAX_CH ; // MAX NUMBER OF CHANNELS: LL=2, LA=LM=CO=3
+						glbParam->nChMax	= glbParam->nCh ; // MAX_CH ; // MAX NUMBER OF CHANNELS: LL=2, LA=LM=CO=3
 						ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBinsRaw", "int", (double*)&glbParam->nBinsRaw ) ;
 						glbParam->nShots[glbParam->chSel] 	= levent->GetNLaserShots(); // printf("\n levent->GetNLaserShots(): %d \n", glbParam->nShots) ;
 						ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "dr", "double", (double*)&glbParam->dr ) ; // [m]
