@@ -944,11 +944,12 @@ void save_Auger_to_LPP_NetCDF( char *lidarFileOUT_NetCDF, strcGlobalParameters *
         oNCL.Putt_Bulk_Att_Text( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)strAttList ) ;
 
     double dblAttList[5] ;
-    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL    ;
-    strAttListName[1] = "Numbers_of_Events"      ;   dblAttList[1] = (double)glbParam->nEventsAVG ;
-    strAttListName[2] = "Range_Resolution" 		 ;   dblAttList[2] = (double)glbParam->dr		  ;
-    // strAttListName[3] = "Range_Resolution"       ;   dblAttList[3] = (double)glbParam->dr         ;
-        oNCL.Putt_Bulk_Att_Double( (int)nc_id, (int)NC_GLOBAL, (int)3, (string*)strAttListName, (double*)dblAttList ) ;
+    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL ;
+    strAttListName[1] = "Range_Resolution" 		 ;   dblAttList[1] = (double)glbParam->dr	   ;
+        oNCL.Putt_Bulk_Att_Double( (int)nc_id, (int)NC_GLOBAL, (int)2, (string*)strAttListName, (double*)dblAttList ) ;
+
+    strAttListName[0] = "Numbers_of_Events"      ;   
+        oNCL.Putt_Bulk_Att_Int( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (int*)&glbParam->nEvents ) ;
 
 				if ( (retval = nc_enddef(nc_id)) )
 					ERR(retval);
