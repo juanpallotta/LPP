@@ -32,7 +32,7 @@
 *.app
 
 
-# pallotta
+# IGNORING (MAINLY) AUGER STUFF...
 
 git_upload.sh
 Octave/
