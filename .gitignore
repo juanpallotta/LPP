@@ -46,7 +46,9 @@ runAuger/
 run_Auger_Analysis.sh
 Lidar_Analysis_Interface/
 signalsTest/
-Lidar_Configuration_Files/*Auger*.conf
+
+Lidar_Configuration_Files/analysisParameters_Auger*.conf
+libLidar/libLidarROOT.hpp
 
 
 
