@@ -60,7 +60,7 @@ void 	tam_vaod_wFitData			 ( double, double, double*, double, double* ) ;
 void 	fillAugerInfoDB				( strcCloudProfiles*, strcGlobalParameters*, strcMolecularData* ) ;
 void  	saveCloudsInfoDB			( strcGlobalParameters*, strcCloudProfiles *, strcDataToSave*, char* ) ;
 void 	saveNetCDF_AugerLidarData 	( char*, strcGlobalParameters*, strcDataToSave* ) ;
-void 	save_Auger_to_LPP_NetCDF	( char*, strcGlobalParameters*, double *** ) ;
+// void 	save_Auger_to_LPP_NetCDF	( char*, strcGlobalParameters*, double *** ) ;
 
 // void	readCLFdata					( char*, char*, strcCLFdata* ) ;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,23 +236,32 @@ void ReadLidarROOT_3D( char *strLidarFile, double ***Raw_Lidar_Data, strcGlobalP
 		}
 
 // NUMBER OF ZENITHS CLUSTERS
-	glbParam->nEventsAVG = 0 ;
-	double 	*dZeniths = (double*) new double [glbParam->nEvents -1] ;
-	if( (strcmp(glbParam->scanType, "ZD") ==0) || (strcmp(glbParam->scanType, "AD") ==0) )
-	{
-		for ( int i = 0 ; i<(glbParam->nEvents-1) ; i++ )
-			dZeniths[i] = (double)(glbParam->aZenith[i+1] - glbParam->aZenith[i]) ;
+	// glbParam->nEventsAVG = 0 ;
+	// double 	*dZeniths = (double*) new double [glbParam->nEvents -1] ;
+	// if( (strcmp(glbParam->scanType, "ZD") ==0) || (strcmp(glbParam->scanType, "AD") ==0) )
+	// {
+	// 	for ( int i = 0 ; i<(glbParam->nEvents-1) ; i++ )
+	// 		dZeniths[i] = (double)(glbParam->aZenith[i+1] - glbParam->aZenith[i]) ;
 
-		for( int e=0 ; e<glbParam->nEvents-1 ; e++ )
-		{
-			if ( fabs(dZeniths[e]) >1 )
-				glbParam->nEventsAVG++ ;
-		}
-	}
-	else // CONTINUOUS SCAN
-		glbParam->nEventsAVG = glbParam->nEvents ;
+	// 	for( int e=0 ; e<glbParam->nEvents-1 ; e++ )
+	// 	{
+	// 		if ( fabs(dZeniths[e]) >1 )
+	// 			glbParam->nEventsAVG++ ;
+	// 	}
+	// }
+	// else // CONTINUOUS SCAN
+	// 	glbParam->nEventsAVG = glbParam->nEvents ;
 	// glbParam->indxOffset = (int*) new int [ glbParam->nClusterEvents ] ;
-	delete dZeniths ;
+
+	glbParam->nBinsRaw   = glbParam->nBins_in_File ;
+	glbParam->nEventsAVG = glbParam->nEvents       ;
+	for (int i =0; i <glbParam->nEvents ; i++)
+	{
+	    glbParam->aAzimuthAVG[i] = glbParam->aAzimuth[i] ;
+	    glbParam->aZenithAVG[i]  = glbParam->aZenith[i]  ;
+	}
+
+	// delete dZeniths ;
 	delete tree ;
 	delete lrunh ;
 	rootFile->Close() ; // rootFile.Close() ; // 
@@ -357,12 +366,32 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
 						lp.Get_nCh_nBinsRaw( (const TLEvent*)levent, (int*)&glbParam->nCh, (int*)&glbParam->nBins_in_File ) ;
 						glbParam->nChMax	= glbParam->nCh ; // MAX_CH ; // MAX NUMBER OF CHANNELS: LL=2, LA=LM=CO=3
 						ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBinsRaw", "int", (double*)&glbParam->nBinsRaw ) ;
-						glbParam->nShots[glbParam->chSel] 	= levent->GetNLaserShots(); // printf("\n levent->GetNLaserShots(): %d \n", glbParam->nShots) ;
+						glbParam->iADCbits    = (int*)    new int   [ glbParam->nCh ] ;
+						glbParam->iMax_mVLic  = (double*) new double[ glbParam->nCh ] ;
+						glbParam->iAnPhot     = (int*)    new double[ glbParam->nCh ] ;
+						glbParam->Laser_Src   = (int*)    new int   [ glbParam->nCh ] ;
+						glbParam->nBinsRaw_Ch = (int*)    new int   [ glbParam->nCh ] ;
+						glbParam->PMT_Voltage = (int*)    new int   [ glbParam->nCh ] ;
+						glbParam->sPol		  = (char*)   new char  [ glbParam->nCh ] ;
+						glbParam->iLambda	  = (int*)    new int   [ glbParam->nCh ] ;
+						for ( int c =0 ; c <glbParam->nCh ; c++)
+						{
+							glbParam->nShots[c]      = levent->GetNLaserShots();
+							glbParam->iADCbits[c]    = 12  ;
+							glbParam->iMax_mVLic[c]  = 500 ;
+							glbParam->iAnPhot[c] 	 = 0   ; // 0: Analog	1: Counting
+							glbParam->Laser_Src[c]   = 1   ;
+							glbParam->nBinsRaw_Ch[c] = glbParam->nBins_in_File ;
+							glbParam->PMT_Voltage[c] = 800 ;
+							glbParam->sPol[c] 		 = 'l' ;
+							glbParam->iLambda[c]	 = 351 ;
+						}
 						ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "dr", "double", (double*)&glbParam->dr ) ; // [m]
 						glbParam->lambda	 = (double)351 ;
 						glbParam->aZenith 	 = (double*) new double [glbParam->nEvents] ;
 						glbParam->aZenithAVG = (double*) new double [glbParam->nEvents] ;
 						glbParam->aAzimuth 	 = (double*) new double [glbParam->nEvents] ;
+						glbParam->aAzimuthAVG= (double*) new double [glbParam->nEvents] ;
 					}
 					lp.zenith  = (double) lp.zenith  * PI/180 ; // MAYOR AXIS
 					lp.azimuth = (double) lp.azimuth * PI/180 ; // MINOR AXIS
@@ -913,81 +942,93 @@ void saveNetCDF_AugerLidarData( char *lidarFileOUT_NetCDF, strcGlobalParameters 
 	printf("\n\n*** SUCCESS writing NetCDF file %s!\n", lidarFileOUT_NetCDF ) ;
 }
 
-void save_Auger_to_LPP_NetCDF( char *lidarFileOUT_NetCDF, strcGlobalParameters *glbParam, double ***Raw_Lidar_Data )
-{
-	CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
+// void save_Auger_to_LPP_NetCDF( char *lidarFileOUT_NetCDF, strcGlobalParameters *glbParam, double ***Raw_Lidar_Data )
+// {
+// 	CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
 
-	int  nc_id, retval ;
+// 	int  nc_id, retval ;
 
-    if ( (retval = nc_create( lidarFileOUT_NetCDF, NC_NETCDF4, &nc_id)) )
-        ERR(retval);
+//     if ( (retval = nc_create( lidarFileOUT_NetCDF, NC_NETCDF4, &nc_id)) )
+//         ERR(retval);
 
-// DIMENSION DEFINITIONS
-    string      dimsName [NDIMS] ;
-    int         dimsSize[NDIMS]  ;
-    int         dim_ids[NDIMS]   ;
-    dimsName[0] = "time"     ;  dimsSize[0] = glbParam->nEvents 		;
-    dimsName[1] = "channels" ;  dimsSize[1] = glbParam->nCh 			;
-    dimsName[2] = "points"   ;	dimsSize[2] = glbParam->nBins_in_File	;
-	int  var_ids[NVARS] ;
-    string  strNameVars[NVARS] ;
-    strNameVars[0].assign("Raw_Lidar_Data");
-    strNameVars[1].assign("Raw_Data_Start_Time") ;
-    strNameVars[2].assign("Zeniths") ;
-    strNameVars[3].assign("Azimuths") ;
+// // DIMENSION DEFINITIONS
+//     string      dimsName [NDIMS] ;
+//     int         dimsSize[NDIMS]  ;
+//     int         dim_ids[NDIMS]   ;
+//     dimsName[0] = "time"     ;  dimsSize[0] = glbParam->nEvents 		;
+//     dimsName[1] = "channels" ;  dimsSize[1] = glbParam->nCh 			;
+//     dimsName[2] = "points"   ;	dimsSize[2] = glbParam->nBins_in_File	;
 
-	// DEFINE VARIABLE Raw_Lidar_Data AND ITS DIMENSIONS (USED FOR THE REST OF VARIABLES)
-	oNCL.DefineVarDims(  (int)nc_id, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dim_ids, (char*)strNameVars[0].c_str(), (const char*)"double", (int*)&var_ids[0] ) ;
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[1].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[1]  ) ; // GPS_Time
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[2].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[2]  ) ; // Zeniths
-    oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[3].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[3]  ) ; // Azimuths
+// 	int  var_ids[NVARS] ;
+//     string  strNameVars[NVARS] ;
+//     strNameVars[0].assign("Raw_Lidar_Data");
+//     strNameVars[1].assign("Raw_Data_Start_Time") ;
+//     strNameVars[2].assign("Zeniths") ;
+//     strNameVars[3].assign("Azimuths") ;
 
-    string strAttListName[10], strAttList[2] ;
-    strAttListName[0] = "Site_Name"             ;   strAttList[0].assign(glbParam->site)     ;
-    strAttListName[1] = "Log. File"             ;   strAttList[1].assign(glbParam->infoFile) ;
-        oNCL.Putt_Bulk_Att_Text( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)strAttList ) ;
+//     strNameVars[4].assign("Background_Low")  ;
+//     strNameVars[5].assign("Background_High") ;
 
-    // DOUBLE GLOBAL ATTRIBUTES
-    double dblAttList[5] ;
-    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL  ;
-    strAttListName[1] = "Latitude_degrees_north" ;   dblAttList[1] = (double)glbParam->siteLat  ;
-    strAttListName[2] = "Longitude_degrees_east" ;   dblAttList[2] = (double)glbParam->siteLong ;
-    strAttListName[3] = "Range_Resolution"       ;   dblAttList[3] = (double)glbParam->dr       ;
-        oNCL.Putt_Bulk_Att_Double( (int)nc_id, (int)NC_GLOBAL, (int)4, (string*)strAttListName, (double*)dblAttList ) ;
+// 	// DEFINE VARIABLE Raw_Lidar_Data AND ITS DIMENSIONS (USED FOR THE REST OF VARIABLES)
+// 	oNCL.DefineVarDims(  (int)nc_id, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dim_ids, (char*)strNameVars[0].c_str(), (const char*)"double", (int*)&var_ids[0] ) ;
+//     oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[1].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[1]  ) ; // GPS_Time
+//     oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[2].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[2]  ) ; // Zeniths
+//     oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[3].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[3]  ) ; // Azimuths
 
-    strAttListName[0] = "ADC_Bits"      ;	int ADC_Bits = 12 ;
-        oNCL.Putt_Bulk_Att_Int( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (int*)&ADC_Bits ) ;
+// 	oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[4].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[1], (int*)&var_ids[4]  ) ; // Background_Low
+// 	oNCL.DefineVariable( (int)nc_id, (char*)strNameVars[5].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[1], (int*)&var_ids[5]  ) ; // Background_High
 
-				if ( (retval = nc_enddef(nc_id)) )
-					ERR(retval);
+//     string strAttListName[10], strAttList[2] ;
+//     strAttListName[0] = "Site_Name"             ;   strAttList[0].assign(glbParam->site)     ;
+//     strAttListName[1] = "Log. File"             ;   strAttList[1].assign(glbParam->infoFile) ;
+//         oNCL.Putt_Bulk_Att_Text( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)strAttList ) ;
 
-   // PUTTING VARIABLES
-    size_t start[3], count[3];
-    start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
-    start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
-    start[2] = 0;   count[2] = dimsSize[2] ; // glbParam->nBins_in_File ;
-    for( int e=0 ; e <dimsSize[0] ; e++ ) // dimsSize[0] = glbParam->nEvents
-    {
-        start[0] =e ;
-        for ( int c=0 ; c <dimsSize[1] ; c++ ) // dimsSize[1] = glbParam->nCh 
-        {
-            start[1] =c ;
-            if ( (retval = nc_put_vara_double((int)nc_id, (int)var_ids[0], start, count, (double*)&Raw_Lidar_Data[e][c][0] ) ) )
-                ERR(retval);
-			// if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[8], start, count, (double*)&dataToSave->phMHz[e][c][0] ) ) )
-            //     ERR(retval);
-        }
-    }
+//     // DOUBLE GLOBAL ATTRIBUTES
+//     double dblAttList[5] ;
+//     strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL  ;
+//     strAttListName[1] = "Latitude_degrees_north" ;   dblAttList[1] = (double)glbParam->siteLat  ;
+//     strAttListName[2] = "Longitude_degrees_east" ;   dblAttList[2] = (double)glbParam->siteLong ;
+//     strAttListName[3] = "Range_Resolution"       ;   dblAttList[3] = (double)glbParam->dr       ;
+//         oNCL.Putt_Bulk_Att_Double( (int)nc_id, (int)NC_GLOBAL, (int)4, (string*)strAttListName, (double*)dblAttList ) ;
 
-	oNCL.PutVar( (int)nc_id, (int)var_ids[1], (const char*)"int"   , (int*)glbParam->event_gps_sec ) ; 
-    oNCL.PutVar( (int)nc_id, (int)var_ids[2], (const char*)"double", (double*)glbParam->aZenith    ) ;
-    oNCL.PutVar( (int)nc_id, (int)var_ids[3], (const char*)"double", (double*)glbParam->aAzimuth   ) ;
+//     strAttListName[0] = "ADC_Bits"      ;	int ADC_Bits = 12 ;
+//         oNCL.Putt_Bulk_Att_Int( (int)nc_id, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (int*)&ADC_Bits ) ;
 
-	if ( (retval = nc_close(nc_id)) )
-	    ERR(retval);
+// 				if ( (retval = nc_enddef(nc_id)) )
+// 					ERR(retval);
 
-	printf("\n\n*** SUCCESS writing NetCDF file %s!\n", lidarFileOUT_NetCDF ) ;
-}
+//    // PUTTING VARIABLES
+//     size_t start[3], count[3];
+//     start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
+//     start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
+//     start[2] = 0;   count[2] = dimsSize[2] ; // glbParam->nBins_in_File ;
+//     for( int e=0 ; e <dimsSize[0] ; e++ ) // dimsSize[0] = glbParam->nEvents
+//     {
+//         start[0] =e ;
+//         for ( int c=0 ; c <dimsSize[1] ; c++ ) // dimsSize[1] = glbParam->nCh 
+//         {
+//             start[1] =c ;
+//             if ( (retval = nc_put_vara_double((int)nc_id, (int)var_ids[0], start, count, (double*)&Raw_Lidar_Data[e][c][0] ) ) )
+//                 ERR(retval);
+// 			// if ( ( retval = nc_put_vara_double((int)nc_id, (int)var_ids[8], start, count, (double*)&dataToSave->phMHz[e][c][0] ) ) )
+//             //     ERR(retval);
+//         }
+//     }
+
+// 	oNCL.PutVar( (int)nc_id, (int)var_ids[1], (const char*)"int"   , (int*)glbParam->event_gps_sec ) ; 
+//     oNCL.PutVar( (int)nc_id, (int)var_ids[2], (const char*)"double", (double*)glbParam->aZenith    ) ;
+//     oNCL.PutVar( (int)nc_id, (int)var_ids[3], (const char*)"double", (double*)glbParam->aAzimuth   ) ;
+
+// 	double a = (double) glbParam->nBins_in_File -1-glbParam->nBinsBkg ;
+//     oNCL.PutVar( (int)nc_id, (int)var_ids[4], (const char*)"double", (double*)&a ) ;
+// 	a = (double)( a - glbParam->nBins_in_File -1 );
+//     oNCL.PutVar( (int)nc_id, (int)var_ids[5], (const char*)"double", (double*)&a ) ;
+
+// 	if ( (retval = nc_close(nc_id)) )
+// 	    ERR(retval);
+
+// 	printf("\n\n*** SUCCESS writing NetCDF file %s!\n", lidarFileOUT_NetCDF ) ;
+// }
 
 void saveCloudsInfoDB( strcGlobalParameters *glbParam, strcCloudInfoDB *cloudInfoDB, strcDataToSave *dataToSave, char *PathFile_OUT_FULL )
 {

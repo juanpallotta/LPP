@@ -156,12 +156,8 @@ void CNetCDF_Lidar::Set_LALINET_Units_L0( int ncid, int *var_ids )
        ERR(retval);
     if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[10], (const char*)"units", (size_t)strlen("degrees"), (const char*)"degrees") ) )
        ERR(retval);
-    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[11], (const char*)"units", (size_t)strlen("Celsius"), (const char*)"Celsius") ) )
-       ERR(retval);
-    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[12], (const char*)"units", (size_t)strlen("hPa"), (const char*)"hPa") ) )
-       ERR(retval);
 }
-
+// ! SEE FOR DETAILS: --> https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html
 void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time, string *Raw_Data_Start_Time_str, int *Raw_Data_Stop_Time, string *Raw_Data_Stop_Time_str )
 {
     int  ncid ;
@@ -295,7 +291,7 @@ void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParame
         ERR(retval);
 }
 
-void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time_sec, string *Raw_Data_Start_Time_str, int *Raw_Data_Stop_Time_sec, string *Raw_Data_Stop_Time_str )
+void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time_sec, int *Raw_Data_Stop_Time_sec )
 {
     int  ncid ;
     int  retval ;
@@ -345,10 +341,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalPa
     DefineVariable( (int)ncid, (char*)strNameVars[6].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[6]  ) ; // DAQ_type
     DefineVariable( (int)ncid, (char*)strNameVars[7].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[7]  ) ; // PMT_Voltage
     DefineVariable( (int)ncid, (char*)strNameVars[8].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[8]  ) ; // Accumulated_Pulses
-    DefineVariable( (int)ncid, (char*)strNameVars[9].c_str() , (const char*)"double", (int)1, (int*)&dim_ids[1], (int*)&var_ids[9]  ) ; // Zenith
+    DefineVariable( (int)ncid, (char*)strNameVars[9].c_str() , (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[9]  ) ; // Zenith
     DefineVariable( (int)ncid, (char*)strNameVars[10].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[10] ) ; // Azimuth
-    DefineVariable( (int)ncid, (char*)strNameVars[11].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[11] ) ; // Temperature
-    DefineVariable( (int)ncid, (char*)strNameVars[12].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[12] ) ; // Pressure
     DefineVariable( (int)ncid, (char*)strNameVars[13].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[13] ) ; // ADC_Bits
     DefineVariable( (int)ncid, (char*)strNameVars[14].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[14] ) ; // Laser_Source
     DefineVariable( (int)ncid, (char*)strNameVars[15].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[15] ) ; // Number_Of_Bins
@@ -356,8 +350,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalPa
     // TEXT GLOBAL ATTRIBUTES
     string strAttListName[10], strAttList[2] ;
     strAttListName[0] = "Site_Name"             ;   strcpy ( (char*)strAttList[0].c_str(), glbParam->site )  ;
-    strAttListName[1] = "Measurement_ID"        ;   strAttList[1].assign( Raw_Data_Start_Time_str[0], 0, 8)  ; strAttList[1].append("_Arg") ;
+    strAttListName[1] = "Measurement_ID"        ;   sprintf( (char*)strAttList[1].c_str(), "%s_%d", glbParam->site, Raw_Data_Start_Time_sec[0] ) ; // strAttList[1].assign( Raw_Data_Start_Time_str[0], 0, 8)  ; strAttList[1].append("_Arg") ;
         Putt_Bulk_Att_Text( (int)ncid, (int)NC_GLOBAL, (int)2, (string*)strAttListName, (string*)strAttList ) ;
+
     // DOUBLE GLOBAL ATTRIBUTES
     double dblAttList[5] ;
     strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL  ;
@@ -387,6 +382,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalPa
                 ERR(retval);
         }
     }
+
     PutVar( (int)ncid, (int)var_ids[1] , (const char*)"int"   , (int*)Raw_Data_Start_Time_sec       ) ; 
     PutVar( (int)ncid, (int)var_ids[2] , (const char*)"int"   , (int*)Raw_Data_Stop_Time_sec        ) ;
     PutVar( (int)ncid, (int)var_ids[3] , (const char*)"int"   , (int*)glbParam->iLambda             ) ;
@@ -397,14 +393,13 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalPa
     PutVar( (int)ncid, (int)var_ids[8] , (const char*)"int"   , (int*)glbParam->nShots              ) ;
     PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenithAVG       ) ;
     PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuthAVG      ) ;
-    PutVar( (int)ncid, (int)var_ids[11], (const char*)"double", (double*)glbParam->temp_CelsiusAVG  ) ;
-    PutVar( (int)ncid, (int)var_ids[12], (const char*)"double", (double*)glbParam->pres_hPaAVG      ) ;
     PutVar( (int)ncid, (int)var_ids[13], (const char*)"int"   , (int*)glbParam->iADCbits            ) ;
     PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)glbParam->Laser_Src           ) ;
     PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBinsRaw_Ch         ) ;
 
     // PutVar( (int)ncid, (int)var_ids[1] , (const char*)"int"   , (int*)id_timescale                     ) ;
     // PutVar( (int)ncid, (int)var_ids[2] , (const char*)"double", (double*)Background_Low                ) ;
+    // PutVar( (int)ncid, (int)var_ids[] , (const char*)"double", (double*)Background_High                ) ;
     // PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)Laser_Pointing_Angle_of_Profiles ) ;
 
     if ( (retval = nc_close(ncid)) )

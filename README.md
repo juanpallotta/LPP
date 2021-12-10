@@ -147,7 +147,6 @@ In case you want to average a set of lidar files, it can be done in this step, b
     Temperature_at_Lidar_Station = 25.0
     Pressure_at_Lidar_Station = 940.0
 
-
 Till this version, these are the variables that need to be stored in the SCC-NetCDF output file.
 
 

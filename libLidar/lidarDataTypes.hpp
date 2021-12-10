@@ -72,7 +72,7 @@ struct strcGlobalParameters
 	int 	nChMax 					;
 	int 	nCh 					;
     int     chSel               	;
-	int 	nBinsRaw_Ch[MAX_CH_LICEL]	;
+	int 	*nBinsRaw_Ch			; // int 	nBinsRaw_Ch[MAX_CH_LICEL]	;
 	int 	nBinsRaw				;
 	int 	nBins_in_File			;
 	int 	nBinsBkg 				;
@@ -88,13 +88,13 @@ struct strcGlobalParameters
 	double 	tBin_us					;
 	int 	nShots[MAX_CH_LICEL] 	;
 	int		lambda					;
-	int		iLambda[MAX_CH_LICEL]  	;
+	int		*iLambda			  	; //	int		iLambda[MAX_CH_LICEL]  	;
 	int 	nLambda					;
-	char	sPol[MAX_CH_LICEL]    	;
-	int 	iAnPhot[MAX_CH_LICEL]   ;
-	double 	iMax_mVLic[MAX_CH_LICEL];
-	int 	iADCbits[MAX_CH_LICEL] 	;
-	int 	PMT_Voltage[MAX_CH_LICEL];
+	char	*sPol			    	; // char	sPol[MAX_CH_LICEL]    	;
+	int 	*iAnPhot				; // int 	iAnPhot[MAX_CH_LICEL]   ;
+	double 	*iMax_mVLic				; // double 	iMax_mVLic[MAX_CH_LICEL];
+	int 	*iADCbits 				; // int 	iADCbits[MAX_CH_LICEL] 	;
+	int 	*PMT_Voltage   			;  // int 	PMT_Voltage[MAX_CH_LICEL];
 	int 	nAnCh 					;
 	int 	nPhotCh 				;
 	double 	ScaleFactor_Analog 		;
@@ -113,7 +113,7 @@ struct strcGlobalParameters
 	char	infoFile[100] 			;
 	char 	site[20] 				;
 	int		Laser_Frec[2] 			;
-	int		Laser_Src[MAX_CH_LICEL]	;
+	int		*Laser_Src				; // int		Laser_Src[MAX_CH_LICEL]	;
 	int		Accum_Pulses[2]			;
 	char	scanType[5]				;
 	double 	siteASL 				;
