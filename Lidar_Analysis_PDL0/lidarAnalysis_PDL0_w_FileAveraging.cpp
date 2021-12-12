@@ -37,7 +37,7 @@ int main( int argc, char *argv[] )
 {
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg"      , (const char*)"int"   , (int*)&glbParam.numEventsToAvg ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg"      , (const char*)"int"   , (int*)&glbParam.numEventsToAvg ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"inputDataFileFormat" , (const char*)"string", (char*)glbParam.inputDataFileFormat  ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"outputDataFileFormat", (const char*)"string", (char*)glbParam.outputDataFileFormat ) ;
 
@@ -105,8 +105,7 @@ int main( int argc, char *argv[] )
     }
     assert( glbParam.nEvents !=0 ); // SI SE CUMPLE, SIGUE DE LARGO.
 
-    // glbParam.nEventsAVG = (int)floor(glbParam.nEvents /glbParam.numEventsToAvg ) ;
-    glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY
+    glbParam.nEventsAVG = (int)floor(glbParam.nEvents /glbParam.numEventsToAvg ) ;
 
     if ( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
     {
@@ -122,25 +121,29 @@ int main( int argc, char *argv[] )
     else
         cout << "\n\t Input data file: wrong value. Please, check mergingParameters.dat" << endl ;
 
-    // if (glbParam.nEventsAVG <1)
-    // {
-    //     printf("\n Not enought files in time range to average %d files --> averaging all files in the time range set \n", glbParam.numEventsToAvg ) ;
-    //     glbParam.nEventsAVG = 1 ;
-    // }
-    // else
-    printf( "\n Total Events: %d \n", glbParam.nEvents ) ;
-        // printf("\n Total Events: %d \t Number of Clusters: %d, each one with %d files averaged\n", glbParam.numEventsToAvg, glbParam.nEventsAVG, glbParam.numEventsToAvg ) ;
+    if (glbParam.nEventsAVG <1)
+    {
+        printf("\n Not enought files in time range to average %d files --> averaging all files in the time range set \n", glbParam.numEventsToAvg ) ;
+        glbParam.nEventsAVG = 1 ;
+    }
+    else
+        printf("\n Total Events: %d \t Number of Clusters: %d, each one with %d files averaged\n", glbParam.numEventsToAvg, glbParam.nEventsAVG, glbParam.numEventsToAvg ) ;
         // printf("\n Number of Clusters: %d, each one with %d files averaged\n", glbParam.nEventsAVG, glbParam.nEvents ) ;
 
 // * LICEL FILE READOUT ////////////////////////////////////////////////////////////////////////////////////
     // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam ) ;
 
-    strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam.nEvents ] ;
+/**
+ * @brief 
+ * dataFile[e]: CONTAIN THE glbParam.numEventsToAvg LIDAR SIGNALS TO BE AVERAGED.
+ * All dataFile[glbParam.numEventsToAvg] events are averaged and saved in dataFileAVG[glbParam.nEventsAVG]
+ * Declaration and memory allocation.
+ */ strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam.numEventsToAvg ] ;
     GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)&glbParam ) ;
-    string  timeVec_str[glbParam.nEvents] ;
+    string  timeVecAvg_str[glbParam.nEventsAVG] ;
 
-    double  ***dataToSave = (double***) new double**[glbParam.nEvents];
-    for ( int e=0 ; e <glbParam.nEvents ; e++ )
+    double  ***dataToSave = (double***) new double**[glbParam.nEventsAVG];
+    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
     {
         dataToSave[e] = (double**) new double*[glbParam.nCh] ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
@@ -153,50 +156,100 @@ int main( int argc, char *argv[] )
 //! CLUSTERING START --> PUT INTO A FUNCTION
     struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;
     struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;
-    int     Raw_Data_Start_Time[glbParam.nEvents], Raw_Data_Stop_Time[glbParam.nEvents] ;
-    string  Raw_Data_Start_Time_str[glbParam.nEvents], Raw_Data_Stop_Time_str[glbParam.nEvents] ;
+    struct tm   *tmFile_avg   = (struct tm*) new struct tm [1] ;    tmFile_avg->tm_isdst   = 0 ;
+    time_t  avgTime_num ;
+    int     time_zero_start, Raw_Data_Start_Time[glbParam.nEventsAVG], Raw_Data_Stop_Time[glbParam.nEventsAVG] ; // , Raw_Data_AVG_Time[glbParam.nEventsAVG] ;
+    string  Raw_Data_Start_Time_str[glbParam.nEventsAVG], Raw_Data_Stop_Time_str[glbParam.nEventsAVG] ; // , Raw_Data_AVG_Time_str[glbParam.nEventsAVG] ;
+    int     Raw_Data_Start_Time_sec[glbParam.nEventsAVG], Raw_Data_Stop_Time_sec[glbParam.nEventsAVG] ;
     char	dumpChar = '\0' ;
 
 // MAIN LOOP ACROSS THE CLUSTER FILES ////////////////////////////////////////////////////////////////////////////
-    for ( int fC=0 ; fC <glbParam.nEvents ; fC++ )
+    for ( int fC=0 ; fC <glbParam.nEventsAVG ; fC++ )
     {
-        glbParam.event_analyzed = fC;
-        printf("\n File Nº %d: %s \n", fC, inputFilesInTime[fC] ) ;
-        // avgTime_num =0 ;
-            if( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
-                ReadLicelData ( (char*)inputFilesInTime[fC], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[fC] ) ;
-            sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year  ) ;
-            sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;
-            sscanf( glbParam.StopDate, "%2d%2d%4d", &tmFile_stop->tm_mday, &tmFile_stop->tm_mon, &tmFile_stop->tm_year      ) ;
-            sscanf( glbParam.StopTime, "%2d%2d%2d", &tmFile_stop->tm_hour, &tmFile_stop->tm_min, &tmFile_stop->tm_sec       ) ;
-                sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
+        // glbParam.event_analyzed = fC;
+        printf("\n Cluster files Nº %d \n", fC ) ;
 
+        avgTime_num =0 ;
+        for ( int f=0 ; f <glbParam.numEventsToAvg ; f++ ) // glbParam.numEventsToAvg = NUMBER OF FILES TO AVERAGE.
+        {
+            glbParam.event_analyzed = f;
+            if( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
+                ReadLicelData ( (char*)inputFilesInTime[fC*glbParam.numEventsToAvg +f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+
+            sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year ) ;
+            sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec  ) ;
+
+            sscanf( glbParam.StopDate, "%2d%2d%4d", &tmFile_stop->tm_mday, &tmFile_stop->tm_mon, &tmFile_stop->tm_year ) ;
+            sscanf( glbParam.StopTime, "%2d%2d%2d", &tmFile_stop->tm_hour, &tmFile_stop->tm_min, &tmFile_stop->tm_sec  ) ;
+
+            avgTime_num =  avgTime_num + (time_t)round( ( mktime( (tm*)tmFile_start ) + mktime( (tm*)tmFile_stop ) ) /2) ;
+            glbParam.aAzimuthAVG[fC]     = glbParam.aAzimuthAVG[fC]      + glbParam.aAzimuth[f]     ;
+            glbParam.aZenithAVG[fC]      = glbParam.aZenithAVG[fC]       + glbParam.aZenith[f]      ;
+            glbParam.temp_CelsiusAVG[fC] = glbParam.temp_CelsiusAVG[fC]  + glbParam.temp_Celsius[f] ;
+            glbParam.pres_hPaAVG[fC]     = glbParam.pres_hPaAVG[fC]      + glbParam.pres_hPa[f]     ;
+
+            printf( "\t %s \t (sec: %ld) \n", inputFilesInTime[fC*glbParam.numEventsToAvg +f], avgTime_num ) ;
+
+            if ( f ==0 )
+            {
+                // sprintf( strTimeMerged, "%04d%02d%02d%02d%02d%02d", tmFile->tm_year +1900, tmFile->tm_mon, tmFile->tm_mday, tmFile->tm_hour, tmFile->tm_min, tmFile->tm_sec ) ;
+                // cout << "main() --> glbParam.StartDate: " << glbParam.StartDate << endl ;
+                sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
                 Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Start_Time[fC] = (int)mktime( (tm*)tmFile_start ) ;
+
+                Raw_Data_Start_Time_sec[fC] = (int)mktime( (tm*)tmFile_start ) ;
+                if ( fC ==0 )
+                    time_zero_start = Raw_Data_Start_Time_sec[fC] ;
+                Raw_Data_Start_Time[fC] = (int)(Raw_Data_Start_Time_sec[fC] - time_zero_start ) ;
+            }
+            if( f == (glbParam.numEventsToAvg -1) )
+            {
+                // sprintf( strTimeMerged, "%04d%02d%02d%02d%02d%02d", tmFile->tm_year +1900, tmFile->tm_mon, tmFile->tm_mday, tmFile->tm_hour, tmFile->tm_min, tmFile->tm_sec ) ;
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
                 Raw_Data_Stop_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Stop_Time[fC] = (int)mktime( (tm*)tmFile_stop ) ;
-                tmFile_start->tm_year = 1900 + tmFile_start->tm_year ;
+
+                Raw_Data_Stop_Time_sec[fC] = (int)mktime( (tm*)tmFile_stop ) ;
+                Raw_Data_Stop_Time[fC] = Raw_Data_Stop_Time_sec[fC] - time_zero_start ;
+            }
+        }
+            glbParam.aAzimuthAVG[fC] = glbParam.aAzimuthAVG[fC] /glbParam.numEventsToAvg ;
+            glbParam.aZenithAVG[fC]  = glbParam.aZenithAVG[fC]  /glbParam.numEventsToAvg ;
+            glbParam.temp_CelsiusAVG[fC] = glbParam.temp_CelsiusAVG[fC]  /glbParam.numEventsToAvg ;
+            glbParam.pres_hPaAVG[fC]     = glbParam.pres_hPaAVG[fC]      /glbParam.numEventsToAvg ;
+                // FOLDER AND FILE NAME GENERATION.
+                avgTime_num   = (time_t) round( avgTime_num /glbParam.numEventsToAvg ) ;
+                // Raw_Data_AVG_Time[fC]   = (int)avgTime_num ;
+                *tmFile_avg = *localtime( &avgTime_num ) ;
+                tmFile_avg->tm_year = 1900 + tmFile_avg->tm_year ;
 
                 mkdir  ( Path_Out.c_str(), 0777 ) ;
-                sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_start->tm_year, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
+                sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_avg->tm_year, tmFile_avg->tm_mon, tmFile_avg->tm_mday, tmFile_avg->tm_hour, tmFile_avg->tm_min, tmFile_avg->tm_sec ) ;
                 sprintf( glbParam.fileName, "%s", Path_File_Out.c_str() ) ;
-                sprintf( strTimeMerged, "%04d%02d%02d%02d%02d%02d", tmFile_start->tm_year, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
-                timeVec_str[fC].assign(strTimeMerged) ;
+                sprintf( strTimeMerged, "%04d%02d%02d%02d%02d%02d", tmFile_avg->tm_year, tmFile_avg->tm_mon, tmFile_avg->tm_mday, tmFile_avg->tm_hour, tmFile_avg->tm_min, tmFile_avg->tm_sec ) ;
+                timeVecAvg_str[fC].assign(strTimeMerged) ;
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
+                // Raw_Data_AVG_Time_str[fC].assign(strTimeMerged) ;
 
+                // cout << endl << "Raw_Data_AVG_Time_str[fC]: " << Raw_Data_AVG_Time_str[fC] ;
+                // cout << endl << "Raw_Data_AVG_Time[fC]: " << Raw_Data_AVG_Time[fC] << endl ;
                 // cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
                 // cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
                 // cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
                 // cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
-                    for ( int c=0 ; c <glbParam.nCh ; c++ )
-                    {
-                        for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
-                        {
-                                dataToSave[fC][c][b] = (double) dataFile[fC].db_ADC[c][b] ;
-                        }
-                    }
+                
+        // AVERAGE OF THE ALL PROFILES IN dataFile[1:glbParam.numEventsToAvg] IN dataFile[.]
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+        {
+            for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
+            {
+                for ( int f=0 ; f <glbParam.numEventsToAvg ; f++ )
+                    dataToSave[fC][c][b]    = (double) dataToSave[fC][c][b] + dataFile[f].db_ADC[c][b] ;
+                dataToSave[fC][c][b]        = (double) round(dataToSave[fC][c][b] /glbParam.numEventsToAvg) ;
+            }
+        }
+        // for ( int f=0 ; f <glbParam.numEventsToAvg ; f++ )
     } // for ( int fC=0 ; fC <glbParam.nEventsAVG ; fC++ )
+//! CLUSTERING END 
 
 // NETCDF FILE STUFF
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
@@ -211,7 +264,7 @@ int main( int argc, char *argv[] )
     {
         cout << endl << "\tOutput datafile: LALINET_NETCDF" << endl ;
         oNCL.Save_LALINET_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
-                                       (int*)Raw_Data_Start_Time, (int*)Raw_Data_Stop_Time ) ;
+                                       (int*)Raw_Data_Start_Time_sec, (int*)Raw_Data_Stop_Time_sec ) ;
     }
 
     // if ( (retval = nc_close(ncid)) )

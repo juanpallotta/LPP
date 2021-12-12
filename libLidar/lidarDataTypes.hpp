@@ -107,6 +107,7 @@ struct strcGlobalParameters
 	double 	*aAzimuthAVG			;
 	int 	nEvents 				;
 	int 	nEventsAVG 				;
+	int		numEventsToAvg			;
 	int 	rOffset			 		;
 	int 	indxOffset[MAX_CH_LICEL];
 	char	fileName[100] 			;

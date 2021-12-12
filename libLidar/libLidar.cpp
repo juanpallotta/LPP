@@ -216,12 +216,10 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 	glbParam->aZenith      = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aZenith     , 0, (sizeof(double)*glbParam->nEvents) ) ;
 	glbParam->temp_Celsius = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->temp_Celsius, 0, (sizeof(double)*glbParam->nEvents) ) ;
 	glbParam->pres_hPa     = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->pres_hPa    , 0, (sizeof(double)*glbParam->nEvents) ) ;
-
 	glbParam->aAzimuthAVG  	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aAzimuthAVG	   , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;	
 	glbParam->aZenithAVG   	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aZenithAVG     , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->temp_CelsiusAVG = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_CelsiusAVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->pres_hPaAVG     = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_hPaAVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-
 	glbParam->indxEndSigEvnt  = (int*) new int[glbParam->nEventsAVG] ;
 
 	strcLicelDataFile lidarHeaderData ;
@@ -260,6 +258,15 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 	// printf("\n glbParam->Accum_Pulses[0]: %d	glbParam->Laser_Frec[0]: %d		glbParam->Accum_Pulses[1]: %d	glbParam->Laser_Frec[1]: %d		glbParam->nCh: %d \n",
 	// 		glbParam->Accum_Pulses[0], glbParam->Laser_Frec[0], glbParam->Accum_Pulses[1], glbParam->Laser_Frec[1], glbParam->nCh ) ;
 
+	glbParam->iAnPhot     = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->Laser_Src   = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->nBinsRaw_Ch = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->PMT_Voltage = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->iLambda     = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->iADCbits    = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->sPol        = (char*)   new char[ glbParam->nCh ] ;
+	glbParam->iMax_mVLic  = (double*) new double [ glbParam->nCh ] ;
+
 // DATASETS
 	for ( int i=0 ; i<glbParam->nCh ; i++ )
 	{
@@ -274,14 +281,13 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 			glbParam->nAnCh++   ; // CONTADOR DE CANALES ANALOGICOS
 			glbParam->iMax_mVLic[i] = glbParam->iMax_mVLic[i] *1000 ;
 		}
-		else if ( glbParam->iAnPhot[i] ==1 ) 	glbParam->nPhotCh++ ; 							 // CONTADOR DE CANALES DE FOTOCONTEO
+		else if ( glbParam->iAnPhot[i] ==1 ) 	glbParam->nPhotCh++ ; // CONTADOR DE CANALES DE FOTOCONTEO
 	}
 	if ( fclose(fid) != 0 )
 		printf("\n Failed to close the lidar file.\n\n") ;
 
 	glbParam->nLambda   = glbParam->nCh;
 	glbParam->nBinsRaw = *min_element( glbParam->nBinsRaw_Ch, glbParam->nBinsRaw_Ch +glbParam->nCh ) ;
-
 	strcpy( glbParam->fileName, lidarHeaderData.Name ) ;
 
 	// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig", (const char*)"double" , (double*)&glbParam->rInitSig ) ;
