@@ -46,7 +46,6 @@ int main( int argc, char *argv[] )
     sprintf( cmdCopy, "cp %s %s", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
     system(cmdCopy) ;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NETCDF FILE STUFF
     int  ncid   ;
     int  retval ;
@@ -108,10 +107,15 @@ int main( int argc, char *argv[] )
         {
             startDF[1] =c ;
             if ( (retval = nc_get_vara_double((int)ncid, (int)id_var, startDF, countDF, (double*)&dataFile[e][c][0] ) ) )
-                ERR(retval);
+                ERR(retval);    
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    int Raw_Data_Start_Time[glbParam.nEvents], Raw_Data_Stop_Time[glbParam.nEvents] ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (const char*)"int", (int*)Raw_Data_Start_Time ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (const char*)"int", (int*)Raw_Data_Stop_Time  ) ;
+    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam ) ;
+
 // READ GLOBAL PARAMETERS FROM NETCDF FILE
 
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )

@@ -122,15 +122,7 @@ int main( int argc, char *argv[] )
     else
         cout << "\n\t Input data file: wrong value. Please, check mergingParameters.dat" << endl ;
 
-    // if (glbParam.nEventsAVG <1)
-    // {
-    //     printf("\n Not enought files in time range to average %d files --> averaging all files in the time range set \n", glbParam.numEventsToAvg ) ;
-    //     glbParam.nEventsAVG = 1 ;
-    // }
-    // else
     printf( "\n Total Events: %d \n", glbParam.nEvents ) ;
-        // printf("\n Total Events: %d \t Number of Clusters: %d, each one with %d files averaged\n", glbParam.numEventsToAvg, glbParam.nEventsAVG, glbParam.numEventsToAvg ) ;
-        // printf("\n Number of Clusters: %d, each one with %d files averaged\n", glbParam.nEventsAVG, glbParam.nEvents ) ;
 
 // * LICEL FILE READOUT ////////////////////////////////////////////////////////////////////////////////////
     // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam ) ;
@@ -150,7 +142,7 @@ int main( int argc, char *argv[] )
                 dataToSave[e][c][b] = (double)0;
         }
     }
-//! CLUSTERING START --> PUT INTO A FUNCTION
+
     struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;
     struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;
     int     Raw_Data_Start_Time[glbParam.nEvents], Raw_Data_Stop_Time[glbParam.nEvents] ;
@@ -185,10 +177,10 @@ int main( int argc, char *argv[] )
                 timeVec_str[fC].assign(strTimeMerged) ;
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
 
-                // cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
-                // cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
-                // cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
-                // cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
+                cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
+                cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
+                cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
+                cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
                     for ( int c=0 ; c <glbParam.nCh ; c++ )
                     {
                         for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
