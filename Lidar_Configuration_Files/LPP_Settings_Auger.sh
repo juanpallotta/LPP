@@ -9,8 +9,8 @@ export L1="no"
 export L2="no"
 
 # INPUT AND OUTPUT ABSOLUTE PATHS!!!!
-# PATH_IN="/mnt/Disk-1_8TB/Auger/LidarData/CO/2007/01/09/"
-PATH_IN='/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/LPP/signalsTest/Auger/LidarData/CO/2007/01/09/'
+PATH_IN="/mnt/Disk-1_8TB/Auger/LidarData/CO/2007/01/09/"
+# PATH_IN='/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/LPP/signalsTest/Auger/LidarData/CO/2007/01/09/'
 
 # CONFIGURATION FILES --> ¡¡RELATIVE TO THE FOLDER WICH IS RUNNING THE ANALYSIS!!
 # FILE_CONF_L0="../Lidar_Configuration_Files/analysisParameters_LL.conf"

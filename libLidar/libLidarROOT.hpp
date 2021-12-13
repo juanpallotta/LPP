@@ -278,7 +278,7 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
 	sscanf(pch+7, "%2s-%4d%2d%2d-%2d%2d%2d-R%5d.root",
 		   glbParam->site, &glbParam->year, &glbParam->month, &glbParam->day, &glbParam->hour, &glbParam->min, &glbParam->sec, &glbParam->run ) ;
 		if ( strncmp( glbParam->site, "ll", 2 ) == 0 )
-		{		
+		{
 			ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LL_ASL" , "double", (double*)&glbParam->siteASL  ) ; // glbParam->siteASL = 1416.4 ;
 		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LL_LAT" , "double", (double*)&glbParam->siteLat  ) ;
 		 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "LL_LON" , "double", (double*)&glbParam->siteLong ) ;
@@ -303,21 +303,19 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
 		}
 // printf("\n\nsite: %s \n", glbParam->site) ;
 // printf("Site ASL: %lf \n", glbParam->siteASL) ;
-   char    used_channel[20] ;
+//    char    used_channel[20] ;
 // READ THE CHANNEL (TELESCOPE) NUMBER TO READ IN ch
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "used_channel", "string", (char*)used_channel ) ; // used_channel = long_range_2 - long_range_1 - nothing
-	glbParam->chSel     = (int)ReadChannelSelected( glbParam ) ;
-	// printf( "\n Channel used: %d \n", glbParam->chSel ) ;
-	assert( glbParam->chSel != -1 ) ;  // SI SE CUMPLE, SIGUE.
+	if ( strcmp( getenv("L1"), "yes" ) ==0 )
+	{
+		glbParam->chSel     = (int)ReadChannelSelected( glbParam ) ;
+		// printf( "\n Channel used: %d \n", glbParam->chSel ) ;
+		assert( glbParam->chSel != -1 ) ;  // SI SE CUMPLE, SIGUE.
+	}
 
 	if( !( rootFile = new TFile(strLidarFile) ) )
-    {
         cout << "TFile open error on " << strLidarFile << endl;
-    }
 	else if ( !( tree = (TTree*)rootFile->Get("LidarData") ) )
-	{
         cout << "No 'LidarData' TTree in TFile" << endl;
-    }
 	else
 	{
 		lrunh	=	(TLRunHeader*)rootFile->Get("TLRunHeader"); // TLRunHeader *lrunh	=	(TLRunHeader*)rootFile.Get("TLRunHeader") ; // 
@@ -404,29 +402,33 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
 			}
 		};
 	glbParam->nLambda =1 ;
-	// double 	rOffset ; 
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "indxOffset" , "int" , (int*)&glbParam->indxOffset[0] ) ;
-	// double 	rOffset ; ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rOffset" , "double" , (double*)&rOffset ) ;
-	// glbParam->binOffset	= (int)round(rOffset/(glbParam->dr) ) ;
-	glbParam->nBins 	= glbParam->nBinsRaw - glbParam->indxOffset[0] ;
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBinsBkg", "int"   , &glbParam->nBinsBkg ) ;
 
-  	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rInitSig", "double", (double*)&glbParam->rInitSig ) ;
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rEndSig" , "double", (double*)&glbParam->rEndSig  ) ;
-	glbParam->indxInitSig = (int) round( glbParam->rInitSig / (glbParam->dr) ) -1 ;
-	glbParam->indxEndSig  = (int) round( glbParam->rEndSig  / (glbParam->dr) ) -1 ;
-	glbParam->indxEndSigEvnt = (int*) new int[glbParam->nEvents] ;
-	for (int i =0; i <glbParam->nEvents; i++)
-		glbParam->indxEndSigEvnt[i] = glbParam->indxEndSig ;
+	if ( ( strcmp( getenv("L1"), "yes" ) ==0 ) || ( strcmp( getenv("L2"), "yes" ) ==0 ) )
+	{
+		// double 	rOffset ; 
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "indxOffset" , "int" , (int*)&glbParam->indxOffset[0] ) ;
+		// double 	rOffset ; ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rOffset" , "double" , (double*)&rOffset ) ;
+		// glbParam->binOffset	= (int)round(rOffset/(glbParam->dr) ) ;
+		glbParam->nBins 	= glbParam->nBins_in_File - glbParam->indxOffset[0] ; // glbParam->nBins 	= glbParam->nBinsRaw - glbParam->indxOffset[0] ;
 
-    glbParam->indxInitInversion = glbParam->indxInitSig ;
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBinsBkg", "int"   , &glbParam->nBinsBkg ) ;
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rInitSig", "double", (double*)&glbParam->rInitSig ) ;
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rEndSig" , "double", (double*)&glbParam->rEndSig  ) ;
+		glbParam->indxInitSig = (int) round( glbParam->rInitSig / (glbParam->dr) ) -1 ;
+		glbParam->indxEndSig  = (int) round( glbParam->rEndSig  / (glbParam->dr) ) -1 ;
+		glbParam->indxEndSigEvnt = (int*) new int[glbParam->nEvents] ;
+		for (int i =0; i <glbParam->nEvents; i++)
+			glbParam->indxEndSigEvnt[i] = glbParam->indxEndSig ;
 
-//printf("\n glbParam->chSel: %d \n", glbParam->chSel) ;
-	glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ;
-// printf("\n glbParam->tBin_us: %f \n", glbParam->tBin_us ) ;
-    // PRODUCT DATA LEVEL
-    ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "PDL", "string", (char*)glbParam->PDL ) ; 
-    ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "OUTPUT_FILE", "string", (char*)glbParam->OUTPUT_FILE ) ; 
+		glbParam->indxInitInversion = glbParam->indxInitSig ;
+
+	//printf("\n glbParam->chSel: %d \n", glbParam->chSel) ;
+		glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ;
+	// printf("\n glbParam->tBin_us: %f \n", glbParam->tBin_us ) ;
+		// PRODUCT DATA LEVEL
+		// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "PDL", "string", (char*)glbParam->PDL ) ; 
+		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "OUTPUT_FILE", "string", (char*)glbParam->OUTPUT_FILE ) ; 
+	}
 
 	delete tree ;
 	rootFile->Close() ;
