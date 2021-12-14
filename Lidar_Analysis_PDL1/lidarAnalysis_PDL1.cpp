@@ -116,7 +116,7 @@ int main( int argc, char *argv[] )
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)&Raw_Data_Stop_Time[0]  ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
     // glbParam.nEventsAVG = (int)round( glbParam.nEvents /glbParam.numEventsToAvg ) ;
-    // cout<<"\n\t glbParam.nEventsAVG: "<< glbParam.nEventsAVG << endl << endl ;
+    cout<<"\n\t glbParam.nEventsAVG: "<< glbParam.nEventsAVG << endl << endl ;
     cout<<"\n\t glbParam.numEventsToAvg: "<< glbParam.numEventsToAvg << endl << endl ;
     // double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;
     // int Raw_Data_Start_Time_AVG[glbParam.nEventsAVG], Raw_Data_Stop_Time_AVG[glbParam.nEventsAVG] ;
