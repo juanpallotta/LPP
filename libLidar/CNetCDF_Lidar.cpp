@@ -82,7 +82,7 @@ void CNetCDF_Lidar::CloseFile( int nc_file_id )
         ERR(retval);
 }
 
-void CNetCDF_Lidar::ReadVar( int ncid, const char *strNameVars, const char *varDataType, void *dataRead )
+void CNetCDF_Lidar::ReadVar( int ncid, const char *strNameVars, void *dataRead )
 {
     int     var_id ;
     nc_type var_type ;
