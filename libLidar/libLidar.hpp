@@ -85,6 +85,7 @@ void 	bkgSubstractionMolFit_unCorr( strcMolecularData*, double*, strcFitParam*, 
 double  bkgSubstractionMean			( double*, int, int, int, double*) ;
 // void	bkgSubstractionLinearFit 	( double*, double*, int, strcFitParam*, double*) ;
 // void 	RayleighFit_GSL				( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
+void    Average_In_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
 
 void	RayleighFit_Factor			( double*, double*, strcFitParam*, double* ) ;
 // void 	RayleighFit_unCorr			( double*, double*, int, const char*, strcFitParam*, double* ) ;

@@ -84,7 +84,7 @@ int main( int argc, char *argv[] )
     glbParam.nCh     = size_dim[1] ;
     glbParam.nBins   = size_dim[2] ;
 
-    double  ***dataFile = (double***) new double**[glbParam.nEvents];
+    double  ***dataFile     = (double***) new double**[glbParam.nEvents];
     for ( int e=0 ; e <glbParam.nEvents ; e++ )
     {
         dataFile[e] = (double**) new double*[glbParam.nCh] ;
@@ -97,10 +97,10 @@ int main( int argc, char *argv[] )
     }
 
     size_t startDF[3], countDF[3];
-    startDF[0] = 0;   countDF[0] = 1 ; // glbParam.nEventsAVG; 
+    startDF[0] = 0;   countDF[0] = 1 ; // glbParam.nEvents ; 
     startDF[1] = 0;   countDF[1] = 1 ; // glbParam.nCh; 
     startDF[2] = 0;   countDF[2] = glbParam.nBins;
-    for( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+    for( int e=0 ; e <glbParam.nEvents ; e++ )
     {
         startDF[0] =e ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
@@ -112,9 +112,20 @@ int main( int argc, char *argv[] )
     }
 
     int Raw_Data_Start_Time[glbParam.nEvents], Raw_Data_Stop_Time[glbParam.nEvents] ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (const char*)"int", (int*)Raw_Data_Start_Time ) ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (const char*)"int", (int*)Raw_Data_Stop_Time  ) ;
-    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)&Raw_Data_Start_Time[0] ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)&Raw_Data_Stop_Time[0]  ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
+    // glbParam.nEventsAVG = (int)round( glbParam.nEvents /glbParam.numEventsToAvg ) ;
+    // cout<<"\n\t glbParam.nEventsAVG: "<< glbParam.nEventsAVG << endl << endl ;
+    cout<<"\n\t glbParam.numEventsToAvg: "<< glbParam.numEventsToAvg << endl << endl ;
+    // double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;
+    // int Raw_Data_Start_Time_AVG[glbParam.nEventsAVG], Raw_Data_Stop_Time_AVG[glbParam.nEventsAVG] ;
+    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
+    //                                 (int*)&Raw_Data_Start_Time[0]    , (int*)&Raw_Data_Stop_Time[0], 
+    //                                 (int*)&Raw_Data_Start_Time_AVG[0], (int*)&Raw_Data_Stop_Time_AVG[0]
+    //                               ) ;
+
+    // glbParam.nEventsAVG = glbParam.nEvents ;
 
 // READ GLOBAL PARAMETERS FROM NETCDF FILE
 
@@ -133,10 +144,10 @@ int main( int argc, char *argv[] )
 
     assert( indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
-        oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (const char*)"int", (double*)glbParam.iLambda ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (double*)glbParam.iLambda ) ;
 
-    if ( (retval = nc_close(ncid)) )
-        ERR(retval);
+                        if ( (retval = nc_close(ncid)) )
+                            ERR(retval);
 
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)&glbParam.nBinsBkg      ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)&glbParam.indxOffset    ) ;
@@ -148,6 +159,7 @@ int main( int argc, char *argv[] )
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
+//! THE PATH SHOULD BE READ FROM glbParam.FILE_PARAMETERS
     char radFile[100] ;
     sprintf( radFile, "./US-StdA_DB_CEILAP.csv") ;
     CMolecularData_USStd *oMolData = (CMolecularData_USStd*) new CMolecularData_USStd( (char*)radFile, (strcGlobalParameters*)&glbParam ) ;

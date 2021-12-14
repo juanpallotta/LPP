@@ -1766,6 +1766,14 @@ double bkgSubstractionMean( double *sig, int binInitMean, int binEndMean, int nB
 
 	return bkgMean ;
 }
+void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***dataFile, double ***dataFile_AVG, 
+                                    int *Raw_Data_Start_Time    , int *Raw_Data_Stop_Time, 
+                                    int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG	)
+{
+
+
+}
+
 
 // void bkgSubstractionLinearFit ( double *r, double *prEl, int nBins, strcFitParam *fitParam, double *pr)
 // {
