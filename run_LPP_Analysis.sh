@@ -38,6 +38,11 @@ do
 
         if [[ "$L0" == "yes" ]]
         then
+            if test -f "$PATH_FILE_OUT_L0"
+            then 
+                echo "Deleting previous version of data Level 0 --> ${PATH_FILE_OUT_L0}" 
+                rm $PATH_FILE_OUT_L0 
+            fi
             cd ./Lidar_Analysis_PDL0/
             echo "Runining lidarAnalysis_PDL0"
                 ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF_L0

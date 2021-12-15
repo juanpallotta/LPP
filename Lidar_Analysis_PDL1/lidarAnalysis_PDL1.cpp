@@ -111,21 +111,23 @@ int main( int argc, char *argv[] )
         }
     }
 
-    int Raw_Data_Start_Time[glbParam.nEvents], Raw_Data_Stop_Time[glbParam.nEvents] ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)&Raw_Data_Start_Time[0] ) ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)&Raw_Data_Stop_Time[0]  ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
-    // glbParam.nEventsAVG = (int)round( glbParam.nEvents /glbParam.numEventsToAvg ) ;
-    cout<<"\n\t glbParam.nEventsAVG: "<< glbParam.nEventsAVG << endl << endl ;
-    cout<<"\n\t glbParam.numEventsToAvg: "<< glbParam.numEventsToAvg << endl << endl ;
-    // double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;
-    // int Raw_Data_Start_Time_AVG[glbParam.nEventsAVG], Raw_Data_Stop_Time_AVG[glbParam.nEventsAVG] ;
-    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
-    //                                 (int*)&Raw_Data_Start_Time[0]    , (int*)&Raw_Data_Stop_Time[0], 
-    //                                 (int*)&Raw_Data_Start_Time_AVG[0], (int*)&Raw_Data_Stop_Time_AVG[0]
-    //                               ) ;
+    int *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
+    int *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)Raw_Data_Start_Time ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)Raw_Data_Stop_Time  ) ;
 
-    // glbParam.nEventsAVG = glbParam.nEvents ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
+    glbParam.nEventsAVG = (int)round( glbParam.nEvents /glbParam.numEventsToAvg ) ;
+
+    double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;
+    int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;
+    int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;
+    Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
+                                    (int*)&Raw_Data_Start_Time[0]    , (int*)&Raw_Data_Stop_Time[0], 
+                                    (int*)&Raw_Data_Start_Time_AVG[0], (int*)&Raw_Data_Stop_Time_AVG[0]
+                                  ) ;
+
+    glbParam.nEventsAVG = glbParam.nEvents ;
 
 // READ GLOBAL PARAMETERS FROM NETCDF FILE
 
@@ -144,7 +146,8 @@ int main( int argc, char *argv[] )
 
     assert( indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
-    oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (double*)glbParam.iLambda ) ;
+    glbParam.iLambda = (int*) new int [glbParam.nCh] ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (int*)glbParam.iLambda ) ;
 
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval);
@@ -155,9 +158,6 @@ int main( int argc, char *argv[] )
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"rEndSig"    , (const char*)"double", (double*)&glbParam.rEndSig    ) ;
     glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
-    
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
 //! THE PATH SHOULD BE READ FROM glbParam.FILE_PARAMETERS
     char radFile[100] ;
@@ -199,18 +199,19 @@ int main( int argc, char *argv[] )
         beta_mol[c]  = (double*) new double[glbParam.nBins] ;
     }
 
-    CDataLevel_1 oDL1 = CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
-    for ( int t=0 ; t <glbParam.nEvents ; t++ )
-    {
-        cout << endl << endl ;
-        glbParam.event_analyzed = t ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
-            cout << endl << "Event: " << t << "\t Wavelengh: " << glbParam.iLambda[c] ;
-            for ( int i=0 ; i <(glbParam.nBins -glbParam.indxOffset[c]) ; i++ )
-                evSig.pr[i] = (double) dataFile[t][c][i+glbParam.indxOffset[c]-1] ; // BIN OFFSET CORRECTION
-            for ( int i=(glbParam.nBins -glbParam.indxOffset[c]) ; i <glbParam.nBins ; i++ )
-                evSig.pr[i] = (double) dataFile[t][c][ glbParam.nBins- glbParam.indxOffset[c]-1 ] ;
+    // CDataLevel_1 oDL1 = CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
+    // for ( int t=0 ; t <glbParam.nEvents ; t++ )
+    // {
+        // cout << endl << endl ;
+        // glbParam.event_analyzed = t ;
+        // for ( int c=0 ; c <glbParam.nCh ; c++ )
+        // {
+            // cout << endl << "Event: " << t << "\t Wavelengh: " << glbParam.iLambda[c] ;
+            // for ( int i=0 ; i <(glbParam.nBins -glbParam.indxOffset[c]) ; i++ )
+            //     evSig.pr[i] = (double) dataFile[t][c][i+glbParam.indxOffset[c]-1] ; // BIN OFFSET CORRECTION
+            // for ( int i=(glbParam.nBins -glbParam.indxOffset[c]) ; i <glbParam.nBins ; i++ )
+            //     evSig.pr[i] = (double) dataFile[t][c][ glbParam.nBins- glbParam.indxOffset[c]-1 ] ;
+            /*
             // if ( glbParam.rEndSig >0 )
             //     glbParam.indxEndSig  = (int)round( glbParam.rEndSig /glbParam.dr ) ;
             // else
@@ -224,33 +225,37 @@ int main( int argc, char *argv[] )
                 // glbParam.rEndSig = glbParam.indxEndSig *glbParam.dr ;
                 // cout << endl << "glbParam.indxEndSig: " << glbParam.indxEndSig << "\t glbParam.nBins: " << glbParam.nBins << "\t glbParam.rEndSig: " << glbParam.rEndSig ;
             // }
-            
-            oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
-            oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
-            for( int i=0 ; i <glbParam.nBins ; i++ )
-            {
-                pr2[t][c][i]    = (double)evSig.pr2[i] ;
-                alpha_mol[c][i] = (double)oMolData->dataMol[c].alphaMol[i] ;
-                beta_mol[c][i]  = (double)oMolData->dataMol[c].betaMol[i]  ;
-            }
+            */
+        //     oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
+        //     oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
+        //     for( int i=0 ; i <glbParam.nBins ; i++ )
+        //     {
+        //         pr2[t][c][i]    = (double)evSig.pr2[i] ;
+        //         alpha_mol[c][i] = (double)oMolData->dataMol[c].alphaMol[i] ;
+        //         beta_mol[c][i]  = (double)oMolData->dataMol[c].betaMol[i]  ;
+        //     }
 
-            if ( c == indxWL_PDL1 )
-            {
-                cout << "\t --> Getting the cloud profile..." ;
-                oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
-                cout << " done." ;
+        //     if ( c == indxWL_PDL1 )
+        //     {
+        //         cout << "\t --> Getting the cloud profile..." ;
+        //         oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
+        //         cout << " done." ;
 
-                for( int b=0 ; b <glbParam.nBins ; b++ )
-                    clouds_ON_mtx[t][b] = (int) oDL1.cloudProfiles[t].clouds_ON[b] ;
-            }
-        } // for ( int c=0 ; c <glbParam.nCh ; c++ )
-    } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
+        //         for( int b=0 ; b <glbParam.nBins ; b++ )
+        //             clouds_ON_mtx[t][b] = (int) oDL1.cloudProfiles[t].clouds_ON[b] ;
+        //     }
+        // } // for ( int c=0 ; c <glbParam.nCh ; c++ )
+    // } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
 
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
                                  (double***)pr_corr, (double***)pr2, (CMolecularData_USStd*)oMolData ) ;
+
     for ( int e=0; e <glbParam.nEventsAVG ; e++  )
         delete [] clouds_ON_mtx[e] ;
     delete [] clouds_ON_mtx ;
+
+    delete Raw_Data_Start_Time ;
+    delete Raw_Data_Stop_Time  ;
 
     cout << endl << endl << "\tLidar Analisys PDL1 Done" << endl << endl ;
 	return 0 ;

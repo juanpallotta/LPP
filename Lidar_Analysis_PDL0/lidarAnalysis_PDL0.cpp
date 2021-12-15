@@ -145,7 +145,8 @@ int main( int argc, char *argv[] )
 
     struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;
     struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;
-    int     Raw_Data_Start_Time[glbParam.nEvents], Raw_Data_Stop_Time[glbParam.nEvents] ;
+    int     *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
+    int     *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
     string  Raw_Data_Start_Time_str[glbParam.nEvents], Raw_Data_Stop_Time_str[glbParam.nEvents] ;
     char	dumpChar = '\0' ;
 
@@ -159,8 +160,8 @@ int main( int argc, char *argv[] )
                 ReadLicelData ( (char*)inputFilesInTime[fC], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[fC] ) ;
             sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year  ) ;
             sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;
-            sscanf( glbParam.StopDate, "%2d%2d%4d", &tmFile_stop->tm_mday, &tmFile_stop->tm_mon, &tmFile_stop->tm_year      ) ;
-            sscanf( glbParam.StopTime, "%2d%2d%2d", &tmFile_stop->tm_hour, &tmFile_stop->tm_min, &tmFile_stop->tm_sec       ) ;
+            sscanf( glbParam.StopDate, "%2d%2d%4d" , &tmFile_stop->tm_mday , &tmFile_stop->tm_mon , &tmFile_stop->tm_year   ) ;
+            sscanf( glbParam.StopTime, "%2d%2d%2d" , &tmFile_stop->tm_hour , &tmFile_stop->tm_min , &tmFile_stop->tm_sec    ) ;
                 sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
 
                 Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;

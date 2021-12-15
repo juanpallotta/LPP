@@ -4,20 +4,16 @@ clear
 
 sleep 1
 
-echo "Building LidarAnalysis PDL1..."
+echo "Building lidarAnalysisPDL1..."
 
-LIDAR_MAIN_FILE='lidarAnalysis_PDL1.cpp' 
-LIDAR_LIBS_FILES='../libLidar/CDataLevel_1.cpp ../libLidar/CNetCDF_Lidar.cpp ../libLidar/CMolecularData_USStd.cpp ../libLidar/libLidar.cpp ../libLidar/lidarMathFunc.cpp'
-NETCDF_LIB='-L/usr/local/lib -lnetcdf -I/usr/local/include'
-LIDAR_OUT=lidarAnalysis_PDL1
+make -f makefile_lidarAnalysis_PDL1_Debug
 
-g++ -g ${LIDAR_MAIN_FILE} ${LIDAR_LIBS_FILES} ${NETCDF_LIB} -Wall -O -o ${LIDAR_OUT}
 gdb lidarAnalysis_PDL1
 # set disable-randomization off
-# b lidarAnalysis_PDL1.cpp:82
-# r ../signalsTest/Brazil/SPU/20210730/OUT/20210730_L0.nc ../signalsTest/Brazil/SPU/20210730/OUT/20210730_L0_L1.nc analysisParameters_Brazil.conf 
-# r /mnt/Disk-1_8TB/Brazil/SPU/20210730/OUT/20210730_L0.nc /mnt/Disk-1_8TB/Brazil/SPU/20210730/OUT/20210730_L0_L1.nc analysisParameters_Brazil.conf 
+# b lidarAnalysis_PDL0.cpp:427
+# r "/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc" "/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc" "../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
 # bt
+
 
 exit 0
 

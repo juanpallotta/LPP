@@ -1,0 +1,29 @@
+
+OBJS = lidarAnalysis_PDL1.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o CMolecularData_USStd.o CDataLevel_1.o
+NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include -L/usr/lib/x86_64-linux-gnu -lnetcdf_c++4 
+
+lidarAnalysis_PDL1: $(OBJS)
+	g++ -g -Wall -o lidarAnalysis_PDL1 $(OBJS) $(NETCDF_LIB)
+
+
+lidarAnalysis_PDL1.o: lidarAnalysis_PDL1.cpp
+	g++ -Wall -c lidarAnalysis_PDL1.cpp
+
+libLidar.o: ../libLidar/libLidar.cpp
+	g++ -Wall -c ../libLidar/libLidar.hpp ../libLidar/libLidar.cpp
+
+lidarMathFunc.o: ../libLidar/lidarMathFunc.cpp
+	g++ -Wall -c ../libLidar/lidarMathFunc.hpp ../libLidar/lidarMathFunc.cpp
+
+CNetCDF_Lidar.o: ../libLidar/CNetCDF_Lidar.cpp
+	g++ -Wall -c ../libLidar/CNetCDF_Lidar.hpp ../libLidar/CNetCDF_Lidar.cpp
+
+CMolecularData_USStd.o: ../libLidar/CMolecularData_USStd.cpp
+	g++ -Wall -c ../libLidar/CMolecularData_USStd.hpp ../libLidar/CMolecularData_USStd.cpp
+
+CDataLevel_1.o: ../libLidar/CDataLevel_1.cpp
+	g++ -Wall -c ../libLidar/CDataLevel_1.hpp ../libLidar/CDataLevel_1.cpp
+
+
+clean:
+	rm -f core *.o

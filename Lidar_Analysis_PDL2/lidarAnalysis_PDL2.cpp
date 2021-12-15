@@ -99,7 +99,7 @@ int main( int argc, char *argv[] )
     glbParam.nCh     = size_dim[1] ;
     glbParam.nBins   = size_dim[2] ;
 
-    oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (const char*)"int", (double*)glbParam.iLambda ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (double*)glbParam.iLambda ) ;
 
     CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
