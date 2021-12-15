@@ -162,13 +162,15 @@ int main( int argc, char *argv[] )
             sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;
             sscanf( glbParam.StopDate, "%2d%2d%4d" , &tmFile_stop->tm_mday , &tmFile_stop->tm_mon , &tmFile_stop->tm_year   ) ;
             sscanf( glbParam.StopTime, "%2d%2d%2d" , &tmFile_stop->tm_hour , &tmFile_stop->tm_min , &tmFile_stop->tm_sec    ) ;
-                sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
 
+                sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
                 Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;
                 Raw_Data_Start_Time[fC] = (int)mktime( (tm*)tmFile_start ) ;
+
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
                 Raw_Data_Stop_Time_str[fC].assign(strTimeMerged) ;
                 Raw_Data_Stop_Time[fC] = (int)mktime( (tm*)tmFile_stop ) ;
+
                 tmFile_start->tm_year = 1900 + tmFile_start->tm_year ;
 
                 mkdir  ( Path_Out.c_str(), 0777 ) ;

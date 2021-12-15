@@ -386,15 +386,15 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 	sprintf( &glbParam->StartDate[2], "%s", &glbParam->StartDate[3] ) ; // 05/08/2020 --> 0508/2020
 	sprintf( &glbParam->StartDate[4], "%s", &glbParam->StartDate[5] ) ; // 0508/2020  --> 05082020
 	// StoptDate = 05/08/2020
-	strcpy( &glbParam->StopDate[2], &glbParam->StopDate[3] ) ; // 0508/2020
-	strcpy( &glbParam->StopDate[4], &glbParam->StopDate[5] ) ; // 05082020
+	sprintf( &glbParam->StopDate[2], "%s", &glbParam->StopDate[3] ) ; // 05/08/2020 --> 0508/2020
+	sprintf( &glbParam->StopDate[4], "%s", &glbParam->StopDate[5] ) ; // 0508/2020  --> 05082020
 
 	// StartTime = 00:00:30
 	sprintf( (char*)&glbParam->StartTime[2], "%s", (char*)&glbParam->StartTime[3] ) ; // 0000:30
 	sprintf( (char*)&glbParam->StartTime[4], "%s", (char*)&glbParam->StartTime[5] ) ; // 000030
 	// StoptDate = 00:00:40
-	strcpy( &glbParam->StopTime[2], &glbParam->StopTime[3] ) ; // 0000:30
-	strcpy( &glbParam->StopTime[4], &glbParam->StopTime[5] ) ; // 000030
+	sprintf( (char*)&glbParam->StopTime[2], "%s", (char*)&glbParam->StopTime[3] ) ; // 0000:30
+	sprintf( (char*)&glbParam->StopTime[4], "%s", (char*)&glbParam->StopTime[5] ) ; // 000030
 }
 
 void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
