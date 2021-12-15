@@ -2,7 +2,7 @@
 
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN
-L0="yes"
+L0="no"
 L1="yes"
 L2="no"
 
