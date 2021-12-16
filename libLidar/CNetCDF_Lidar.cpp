@@ -292,7 +292,7 @@ void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParame
         ERR(retval);
 }
 
-void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time_sec, int *Raw_Data_Stop_Time_sec )
+void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time_sec, int *Raw_Data_Stop_Time_sec )
 {
     int  ncid ;
     int  retval ;

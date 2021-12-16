@@ -205,7 +205,7 @@ int main( int argc, char *argv[] )
     else if ( strcmp(glbParam.outputDataFileFormat, "LALINET_NETCDF") ==0 )
     {
         cout << endl << "\tOutput datafile: LALINET_NETCDF" << endl ;
-        oNCL.Save_LALINET_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
+        oNCL.Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (int*)Raw_Data_Start_Time, (int*)Raw_Data_Stop_Time ) ;
     }
 

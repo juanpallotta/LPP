@@ -50,7 +50,7 @@ class CNetCDF_Lidar
 		void ReadVar( int, const char*, void* ) ;
 
 		void Save_SCC_NCDF_Format	 ( string, strcGlobalParameters*, double***, int*, string*, int*, string* ) ;
-		void Save_LALINET_NCDF_Format( string, strcGlobalParameters*, double***, int*, int* ) ;
+		void Save_LALINET_NCDF_PDL0( string, strcGlobalParameters*, double***, int*, int* ) ;
 		void Save_LALINET_NCDF_PDL1  ( string*, string*, strcGlobalParameters*, int**, double***, double***, CMolecularData_USStd* ) ;
 		void Save_LALINET_NCDF_PDL2  ( string*, strcGlobalParameters*, CDataLevel_2* ) ;
 		void CloseFile( int ) ;
