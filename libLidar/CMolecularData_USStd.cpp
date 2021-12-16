@@ -124,13 +124,13 @@ void CMolecularData_USStd::Fill_dataMol( strcGlobalParameters *glbParam, int ind
 {
 	int 	i ;
 
-	//! dataMol.zenith = glbParam->aZenithAVG[glbParam->event_analyzed] ;
+	dataMol->zenith = glbParam->aZenithAVG[glbParam->event_analyzed] ;
 
 	// VALUES FROM ASL
 	dataMol[indxWL].nBins = glbParam->nBins ;
 	for ( i=0 ; i < glbParam->nBins ; i++ )
-		dataMol[indxWL].zr[i] 	= (double) glbParam->siteASL + glbParam->r[i] ; // [m] ASL!!!
-		//! dataMol.zr[i]   	= (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
+		dataMol->zr[i]   	= (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol->zenith *PI/180) ; // zr = ASL
+		// dataMol[indxWL].zr[i] 	= (double) glbParam->siteASL + glbParam->r[i] ; // [m] ASL!!!
 	dataMol[indxWL].dzr = (double)(dataMol[indxWL].zr[1] - dataMol[indxWL].zr[0]) ; // [m]
 
 	RadLowToHighRes() ;

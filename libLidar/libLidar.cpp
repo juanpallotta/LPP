@@ -1771,10 +1771,8 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
                                     int *Raw_Data_Start_Time    , int *Raw_Data_Stop_Time, 
                                     int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG	)
 {
-
     for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
     {
-        // glbParam.event_analyzed = fC;
         printf("\n Averaging in time Cluster Nº %d \n", fC ) ;
 
 		for ( int c=0 ; c <glbParam->nCh ; c++ )
@@ -1786,19 +1784,24 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 					dataFile_AVG[fC][c][b]  	= (double) dataFile_AVG[fC][c][b] + dataFile[fC +t][c][b] ;
 					if( (b==0) && (c==0) )
 					{
-						Raw_Data_Start_Time_AVG[fC]	= (double) Raw_Data_Start_Time_AVG[fC] + Raw_Data_Stop_Time[fC +t] ;
-						Raw_Data_Stop_Time_AVG[fC] 	= (double) Raw_Data_Stop_Time_AVG [fC] + Raw_Data_Stop_Time[fC +t] ;
+						Raw_Data_Start_Time_AVG[fC]	  = (double) Raw_Data_Start_Time_AVG[fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
+						Raw_Data_Stop_Time_AVG[fC] 	  = (double) Raw_Data_Stop_Time_AVG [fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
+
+						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
+						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith[fC*glbParam->numEventsToAvg +t]  ;
+						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
+						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
 					}
-        // glbParam.aAzimuthAVG[fC] = glbParam.aAzimuthAVG[fC] /glbParam.numEventsToAvg ;
-        //     glbParam.aZenithAVG[fC]  = glbParam.aZenithAVG[fC]  /glbParam.numEventsToAvg ;
-        //     glbParam.temp_CelsiusAVG[fC] = glbParam.temp_CelsiusAVG[fC]  /glbParam.numEventsToAvg ;
-        //     glbParam.pres_hPaAVG[fC]     = glbParam.pres_hPaAVG[fC]      /glbParam.numEventsToAvg ;
 				}
-					dataFile_AVG[fC][c][b]      = (double) dataFile_AVG[fC][c][b]   	  /glbParam->numEventsToAvg ;
+					dataFile_AVG[fC][c][b]      = (double) dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg ;
 					if( (b==0) && (c==0) )
 					{
 						Raw_Data_Start_Time_AVG[fC] = (int) round(Raw_Data_Start_Time_AVG[fC] /glbParam->numEventsToAvg) ;
 						Raw_Data_Stop_Time_AVG[fC]  = (int) round(Raw_Data_Stop_Time_AVG[fC]  /glbParam->numEventsToAvg) ;
+						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
+						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
+						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
+						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     /glbParam->numEventsToAvg ;
 					}
 			}
 		}

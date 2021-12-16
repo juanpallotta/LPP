@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
     assert( glbParam.nEvents !=0 ); // SI SE CUMPLE, SIGUE DE LARGO.
 
     // glbParam.nEventsAVG = (int)floor(glbParam.nEvents /glbParam.numEventsToAvg ) ;
-    glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY
+    glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY --> ERASE
 
     if ( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
     {

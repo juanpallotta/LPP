@@ -47,6 +47,7 @@ class CNetCDF_Lidar
 		void Putt_Bulk_Att_Double( int, int, int, string*, double* ) ;
 		void Putt_Bulk_Att_Int( int, int, int, string*, int* ) ;
 		void Set_LALINET_Units_L0( int, int* ) ;
+		void Set_LALINET_Units_L1( int, int* ) ;
 		void ReadVar( int, const char*, void* ) ;
 
 		void Save_SCC_NCDF_Format	 ( string, strcGlobalParameters*, double***, int*, string*, int*, string* ) ;

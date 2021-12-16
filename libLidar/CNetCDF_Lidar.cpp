@@ -158,6 +158,30 @@ void CNetCDF_Lidar::Set_LALINET_Units_L0( int ncid, int *var_ids )
        ERR(retval);
 }
 
+void CNetCDF_Lidar::Set_LALINET_Units_L1( int ncid, int *var_ids )
+{ //! CHECK INPLEMENTATION 
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[0], (const char*)"units", (size_t)strlen("Averaged ADC Counts"), (const char*)"Averaged ADC Counts") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[1], (const char*)"units", (size_t)strlen("seconds"), (const char*)"seconds") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[2], (const char*)"units", (size_t)strlen("seconds"), (const char*)"seconds") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[3], (const char*)"units", (size_t)strlen("nanometers"), (const char*)"nanometers") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[4], (const char*)"units", (size_t)strlen("o: no polarisation, s = perpendicular, l = parallel"), (const char*)"o: no polarisation, s = perpendikular, l = parallel") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[5], (const char*)"units", (size_t)strlen("mV - discriminator level"), (const char*)"mV - discriminator level") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[6], (const char*)"units", (size_t)strlen("0:Analog 1:Digital"), (const char*)"0:Analog 1:Digital") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[7], (const char*)"units", (size_t)strlen("mV"), (const char*)"mV") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[9], (const char*)"units", (size_t)strlen("degrees"), (const char*)"degrees") ) )
+       ERR(retval);
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[10], (const char*)"units", (size_t)strlen("degrees"), (const char*)"degrees") ) )
+       ERR(retval);
+}
+
 // ! SEE FOR DETAILS: --> https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html
 void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time, string *Raw_Data_Start_Time_str, int *Raw_Data_Stop_Time, string *Raw_Data_Stop_Time_str )
 {
@@ -389,8 +413,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     PutVar( (int)ncid, (int)var_ids[6] , (const char*)"int"   , (int*)glbParam->iAnPhot             ) ;
     PutVar( (int)ncid, (int)var_ids[7] , (const char*)"int"   , (int*)glbParam->PMT_Voltage         ) ;
     PutVar( (int)ncid, (int)var_ids[8] , (const char*)"int"   , (int*)glbParam->nShots              ) ;
-    PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenithAVG       ) ;
-    PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuthAVG      ) ;
+    PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenith          ) ; // PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenithAVG       ) ;
+    PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuth         ) ; // PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuthAVG      ) ;
     PutVar( (int)ncid, (int)var_ids[13], (const char*)"int"   , (int*)glbParam->iADCbits            ) ;
     PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)glbParam->Laser_Src           ) ;
     PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBinsRaw_Ch         ) ;
@@ -407,7 +431,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     if ( ( retval = nc_redef( (int)nc_id ) ) )
         ERR(retval);
 
-    int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_backscattering, var_id_mol_extinction ;
+    int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_backscattering, var_id_mol_extinction, var_id_Temp_Pres[2] ;
     int dims_ids_pr_corr[3] ; // 0: TIME    1: CHANNELS     2:POINTS
 
     int nc_id_group_L1 ;
@@ -427,6 +451,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     DefineVariable( (int)nc_id_group_L1, (char*)"Laser_Zero_Bin_Offset"          , (const char*)"int"   , (int)1, (int*)&dims_ids_pr_corr[1], (int*)&var_id_laser_zero_bin_offset ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Extinction"           , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_extinction ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Backscattering"       , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_backscattering ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_ground_level"       , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[0] ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_ground_level"          , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[1] ) ;
 
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
@@ -470,6 +496,11 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     {
         start_CM[0] =e ;
         if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_id_CM, start_CM, count_CM, (int*)&clouds_ON_mtx[e][0] ) ) )
+            ERR(retval);
+
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Temp_Pres[0], start_CM, count_CM, (double*)&glbParam->temp_CelsiusAVG[e] ) ) )
+            ERR(retval);
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Temp_Pres[1], start_CM, count_CM, (double*)&glbParam->pres_hPaAVG[e]     ) ) )
             ERR(retval);
     }
 
