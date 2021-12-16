@@ -397,7 +397,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_Format( string Path_File_Out, strcGlobalPa
 
     if ( (retval = nc_close(ncid)) )
         ERR(retval);
-
 }
 
 void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_File_Out, strcGlobalParameters *glbParam, int **clouds_ON_mtx, double ***pr_corr, double ***pr2, CMolecularData_USStd *oMolData )
@@ -408,24 +407,26 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     if ( ( retval = nc_redef( (int)nc_id ) ) )
         ERR(retval);
 
-// RAW LIDAR SIGNAL CORRECTED DEFINITION
     int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_backscattering, var_id_mol_extinction ;
-    if ( (retval = nc_inq_varid ( (int)nc_id, "Raw_Lidar_Data", (int*)&var_id_pr_corr) ) )
-        ERR(retval) ;
-
     int dims_ids_pr_corr[3] ; // 0: TIME    1: CHANNELS     2:POINTS
-    if ( (retval = nc_inq_var ( (int)nc_id, (int)var_id_pr_corr, 0, 0, 0, (int*)dims_ids_pr_corr, 0) ) )
-        ERR(retval) ;
 
     int nc_id_group_L1 ;
     if ( (retval = nc_def_grp ( (int)nc_id, (const char*)"L1_Data", (int*)&nc_id_group_L1 ) ) )
         ERR(retval) ;
 
-    DefineVariable( (int)nc_id_group_L1, (char*)"Raw_Lidar_Data_Corrected"    , (const char*)"double", (int)3, (int*)&dims_ids_pr_corr[0], (int*)&var_id_pr_corr ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Range_Corrected_Lidar_Signal", (const char*)"double", (int)3, (int*)&dims_ids_pr_corr[0], (int*)&var_id_pr2 ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Laser_Zero_Bin_Offset"       , (const char*)"int"   , (int)1, (int*)&dims_ids_pr_corr[1], (int*)&var_id_laser_zero_bin_offset ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Extinction"        , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_extinction ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Backscattering"    , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_backscattering ) ;
+    string      dimsName [NDIMS_LALINET] ;
+    int         dimsSize[NDIMS_LALINET] ;
+    dimsName[0] = "time" ;                  dimsSize[0] = glbParam->nEventsAVG   ;
+    dimsName[1] = "channels" ;              dimsSize[1] = glbParam->nCh          ;
+    dimsName[2] = "points" ;                dimsSize[2] = glbParam->nBins        ;
+
+    // DEFINE Raw_Lidar_Data VARIABLE
+    DefineVarDims( (int)nc_id_group_L1, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dims_ids_pr_corr, (char*)"Raw_Lidar_Data_L1", (const char*)"double", (int*)&var_id_pr_corr ) ; // Raw_Lidar_Data
+
+    DefineVariable( (int)nc_id_group_L1, (char*)"Range_Corrected_Lidar_Signal_L1", (const char*)"double", (int)3, (int*)&dims_ids_pr_corr[0], (int*)&var_id_pr2 ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Laser_Zero_Bin_Offset"          , (const char*)"int"   , (int)1, (int*)&dims_ids_pr_corr[1], (int*)&var_id_laser_zero_bin_offset ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Extinction"           , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_extinction ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Backscattering"       , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_backscattering ) ;
 
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
@@ -439,7 +440,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     dims_ids_CM[1] = dims_ids_pr_corr[2] ; // POINTS
     int         var_id_CM ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Cloud_Mask", (const char*)"int", (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_CM  ) ;
-
 
                 if ( (retval = nc_enddef(nc_id_group_L1)) )
                     ERR(retval);
@@ -509,7 +509,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
         ERR(retval);
 
     string  strNameVars[NVARS_LALINET] ;
-    strNameVars[0] = "Range_Corrected_Lidar_Signal" ;
+    strNameVars[0] = "Range_Corrected_Lidar_Signal_L2" ;
     strNameVars[1] = "Molecular_Extinction" ;
     strNameVars[2] = "Molecular_Backscattering" ;
     int id_var_RCLS, id_var_beta_mol, id_var_alpha_mol  ;
