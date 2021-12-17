@@ -431,7 +431,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     if ( ( retval = nc_redef( (int)nc_id ) ) )
         ERR(retval);
 
-    int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_backscattering, var_id_mol_extinction, var_id_Temp_Pres[2] ;
+    int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_backscattering, var_id_mol_extinction, var_id_Temp_Pres[2], var_id_Zen_Azm[2] ;
     int dims_ids_pr_corr[3] ; // 0: TIME    1: CHANNELS     2:POINTS
 
     int nc_id_group_L1 ;
@@ -453,6 +453,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Backscattering"       , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_backscattering ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_ground_level"       , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[0] ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_ground_level"          , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[1] ) ;
+
+    DefineVariable( (int)nc_id_group_L1, (char*)"Zenith_AVG"                     , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[0] ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Azimuth_AVG"                    , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[1] ) ;
 
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
@@ -501,6 +504,10 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Temp_Pres[0], start_CM, count_CM, (double*)&glbParam->temp_CelsiusAVG[e] ) ) )
             ERR(retval);
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Temp_Pres[1], start_CM, count_CM, (double*)&glbParam->pres_hPaAVG[e]     ) ) )
+            ERR(retval);
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Zen_Azm[0], start_CM, count_CM, (double*)&glbParam->aZenithAVG[e] ) ) )
+            ERR(retval);
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Zen_Azm[1], start_CM, count_CM, (double*)&glbParam->aAzimuth[e]   ) ) )
             ERR(retval);
     }
 
