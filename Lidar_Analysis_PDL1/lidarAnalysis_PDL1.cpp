@@ -179,12 +179,14 @@ int main( int argc, char *argv[] )
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval);
 
+    glbParam.indxOffset = (int*) new int [ glbParam.nCh ] ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)&glbParam.nBinsBkg      ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)&glbParam.indxOffset    ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)glbParam.indxOffset    ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam.rInitSig   ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"rEndSig"    , (const char*)"double", (double*)&glbParam.rEndSig    ) ;
     glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
+
 // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
 //! THE PATH SHOULD BE READ FROM glbParam.FILE_PARAMETERS
     char radFile[100] ;
@@ -207,10 +209,10 @@ int main( int argc, char *argv[] )
             pr2[e][c]     = (double*) new double[glbParam.nBins] ;
             pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
 
-            for(int b =0; b <(glbParam.nBins - glbParam.indxOffset[c]); b++)
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b+glbParam.indxOffset[c]-1] ; // BIN OFFSET CORRECTION;
+            for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
+                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]-1] ; // BIN OFFSET CORRECTION;
             for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][ glbParam.nBins- glbParam.indxOffset[c]-1 ] ; // BIN OFFSET CORRECTION;
+                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]-1] ; // BIN OFFSET CORRECTION;
         }
     }
 
@@ -234,10 +236,12 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             cout << endl << "Event: " << t << "\t Wavelengh: " << glbParam.iLambda[c] ;
-            for ( int i=0 ; i <(glbParam.nBins -glbParam.indxOffset[c]) ; i++ )
+            for ( int i=0 ; i <glbParam.nBins ; i++ )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
-            for ( int i=(glbParam.nBins -glbParam.indxOffset[c]) ; i <glbParam.nBins ; i++ )
-                evSig.pr[i] = (double)pr_corr[t][c][i] ;
+            // for ( int i=0 ; i <(glbParam.nBins -glbParam.indxOffset[c]) ; i++ )
+            //     evSig.pr[i] = (double)pr_corr[t][c][i] ;
+            // for ( int i=(glbParam.nBins -glbParam.indxOffset[c]) ; i <glbParam.nBins ; i++ )
+            //     evSig.pr[i] = (double)pr_corr[t][c][i] ;
             /*
             // if ( glbParam.rEndSig >0 )
             //     glbParam.indxEndSig  = (int)round( glbParam.rEndSig /glbParam.dr ) ;

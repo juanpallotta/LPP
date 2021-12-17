@@ -510,7 +510,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Zen_Azm[1], start_CM, count_CM, (double*)&glbParam->aAzimuth[e]   ) ) )
             ERR(retval);
     }
-
     // WRITE CLOUD RAW LIDAR DATA CORRECTED
     size_t start_pr[3], count_pr[3];
     start_pr[0] = 0;   count_pr[0] = 1 ; // glbParam.nEventsAVG; 
@@ -529,7 +528,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
                 ERR(retval);
         }
     }
-
     if ( (retval = nc_close(nc_id) ) )
         ERR(retval);
 }

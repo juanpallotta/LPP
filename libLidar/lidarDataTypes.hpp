@@ -109,7 +109,7 @@ struct strcGlobalParameters
 	int 	nEventsAVG 				;
 	int		numEventsToAvg			;
 	int 	rOffset			 		;
-	int 	indxOffset[MAX_CH_LICEL];
+	int 	*indxOffset				; // [MAX_CH_LICEL]
 	char	fileName[100] 			;
 	char	infoFile[100] 			;
 	char 	site[20] 				;

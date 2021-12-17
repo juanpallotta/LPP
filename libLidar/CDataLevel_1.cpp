@@ -359,14 +359,12 @@ void CDataLevel_1::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParamet
 {
 	char BkgCorrMethod[10] ;
 
-	// fitParam.indxInicFit = glbParam->indxEndSig - glbParam->nBinsBkg ; //  ; // 6500 ; // 
-	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ; //  ; // 6500 ; // 
-	// fitParam.indxEndFit  = glbParam->indxEndSig ; // 6900 ; // 
-	fitParam.indxEndFit  = glbParam->nBins -1 ; // 6900 ; // 
+	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ;
+	fitParam.indxEndFit  = glbParam->nBins -1 ;
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
 
 	// cout << endl ; // <<"------ ¡¡¡¡PUEST A MANO!!!!!-------------- MakeRangeCorrected -> e: " << glbParam->event_analyzed ;
-	// printf("\n\nfitParam.indxInicFit: %d\nfitParam.indxEndFit: %d\nfitParam.nFit: %d\n\n", fitParam.indxInicFit, fitParam.indxEndFit, fitParam.nFit) ;
+	// printf("\nCDataLevel_1::MakeRangeCorrected() --> fitParam.indxInicFit: %d\nfitParam.indxEndFit: %d\nfitParam.nFit: %d", fitParam.indxInicFit, fitParam.indxEndFit, fitParam.nFit) ;
 
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
 
