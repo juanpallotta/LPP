@@ -121,15 +121,15 @@ int main( int argc, char *argv[] )
 
     glbParam.aZenith     = (double*) new double [glbParam.nEvents]    ;
     glbParam.aAzimuth    = (double*) new double [glbParam.nEvents]    ;
-    glbParam.aZenithAVG  = (double*) new double [glbParam.nEventsAVG] ;
-    glbParam.aAzimuthAVG = (double*) new double [glbParam.nEventsAVG] ;
+    glbParam.aZenithAVG  = (double*) new double [glbParam.nEventsAVG] ;     memset( (double*)glbParam.aZenithAVG , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
+    glbParam.aAzimuthAVG = (double*) new double [glbParam.nEventsAVG] ;     memset( (double*)glbParam.aAzimuthAVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Zenith"  , (int*)glbParam.aZenith  ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Azimuth" , (int*)glbParam.aAzimuth ) ;
 
     glbParam.temp_Celsius     = (double*) new double [glbParam.nEvents]     ;
     glbParam.pres_hPa         = (double*) new double [glbParam.nEvents]     ;
-    glbParam.temp_CelsiusAVG  = (double*) new double [glbParam.nEventsAVG]  ;
-    glbParam.pres_hPaAVG      = (double*) new double [glbParam.nEventsAVG]  ;
+    glbParam.temp_CelsiusAVG  = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.temp_CelsiusAVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
+    glbParam.pres_hPaAVG      = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.pres_hPaAVG    , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station", (const char*)"double", (int*)&glbParam.temp_Celsius[0] ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station"   , (const char*)"double", (int*)&glbParam.pres_hPa[0]     ) ;
     for (  int i =1 ; i < glbParam.nEvents ; i++ )

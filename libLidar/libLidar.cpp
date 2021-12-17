@@ -103,7 +103,7 @@ int findLastCharInString( char *strOrig, const char charToFind )
 	}
 	return (offsetLastChar +1) ;
 }
-   
+
 int ReadAnalisysParameter( const char *fileName, const char *varToFind, const char *varType, void *var )
 {
     ifstream    myfile (fileName) ;
@@ -1788,7 +1788,7 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 						Raw_Data_Stop_Time_AVG[fC] 	  = (double) Raw_Data_Stop_Time_AVG [fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
 
 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
-						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith[fC*glbParam->numEventsToAvg +t]  ;
+						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
 						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
 						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
 					}
