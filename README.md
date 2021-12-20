@@ -86,7 +86,7 @@ Where:
 
 An example of how L0 configuration file should look is seen in the next code:
 
-```{r, attr.source='.numberLines'}
+```bash {.line-numbers}
 ####################################################
 # CONFIGURATION FILE FOR LIDAR CONVERSION TOOL
 ####################################################
