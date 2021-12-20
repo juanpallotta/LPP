@@ -39,11 +39,11 @@ Download the lastest version from `www.github.com/juanpallotta/LPP`. You will fi
 - `/signalsTest`: Lidar test files to test this code. You will find files from Argentina (pure Licel datatype files) and Brazil (Raymetric datatype files).
 - `install_Lidar_Dependencies.sh`: a Linux shell-script to install the basic software/libraries needed to compile and run the LPP software.
 - `/compile_All.sh`: Linux shell script to compile all the modules.
-- `/run_LPP_Analysis`: Linux shell script to run the whole chain automatically, following the rules saved in the configuration files `/Lidar_Configuration_Files/LPP_Settings.sh`. More about the automatization in section [Automatizing LPP](#Automatizing_LPP) of this README file.
+- `/run_LPP_Analysis`: Linux shell script to run the whole chain automatically, following the rules saved in the configuration files `/Lidar_Configuration_Files/LPP_Settings.sh`. More about the automatization of all modules in section [Automatizing LPP](#Automatizing_LPP) of this README file.
 - `README.md`: This file.
 
 ## Installing dependencies:
-Run the Linux shell script named: `install_Lidar_Dependencies.sh`. 
+There are few things to be installed prior the run, and very basincs. To solve this problem, run the Linux shell script named: `install_Lidar_Dependencies.sh`. 
 It is a simple Linux shell script to install the basics packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials. Before running it, remember to check if the executable attributes is set. If not the case, make it executable with the command:
 
     chmod +x install_Lidar_Dependencies.sh
@@ -51,14 +51,28 @@ It is a simple Linux shell script to install the basics packages (make, g++, and
 This advisor is also applicable to any other script in the project.
 
 ## Building:
-To compile and run all the modules, just run the Linux shell script named: `compile_All.sh`.
-At the moment, the compiler output will show some warnings, please, forget them for now).
+To compile all the modules, just run the Linux shell script named: `compile_All.sh`. This is a simple Linux script wich enter to the folders of each module and run the make command passing the makefile as argument.
+At the moment, the compiler output will show some warnings. All of them will be cleared up in the future versions.
+
+
+_____________________________________________________________________________
+
 
 ## Configuring and running LPP modules:
-In this section, how to configure each module will be described. This is done by setting the variables in the configuration file (extention `.conf`, located in the folder `/Lidar_Configuration_Files`).
+In this section, how to configure each module will be described. This is done by setting the variables in the configuration file (extention `.conf`, located in the folder `/Lidar_Configuration_Files`). Then, this file should be passed as a third argument to the module.
+
+<u>Configuration file data format:</u>
+In this files, all the parameters needed for the analysis must be set, and only 2 main ideas have to be taken into account:
+1. Comments are defined by "`#`" character.
+2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a minimun of 1 space character has to be placed before and after the `=` character. The variables can be integers, float, double or string data format.
+3. Some variables have to be set as vectors, separating each element be the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3`. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, read the comments in the previous lines of the variable definition. In case that the numbers of elements doesn't meet the right values, LPP will show a warning and exit the execution.
+
+
 
 ### `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file:
-This module is used to merge the raw lidar into a single NetCDF file. An example of how to run this module using the example files included in this release can be:
+This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (passed as a second argument). The configuration file is passed as third argument.
+
+An example of how to run this module using the example files included in this release can be:
 
     ./lidarAnalysis_PDL0 ../signalTest/Brazil/SPU/20210730/ ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc analysisParameters_PDL0_Brazil.conf 
 
@@ -70,15 +84,7 @@ Where:
 
 In the next section, a description of the configuration file is described.
 
-
-SEGUIR ACA
-------------------------
-
-
-#### `analysisParameters_PDL0_Brazil.conf`:
-In this file, the merging parameters are set, and only 2 main ideas have to be taken into account:
-1. Comments are defined by `#` character.
-2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a minimun of 1 space character has to be placed before and after the `=` character. The variables can be integers, float, double or string data format.
+#### <u>Configuration file for product data level 0 (L0):</u>
 
         ####################################################
         # CONFIGURATION FILE FOR LIDAR CONVERSION TOOL
