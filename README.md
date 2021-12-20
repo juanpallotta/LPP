@@ -1,26 +1,33 @@
 
-# Lidar Processing Pipeline Manual (tested on Linux Ubuntu 20.04.3 LTS, and Windows 10 using WSL).
+# Lidar Processing Pipeline (LPP)
 
-The Lidar Processing Pipeline (LPP) is formed by 3 modules, each one completely independent of the other. The names of each module are represented by the output of its product data level, named from 0 to 2. Each one of these modules can be executed independently as a tool, following the rules described in this document. These modules are:
-- `lidarAnalysis_PDL0`: Transforms the raw lidar data files to a single NetCDF file containing the raw lidar signals and global information about the measurement. The variable's name follows the name convention of the Single Calculus Chain (SCC) platform. This output is the L0 data level of LPP.
-- `lidarAnalysis_PDL1`: Receive the NetCDF file produced in the previous stage (L0) and produce a new NetCDF file with all the corrections applied to the lidar signals, like laser offset and bias correction. Also, the cloud mask is obtained and stored with the molecular profiles. This output is the L1 data level of LPP.
-- `lidarAnalysis_PDL2`: Receive the NetCDF file produced in the previous stage (L1) and produce a new NetCDF file with all the optical products retrieval applied to the elastic lidar signals contained in the NetCDF input file. This output is the L2 data level of LPP.
+The LPP is a collection of tools developed in C/C++ and Linux script planned to handle all the steps of lidar analysis. A first tool converts the raw data files into a single NetCDF file, including detailed information about the instrument and acquisition setup (level 0 dataset). The produced files is then processed by another tool that applies the necessary corrections and computes the cloud-mask (level 1 dataset). The final step is the elastic retrieval of aerosol properties (level 2 dataset). The development of LPP is based on the existing analysis routines developed by individual LALINET groups, and hence takes advantage of previous efforts for algorithm comparison in the scope of the LALINET network
+The codes presented in this repository are tested on Linux Ubuntu 20.04.3 LTS, and Windows 10 using WSL.
 
-Each runs in a Linux terminal, following the next convention:
+## Overall concept of the LPP tools
 
-    user@lidarAnalysis:~$./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf
+The Lidar Processing Pipeline (LPP) is formed by 3 completely independent modules. The names of each ones are represented by the output of its product data level, named from 0 to 2. Each one of these modules can be executed in a command line following the rules described in this document. These modules are:
+- `lidarAnalysis_PDL0`: Transforms all the raw lidar data files stored in a folder (passed as an argument) to a single NetCDF file. This output file will contain the raw lidar signals and global information about the measurement. The variable's name follows the name convention of the Single Calculus Chain (SCC) platform. This output is the L0 data level of LPP.
+- `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produce a new NetCDF defined as data level 1 (L1). This L1 file contain the corrected lidar files (like laser offset, bias correction, etc), the cloud-mask product and molecular profiles for every wavelenth used. Also, all the parameters used to produce this output are stored. This output is called L1 data level of LPP.
+- `lidarAnalysis_PDL2`: Receive the NetCDF file produced by `lidarAnalysis_PDL1` and produce a new NetCDF file defined as data level 2 (L2). This L2 file contain the optical products obtained from the elastic lidar signals contained in the NetCDF input file. Also, all the parameters used to produce this output are stored. This output is the L2 data level of LPP.
+
+Each lidar analysis tool must be run in a Linux terminal following the convention:
+
+    $./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf
 
 Where:
-- `lidarAnalysis_PDLx`: Sofware module to generate the data level ***x***.
-- `/Input_File_or_Folder/`: Input folder or file to produce the data Level ***x***. In the case of L0, this first parameter is the folder with the lidar data files in the Licel or Raymetric data file format. For the rest of the data levels, the input is the NetCDF file produced in the previous stage.
+- `lidarAnalysis_PDLx`: Software module to generate the data level ***x***.
+- `/Input_File_or_Folder/`: Input folder or file to produce the data Level ***x***. In the case of L0, this first parameter is the folder with the raw lidar data files in Licel or Raymetric data file format. For the rest of the data levels, the input is the NetCDF file produced in the previous stage. 
 - `/Output_File`: Output NetCDF filename. The output file contains the information of the input folder/file, adding the information of the new data of the level under analysis.
-- `analysisParameters.conf`: Configuration file with all the variables needed for the analysis of level analysis. 
+- `analysisParameters.conf`: Configuration file with all the variables needed for the level analysis. 
 
-It is important to mention that the output files produced in the levels 1 and 2 contains all the information of the previous stage (input data file, first parameter). The new file generated add the new information in the NetCDF file in a sub-group called **L*x*_Data**, being ***x*** the data level number. This can be seen in next figure, showing the data added in L1 stage:
+In order to avoid mistakes, it is preferable to use absolute paths for all the arguments passed to the modules.
+
+An important features of the output files produced in the stages 1 and 2 is that these outputs contains all the information of its previous stage. The new file generated add the new information of the stage under analysis in a NetCDF's sub-group called **L*x*_Data**, being ***x*** the data level number. This can be seen in next figure, showing the data added in L1 stage:
 
 ![Panoply subgroup](./Docs/Figures/sub_group_nc.png "NetCDF Subgroup")
 
-How to install and run these modules are described in the next sections.
+In next sections, a step-to-step on how to install and run these modules are described.
 
 ## Installation:
 Download the lastest version from `www.github.com/juanpallotta/LPP`. You will find 7 folders and 2 files:
