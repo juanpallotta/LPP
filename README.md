@@ -6,7 +6,7 @@ The codes presented in this repository are tested on Linux Ubuntu 20.04.3 LTS, a
 
 ## Overall concept of the LPP tools
 
-The Lidar Processing Pipeline (LPP) is formed by 3 completely independent modules. The names of each ones are represented by the output of its product data level, named from 0 to 2. Each one of these modules can be executed in a command line following the rules described in this document. These modules are:
+The Lidar Processing Pipeline (LPP) is formed by 3 completely independent modules. The names of each ones are represented by the output of its product data level (PDL), named from 0 to 2. Each one of these modules can be executed in a command line following the rules described in this document. These modules are:
 - `lidarAnalysis_PDL0`: Transforms all the raw lidar data files stored in a folder (passed as an argument) to a single NetCDF file. This output file will contain the raw lidar signals and global information about the measurement. The variable's name follows the name convention of the Single Calculus Chain (SCC) platform. This output is the L0 data level of LPP.
 - `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produce a new NetCDF defined as data level 1 (L1). This L1 file contain the corrected lidar files (like laser offset, bias correction, etc), the cloud-mask product and molecular profiles for every wavelenth used. Also, all the parameters used to produce this output are stored. This output is called L1 data level of LPP.
 - `lidarAnalysis_PDL2`: Receive the NetCDF file produced by `lidarAnalysis_PDL1` and produce a new NetCDF file defined as data level 2 (L2). This L2 file contain the optical products obtained from the elastic lidar signals contained in the NetCDF input file. Also, all the parameters used to produce this output are stored. This output is the L2 data level of LPP.
@@ -35,11 +35,11 @@ Download the lastest version from `www.github.com/juanpallotta/LPP`. You will fi
 - `/Lidar_Analysis_L0`: C/C++ sources code of `lidarAnalysis_PDL0` to produce level 0 data products.
 - `/Lidar_Analysis_L1`: C/C++ sources code of `lidarAnalysis_PDL1` to produce level 1 data products.
 - `/Lidar_Analysis_L2`: C/C++ sources code of `lidarAnalysis_PDL2` to produce level 2 data products.
-- `/Lidar_Configuration_Files`: Contain the configuration (`.conf`) files of each module. 
+- `/Lidar_Configuration_Files`: Contain the configuration files (`.conf`) of each module. 
 - `/signalsTest`: Lidar test files to test this code. You will find files from Argentina (pure Licel datatype files) and Brazil (Raymetric datatype files).
-install_Lidar_Dependencies.sh: a Linux shell-script to install the basic software/libraries needed to compile and run the LPP software.
+- `install_Lidar_Dependencies.sh`: a Linux shell-script to install the basic software/libraries needed to compile and run the LPP software.
 - `/compile_All.sh`: Linux shell script to compile all the modules.
-- `/run_LPP_Analysis`: Linux shell script to run the whole chain automatically, following the rules saved in the configuration files.
+- `/run_LPP_Analysis`: Linux shell script to run the whole chain automatically, following the rules saved in the configuration files `/Lidar_Configuration_Files/LPP_Settings.sh`. More about the automatization in section [Automatizing LPP](#Automatizing_LPP) of this README file.
 - `README.md`: This file.
 
 ## Installing dependencies:
@@ -168,7 +168,7 @@ Till this version, these are the variables that need to be stored in the SCC-Net
     ./lidarAnalysis_PDL2 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730__L0_L1.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc analysisParameters_PDL1_2_Brazil.conf 
 
 
-## Automatization of the whole process
+## <a name="Automatizing_LPP"></a>Automatizing LPP
 
 
 In order to run this code in a more convenient way, there is a Linux script to configure and run it. The name of this script is runMergeLidarFiles.sh, and its shelf-explanatory. Here I copy an example of this script:
