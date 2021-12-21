@@ -1,4 +1,3 @@
-
 # Lidar Processing Pipeline (LPP)
 
 The LPP is a collection of tools developed in C/C++ and Linux script, planned to handle all the steps of lidar analysis. A first tool converts the raw data files into a single NetCDF file, including detailed information about the instrument and acquisition setup (level 0 dataset). The produced files are then processed by another tool that applies the necessary corrections and computes the cloud-mask (level 1 dataset). The final step is the elastic retrieval of aerosol properties (level 2 dataset). The development of LPP is based on the existing analysis routines developed by individual LALINET groups, and hence takes advantage of previous efforts for algorithm comparison in the scope of the LALINET network
