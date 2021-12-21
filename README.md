@@ -62,7 +62,7 @@ _____________________________________________________________________________
 The behavior of each module is based on how is set the configuration file passed as the third argument. This file must have the variables needed for the module, following few rules.
 In this section, how to configure each module will be described. This is done by setting the variables in the configuration file (extension `.conf`, located in the folder `/Lidar_Configuration_Files`). Then, this file should be passed as a third argument to the module.
 
-<u>Configuration file data format:</u>
+<u>Configuration file:</u>
 In these files, all the parameters needed for the analysis must be set, and only 2 main ideas have to be taken into account:
 1. Comments are defined by "`#`" character.
 2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a minimum of 1 space character has to be placed before and after the `=` character. The variables can be integers, float, double, or string data format.
@@ -76,23 +76,26 @@ This module is used to merge the raw lidars files located in a folder (passed as
 
 An example of how to run this module can be:
 
-    ./lidarAnalysis_PDL0 ../signalTest/Brazil/SPU/20210730/ ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc analysisParameters_PDL0_Brazil.conf
+    ./lidarAnalysis_PDL0 ../signalTest/Brazil/SPU/20210730/ ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
 - `../signalTest/Brazil/SPU/20210730/`: Input folder with the raw-lidar files in Licel or Raymetric data format.
 - `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Output path, **INCLUDING THE OUTPUT FILE NAME** of the output NetCDF file.
-- `analysisParameters_PDL0_Brazil.conf`: Configuration file with the variables needed for the merging.
+- `../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf`: Configuration file with the variables needed for the merging.
 
 An example of how L0 configuration file should look is seen in the next code:
 
-```bash {.line-numbers}
+```bash
 ####################################################
-# CONFIGURATION FILE FOR LIDAR CONVERSION TOOL
+# CONFIGURATION FILE FOR LIDAR CONVERSION TOOL 
+# RAW LIDAR DATA FILES TO NETCDF FILE - L0
 ####################################################
-# DATE-TIME RANGE TO ANALYZE INSIDE THE FOLDER PASSED AS ARGUMENT TO mergeLidarFiles
-minTime = 2011/07/14-00:00:00
-maxTime = 2011/07/14-03:00:00
+
+# DATE-TIME RANGE TO ANALYZE INSIDE THE FOLDER PASSED AS ARGUMENT TO lidar_Analysis_pDL0
+# IF minTime = maxTime --> ALL FILES INSIDE THE FOLDER WILL BE ANALYZED
+minTime = 2021/07/30-00:00:00
+maxTime = 2021/07/30-00:00:00
 
 # INPUT DATAFILE FORMAT
 # inputDataFileFormat = LICEL_FILE
@@ -105,78 +108,59 @@ inputDataFileFormat = RAYMETRIC_FILE
 outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
 
-# NUMBER OF FILES (EVENTS) THAT WILL BE MERGED (AVERAGED) INTO A SINGLE LIDAR SIGNAL
-numEventsToAvg = 10
-
-# MOLECULAR REFERENCES
-Molecular_Calc = 0
-Temperature_at_Lidar_Station = 25.0
-Pressure_at_Lidar_Station = 940.0
-
-# ATTRIBUTES (UNDER DEVELOPMENT...)
-# ATT_global_TEXT = 
-# ATT_global_DOUBLE = 
-# ATT_global_INT = 
-
-# ATT_Raw_Lidar_Data_TEXT =
-# ATT_Raw_Lidar_Data_DOUBLE =
-# ATT_Raw_Lidar_Data_INT =
-
-Time range of analysis:
-minTime = 2011/07/14-00:00:00
-maxTime = 2011/07/14-03:00:00
 ```
 
-The code will search inside the input folder passed as the first argument (PATH_IN_RAW in the runMergeLidarFiles.sh script) for files inside this time limit. All files inside these limits will be merged in the NetCDF output file.
+At the moment, configuration files for L0 retrieval only need a few of basic data. The first one set are related to the time bin to analyze inside the folder (`minTime` and `maxTime`). In case to analyze all the files, these two variables have to be set equals. 
 
-Input datafile format:
-   # INPUT DATAFILE FORMAT --> inputDataFileFormat
-   # inputDataFileFormat = LICEL_FILE
-   inputDataFileFormat = RAYMETRIC_FILE
-   # inputDataFileFormat = LALINET_NETCDF -- NOT IMPLEMENTET YET
-   # inputDataFileFormat = SCC_NETCDF -- NOT IMPLEMENTET YET
-   # inputDataFileFormat = CSV -- NOT IMPLEMENTET YET
+The other two variables are related to the data type format used in the input and output data files. The two options are Licel based files like: pure Licel data file format and Raymetric data file format. As can be seen, there are planned more input data types formats to convert. 
 
-Uncomment the proper line in order to the right data file format to analyze. In this version, only LICEL_FILE and RAYMETRIC_FILE are accepted.
-
-   Output datafile format:
-   # OUTPUT NETCDF DATAFILE FORMAT --> outDataFileFormat
-   outputDataFileFormat = LALINET_NETCDF
-   # outputDataFileFormat = SCC_NETCDF
+Related to the output data file format, two types can be set: LALINET or SCC output files. A description of LALINET data type and its name conventions, can be see in latter section in this document ([LALINET data type format](#LALINET_data_type_format)). The SCC data type is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). This module can be use to feed the SCC platform, but no for use it in the next modules of LPP.
 
 
-Uncomment the proper line in order to the right data file format to analyze. In this version, only LALINET_NETCDF and SCC_NETCDF are accepted.
-Files to merge (average )
-   # NUMBER OF FILES (EVENTS) THAT WILL BE MERGED (AVERAGED) INTO A SINGLE LIDAR SIGNAL
-   numEventsToAvg = 10
-
-In case you want to average a set of lidar files, it can be done in this step, by setting numEventsToAvg to the preferred number. In case of not wanting to average lidar files, just set this value to 1.
-
-   Molecular reference:
-   # MOLECULAR REFERENCES
-   Molecular_Calc = 0
-   Temperature_at_Lidar_Station = 25.0
-   Pressure_at_Lidar_Station = 940.0
-
-Till this version, these are the variables that need to be stored in the SCC-NetCDF output file.
-
+In order to proceed without mistakes, it highly recommended uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so carefully check that only one line of each variable is uncommented.
 
 
 ### `lidarAnalysis_PDL1`. Producing data level 1 products: lidar signals corrections and cloud-mask
 
-   ./lidarAnalysis_PDL1 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc analysisParameters_PDL1_2_Brazil.conf
+This module receive the NetCDF file produced by the previous module as a first parameter. This module will accept the input file while it is in the LALINET NetCDF format, this mean, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
 
+An example of how to run this module can be:
+
+    ./lidarAnalysis_PDL1 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
+
+The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The sample files included in this repository uses the same file for modules 
 
 ### `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
 
-   ./lidarAnalysis_PDL2 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730__L0_L1.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc analysisParameters_PDL1_2_Brazil.conf
+    ./lidarAnalysis_PDL2 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730__L0_L1.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
 
 
 ## <a name="Automatizing_LPP"></a>Automatizing LPP
 
+In order to run all the LPP modules automatically, this repository has a Linux script to configure and run it. The name of this script is `../Lidar_Configuration_Files/run_LPP_Analysis.sh`, and use a general configuration file, `../Lidar_Configuration_Files/LPP_Settings.sh`.
+The main task of this script is to produce automatically the paths and names of the inputs and output files, based on certains rules explained in this section.
+In mode of running, the configuration file just have
 
-In order to run this code in a more convenient way, there is a Linux script to configure and run it. The name of this script is runMergeLidarFiles.sh, and its shelf-explanatory. Here I copy an example of this script:
+```bash
+#!/bin/bash
+
+# DATA LEVEL TO PRODUCE IN THE RUN. 
+L0="yes"
+L1="yes"
+L2="no"
+
+# ABSOLUTE INPUT PATH
+PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
+
+FILE_CONF_L0="../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf"
+FILE_CONF_L1_L2="../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
+
+```
+
+![SPU_files](./Docs/Figures/SPU_lidar_files.png "SPU lidar files")
+
+![SPU_output_folder_files](./Docs/Figures/SPU_files_LPP_folder.png "LPP output folder")
 
 
 
-
+## <a name="LALINET_data_type_format"></a> LALINET Data Type Format

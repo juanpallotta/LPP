@@ -36,8 +36,7 @@
 int main( int argc, char *argv[] )
 {
     strcGlobalParameters    glbParam  ;
-	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg"      , (const char*)"int"   , (int*)&glbParam.numEventsToAvg ) ;
+	sprintf( glbParam.FILE_PARAMETERS, "%s", argv[3] ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"inputDataFileFormat" , (const char*)"string", (char*)glbParam.inputDataFileFormat  ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"outputDataFileFormat", (const char*)"string", (char*)glbParam.outputDataFileFormat ) ;
 
