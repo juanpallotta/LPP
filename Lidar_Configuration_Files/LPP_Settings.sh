@@ -7,7 +7,8 @@ L1="yes"
 L2="no"
 
 #* ABSOLUTE INPUT PATH
-PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
+PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/17/"
 # PATH_IN="/home/juan/Desktop/LPP/signalsTest/Brazil/SPU/20210730/"
 
 # CONFIGURATION FILES --> ABSOLUTE PATHS OR ¡¡RELATIVE TO THE FOLDER WICH IS RUNNING THE ANALYSIS!!

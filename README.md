@@ -71,7 +71,7 @@ In these files, all the parameters needed for the analysis must be set, and only
 
 
 
-### `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file:
+### `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
 This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (passed as a second argument). The configuration file is passed as third argument.
 
 An example of how to run this module can be:
@@ -120,7 +120,7 @@ Related to the output data file format, two types can be set: LALINET or SCC out
 In order to proceed without mistakes, it highly recommended uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so carefully check that only one line of each variable is uncommented.
 
 
-### `lidarAnalysis_PDL1`. Producing data level 1 products: lidar signals corrections and cloud-mask
+### `lidarAnalysis_PDL1`: Producing data level 1 products: lidar signals corrections and cloud-mask
 
 This module receive the NetCDF file produced by the previous module as a first parameter. This module will accept the input file while it is in the LALINET NetCDF format, this mean, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
 
@@ -130,18 +130,18 @@ An example of how to run this module can be:
 
 The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The sample files included in this repository uses the same file for modules 
 
-### `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
+<!-- ### `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
 
-    ./lidarAnalysis_PDL2 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730__L0_L1.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
+    ./lidarAnalysis_PDL2 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730__L0_L1.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf -->
 
 
 ## <a name="Automatizing_LPP"></a>Automatizing LPP
 
-In order to run all the LPP modules automatically, this repository has a Linux script to configure and run it. The name of this script is `../Lidar_Configuration_Files/run_LPP_Analysis.sh`, and use a general configuration file, `../Lidar_Configuration_Files/LPP_Settings.sh`.
-The main task of this script is to produce automatically the paths and names of the inputs and output files, based on certains rules explained in this section.
-In mode of running, the configuration file just have
+In order to run all the LPP modules automatically, this repository contains a Linux script to do this task. The name of this script is `run_LPP_Analysis.sh`, and you can find it at the root folder of this repository. It uses a general configuration file named `LPP_Settings.sh` located in the folder `/Lidar_Configuration_Files/`.
 
-```bash
+The main task of this script is to call every module, producing the inputs and outputs paths automatically. The convention's names of these strings are explained in this section. This script will analyze all the sub-folders starting from the main folders configured in the setting file `LPP_Settings.sh`, and generate the names of the input and output NetCDF files automatically. An example of the configuration file is show below:
+
+```bash {.line-numbers}
 #!/bin/bash
 
 # DATA LEVEL TO PRODUCE IN THE RUN. 
@@ -157,9 +157,24 @@ FILE_CONF_L1_L2="../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.c
 
 ```
 
+As can be seen, a few lines are needed to run the automatic mode. These are:
+* `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"` at the variables `Lx`, the run of the module can be controlled.
+* `PATH_IN`: Main path of the raw lidar data, in wich only lidar data file in the accepted data file formats must be stored. This is the starting point for searching for raw lidar data. A new folder named *LPP_OUT* will be created automatically once the script has searched to the last subfolder with raw lidar files. The `LPP_OUT` folder will be used to store the NetCDF files produced by LPP of the files stored at the mother folder of `LPP_OUT`.
+Because there are different ways to store the data files and their folder structures, two examples will be shown and how the folder/files are generated automatically. 
+
+First one is like Sao Paulo lidars, where the lidar files produced in a day are stored in a single folder with the date in its name. In the next figure, an example is shown:
+
 ![SPU_files](./Docs/Figures/SPU_lidar_files.png "SPU lidar files")
 
+In the example of the last figure, the folder `LPP_OUT` can be seen were the output files of LPP. They can be seen in the next figure:
+
 ![SPU_output_folder_files](./Docs/Figures/SPU_files_LPP_folder.png "LPP output folder")
+
+
+In this last figure, the name convention automatically generated by the script `run_LPP_Analysis.sh` can be seen. For this case, only `L0` and `L1` were generated, and the names of each file contain the name of the upper folder of `LPP_OUT`.
+
+
+
 
 
 
