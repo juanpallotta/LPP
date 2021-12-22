@@ -64,3 +64,6 @@ libLidar/CMolecularDataAuger.*
 # LIDAR DATA PRODUCTS IGNORED DUE TO ITS SIZE
 signalsTest/Brazil/Manaus/2011/10/17/LPP_OUT/17_L0.nc
 signalsTest/Brazil/Manaus/2011/10/17/LPP_OUT/17_L0_L1.nc
+
+signalsTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc
+signalsTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc
