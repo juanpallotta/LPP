@@ -54,7 +54,9 @@ To compile all the modules, just run the Linux shell script named: `compile_All.
 At the moment, the compiler output will show some warnings. All of them will be cleared up in the future versions.
 
 
+
 _____________________________________________________________________________
+
 
 
 ## Configuring and running LPP modules:
@@ -62,18 +64,18 @@ The behavior of each module is based on how is set the configuration file passed
 In this section, how to configure each module will be described. This is done by setting the variables in the configuration file (extension `.conf`, located in the folder `/Lidar_Configuration_Files`). Then, this file should be passed as a third argument to the module.
 
 <u>Configuration file:</u>
-In these files, all the parameters needed for the analysis must be set, and only 2 main ideas have to be taken into account:
+In these files, all the parameters needed for the analysis must be set. Regarding to the format, only 4 main ideas have to be taken into account:
 1. Comments are defined by "`#`" character.
-2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a minimum of 1 space character has to be placed before and after the `=` character. The variables can be integers, float, double, or string data format.
-3. Some variables have to be set as vectors, separating each element be the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3`. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, read the comments in the previous lines of the variable definition. In case that the numbers of elements doesn't meet the right values, LPP will show a warning and exit the execution.
+2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a minimum of 1 space character has to be placed before and after the `=` character. The variables data type can be integer, float, double, or string.
+3. Some variables have to be set as vectors (see the description in the dedicated section). Each element must be separatted with the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3`. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, read the comments in the previous lines of the variable definition. In case that the numbers of elements doesn't meet the right values, LPP will show a warning and exit the execution.
 4. The configuration file could be the same for all the modules, as far it contains the variables needed for the run.
 
 
 
 ### `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
-This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (passed as a second argument). The configuration file is passed as third argument.
+This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (passed as a second argument). The configuration file is passed as third argument, and its going to be described in this section.
 
-An example of how to run this module can be:
+An example of how to run this module using the test signals included in this repository is shown bellow:
 
     ./lidarAnalysis_PDL0 ../signalTest/Brazil/SPU/20210730/ ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf
 
@@ -127,7 +129,11 @@ An example of how to run this module can be:
 
     ./lidarAnalysis_PDL1 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
 
-The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The sample files included in this repository uses the same file for modules 
+The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The sample files included in this repository uses one file for L0, and another for modules L1 and L2.
+
+```
+```
+
 
 <!-- ### `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
 
