@@ -9,12 +9,12 @@ echo ""
 source ./Lidar_Configuration_Files/LPP_Settings.sh
 
 # SEARCH FOR SUB-FOLDERS INSIDE THE INPUT PATH
-# DISCARD ANY FOLDER CALLED /LPP_OUT
+cd ./Lidar_Analysis_PDL0/ # IF PATH_IN IS A RELATIVE PATH, IT SHOULD BE RELATIVE TO TO THE EXECUTABLE FILE. SO, PATH_IN_LIST WILL BE RELATIVE TO THE EXECUTABLES
 PATH_IN_LIST=`find $PATH_IN -type d`
 for paths_In in $PATH_IN_LIST
 do
 	# if [[ "$paths_In" == *"/2015"* ]] && [[ "$paths_In" != *"/OUT"* ]] && [[ "$paths_In" != *"355s"* ]]
-	if [[ "$paths_In" != *"/LPP_OUT"* ]]
+	if [[ "$paths_In" != *"/LPP_OUT"* ]] # DISCARD ANY FOLDER CALLED /LPP_OUT
 	then
         echo -e "\n------------------------------------------------------------\n" 
 		# PATH_FILE_OUT_L0=$PATH_OUT$(basename $paths_In)"_L0.nc"
@@ -28,6 +28,7 @@ do
                     echo -e "\nCreating the output folder...\n" 
                     mkdir $PATH_OUT_L0
             fi
+            cd .. # AGAIN IN ROOT FOLDER /LPP
 		    PATH_FILE_OUT_L0=$PATH_OUT_L0$(basename $paths_In)"_L0.nc"
 
             PATH_FILE_IN_L1=$PATH_FILE_OUT_L0
