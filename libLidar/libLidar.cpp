@@ -288,6 +288,7 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 
 	glbParam->nLambda   = glbParam->nCh;
 	glbParam->nBinsRaw = *min_element( glbParam->nBinsRaw_Ch, glbParam->nBinsRaw_Ch +glbParam->nCh ) ;
+	glbParam->nBins_in_File = glbParam->nBinsRaw ;
 	strcpy( glbParam->fileName, lidarHeaderData.Name ) ;
 
 	// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig", (const char*)"double" , (double*)&glbParam->rInitSig ) ;

@@ -67,7 +67,9 @@ In this section, how to configure each module will be described. This is done by
 In these files, all the parameters needed for the analysis must be set. Regarding to the format, only 4 main ideas have to be taken into account:
 1. Comments are defined by "`#`" character.
 2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a minimum of 1 space character has to be placed before and after the `=` character. The variables data type can be integer, float, double, or string.
-3. Some variables have to be set as vectors (see the description in the dedicated section). Each element must be separatted with the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3`. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, read the comments in the previous lines of the variable definition. In case that the numbers of elements doesn't meet the right values, LPP will show a warning and exit the execution.
+3. Some variables have to be set as vectors (see the description in the dedicated section). Each element must be separatted with the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3`. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, pleas, read the comments in the lines before the variable definition. In case of .
+
+In case that the numbers of elements doesn't meet the right values, LPP will show a warning and exit the execution.
 4. The configuration file could be the same for all the modules, as far it contains the variables needed for the run.
 
 
@@ -129,11 +131,64 @@ An example of how to run this module can be:
 
     ./lidarAnalysis_PDL1 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
 
-The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The sample files included in this repository uses one file for L0, and another for modules L1 and L2.
+The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The sample files included in this repository uses one file for L0, and another for modules L1 and L2. The only important here is that the variables
+
+An example of a configuration file and its variables for L1 retrieval could be:
+
+```bash
+
+# BASIC LIDAR PARAMETERS
+
+# BACKGROUND CORRECTION METHOD = FIT/MEAN
+BkgCorrMethod = FIT
+
+# RAYLEIGHT-FIT TYPE METHOD: FACTOR / RMS
+Rayleight_Fit_TYPE = FACTOR
+
+##########################################################################################
+# PARAMETERS FOR lidarAnalysis_PDL1
+##########################################################################################
+
+# LASER-BIN-OFFSET OR TRIGGER-DELAY OR ZERO-BIN
+# ONE PER CHANNEL!!!!
+# MANAUS
+indxOffset = 11 : 11 : 11 : 11 : 11 
+
+# NUMBER OF FILES (EVENTS) THAT WILL BE MERGED (AVERAGED) INTO A SINGLE LIDAR SIGNAL
+numEventsToAvg_PDL1 = 10
+
+# WAVELENGHT USED FOR PDL1. INDEXES STARTING FROM 0
+indxWL_PDL1 = 0
+
+# MOLECULAR REFERENCES
+Temperature_at_Lidar_Station = 25.0
+Pressure_at_Lidar_Station = 940.0
+# SCC
+Molecular_Calc = 0
+
+# INITIAL RANGE OF ANALYSIS: rInitSig
+# END RANGE OF ANALYSIS: rEndSig
+rInitSig = 1100
+rEndSig = 25000
+
+# NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
+nBinsBkg = 1000
+
+# CLOUD DETECTION PARAMETERS
+AVG_CLOUD_DETECTION = 101
+stepScanCloud = 1
+nScanMax = 5000
+errFactor = 2.0
+thresholdFactor = 5.0
+CLOUD_MIN_THICK = 5
+
+errScanCheckFactor = 1.0
+errCloudCheckFactor = 0.0
+DELTA_RANGE_LIM_BINS = 100
 
 ```
-```
 
+The configuration files included in this repository has comments for each variable, making clear to understand. 
 
 <!-- ### `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
 
