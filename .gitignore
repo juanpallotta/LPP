@@ -40,13 +40,14 @@ markdown-cheat-sheet.md
 
 Octave/
 
+# signalsTest/
+
 # AUGER FILES AND FOLDERS
 AugerLidarAnalysis/
 root2NetCDF/
 runAuger/
 run_Auger_Analysis.sh
 Lidar_Analysis_Interface/
-signalsTest/
 
 # AUGER LIBRARIES
 Lidar_Configuration_Files/analysisParameters_Auger*.conf
