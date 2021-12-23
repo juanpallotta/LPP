@@ -13,6 +13,7 @@ class CDataLevel_1
 		void MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*) ;
 		void ScanCloud_RayleightFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
 		void GetCloudLimits( strcGlobalParameters*, strcMolecularData*) ;
+		void GetCloudLimits_v1( strcGlobalParameters*, double) ;
 
 	    strcCloudProfiles *cloudProfiles ;
 		strcIndexMol      *indxMol  	 ;

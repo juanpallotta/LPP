@@ -278,8 +278,11 @@ int main( int argc, char *argv[] )
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
+
+    // oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
+    //                              (double***)pr_corr, (double***)pr2, (CMolecularData_USStd*)oMolData ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
-                                 (double***)pr_corr, (double***)pr2, (CMolecularData_USStd*)oMolData ) ;
+                                 (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData_USStd*)oMolData ) ;
 
     for ( int e=0; e <glbParam.nEventsAVG ; e++  )
         delete [] clouds_ON_mtx[e] ;

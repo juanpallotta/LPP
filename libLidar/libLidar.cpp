@@ -464,91 +464,6 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 	}
 }
 
-// void GetCloudLimits( strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcCloudProfiles *cloudProfiles, strcIndexMol *indxMol )
-// {
-// 	double *dco   = (double*) new double[glbParam->nBins] ;
-// 	memset( (double*)dco  , 0, (sizeof(double) * glbParam->nBins) ) ;
-// 	for ( int i = 0 ; i<=glbParam->indxEndSig ; i++ )
-// 		dco[i] = (double)( cloudProfiles->clouds_ON[i+1] - cloudProfiles->clouds_ON[i] ) ;
-
-// 	int nInicCloud=0, nEndCloud=0 ;
-// 	for (int i =0; i <=glbParam->indxEndSig; i++)
-// 	{
-// 		if ( dco[i] ==(double)BIN_CLOUD )
-// 			nInicCloud++ ;
-// 		else if ( dco[i]==(double)(-BIN_CLOUD) )
-// 			nEndCloud++ ;
-// 	}
-// 	if ( nInicCloud == nEndCloud )
-// 	{
-// 		memset( cloudProfiles->indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-// 		memset( cloudProfiles->indxEndClouds , 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-// 		memset( indxMol->indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-// 		memset( indxMol->indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-// 		cloudProfiles->nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-// 		indxMol->nMolRanges 	= 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-
-// 		//CLOUDS DETECTION
-// 		for( int i=0 ; i <=(glbParam->indxEndSig-1) ; i++ )
-// 		{
-// 			if( dco[i] == (double)BIN_CLOUD ) // INIT CLOUD
-// 			{
-// 				cloudProfiles->indxInitClouds[cloudProfiles->nClouds] = i ;
-// 				for (int j =i ; j <=(glbParam->indxEndSig-1) ; j++)
-// 				{	// SEARCH THE END OF THE CLOUD
-// 					if( dco[j] == (double)(-BIN_CLOUD) ) // END CLOUD
-// 					{
-// 						cloudProfiles->indxEndClouds[cloudProfiles->nClouds] = j -1;
-// 						cloudProfiles->nClouds++ ; // COUNT CLOUDS
-// 						break ;
-// 					}
-// 				}
-// 			}
-// 		}
-// 		// MOLECULAR RANGES DETECTION
-// 		indxMol->nMolRanges = cloudProfiles->nClouds +1 ;
-// 		if ( indxMol->nMolRanges ==1 )
-// 		{
-// 			int 	heightRef_Inversion_ASL ;
-// 			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "int" , (int*)&heightRef_Inversion_ASL ) ;
-// 			indxMol->indxRef = (int)round(heightRef_Inversion_ASL /dataMol->dzr) ;
-// 				if ( indxMol->indxRef > (glbParam->nBins-1) )
-// 					indxMol->indxRef = glbParam->nBins -10 ;
-
-// 			for (int i =0; i < NMAXCLOUDS ; i++)
-// 			{
-// 				cloudProfiles->indxInitClouds[i] = 0 ;
-// 				cloudProfiles->indxEndClouds [i] = 0 ;
-// 				indxMol->indxInicMol[i] = 0 ;
-// 				indxMol->indxEndMol[i]  = glbParam->indxEndSig  ;
-// 			}
-// 		}
-// 		else
-// 		{
-// 			for( int i=0 ; i <indxMol->nMolRanges ; i++ )
-// 			{
-// 				if (i==0)
-// 				{
-// 					indxMol->indxInicMol[i] = 0 ;
-// 					indxMol->indxEndMol[i]  = cloudProfiles->indxInitClouds[i] -1  ;
-// 				}
-// 				else
-// 				{
-// 					indxMol->indxInicMol[i] = cloudProfiles->indxEndClouds[i-1] +1 ;
-// 					if ( i == (indxMol->nMolRanges-1) )
-// 						indxMol->indxEndMol[i]  = glbParam->indxEndSig ;
-// 					else
-// 						indxMol->indxEndMol[i]  = cloudProfiles->indxInitClouds[i] -1 ;
-// 				}
-// 			}
-// 		}
-// 	}
-// 	else
-// 		printf("\nGetCloudLim(...) --> error\n") ;
-
-// 	delete dco   ;
-// }
-
 void TransmissionMethod_pr( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, int indxBefCloud, int indxAftCloud, double *VOD )
 {
 	double *prFit = (double*) new double [ glbParam->nBins ] ;
@@ -1785,8 +1700,8 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 					dataFile_AVG[fC][c][b]  	= (double) dataFile_AVG[fC][c][b] + dataFile[fC +t][c][b] ;
 					if( (b==0) && (c==0) )
 					{
-						Raw_Data_Start_Time_AVG[fC]	  = (double) Raw_Data_Start_Time_AVG[fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
-						Raw_Data_Stop_Time_AVG[fC] 	  = (double) Raw_Data_Stop_Time_AVG [fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
+						Raw_Data_Start_Time_AVG[fC]	  = (int) Raw_Data_Start_Time_AVG[fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
+						Raw_Data_Stop_Time_AVG[fC] 	  = (int) Raw_Data_Stop_Time_AVG [fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
 
 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
@@ -2057,64 +1972,6 @@ void RayleighFit_Factor( double *sig, double *sigMol, strcFitParam *fitParam, do
 
 
 
-
-// void GetCloudLimits( strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcCloudProfiles *cloudProfiles, strcIndexMol *indxMol )
-// {
-// 	double *dco   = (double*) new double[glbParam->nBins] ;
-// 	memset( (double*)dco  , 0, (sizeof(double) * glbParam->nBins) ) ;
-// 	for ( int i = 0 ; i<=glbParam->indxEndSig ; i++ )
-// 		dco[i] = (double)( cloudProfiles->clouds_ON[i+1] - cloudProfiles->clouds_ON[i] ) ;
-// 	cloudProfiles->nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-// 	indxMol->nMolRanges 	= 0    ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-
-// 	int DELTA_RANGE_LIM_BINS ;
-// 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "DELTA_RANGE_LIM_BINS", "int", (int*)&DELTA_RANGE_LIM_BINS ) ;
-
-// 	// int initCloudCounter=0, endCloudCounter=0 ;
-
-// 	for( int i=0 ; i <=(glbParam->indxEndSig-1) ; i++ )
-// 	{
-// 		if( dco[i] == BIN_CLOUD ) // INIT CLOUD --- END MOLECULAR RANGE
-// 		{
-// 			indxMol->indxEndMol[indxMol->nMolRanges] = i -1 	; // indxMol->indxEndMol[initCloudCounter] 			= i -1 	;
-// 			indxMol->nMolRanges++ ; // COUNT MOLECULAR RANGES WHEN IT END.
-
-// 			cloudProfiles->indxInitClouds[cloudProfiles->nClouds] = i 	; // cloudProfiles->indxInitClouds[initCloudCounter] = i 	;
-// 			cloudProfiles->nClouds++ ; // COUNT CLOUDS WHEN IT START
-// 		}
-// 		else if( dco[i] == (-BIN_CLOUD) ) // END CLOUD --- INIT MOLECULAR RANGE
-// 		{
-// 			indxMol->indxInicMol[indxMol->nMolRanges] = i +1 ; // cloudProfiles->indxEndClouds[endCloudCounter] +1 ;
-
-// 			if ( cloudProfiles->nClouds >0 )
-// 			{
-// 				cloudProfiles->indxEndClouds[cloudProfiles->nClouds-1] = i ;
-// 				cloudProfiles->nClouds++ ;
-// 			}
-// 		}
-// 	}
-// 		cloudProfiles->nClouds = cloudProfiles->nClouds -2;
-// 		indxMol->nMolRanges --;
-// 		// cloudProfiles->indxInitClouds[initCloudCounter-1] = 0 ; // RESET THE LAST CLOUD INDEX INITIAL.
-// 		// initCloudCounter = initCloudCounter -1 ; // initCloudCounter -2 ; // ABL AND END OF THE SIGNAL.
-// 		// endCloudCounter  = endCloudCounter  -1 ; // ABL SUBSTRACTED.
-
-// 	if ( cloudProfiles->nClouds ==0 )
-// 	{
-// 		for (int i =0; i < NMAXCLOUDS ; i++)
-// 		{
-// 			cloudProfiles->indxInitClouds[i] = 0 ;
-// 			cloudProfiles->indxEndClouds [i] = 0 ;
-// 			indxMol->indxInicMol[i] = glbParam->indxInitSig ;
-// 			indxMol->indxEndMol[i]  = glbParam->indxEndSig  ;
-// 		}
-// 	}
-
-// 	// printf("\n Evnt: %d \t initCloudCounter: %d \t endCloudCounter: %d \t cloudProfiles->nClouds: %d", glbParam->event_analyzed, initCloudCounter, endCloudCounter, cloudProfiles->nClouds) ;
-// 	// printf("\n\t indxMol->indxInicMol[0]: %d   indxMol->indxEndMol[0]: %d", indxMol->indxInicMol[0], indxMol->indxEndMol[0] ) ;
-
-// 	delete dco   ;
-// }
 
 void overlapCorrection( double *pr, int nBins, const char *ovlpFile )
 {

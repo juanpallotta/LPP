@@ -423,7 +423,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
         ERR(retval);
 }
 
-void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_File_Out, strcGlobalParameters *glbParam, int **clouds_ON_mtx, double ***pr_corr, double ***pr2, CMolecularData_USStd *oMolData )
+void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_File_Out, strcGlobalParameters *glbParam, int **clouds_ON_mtx, double ***pr_corr, 
+                                            double ***pr2, int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG, CMolecularData_USStd *oMolData )
 {
     int retval, nc_id ;
     if ( ( retval = nc_open( Path_File_Out->c_str(), NC_WRITE, &nc_id ) ) )
@@ -432,6 +433,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         ERR(retval);
 
     int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_backscattering, var_id_mol_extinction, var_id_Temp_Pres[2], var_id_Zen_Azm[2] ;
+    int var_id_Raw_Data_Time[2] ;
     int dims_ids_pr_corr[3] ; // 0: TIME    1: CHANNELS     2:POINTS
 
     int nc_id_group_L1 ;
@@ -456,6 +458,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
 
     DefineVariable( (int)nc_id_group_L1, (char*)"Zenith_AVG"                     , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[0] ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Azimuth_AVG"                    , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[1] ) ;
+
+    DefineVariable( (int)nc_id_group_L1, (char*)"Raw_Data_Start_Time_AVG"        , (const char*)"int", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Raw_Data_Time[0] ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Raw_Data_Stop_Time_AVG"         , (const char*)"int", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Raw_Data_Time[1] ) ;
 
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
@@ -508,6 +513,10 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Zen_Azm[0], start_CM, count_CM, (double*)&glbParam->aZenithAVG[e] ) ) )
             ERR(retval);
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Zen_Azm[1], start_CM, count_CM, (double*)&glbParam->aAzimuth[e]   ) ) )
+            ERR(retval);
+        if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_id_Raw_Data_Time[0], start_CM, count_CM, (int*)&Raw_Data_Start_Time_AVG[e] ) ) )
+            ERR(retval);
+        if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_id_Raw_Data_Time[1], start_CM, count_CM, (int*)&Raw_Data_Stop_Time_AVG[e] ) ) )
             ERR(retval);
     }
     // WRITE CLOUD RAW LIDAR DATA CORRECTED
