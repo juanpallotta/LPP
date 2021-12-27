@@ -377,7 +377,7 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 		memset( indxMol[glbParam->event_analyzed].indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
 		memset( indxMol[glbParam->event_analyzed].indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
 		cloudProfiles[glbParam->event_analyzed].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-		indxMol[glbParam->event_analyzed].nMolRanges 	= 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
+		indxMol[glbParam->event_analyzed].nMolRanges 	 = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
 
 		//CLOUDS DETECTION
 		for( int i=0 ; i <=(glbParam->indxEndSig-1) ; i++ )
