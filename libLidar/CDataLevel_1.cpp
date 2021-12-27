@@ -355,7 +355,7 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam, strcMolecular
 	delete dco   ;
 }
 
-void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam, double dzr )
+void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 {
 	double *dco   = (double*) new double[glbParam->nBins] ;
 	memset( (double*)dco  , 0, (sizeof(double) * glbParam->nBins) ) ;
@@ -402,7 +402,7 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam, double dzr
 		{
 			int 	heightRef_Inversion_ASL ;
 			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "int" , (int*)&heightRef_Inversion_ASL ) ;
-			indxMol[glbParam->event_analyzed].indxRef = (int)round(heightRef_Inversion_ASL /dzr) ;
+			indxMol[glbParam->event_analyzed].indxRef = (int)round(heightRef_Inversion_ASL /glbParam->dzr) ;
 				if ( indxMol[glbParam->event_analyzed].indxRef > (glbParam->nBins-1) )
 					indxMol[glbParam->event_analyzed].indxRef = glbParam->nBins -10 ;
 
