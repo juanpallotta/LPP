@@ -149,8 +149,8 @@ int main( int argc, char *argv[] )
                 dataFile_AVG[e][c][b] = (double)0.0 ;
         }
     }
-    int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;
-    int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;
+    int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
+    int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Stop_Time_AVG , 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
     Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
                                     (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
