@@ -156,6 +156,11 @@ int main( int argc, char *argv[] )
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                   ) ;
 
+// printf("\n lidarAnalysis_PDL1.Raw_Data_Start_Time_AVG: %d ", Raw_Data_Start_Time_AVG[0]) ;
+// printf("\n lidarAnalysis_PDL1.Raw_Data_Start_Time_AVG: %d ", Raw_Data_Start_Time_AVG[1]) ;
+// printf("\n lidarAnalysis_PDL1.Raw_Data_Start_Time_AVG: %d ", Raw_Data_Start_Time_AVG[2]) ;
+// printf("\n lidarAnalysis_PDL1.Raw_Data_Start_Time_AVG: %d ", Raw_Data_Start_Time_AVG[3]) ;
+
 // READ GLOBAL PARAMETERS FROM NETCDF FILE
 
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )

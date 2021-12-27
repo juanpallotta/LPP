@@ -1700,8 +1700,12 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 					dataFile_AVG[fC][c][b]  	= (double) dataFile_AVG[fC][c][b] + dataFile[fC +t][c][b] ;
 					if( (b==0) && (c==0) )
 					{
-						Raw_Data_Start_Time_AVG[fC]	  = (int)(Raw_Data_Start_Time_AVG[fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t]) ;
-						Raw_Data_Stop_Time_AVG[fC] 	  = (int)(Raw_Data_Stop_Time_AVG [fC] + Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t]) ;
+						// Raw_Data_Start_Time_AVG[fC]	  = (int)( (int)Raw_Data_Start_Time_AVG[fC] + (int)Raw_Data_Start_Time[fC*glbParam->numEventsToAvg +t] ) ;
+						// Raw_Data_Stop_Time_AVG[fC] 	  = (int)( (int)Raw_Data_Stop_Time_AVG [fC] + (int)Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ) ;
+						if ( t ==0 )
+							Raw_Data_Start_Time_AVG[fC]	  = (int)Raw_Data_Start_Time[fC*glbParam->numEventsToAvg] ;
+						if ( t ==(glbParam->numEventsToAvg -1) )
+							Raw_Data_Stop_Time_AVG[fC] 	  = (int)Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ;
 
 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
@@ -1709,11 +1713,17 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
 					}
 				}
-					dataFile_AVG[fC][c][b]      = (double) dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg ;
+					dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
 					if( (b==0) && (c==0) )
 					{
-						Raw_Data_Start_Time_AVG[fC] = (int) round(Raw_Data_Start_Time_AVG[fC] /glbParam->numEventsToAvg) ;
-						Raw_Data_Stop_Time_AVG[fC]  = (int) round(Raw_Data_Stop_Time_AVG[fC]  /glbParam->numEventsToAvg) ;
+					printf("\n Average_In_Time_Lidar_Profiles.Raw_Data_Start_Time (antes): %d ", Raw_Data_Start_Time[fC]) ;
+					printf("\n Average_In_Time_Lidar_Profiles.Raw_Data_Stop_Time (antes): %d ", Raw_Data_Stop_Time[fC]) ;
+					printf("\n Average_In_Time_Lidar_Profiles.Raw_Data_Start_Time_AVG (antes): %d ", Raw_Data_Start_Time_AVG[fC]) ;
+					printf("\n Average_In_Time_Lidar_Profiles.Raw_Data_Stop_Time_AVG (antes): %d ", Raw_Data_Stop_Time_AVG[fC]) ;
+				// 		Raw_Data_Start_Time_AVG[fC] = (int) round( Raw_Data_Start_Time_AVG[fC] /glbParam->numEventsToAvg ) ;
+				// 		Raw_Data_Stop_Time_AVG[fC]  = (int) round( Raw_Data_Stop_Time_AVG[fC]  /glbParam->numEventsToAvg ) ;
+				// 	printf("\n Average_In_Time_Lidar_Profiles.Raw_Data_Start_Time_AVG (despues): %d ", Raw_Data_Start_Time_AVG[fC]) ;
+				// 	printf("\n Average_In_Time_Lidar_Profiles.Raw_Data_Stop_Time_AVG (despues): %d ", Raw_Data_Stop_Time_AVG[fC]) ;
 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
 						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
