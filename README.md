@@ -18,6 +18,7 @@ It is important to remark the feature that the output files produced in stages 1
 
 Each lidar analysis tool must be run in a Linux terminal, following the convention:
 
+<a name="run_module"></a>
 ```
 $./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf
 ```
@@ -39,33 +40,30 @@ Download or clone the repository from GitHub: `www.github.com/juanpallotta/LPP`.
 - `/Lidar_Analysis_L1`: C/C++ sources code of `lidarAnalysis_PDL1` to produce level 1 (L1) data products.
 - `/Lidar_Analysis_L2`: C/C++ sources code of `lidarAnalysis_PDL2` to produce level 2 (L2) data products.
 - `/Lidar_Configuration_Files`: Contain the configuration files (`.conf`) for each module. Also, the settings file for an automatic run (see later [section](#Automatizing_LPP) about the automatization of the modules).
-- `/signalsTest`: Lidar test files to test this code. You will find files from Argentina (pure Licel datatype files) and Brazil: Sao Paulo (Licel data type files) and Manaus (Raymetric datatype files).
+- `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (pure Licel datatype files) and Brazil: Sao Paulo (`Brazil/SPU/` folder, Licel data type files) and Manaus ( `Brazil/Manaus` folder, Raymetric datatype files).
 - `install_Lidar_Dependencies.sh`: Linux shell-script to install the basic software/libraries needed to compile and run the LPP software.
 - `/compile_All.sh`: Linux shell script to compile all the modules.
-- `/run_LPP_Analysis`: Linux shell script to run the whole chain automatically, following the rules saved in the configuration files `/Lidar_Configuration_Files/LPP_Settings.sh`. More about the automatization of all modules in section [Automatizing LPP](#Automatizing_LPP) of this README file.
+- `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. Main settings for automatic run are configured in its setting file (`/Lidar_Configuration_Files/LPP_Settings.sh`). More about the automatization of all modules in [Automatizing LPP](#Automatizing_LPP) section of this README file.
 - `README.md`: This file.
 
 ## Installing dependencies:
-There are and very basics things to be installed prior to the run. To solve this problem, run the Linux shell script named: `install_Lidar_Dependencies.sh`.
-It is a simple Linux shell script to install the basics packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials. Before running it, remember to check if the executable attributes are set. If not the case, make it executable with the command:
+There are a few and very basic things to be installed prior to the run of LPP. To do this job, just run the Linux shell script named `install_Lidar_Dependencies.sh`.
+It is a simple Linux shell script to install the basics packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials.
+Remember to set `install_Lidar_Dependencies.sh` with executable attributes: `chmod +x install_Lidar_Dependencies.sh`.
+
+## Building the code:
+To compile all the modules, just run the Linux shell script named `compile_All.sh`. This is a simple Linux script that makes the executables of each module inside their folders. Remember to set `compile_All.sh` with executable attributes: `chmod +x compile_All.sh`.
+At the moment, the compiler output will show some warnings. All of them will be cleared up in the future versions.
+
+## Configuring and running LPP modules:
+The behavior of each module is based on the parameters set in its configuration file passed as the [third argument](#run_module) . This file must have the variables needed for the module, following few rules.
+In this section, how to configure each module will be described. This is done by setting the variables in the configuration file (extension `.conf`, located in the folder `/Lidar_Configuration_Files`). Then, this file should be passed as a third argument to the module.
+
+Before running it, remember to check if the executable attributes are set. If not the case, make it executable with the command:
 
    chmod +x install_Lidar_Dependencies.sh
 
 This advisor is also applicable to any other script in the project.
-
-## Building:
-To compile all the modules, just run the Linux shell script named: `compile_All.sh`. This is a simple Linux script which enter the folders of each module and run the make command passing the makefile as argument.
-At the moment, the compiler output will show some warnings. All of them will be cleared up in the future versions.
-
-
-
-_____________________________________________________________________________
-
-
-
-## Configuring and running LPP modules:
-The behavior of each module is based on how is set the configuration file passed as the third argument. This file must have the variables needed for the module, following few rules.
-In this section, how to configure each module will be described. This is done by setting the variables in the configuration file (extension `.conf`, located in the folder `/Lidar_Configuration_Files`). Then, this file should be passed as a third argument to the module.
 
 <u>Configuration file:</u>
 In these files, all the parameters needed for the analysis must be set. Regarding to the format, only 4 main ideas have to be taken into account:
