@@ -8,11 +8,6 @@ echo ""
 
 source ./Lidar_Configuration_Files/LPP_Settings.sh
 
-# if test -d $PATH_IN
-# then
-#     PATH_IN_LIST=`find $PATH_IN -type d`
-# fi
-
 # SEARCH FOR SUB-FOLDERS INSIDE THE INPUT PATH
 cd ./Lidar_Analysis_PDL0/ # IF PATH_IN IS A RELATIVE PATH, IT SHOULD BE RELATIVE TO TO THE EXECUTABLE FILE. SO, PATH_IN_LIST WILL BE RELATIVE TO THE EXECUTABLES
 PATH_IN_LIST=`find $PATH_IN -type d`
