@@ -38,7 +38,7 @@ Download or clone the repository from GitHub: `www.github.com/juanpallotta/LPP`.
 - `/Lidar_Analysis_L0`: C/C++ sources code of `lidarAnalysis_PDL0` to produce level 0 (L0) data products.
 - `/Lidar_Analysis_L1`: C/C++ sources code of `lidarAnalysis_PDL1` to produce level 1 (L1) data products.
 - `/Lidar_Analysis_L2`: C/C++ sources code of `lidarAnalysis_PDL2` to produce level 2 (L2) data products.
-- `/Lidar_Configuration_Files`: Contain the configuration files (`.conf`) of each module.
+- `/Lidar_Configuration_Files`: Contain the configuration files (`.conf`) for each module. Also, the settings file for an automatic run (see later section about the automatization of the modules).
 - `/signalsTest`: Lidar test files to test this code. You will find files from Argentina (pure Licel datatype files) and Brazil (Raymetric datatype files).
 - `install_Lidar_Dependencies.sh`: a Linux shell-script to install the basic software/libraries needed to compile and run the LPP software.
 - `/compile_All.sh`: Linux shell script to compile all the modules.
