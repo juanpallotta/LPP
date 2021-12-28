@@ -56,19 +56,9 @@ To compile all the modules, just run the Linux shell script named `compile_All.s
 At the moment, the compiler output will show some warnings. All of them will be cleared up in the future versions.
 
 ## Configuring and running LPP modules:
-The behavior of each module is based on the parameters set in its configuration file passed as the [third argument](#run_module) . This file must have the variables needed for the module, following few rules.
-In this section, how to configure each module will be described. This is done by setting the variables in the configuration file (extension `.conf`, located in the folder `/Lidar_Configuration_Files`). Then, this file should be passed as a third argument to the module.
-
-Before running it, remember to check if the executable attributes are set. If not the case, make it executable with the command:
-
-   chmod +x install_Lidar_Dependencies.sh
-
-This advisor is also applicable to any other script in the project.
-
-<u>Configuration file:</u>
-In these files, all the parameters needed for the analysis must be set. Regarding to the format, only 4 main ideas have to be taken into account:
-1. Comments are defined by "`#`" character.
-2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a minimum of 1 space character has to be placed before and after the `=` character. The variables data type can be integer, float, double, or string.
+The behavior of each module is based on the parameters set in its configuration file, passed as the [third argument](#run_module). In this repository, they are stored in the `/Lidar_Configuration_Files`. These are text-based files and have the variables needed for the module, having to follow only 4 main rules:
+1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable. The configuration files included in this repository have many comments to explain the variables loaded. Also, if a variable accepts a specific set of values, all of them are commented.
+2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a **minimum of 1 space character has to be placed before and after the "`=`" character**. The variables data type can be integer, float, double, or string.
 3. Some variables have to be set as vectors (see the description in the dedicated section). Each element must be separatted with the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3`. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, pleas, read the comments in the lines before the variable definition. In case of .
 
 In case that the numbers of elements doesn't meet the right values, LPP will show a warning and exit the execution.
