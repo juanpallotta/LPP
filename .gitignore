@@ -63,4 +63,3 @@ libLidar/CMolecularDataAuger.*
 
 # LIDAR DATA PRODUCTS IGNORED DUE TO ITS SIZE
 *.nc
-*.root
