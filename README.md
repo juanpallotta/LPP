@@ -1,18 +1,26 @@
 # Lidar Processing Pipeline (LPP)
 
-The LPP is a collection of tools developed in C/C++ and Linux script, planned to handle all the steps of lidar analysis. A first tool converts the raw data files into a single NetCDF file, including detailed information about the instrument and acquisition setup (level 0 dataset). The produced files are then processed by another tool that applies the necessary corrections and computes the cloud-mask (level 1 dataset). The final step is the elastic retrieval of aerosol properties (level 2 dataset). The development of LPP is based on the existing analysis routines developed by individual LALINET groups, and hence takes advantage of previous efforts for algorithm comparison in the scope of the LALINET network
+The LPP is a collection of tools developed in C/C++ and Linux script, planned to handle all the steps of lidar analysis. In the present version of LPP, only elastic lidar signal are analyzed, but is planned to manage Raman signals in the near future. 
+
+LPP is made by 3 main tools. A first tool converts the raw data files into a single NetCDF file, including detailed information about the instrument and acquisition setup (level 0 dataset). The produced NetCDF file are then processed by another tool that applies the necessary corrections to the lidars signals and computes the cloud-mask (level 1 dataset). The final step is the elastic retrieval of aerosol properties (level 2 dataset), and for now, only elastic lidar signals are processed. The development of LPP is based on the existing analysis routines developed by individual LALINET groups, and hence takes advantage of previous efforts for algorithm comparison in the scope of the LALINET network.
 The codes presented in this repository are tested on Linux Ubuntu 20.04.3 LTS, and Windows 10 using WSL.
 
 ## Overall concept of the LPP tools
 
-The Lidar Processing Pipeline (LPP) is formed by 3 completely independent modules. The names of each one are represented by the output of its product data level (PDL), named from 0 to 2. Each one of these modules can be executed in a command line following the rules described in this document. These modules are:
-- `lidarAnalysis_PDL0`: Transforms all the raw lidar data files stored in a folder (passed as an argument) to a single NetCDF file. This output file will contain the raw lidar signals and global information about the measurement. The variable's name follows the name convention of the Single Calculus Chain (SCC) platform. This output is the L0 data level of LPP.
-- `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produce a new NetCDF defined as data level 1 (L1). This L1 file contain the corrected lidar files (like laser offset, bias correction, etc.), the cloud-mask product and molecular profiles for every wavelength used. Also, all the parameters used to produce this output are stored. This output is called L1 data level of LPP.
-- `lidarAnalysis_PDL2`: Receive the NetCDF file produced by `lidarAnalysis_PDL1` and produce a new NetCDF file defined as data level 2 (L2). This L2 file contain the optical products obtained from the elastic lidar signals contained in the NetCDF input file. Also, all the parameters used to produce this output are stored. This output is the L2 data level of LPP.
+The Lidar Processing Pipeline (LPP) is formed by 3 completely independent software (or modules), which communicates each other using NetCDF files. The names of each one are represented by the output of its product data level (PDL), named from 0 to 2. Each one of these modules can be executed in a Linux command line following basic rules described in this document. These modules are:
+- `lidarAnalysis_PDL0`: Transforms all the raw lidar data files stored in a folder (passed as an argument) into a single NetCDF file. This output file will contain the raw lidar signals and global information about the measurement. This output is the L0 data level of LPP.
+- `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produce a new NetCDF defined as data level 1 (L1). This L1 file contains the same information as the data level L0 and adds L1 information. These new data are: corrected lidar files (like laser offset, bias correction, etc.), the cloud-mask product, and molecular profiles for every wavelength used. Also, all the parameters used to produce this output are stored. This output is called L1 data level of LPP.
+- `lidarAnalysis_PDL2`: Receive the NetCDF file produced by `lidarAnalysis_PDL1` and produce a new NetCDF file defined as data level 2 (L2). This L2 file contains the same data of L0 and L1 and adds the optical products obtained from the elastic lidar signals. Also, all the parameters used to produce this output are stored. This output is the L2 data level of LPP.
+
+It is important to remark the feature that the output files produced in stages 1 and 2 contains all the information of its previous stage. The new file generated adds the new information of the stage under analysis in a NetCDF's subgroup called **L*x*_Data**, being ***x*** the data level number. This can be seen in the next figure, showing the data added in L1 stage:
+
+![Panoply subgroup](./Docs/Figures/sub_group_nc.png "NetCDF Subgroup")
 
 Each lidar analysis tool must be run in a Linux terminal, following the convention:
 
-   $./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf
+```
+$./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf
+```
 
 Where:
 - `lidarAnalysis_PDLx`: Software module to generate the data level ***x***.
@@ -20,20 +28,16 @@ Where:
 - `/Output_File`: Output NetCDF filename. The output file contains the information of the input folder/file, adding the information of the new data of the level under analysis.
 - `analysisParameters.conf`: Configuration file with all the variables needed for the level analysis.
 
-In order to avoid mistakes, it is preferable to use absolute paths for all the arguments passed to the modules.
-
-An important feature of the output files produced in the stages 1 and 2 is that these outputs contains all the information of its previous stage. The new file generated add the new information of the stage under analysis in a NetCDF's sub-group called **L*x*_Data**, being ***x*** the data level number. This can be seen in the next figure, showing the data added in L1 stage:
-
-![Panoply subgroup](./Docs/Figures/sub_group_nc.png "NetCDF Subgroup")
+To avoid mistakes, it is preferable to use absolute paths for all the arguments passed to the modules.
 
 In next sections, a step-to-step on how to install and run these modules are described.
 
 ## Installation:
-Download the latest version from `www.github.com/juanpallotta/LPP`. You will find 7 folders and 2 files:
+Download or clone the repository from GitHub: `www.github.com/juanpallotta/LPP`. You will find:
 - `/libLidar`: C/C++ lidar libraries source code.
-- `/Lidar_Analysis_L0`: C/C++ sources code of `lidarAnalysis_PDL0` to produce level 0 data products.
-- `/Lidar_Analysis_L1`: C/C++ sources code of `lidarAnalysis_PDL1` to produce level 1 data products.
-- `/Lidar_Analysis_L2`: C/C++ sources code of `lidarAnalysis_PDL2` to produce level 2 data products.
+- `/Lidar_Analysis_L0`: C/C++ sources code of `lidarAnalysis_PDL0` to produce level 0 (L0) data products.
+- `/Lidar_Analysis_L1`: C/C++ sources code of `lidarAnalysis_PDL1` to produce level 1 (L1) data products.
+- `/Lidar_Analysis_L2`: C/C++ sources code of `lidarAnalysis_PDL2` to produce level 2 (L2) data products.
 - `/Lidar_Configuration_Files`: Contain the configuration files (`.conf`) of each module.
 - `/signalsTest`: Lidar test files to test this code. You will find files from Argentina (pure Licel datatype files) and Brazil (Raymetric datatype files).
 - `install_Lidar_Dependencies.sh`: a Linux shell-script to install the basic software/libraries needed to compile and run the LPP software.
