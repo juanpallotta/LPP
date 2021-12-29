@@ -118,7 +118,7 @@ In order to proceed without mistakes, it highly recommended uncomment the proper
 
 ### `lidarAnalysis_PDL1`: Producing data level 1 products: lidar signals corrections and cloud-mask
 
-This module receive the NetCDF file produced by the previous module as a first parameter. This module will accept the input file while it is in the LALINET NetCDF format, this mean, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
+This module receive the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as a first parameter (in our example, `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format, this mean, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
 
 An example of how to run this module can be:
 

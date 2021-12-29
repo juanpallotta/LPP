@@ -51,10 +51,10 @@ int main( int argc, char *argv[] )
     if ( Path_In.back() != '/' )
         Path_In.push_back('/') ;
 
-    printf("\n Path_In:\t%s \t", Path_In.c_str() ) ;
+    printf("\n lidarAnalysis_PDL0: Path_In:\t%s \t", Path_In.c_str() ) ;
     // printf("\n Path_Out:\t%s", Path_Out.c_str() ) ;
     // printf("\n File_Out: \t%s", File_Out.c_str() ) ;
-    printf("\n Path_File_Out: %s", Path_File_Out.c_str() ) ;
+    printf("\n lidarAnalysis_PDL0: Path_File_Out: %s", Path_File_Out.c_str() ) ;
     // printf("\n Configuration File (glbParam.FILE_PARAMETERS): \t%s", glbParam.FILE_PARAMETERS ) ;
     // printf("\n Configuration File (argv[3]): \t%s", argv[3] ) ;
 
