@@ -56,38 +56,38 @@ To compile all the modules, just run the Linux shell script named `compile_All.s
 At the moment, the compiler output will show some warnings. All of them will be cleared up in the future versions.
 
 ## Configuring and running LPP modules:
-The behavior of each module is based on the parameters set in its configuration file, passed as the [third argument](#run_module). In this repository, they are stored in the `/Lidar_Configuration_Files`. These are text-based files and have the variables needed for the module, having to follow only 4 main rules:
-1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable. The configuration files included in this repository have many comments to explain the variables loaded. Also, if a variable accepts a specific set of values, all of them are commented.
-2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a **minimum of 1 space character has to be placed before and after the "`=`" character**. The variables data type can be integer, float, double, or string.
-3. Some variables have to be set as vectors (see the description in the dedicated section). Each element must be separatted with the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3`. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, pleas, read the comments in the lines before the variable definition. In case of .
-
-In case that the numbers of elements doesn't meet the right values, LPP will show a warning and exit the execution.
-4. The configuration file could be the same for all the modules, as far it contains the variables needed for the run.
+The behavior of each module is based on the parameters written in its configuration file, passed as the [third argument](#run_module). In this repository, they are stored in the `/Lidar_Configuration_Files`. These are text-based files and have the variables needed for the module, having to follow only 4 main rules:
+1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable. The configuration files included in this repository have many comments to explain each variables. Also, if a variable accepts a vector of values, all of them are commented.
+2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variables data type can be integer, float, double, or string.
+3. Some variables have to be set as vectors. Each element must be separated with the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3` <u>**and a minimum of 1 space character has to be placed before and after the "`:`" character**</u>. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and exit the execution.
+4. The configuration file could be the same for all the modules, or use one file for all of them, as far it contains the variables needed for the run. These variables are described in the next sections.
 
 
 
 ### `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
-This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (passed as a second argument). The configuration file is passed as third argument, and its going to be described in this section.
+This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (path and filename passed as a second argument). The configuration file is passed as third argument, and its going to be described in this section.
 
-An example of how to run this module using the test signals included in this repository is shown bellow:
+An example of how to run this module using the sample signals included in this repository is shown below:
 
     ./lidarAnalysis_PDL0 ../signalTest/Brazil/SPU/20210730/ ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
-- `../signalTest/Brazil/SPU/20210730/`: Input folder with the raw-lidar files in Licel or Raymetric data format.
-- `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Output path, **INCLUDING THE OUTPUT FILE NAME** of the output NetCDF file.
+- `../signalTest/Brazil/SPU/20210730/`: Input folder with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, there is no way to distinguish them from the rest of the files. Because of that <u>**it is important that nothing but raw lidar data files must be in this input folder**</u>. 
+- `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Output path, **including the input file name** of the output NetCDF file. In this example `20210730_L0.nc`.
 - `../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf`: Configuration file with the variables needed for the merging.
+
+Be careful if relative path is used: it must be relative to the executable file. In this example, the executable file is `lidarAnalysis_PDL0` and is in the folder `Lidar_Analysis_L0/`.
 
 An example of how L0 configuration file should look is seen in the next code:
 
 ```bash
-####################################################
+#############################################################
 # CONFIGURATION FILE FOR LIDAR CONVERSION TOOL 
-# RAW LIDAR DATA FILES TO NETCDF FILE - L0
-####################################################
+# RAW LIDAR DATA FILES TO NETCDF FILE - DATA LEVEL 0 (L0)
+#############################################################
 
-# DATE-TIME RANGE TO ANALYZE INSIDE THE FOLDER PASSED AS ARGUMENT TO lidar_Analysis_pDL0
+# DATE-TIME RANGE TO ANALYZE INSIDE THE FOLDER PASSED AS ARGUMENT TO lidarAnalysis_PDL0
 # IF minTime = maxTime --> ALL FILES INSIDE THE FOLDER WILL BE ANALYZED
 minTime = 2021/07/30-00:00:00
 maxTime = 2021/07/30-00:00:00
@@ -103,9 +103,12 @@ inputDataFileFormat = RAYMETRIC_FILE
 outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
 
-```
 
-At the moment, configuration files for L0 retrieval only need a few of basic data. The first one set are related to the time bin to analyze inside the folder (`minTime` and `maxTime`). In case to analyze all the files, these two variables have to be set equals. 
+
+At the moment, configuration files for L0 data level only need a few of basic inputs. 
+* `minTime` and `maxTime`: Time bin to analyze inside the input folder. In case to analyze all the files inside the folder, these two variables have to be set equals. Pay attention to the format: `YYYY/MM/DD-HH:MM:SS`.
+* `inputDataFileFormat`: .
+* `outputDataFileFormat`: .
 
 The other two variables are related to the data type format used in the input and output data files. The two options are Licel based files like: pure Licel data file format and Raymetric data file format. As can be seen, there are planned more input data types formats to convert. 
 
