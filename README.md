@@ -62,7 +62,7 @@ The behavior of each module is based on the parameters written in its configurat
 3. Some variables have to be set as vectors. Each element must be separated with the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3` <u>**and a minimum of 1 space character has to be placed before and after the "`:`" character**</u>. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and exit the execution.
 4. The configuration file could be the same for all the modules, or use one file for all of them, as far it contains the variables needed for the run. These variables are described in the next sections.
 
-
+The following sections describe each module, how to configure it, and how to run it. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
 
 ### `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
 This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (path and filename passed as a second argument). The configuration file is passed as third argument, and its going to be described in this section.
