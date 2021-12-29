@@ -93,8 +93,8 @@ minTime = 2021/07/30-00:00:00
 maxTime = 2021/07/30-00:00:00
 
 # INPUT DATAFILE FORMAT
-# inputDataFileFormat = LICEL_FILE
-inputDataFileFormat = RAYMETRIC_FILE
+inputDataFileFormat = LICEL_FILE
+# inputDataFileFormat = RAYMETRIC_FILE
 # inputDataFileFormat = LALINET_NETCDF -- NOT IMPLEMENTET YET
 # inputDataFileFormat = SCC_NETCDF -- NOT IMPLEMENTET YET
 # inputDataFileFormat = CSV -- NOT IMPLEMENTET YET
@@ -106,13 +106,12 @@ outputDataFileFormat = LALINET_NETCDF
 
 At the moment, configuration files for L0 data level only need a few of basic inputs. 
 * `minTime` and `maxTime`: Time bin to analyze inside the input folder. In case to analyze all the files inside the folder, these two variables have to be set equals. Pay attention to the format: `YYYY/MM/DD-HH:MM:SS`.
-* `inputDataFileFormat`: At the moment, only `LICEL_FILE` or `RAYMETRIC_FILE` data type file are accepted.
-* `outputDataFileFormat`: .
+* `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE`) or Raymetric (`RAYMETRIC_FILE`) data type file are accepted. As can be seen, there are planned more input data types formats to convert. 
+* `outputDataFileFormat`: The output datatype accepted are: LALINET (`LALINET_NETCDF`) and Sigle Calculus Chain (`SCC_NETCDF`) datatype file. 
 
-The other two variables are related to the data type format used in the input and output data files. The two options are Licel based files like: pure Licel data file format and Raymetric data file format. As can be seen, there are planned more input data types formats to convert. 
+A description of LALINET data type and its name conventions, can be see in later section in this document ([LALINET data type format](#LALINET_data_type_format)).
 
-Related to the output data file format, two types can be set: LALINET or SCC output files. A description of LALINET data type and its name conventions, can be see in latter section in this document ([LALINET data type format](#LALINET_data_type_format)). The SCC data type is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). This module can be use to feed the SCC platform, but no for use it in the next modules of LPP.
-
+If `SCC_NETCDF` is selected, the output file generated can be used as an input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). It is also important to mention that if this output is selected, later modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) cannot be used.
 
 In order to proceed without mistakes, it highly recommended uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so carefully check that only one line of each variable is uncommented.
 
