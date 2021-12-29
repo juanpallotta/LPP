@@ -216,11 +216,13 @@ DELTA_RANGE_LIM_BINS = 100
 
 ## <a name="Automatizing_LPP"></a>Automatizing LPP
 
-In order to run all the LPP modules automatically, this repository contains a Linux script to do this task. The name of this script is `run_LPP_Analysis.sh`, and you can find it at the root folder of this repository. It uses a general configuration file named `LPP_Settings.sh` located in the folder `/Lidar_Configuration_Files/`.
+In order to run all the LPP modules automatically, this repository contains a Linux script to do this task. The name of this script is `run_LPP_Analysis.sh`, and you can find it at the root folder of this repository. It uses a general configuration file named located in the configuration folder `Lidar_Configuration_Files/LPP_Settings.sh`.
 
-The main task of this script is to call every module, producing the inputs and outputs paths automatically. The convention's names of these strings are explained in this section. This script will analyze all the sub-folders starting from the main folders configured in the setting file `LPP_Settings.sh`, and generate the names of the input and output NetCDF files automatically. An example of the configuration file is show below:
+With this script, the outputs and input paths and filenames of every module are automatically generated and passed as argument for every `lidarAnalysis_PDLx`. The rules for performing this task are explained in this section.
 
-```bash {.line-numbers}
+This automatization process use another configuration file, named `Lidar_Configuration_Files/LPP_Settings.sh`, where the data set level and the input and output paths are set. An example of this file can be seen below:
+
+```bash
 #!/bin/bash
 
 # DATA LEVEL TO PRODUCE IN THE RUN. 
@@ -229,7 +231,8 @@ L1="yes"
 L2="no"
 
 # ABSOLUTE INPUT PATH
-PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
+# PATH_IN="../signalsTest/Brazil/Manaus/2011/10/17/"
+PATH_IN="../signalsTest/Brazil/SPU/20210730/"
 
 FILE_CONF_L0="../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf"
 FILE_CONF_L1_L2="../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
@@ -240,6 +243,9 @@ As can be seen, a few lines are needed to run the automatic mode. These are:
 * `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"` at the variables `Lx`, the run of the module can be controlled.
 * `PATH_IN`: Main path of the raw lidar data, in wich only lidar data file in the accepted data file formats must be stored. This is the starting point for searching for raw lidar data. A new folder named *LPP_OUT* will be created automatically once the script has searched to the last subfolder with raw lidar files. The `LPP_OUT` folder will be used to store the NetCDF files produced by LPP of the files stored at the mother folder of `LPP_OUT`.
 Because there are different ways to store the data files and their folder structures, two examples will be shown and how the folder/files are generated automatically. 
+
+This script will analyze all the sub-folders starting from the main folders configured in the setting file , and generate the names of the input and output NetCDF files automatically. An example of the configuration file is show below:
+
 
 First one is like Sao Paulo lidars, where the lidar files produced in a day are stored in a single folder with the date in its name. In the next figure, an example is shown:
 
