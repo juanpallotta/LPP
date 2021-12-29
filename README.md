@@ -74,7 +74,7 @@ An example of how to run this module using the sample signals included in this r
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
 - `../signalTest/Brazil/SPU/20210730/`: Input folder with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, there is no way to distinguish them from the rest of the files. Because of that <u>**it is important that nothing but raw lidar data files must be in this input folder**</u>. 
-- `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Output path, **including the input file name** of the output NetCDF file. In this example `20210730_L0.nc`.
+- `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Output path, **including the file name** of the output NetCDF file, in this example `20210730_L0.nc`. If the output file needs to be placed in a subfolder, generate it manually before running (in this example `LPP_OUT/`).
 - `../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf`: Configuration file with the variables needed for the merging.
 
 Be careful if relative path is used: it must be relative to the executable file. In this example, the executable file is `lidarAnalysis_PDL0` and is in the folder `Lidar_Analysis_L0/`.
@@ -124,12 +124,13 @@ An example of how to run this module can be:
 
     ./lidarAnalysis_PDL1 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
 
-The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The sample files included in this repository uses one file for L0, and another for modules L1 and L2. The only important here is that the variables
+The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The only important thing here is the variables included in the file passed as thrid argument.
 
-An example of a configuration file and its variables for L1 retrieval could be:
+The sample files included in this repository uses one file for `lidarAnalysis_PDL0`, and another for modules `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`.
+
+An example of a configuration file and its variables for L1 data level retrieval could be:
 
 ```bash
-
 # BASIC LIDAR PARAMETERS
 
 # BACKGROUND CORRECTION METHOD = FIT/MEAN
@@ -143,21 +144,24 @@ Rayleight_Fit_TYPE = FACTOR
 ##########################################################################################
 
 # LASER-BIN-OFFSET OR TRIGGER-DELAY OR ZERO-BIN
-# ONE PER CHANNEL!!!!
+# VECTOR TYPE: ONE PER CHANNEL
 # MANAUS
-indxOffset = 11 : 11 : 11 : 11 : 11 
+# indxOffset = 11 : 11 : 11 : 11 : 11 
+# SAO PAULO
+indxOffset = 2 : 3 : 7 : 5 : 8 : 2 : 9 : 2 : 2 : 2 : 2 : 2 
 
-# NUMBER OF FILES (EVENTS) THAT WILL BE MERGED (AVERAGED) INTO A SINGLE LIDAR SIGNAL
+# NUMBER OF FILES (EVENTS) THAT WILL BE AVERAGED INTO A SINGLE LIDAR SIGNAL
 numEventsToAvg_PDL1 = 10
 
 # WAVELENGHT USED FOR PDL1. INDEXES STARTING FROM 0
-indxWL_PDL1 = 0
+# SP
+indxWL_PDL1 = 2
+# MANAUS
+# indxWL_PDL1 = 0
 
 # MOLECULAR REFERENCES
 Temperature_at_Lidar_Station = 25.0
 Pressure_at_Lidar_Station = 940.0
-# SCC
-Molecular_Calc = 0
 
 # INITIAL RANGE OF ANALYSIS: rInitSig
 # END RANGE OF ANALYSIS: rEndSig
@@ -181,7 +185,40 @@ DELTA_RANGE_LIM_BINS = 100
 
 ```
 
-The configuration files included in this repository has comments for each variable, making clear to understand. 
+A description of each of this parameters are:
+
+* `BkgCorrMethod = FIT`:
+
+* `Rayleight_Fit_TYPE = FACTOR`:
+
+* `indxOffset = 2 : 3 : 7 : 5 : 8 : 2 : 9 : 2 : 2 : 2 : 2 : 2 
+
+* `numEventsToAvg_PDL1 = 10`:
+
+* `indxWL_PDL1 = 2`
+
+* `Temperature_at_Lidar_Station = 25.0`:
+* `Pressure_at_Lidar_Station = 940.0`:
+
+* `rInitSig = 1100` : INITIAL RANGE OF ANALYSIS: rInitSig
+* `rEndSig = 25000`: END RANGE OF ANALYSIS: rEndSig
+
+
+* `nBinsBkg = 1000`: NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
+
+* CLOUD DETECTION PARAMETERS
+```
+AVG_CLOUD_DETECTION = 101
+stepScanCloud = 1
+nScanMax = 5000
+errFactor = 2.0
+thresholdFactor = 5.0
+CLOUD_MIN_THICK = 5
+
+errScanCheckFactor = 1.0
+errCloudCheckFactor = 0.0
+DELTA_RANGE_LIM_BINS = 100
+```
 
 <!-- ### `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
 
