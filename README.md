@@ -106,7 +106,7 @@ outputDataFileFormat = LALINET_NETCDF
 
 At the moment, configuration files for L0 data level only need a few of basic inputs. 
 * `minTime` and `maxTime`: Time bin to analyze inside the input folder. In case to analyze all the files inside the folder, these two variables have to be set equals. Pay attention to the format: `YYYY/MM/DD-HH:MM:SS`.
-* `inputDataFileFormat`: .
+* `inputDataFileFormat`: At the moment, only `LICEL_FILE` or `RAYMETRIC_FILE` data type file are accepted.
 * `outputDataFileFormat`: .
 
 The other two variables are related to the data type format used in the input and output data files. The two options are Licel based files like: pure Licel data file format and Raymetric data file format. As can be seen, there are planned more input data types formats to convert. 
