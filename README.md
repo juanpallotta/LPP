@@ -102,8 +102,7 @@ inputDataFileFormat = RAYMETRIC_FILE
 # OUTPUT NETCDF DATAFILE FORMAT --> outDataFileFormat
 outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
-
-
+```
 
 At the moment, configuration files for L0 data level only need a few of basic inputs. 
 * `minTime` and `maxTime`: Time bin to analyze inside the input folder. In case to analyze all the files inside the folder, these two variables have to be set equals. Pay attention to the format: `YYYY/MM/DD-HH:MM:SS`.
