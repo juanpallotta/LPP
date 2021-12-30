@@ -1,1 +1,0 @@
-  close all  clear all   clc  a = load('./OUT/2018619_OUT/a201861900.081500_OUT_L1.dat') ;  figure ;  plot( a(:, 1), a(:, 2) )  grid on ;  title('nMol')  figure ;  plot( a(:, 1), a(:, 4) )  grid on ;  title('alphaMol')  figure ;  plot( a(:, 1), a(:, 5) )  grid on ;  title('betaMol')  figure ;  plot( a(:, 1), a(:, 6) )  grid on ;  title('pr2')
