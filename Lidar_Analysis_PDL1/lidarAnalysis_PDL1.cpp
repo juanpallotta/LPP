@@ -252,7 +252,6 @@ int main( int argc, char *argv[] )
                 // cout << endl << "glbParam.indxEndSig: " << glbParam.indxEndSig << "\t glbParam.nBins: " << glbParam.nBins << "\t glbParam.rEndSig: " << glbParam.rEndSig ;
             // }
             */
-            // printf( "\n\n ANTES - evSig.pr[91]: %lf \t oMolData->dataMol[indxWL_PDL1].prMol[91]: %lf \n\n", evSig.pr[91], oMolData->dataMol[indxWL_PDL1].prMol[91] );
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
             oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
             for( int i=0 ; i <glbParam.nBins ; i++ )
