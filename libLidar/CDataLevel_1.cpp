@@ -267,7 +267,8 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 		// if (cloudProfiles[glbParam->event_analyzed].nClouds ==0)
 		// 	printf("\nSC_RF() - (%d) NO Clouds detected\n", glbParam->event_analyzed) ;
 		
-		GetCloudLimits( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+		// GetCloudLimits( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+		GetCloudLimits_v1( (strcGlobalParameters*)glbParam ) ;
 }
 
 void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
