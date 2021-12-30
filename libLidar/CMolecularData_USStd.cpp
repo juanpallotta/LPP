@@ -131,6 +131,7 @@ void CMolecularData_USStd::Fill_dataMol( strcGlobalParameters *glbParam, int ind
 	for ( i=0 ; i < glbParam->nBins ; i++ )
 		dataMol->zr[i]   	= (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol->zenith *PI/180) ; // zr = ASL
 	dataMol[indxWL].dzr = (double)(dataMol[indxWL].zr[1] - dataMol[indxWL].zr[0]) ; // [m]
+	glbParam->dzr = dataMol[indxWL].dzr ;
 
 	RadLowToHighRes() ;
 	for ( i =0 ; i <glbParam->nBins ; i++ )
