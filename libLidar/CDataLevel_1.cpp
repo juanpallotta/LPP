@@ -237,7 +237,8 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 		cloudProfiles[glbParam->event_analyzed].clouds_ON[glbParam->indxEndSig] = (int)0 ; // LAST BIN IS SET TO ONE BE COHERENT FOR THE INDEXES COMPUTATION.
 
 // DONE WITH cloudProfile, NOW GET THE CLOUD LIMITS
-	GetCloudLimits( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+	// GetCloudLimits( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+	GetCloudLimits_v1( (strcGlobalParameters*)glbParam ) ;
 
 		for( int i=0 ; i <cloudProfiles[glbParam->event_analyzed].nClouds ; i++ )
 		{
