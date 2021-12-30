@@ -170,7 +170,6 @@ int main( int argc, char *argv[] )
 
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
-
     assert( indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
     glbParam.iLambda = (int*) new int [glbParam.nCh] ;
