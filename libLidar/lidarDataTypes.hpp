@@ -62,7 +62,7 @@ typedef struct{
 
 struct strcGlobalParameters
 {
-	char 	FILE_PARAMETERS[200] 		;
+	char 	FILE_PARAMETERS[500] 	; //! MAKE IT string CLASS!!!!!
 	char    inputDataFileFormat[50]	;
 	char    outputDataFileFormat[50];
 	char 	PDL[10]					;

@@ -156,8 +156,6 @@ int main( int argc, char *argv[] )
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                   ) ;
 
-// READ GLOBAL PARAMETERS FROM NETCDF FILE
-
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
         ERR(retval);
 
@@ -219,15 +217,16 @@ int main( int argc, char *argv[] )
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
         clouds_ON_mtx[e] = (int*) new int[glbParam.nBins] ;
 
-    double  **alpha_mol = (double**) new double*[glbParam.nCh];
-    double  **beta_mol  = (double**) new double*[glbParam.nCh];
-    for ( int c=0 ; c <glbParam.nCh ; c++ )
-    {
-        alpha_mol[c] = (double*) new double[glbParam.nBins] ;
-        beta_mol[c]  = (double*) new double[glbParam.nBins] ;
-    }
+    // double  **alpha_mol = (double**) new double*[glbParam.nCh];
+    // double  **beta_mol  = (double**) new double*[glbParam.nCh];
+    // for ( int c=0 ; c <glbParam.nCh ; c++ )
+    // {
+    //     alpha_mol[c] = (double*) new double[glbParam.nBins] ;
+    //     beta_mol[c]  = (double*) new double[glbParam.nBins] ;
+    // }
 
     CDataLevel_1 oDL1 = CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
+
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         cout << endl << endl ;
@@ -237,10 +236,7 @@ int main( int argc, char *argv[] )
             cout << endl << "Event: " << t << "\t Wavelengh: " << glbParam.iLambda[c] ;
             for ( int i=0 ; i <glbParam.nBins ; i++ )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
-            // for ( int i=0 ; i <(glbParam.nBins -glbParam.indxOffset[c]) ; i++ )
-            //     evSig.pr[i] = (double)pr_corr[t][c][i] ;
-            // for ( int i=(glbParam.nBins -glbParam.indxOffset[c]) ; i <glbParam.nBins ; i++ )
-            //     evSig.pr[i] = (double)pr_corr[t][c][i] ;
+
             /*
             // if ( glbParam.rEndSig >0 )
             //     glbParam.indxEndSig  = (int)round( glbParam.rEndSig /glbParam.dr ) ;
@@ -256,27 +252,26 @@ int main( int argc, char *argv[] )
                 // cout << endl << "glbParam.indxEndSig: " << glbParam.indxEndSig << "\t glbParam.nBins: " << glbParam.nBins << "\t glbParam.rEndSig: " << glbParam.rEndSig ;
             // }
             */
+            // printf( "\n\n ANTES - evSig.pr[91]: %lf \t oMolData->dataMol[indxWL_PDL1].prMol[91]: %lf \n\n", evSig.pr[91], oMolData->dataMol[indxWL_PDL1].prMol[91] );
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
             oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
             for( int i=0 ; i <glbParam.nBins ; i++ )
             {
                 pr2[t][c][i]    = (double)evSig.pr2[i] ;
-                alpha_mol[c][i] = (double)oMolData->dataMol[c].alphaMol[i] ;
-                beta_mol[c][i]  = (double)oMolData->dataMol[c].betaMol[i]  ;
+                // alpha_mol[c][i] = (double)oMolData->dataMol[c].alphaMol[i] ;
+                // beta_mol[c][i]  = (double)oMolData->dataMol[c].betaMol[i]  ;
             }
-
             if ( c == indxWL_PDL1 )
             {
-                cout << "\t --> Getting the cloud profile..." ;
+                printf("\t --> Getting the cloud profile...");
                 oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
-                cout << " done." ;
+                // printf("\n done.\n") ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                     clouds_ON_mtx[t][b] = (int) oDL1.cloudProfiles[t].clouds_ON[b] ;
             }
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
-
 
     // oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
     //                              (double***)pr_corr, (double***)pr2, (CMolecularData_USStd*)oMolData ) ;
