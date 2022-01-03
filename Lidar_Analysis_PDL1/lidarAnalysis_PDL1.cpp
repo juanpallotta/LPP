@@ -30,6 +30,8 @@ using namespace netCDF::exceptions;
 
 int main( int argc, char *argv[] )
 {
+    printf("\n\n---- lidarAnalisys_PDL1 (START) -----------------------------------------------------------------------------\n\n") ;
+
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
 
@@ -287,5 +289,7 @@ int main( int argc, char *argv[] )
     delete Raw_Data_Stop_Time_AVG   ;
 
     cout << endl << endl << "\tLidar Analisys PDL1 Done" << endl << endl ;
+    printf("\n\n---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\n\n") ;
+    
 	return 0 ;
 }
