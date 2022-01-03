@@ -31,6 +31,9 @@
 //#define TestBit(A,k)    ( A[(k/32)] & (1 << (k%32))   )
 
 using namespace std;
+// using std::cout
+// using std::endl
+// using std::string
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS TO MANIPULATE LIDAR SIGNALS
