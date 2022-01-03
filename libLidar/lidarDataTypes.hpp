@@ -110,7 +110,7 @@ struct strcGlobalParameters
 	int		numEventsToAvg			;
 	int 	rOffset			 		;
 	int 	*indxOffset				; // [MAX_CH_LICEL]
-	char	fileName[100] 			;
+	char	fileName[200] 			;
 	char	infoFile[100] 			;
 	char 	site[20] 				;
 	int		Laser_Frec[2] 			;
