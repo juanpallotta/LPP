@@ -264,7 +264,7 @@ int main( int argc, char *argv[] )
             }
             if ( c == indxWL_PDL1 )
             {
-                printf("\t --> Getting the cloud profile...");
+                printf("\t --> Getting cloud profile...");
                 oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
                 // printf("\n done.\n") ;
 
