@@ -195,10 +195,7 @@ int main( int argc, char *argv[] )
 
 // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
 //! THE PATH SHOULD BE READ FROM glbParam.FILE_PARAMETERS
-    char radFile[100] ;
-    sprintf( radFile, "./US-StdA_DB_CEILAP.csv") ;
-    // CMolecularData_USStd *oMolData = (CMolecularData_USStd*) new CMolecularData_USStd( (char*)radFile, (strcGlobalParameters*)&glbParam ) ;
-    CMolecularData *oMolData_gen   = (CMolecularData*)       new CMolecularData      (                 (strcGlobalParameters*)&glbParam ) ;
+    CMolecularData *oMolData_gen = (CMolecularData*) new CMolecularData ( (strcGlobalParameters*)&glbParam ) ;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
