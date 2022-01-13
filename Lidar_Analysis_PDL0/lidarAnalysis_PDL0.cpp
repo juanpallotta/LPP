@@ -153,7 +153,7 @@ int main( int argc, char *argv[] )
     for ( int fC=0 ; fC <glbParam.nEvents ; fC++ )
     {
         glbParam.event_analyzed = fC;
-        printf("\n File Nº %d: %s \n", fC, inputFilesInTime[fC] ) ;
+        // printf("\n File Nº %d: %s \n", fC, inputFilesInTime[fC] ) ;
         // avgTime_num =0 ;
             if( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
                 ReadLicelData ( (char*)inputFilesInTime[fC], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[fC] ) ;
@@ -179,10 +179,10 @@ int main( int argc, char *argv[] )
                 timeVec_str[fC].assign(strTimeMerged) ;
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
 
-                cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
-                cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
-                cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
-                cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
+                // cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
+                // cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
+                // cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
+                // cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
                     for ( int c=0 ; c <glbParam.nCh ; c++ )
                     {
                         for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )

@@ -26,6 +26,7 @@ using namespace netCDF::exceptions;
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CDataLevel_1.hpp"
 #include "../libLidar/CMolecularData_USStd.hpp"
+#include "../libLidar/CMolecularData.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
 
 int main( int argc, char *argv[] )
@@ -158,6 +159,12 @@ int main( int argc, char *argv[] )
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                   ) ;
 
+// for (int i =0; i <glbParam.nEventsAVG ; i++)
+// {
+//     printf("\n lidarAnalysis_PDL1 --> Raw_Data_Start_Time_AVG[%i]: %i", i, Raw_Data_Start_Time_AVG[i] ) ;
+// }
+
+
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
         ERR(retval);
 
@@ -190,7 +197,8 @@ int main( int argc, char *argv[] )
 //! THE PATH SHOULD BE READ FROM glbParam.FILE_PARAMETERS
     char radFile[100] ;
     sprintf( radFile, "./US-StdA_DB_CEILAP.csv") ;
-    CMolecularData_USStd *oMolData = (CMolecularData_USStd*) new CMolecularData_USStd( (char*)radFile, (strcGlobalParameters*)&glbParam ) ;
+    // CMolecularData_USStd *oMolData = (CMolecularData_USStd*) new CMolecularData_USStd( (char*)radFile, (strcGlobalParameters*)&glbParam ) ;
+    CMolecularData *oMolData_gen   = (CMolecularData*)       new CMolecularData      (                 (strcGlobalParameters*)&glbParam ) ;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -219,14 +227,6 @@ int main( int argc, char *argv[] )
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
         clouds_ON_mtx[e] = (int*) new int[glbParam.nBins] ;
 
-    // double  **alpha_mol = (double**) new double*[glbParam.nCh];
-    // double  **beta_mol  = (double**) new double*[glbParam.nCh];
-    // for ( int c=0 ; c <glbParam.nCh ; c++ )
-    // {
-    //     alpha_mol[c] = (double*) new double[glbParam.nBins] ;
-    //     beta_mol[c]  = (double*) new double[glbParam.nBins] ;
-    // }
-
     CDataLevel_1 oDL1 = CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
 
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
@@ -254,19 +254,19 @@ int main( int argc, char *argv[] )
                 // cout << endl << "glbParam.indxEndSig: " << glbParam.indxEndSig << "\t glbParam.nBins: " << glbParam.nBins << "\t glbParam.rEndSig: " << glbParam.rEndSig ;
             // }
             */
-            oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
-            oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
+            // oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
+            oMolData_gen->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
+            // oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
+            oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData_gen->dataMol[c] ) ;
             for( int i=0 ; i <glbParam.nBins ; i++ )
-            {
                 pr2[t][c][i]    = (double)evSig.pr2[i] ;
-                // alpha_mol[c][i] = (double)oMolData->dataMol[c].alphaMol[i] ;
-                // beta_mol[c][i]  = (double)oMolData->dataMol[c].betaMol[i]  ;
-            }
+
             if ( c == indxWL_PDL1 )
             {
                 printf("\t --> Getting cloud profile...");
-                oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
-                // printf("\n done.\n") ;
+                // oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
+                oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData_gen->dataMol[indxWL_PDL1] ) ;
+                printf(" done.") ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                     clouds_ON_mtx[t][b] = (int) oDL1.cloudProfiles[t].clouds_ON[b] ;
@@ -275,9 +275,9 @@ int main( int argc, char *argv[] )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
     // oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
-    //                              (double***)pr_corr, (double***)pr2, (CMolecularData_USStd*)oMolData ) ;
+    //                              (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData_USStd*)oMolData ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
-                                 (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData_USStd*)oMolData ) ;
+                                 (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData_USStd*)oMolData_gen ) ;
 
     for ( int e=0; e <glbParam.nEventsAVG ; e++  )
         delete [] clouds_ON_mtx[e] ;

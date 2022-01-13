@@ -46,6 +46,7 @@ Download or clone the repository from GitHub: `www.github.com/juanpallotta/LPP`.
 - `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. Main settings for automatic run are configured in its setting file (`/Lidar_Configuration_Files/LPP_Settings.sh`). More about the automatization of all modules in [Automatizing LPP](#Automatizing_LPP) section of this README file.
 - `README.md`: This file.
 
+## Using the code
 ## Installing dependencies:
 There are a few and very basic things to be installed prior to the run of LPP. To do this job, just run the Linux shell script named `install_Lidar_Dependencies.sh`.
 It is a simple Linux shell script to install the basics packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials.
@@ -152,7 +153,18 @@ indxWL_PDL1 = 2
 # MANAUS
 # indxWL_PDL1 = 0
 
-# MOLECULAR REFERENCES
+# MOLECULAR DATA
+# ABSOLUTE PATH TO THE RADIOSOUNDING/MODEL FILE. THIS FILE MUST BE FORMATTED:
+# - COMMA SEPARATED
+# - RANGE UNIT: METERS
+# - TEMPERATURE UNIT: KELVIN
+# - PRESSURE UNIT: HECTO PASCALS
+Path_To_Molecular_File = ./US-StdA_DB_CEILAP.csv
+# SETTINGS OF THE COLUMN INDEX (0-2) OF THE PARAMETERS RANGE-TEMPERATURE-PRESSURE IN THE FILE:
+Range_column_index_in_File = 0
+Temp_column_index_in_File  = 1
+Pres_column_index_in_File  = 2
+
 Temperature_at_Lidar_Station = 25.0
 Pressure_at_Lidar_Station = 940.0
 
@@ -185,6 +197,22 @@ A description of each of this parameters are:
 * `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lidarAnalysis_PDL1` the numbers of lidar profiles to average and producing one merged profile. After this, the `time` dimension in the NetCDF file from the L1 data products will be reduced by `numEventsToAvg_PDL1` times.
 
 * `indxWL_PDL1`: An index (starting from 0) of the channel to use in cloud-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file.
+
+* `Path_To_Molecular_File`: Path to the plain-text, comma-sepparated file containing the radiosonde/model data. This file must contain the altitude, temperature and pressure of the radiosonde/model used for the computation of the alpha and beta molecular profiles. The units of these variables are described in the comments of the setting file: altitude in m, temperature in K and pressure in hPa. This repository has a sample file of US standard model (file named `US-StdA_DB_CEILAP.csv` located in the same folder of the executable file for L1 products). In case of the radiosonde model is not in the same folder, please, write the complete path to this file. There is no necessary to write the path between inverted comas `"`.
+
+This file must be headerless, and the column order of each parameter are described in the next variables: `Range_column_index_in_File`, `Temp_column_index_in_File` and `Pres_column_index_in_File`. As is shown in the sample code, in this case the altitude is the first column (index 0), temperature the second (index 1), and the pressure the third column (index 2). The first lines of the `US-StdA_DB_CEILAP.csv` file contained in this repository are shown in the next lines:
+
+```
+0,288.15,1013.27,0,0,1033.81,1.2247
+200,286.85,989.48,0,0,1009.26,1.2013
+400,285.55,966.13,0,0,985.22,1.1783
+600,284.25,943.24,0,0,961.68,1.1557
+800,282.95,920.78,0,0,938.62,1.1333
+1000,281.65,898.77,0,0,916.05,1.1113
+...
+```
+
+The data contained in the columns indexes 3 to 7 are not taken into account.
 
 * `Temperature_at_Lidar_Station`: Temperature at ground level (in Celsius).
 * `Pressure_at_Lidar_Station`: Pressure at ground level (in hPa)

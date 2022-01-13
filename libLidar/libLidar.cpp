@@ -382,6 +382,9 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed], 
 		&glbParam->aAzimuth[glbParam->event_analyzed], &glbParam->temp_Celsius[glbParam->event_analyzed], &glbParam->pres_hPa[glbParam->event_analyzed] ) ;
 	}
+		// printf("\nReadLicelTime_and_Coord()") ;
+		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
+		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
 
 	// StartDate = 05/08/2020
 	sprintf( &glbParam->StartDate[2], "%s", &glbParam->StartDate[3] ) ; // 05/08/2020 --> 0508/2020
@@ -396,6 +399,9 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 	// StoptDate = 00:00:40
 	sprintf( (char*)&glbParam->StopTime[2], "%s", (char*)&glbParam->StopTime[3] ) ; // 0000:30
 	sprintf( (char*)&glbParam->StopTime[4], "%s", (char*)&glbParam->StopTime[5] ) ; // 000030
+		// printf("\nReadLicelTime_and_Coord()") ;
+		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	\nlidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
+		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
 }
 
 void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
@@ -1697,7 +1703,7 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 			{
 				for ( int t=0 ; t <glbParam->numEventsToAvg ; t++ )
 				{
-					dataFile_AVG[fC][c][b]  	= (double) dataFile_AVG[fC][c][b] + dataFile[fC +t][c][b] ;
+					dataFile_AVG[fC][c][b] = (double) dataFile_AVG[fC][c][b] + dataFile[fC +t][c][b] ;
 					if( (b==0) && (c==0) )
 					{
 						// Raw_Data_Start_Time_AVG[fC]	  = (int)( (int)Raw_Data_Start_Time_AVG[fC] + (int)Raw_Data_Start_Time[fC*glbParam->numEventsToAvg +t] ) ;
