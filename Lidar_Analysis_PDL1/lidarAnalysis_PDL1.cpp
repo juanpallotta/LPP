@@ -42,8 +42,8 @@ int main( int argc, char *argv[] )
 	Path_File_In.assign  ( argv[1] ) ;
 	Path_File_Out.assign ( argv[2] ) ;
 
-    printf("\n Path_File_In:\t %s " , Path_File_In.c_str()  ) ;
-    printf("\n Path_File_Out:\t %s\n\n", Path_File_Out.c_str() ) ;
+    printf("\n Path_File_In: %s " , Path_File_In.c_str()  ) ;
+    printf("\n Path_File_Out: %s\n\n", Path_File_Out.c_str() ) ;
 
     char cmdCopy[500] ;
     sprintf( cmdCopy, "cp %s %s", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
