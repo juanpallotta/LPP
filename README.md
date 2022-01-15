@@ -310,7 +310,7 @@ channels
 points
 ```
 For the data level 0, the dimension `time` contain the number of lidar files located in the input folder passed as first argument to `lidarAnalysis_PDL0`.
-`channels` dimension contain the number of channels contained in the lidar input files. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` consider that all the files contained in the input folder passed as first argument have the same hardware caracteristics. If some changes in the harware are made during a measurements, please, save them in another folder and analyze them in another run.
+`channels` dimension contain the number of channels contained in the lidar input files. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` consider that all the files contained in the input folder passed as first argument have the same hardware characteristics. If some changes in the hardware are made during a measurement, please, save them in another folder and analyze them in another run.
 `points` dimension is the number of bins of all lidar tracks recorded.
 
 #### Variables
