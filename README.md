@@ -65,7 +65,7 @@ The behavior of each module is based on the parameters written in its configurat
 
 The following sections describe each module, how to configure it, and how to run it. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
 
-### `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
+### <a name="configuring_PDL0"></a> `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
 This module is used to merge the raw lidars files located in a folder (passed as first argument), into a single NetCDF file (path and filename passed as a second argument). The configuration file is passed as third argument, and its going to be described in this section.
 
 An example of how to run this module using the sample signals included in this repository is shown below:
@@ -293,4 +293,43 @@ In this case, the files are stored in a folder with the number of the day, and t
 As can be seen, there are also rules for creating the NetCDF files name. `lidar_Analysis_PDL0` will create the L0 data level file using the name of the last subfolder with lidar files, adding `_L0.nc`. The rest of the modules, will add `_L1` and `_L2` to the input filename to produce the output filename. It can be seen in last figure, where `lidar_Analysis_PDL0` produce `17_L0.nc` and  `lidar_Analysis_PDL1` produce `17_L0_L1.nc`. 
 
 
-## <a name="LALINET_data_type_format"></a> LALINET Data Type Format
+## <a name="LALINET_data_type_format"></a> LALINET NetCDF Data Type Format File
+
+As was mentioned before, each LPP's module has its own NetCDF file ouput produced by processing the information passed as the input argument (first parameter) according the configuration file (third parameter). We describe here the status of the first version of LPP output files, but this will be upgraded as new capabilities are added.
+The description of the dimensions, variables and global parameters are described in the next sections.
+
+### NetCDF's File Produced for Data Level 0
+This file contains the raw lidar data extracted from the input files, with general information contained in the header. 
+<!-- As was explained in the section related to the product data level 0 ([PDL0](#configuring_PDL0)), extra information can be added to this file as global.--> 
+
+#### Dimensions
+In this version, 3 dimensions are defined:
+```
+time
+channels
+points
+```
+For the data level 0, the dimension `time` contain the number of lidar files located in the input folder passed as first argument to `lidarAnalysis_PDL0`.
+`channels` dimension contain the number of channels contained in the lidar input files. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` consider that all the files contained in the input folder passed as first argument have the same hardware caracteristics. If some changes in the harware are made during a measurements, please, save them in another folder and analyze them in another run.
+`points` dimension is the number of bins of all lidar tracks recorded.
+
+#### Variables
+The variables are (in alphabetical order):
+
+* `Accumulated_Pulses(channels)`
+* `ADC_Bits(channels)`
+* `Azimuth(time)`
+* `DAQ_Range(channels)`
+* `Laser_Source(channels)`
+* `Number_Of_Bins(channels)`
+* `PMT_Voltage(channels)`
+* `Polarization(channels)`
+* `Raw_Data_Start_Time(time)`
+* `Raw_Data_Stop_Time(time)`
+* `Raw_Lidar_Data(time, channels, points)`
+* `Wavelenghts(channels)`
+* `Zenith(time)`
+
+### NetCDF's File Produced for Data Level 1
+
+### NetCDF's File Produced for Data Level 2
