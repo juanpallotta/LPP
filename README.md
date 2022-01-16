@@ -333,6 +333,13 @@ The variables are listed below (in alphabetical order), with the dimensions used
 
 **Global attributes**
 
+* `Site_Name`: = "Embrapa_";
+* `Altitude_meter_asl`: = 100.0; // double
+* `Latitude_degrees_north`: = -60.0; // double
+* `Longitude_degrees_east`: = -2.9; // double
+* `Range_Resolution`: = 7.5; // double
+* `Laser_Frec_1`: = 10.0; // double
+* `Laser_Frec_2`: = 10.0; // double
 
 ### NetCDF's File Produced for Data Level 1
 

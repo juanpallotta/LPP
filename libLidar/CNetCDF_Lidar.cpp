@@ -376,12 +376,14 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
         Putt_Bulk_Att_Text( (int)ncid, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)&strAttList ) ;
 
     // DOUBLE GLOBAL ATTRIBUTES
-    double dblAttList[5] ;
-    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL  ;
-    strAttListName[1] = "Latitude_degrees_north" ;   dblAttList[1] = (double)glbParam->siteLat  ;
-    strAttListName[2] = "Longitude_degrees_east" ;   dblAttList[2] = (double)glbParam->siteLong ;
-    strAttListName[3] = "Range_Resolution"       ;   dblAttList[3] = (double)glbParam->dr       ;
-        Putt_Bulk_Att_Double( (int)ncid, (int)NC_GLOBAL, (int)4, (string*)strAttListName, (double*)dblAttList ) ;
+    double dblAttList[6] ;
+    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL       ;
+    strAttListName[1] = "Latitude_degrees_north" ;   dblAttList[1] = (double)glbParam->siteLat       ;
+    strAttListName[2] = "Longitude_degrees_east" ;   dblAttList[2] = (double)glbParam->siteLong      ;
+    strAttListName[3] = "Range_Resolution"       ;   dblAttList[3] = (double)glbParam->dr            ;
+    strAttListName[4] = "Laser_Frec_1"           ;   dblAttList[4] = (double)glbParam->Laser_Frec[0] ;
+    strAttListName[5] = "Laser_Frec_2"           ;   dblAttList[5] = (double)glbParam->Laser_Frec[1] ;
+        Putt_Bulk_Att_Double( (int)ncid, (int)NC_GLOBAL, (int)6, (string*)strAttListName, (double*)dblAttList ) ;
 
     // UNITS OF THE VARIABLES
         Set_LALINET_Units_L0( (int)ncid, (int*)var_ids ) ;
