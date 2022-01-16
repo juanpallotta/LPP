@@ -314,21 +314,25 @@ For the data level 0, the dimension `time` contains the number of lidar files lo
 `points` dimension is the number of bins of all lidar tracks recorded.
 
 #### Variables
-The variables are (in alphabetical order):
+The variables of the L0 are the data stored in the headers of the lidar files (in Licel/Raymetric datatype format).
+The variables are listed below (in alphabetical order), with the dimensions used in parentheses:
 
-* `Accumulated_Pulses(channels)`
-* `ADC_Bits(channels)`
-* `Azimuth(time)`
-* `DAQ_Range(channels)`
-* `Laser_Source(channels)`
-* `Number_Of_Bins(channels)`
-* `PMT_Voltage(channels)`
-* `Polarization(channels)`
-* `Raw_Data_Start_Time(time)`
-* `Raw_Data_Stop_Time(time)`
-* `Raw_Lidar_Data(time, channels, points)`
-* `Wavelenghts(channels)`
-* `Zenith(time)`
+* `Accumulated_Pulses(channels)`: Number in laser pulses accumulated in each channel.
+* `ADC_Bits(channels)`: Number of bits for the ADC electronic.
+* `Azimuth(time)`:
+* `DAQ_Range(channels)`:
+* `Laser_Source(channels)`:
+* `Number_Of_Bins(channels)`:
+* `PMT_Voltage(channels)`:
+* `Polarization(channels)`:
+* `Raw_Data_Start_Time(time)`:
+* `Raw_Data_Stop_Time(time)`:
+* `Raw_Lidar_Data(time, channels, points)`:
+* `Wavelenghts(channels)`:
+* `Zenith(time)`:
+
+**Global attributes**
+
 
 ### NetCDF's File Produced for Data Level 1
 
