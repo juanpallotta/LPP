@@ -293,7 +293,7 @@ In this case, the files are stored in a folder with the number of the day, and t
 As can be seen, there are also rules for creating the NetCDF files name. `lidar_Analysis_PDL0` will create the L0 data level file using the name of the last subfolder with lidar files, adding `_L0.nc`. The rest of the modules, will add `_L1` and `_L2` to the input filename to produce the output filename. It can be seen in the last figure, where `lidar_Analysis_PDL0` produces `17_L0.nc` and  `lidar_Analysis_PDL1` produce `17_L0_L1.nc`. 
 
 
-## <a name="LALINET_data_type_format"></a> LALINET NetCDF Data Type Format File
+## <a name="LALINET_data_type_format"></a> LALINET NetCDF's Data Type Format File
 
 As was mentioned before, each LPP module has its own NetCDF file output produced by processing the information passed as the input argument (first parameter) according to the configuration file (third parameter). We describe here the status of the first version of LPP output files, but this will be upgraded as new capabilities are added.
 The description of the dimensions, variables and global parameters are described in the next sections.
@@ -317,9 +317,9 @@ For the data level 0, the dimension `time` contains the number of lidar files lo
 The variables of the L0 are the data stored in the headers of the lidar files (in Licel/Raymetric datatype format).
 The variables are listed below (in alphabetical order), with the dimensions used in parentheses:
 
-* `Accumulated_Pulses(channels)`: Number in laser pulses accumulated in each channel.
+* `Accumulated_Pulses(channels)`: Number of laser pulses accumulated in each channel.
 * `ADC_Bits(channels)`: Number of bits for the ADC electronic.
-* `Azimuth(time)`:
+* `Azimuth(time)`: .
 * `DAQ_Range(channels)`:
 * `Laser_Source(channels)`:
 * `Number_Of_Bins(channels)`:
@@ -334,12 +334,12 @@ The variables are listed below (in alphabetical order), with the dimensions used
 **Global attributes**
 
 * `Site_Name`: String containing the lidar's site name.
-* `Altitude_meter_asl`: Double data type containing the altitude .
-* `Latitude_degrees_north`: = -60.0; // double
-* `Longitude_degrees_east`: = -2.9; // double
-* `Range_Resolution`: = 7.5; // double
-* `Laser_Frec_1`: = 10.0; // double
-* `Laser_Frec_2`: = 10.0; // double
+* `Altitude_meter_asl`: Double data type containing the altitude of the lidar site.
+* `Latitude_degrees_north`: Double data type with the latitude of the lidar site.
+* `Longitude_degrees_east`: Double data type with the longitude of the lidar site.
+* `Range_Resolution`: Double data type with the range resolution in meters.
+* `Laser_Frec_1`: Double data type with the laser 1 repetition rate. 
+* `Laser_Frec_2`: Double data type with the laser 2 repetition rate. 
 
 ### NetCDF's File Produced for Data Level 1
 
