@@ -339,7 +339,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     strNameVars[0]  = "Raw_Lidar_Data" ;
     strNameVars[1]  = "Raw_Data_Start_Time" ;
     strNameVars[2]  = "Raw_Data_Stop_Time" ;
-    strNameVars[3]  = "Wavelenghts" ;
+    strNameVars[3]  = "Wavelengths" ;
     strNameVars[4]  = "Polarization" ;
     strNameVars[5]  = "DAQ_Range" ;
     strNameVars[6]  = "DAQ_type" ;
