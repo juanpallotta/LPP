@@ -328,13 +328,13 @@ The variables are listed below (in alphabetical order), with the dimensions used
 * `Raw_Data_Start_Time(time)`:
 * `Raw_Data_Stop_Time(time)`:
 * `Raw_Lidar_Data(time, channels, points)`:
-* `Wavelenghts(channels)`:
+* `Wavelengths(channels)`:
 * `Zenith(time)`:
 
 **Global attributes**
 
-* `Site_Name`: = "Embrapa_";
-* `Altitude_meter_asl`: = 100.0; // double
+* `Site_Name`: String containing the lidar's site name.
+* `Altitude_meter_asl`: Double data type containing the altitude .
 * `Latitude_degrees_north`: = -60.0; // double
 * `Longitude_degrees_east`: = -2.9; // double
 * `Range_Resolution`: = 7.5; // double
@@ -344,8 +344,6 @@ The variables are listed below (in alphabetical order), with the dimensions used
 ### NetCDF's File Produced for Data Level 1
 
 ### NetCDF's File Produced for Data Level 2
-
-
 
 
 
