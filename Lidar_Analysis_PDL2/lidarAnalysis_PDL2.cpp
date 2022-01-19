@@ -139,7 +139,7 @@ int main( int argc, char *argv[] )
 
             if ( (retval = nc_close(ncid)) )
                 ERR(retval) ;
-
+/*
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ GLOBAL PARAMETERS FROM NETCDF FILE
     glbParam.r = (double*) new double[glbParam.nBins] ;
@@ -160,7 +160,6 @@ int main( int argc, char *argv[] )
     // {
     //     cout << endl << "Ch_to_Invert[i]: " << Ch_to_Invert[i] ;
     // }
-    cout << endl << "main() --> glbParam.FILE_PARAMETERS: " << glbParam.FILE_PARAMETERS << endl ;
     for ( int t=0 ; t <glbParam.nEvents ; t++ )
     {
         cout << endl ;
@@ -169,12 +168,12 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << c << "\t Wavelenght: " << glbParam.iLambda[c] ;
-            oDL2.Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)c ) ;
+            // oDL2.Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)c ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     
     oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)&oDL2 ) ;
-
+*/
     printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
 	return 0 ;
 }

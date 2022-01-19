@@ -358,7 +358,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
 
     DefineVariable( (int)ncid, (char*)strNameVars[1].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[1]  ) ; // Raw_Data_Start_Time
     DefineVariable( (int)ncid, (char*)strNameVars[2].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[2]  ) ; // Raw_Data_Stop_Time
-    DefineVariable( (int)ncid, (char*)strNameVars[3].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[3]  ) ; // Wavelenghts
+    DefineVariable( (int)ncid, (char*)strNameVars[3].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[3]  ) ; // Wavelengths
     DefineVariable( (int)ncid, (char*)strNameVars[4].c_str() , (const char*)"char"  , (int)1, (int*)&dim_ids[1], (int*)&var_ids[4]  ) ; // Polarization
     DefineVariable( (int)ncid, (char*)strNameVars[5].c_str() , (const char*)"double", (int)1, (int*)&dim_ids[1], (int*)&var_ids[5]  ) ; // DAQ_Range
     DefineVariable( (int)ncid, (char*)strNameVars[6].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[6]  ) ; // DAQ_type
