@@ -30,7 +30,7 @@ do
 	then
         echo -e "\n------------------------------------------------------------\n" 
         # DEFINING THE INPUTS AND OUTPUTS PATHS
-            PATH_OUT_L0=$paths_In"/LPP_OUT/"
+            PATH_OUT_L0=$paths_In"LPP_OUT/"
             echo -e "\nOutput folder with the LPP products: "$PATH_OUT_L0
             if test -d "$PATH_OUT_L0"
             then 

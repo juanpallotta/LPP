@@ -25,7 +25,8 @@ using namespace netCDF::exceptions;
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CDataLevel_1.hpp"
-#include "../libLidar/CMolecularData_USStd.hpp"
+
+// #include "../libLidar/CMolecularData_USStd.hpp"
 #include "../libLidar/CMolecularData.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
 
@@ -180,7 +181,7 @@ int main( int argc, char *argv[] )
     assert( indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
     glbParam.iLambda = (int*) new int [glbParam.nCh] ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (int*)glbParam.iLambda ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (int*)glbParam.iLambda ) ;
 
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval);
@@ -195,7 +196,7 @@ int main( int argc, char *argv[] )
 
 // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
 //! THE PATH SHOULD BE READ FROM glbParam.FILE_PARAMETERS
-    CMolecularData *oMolData_gen = (CMolecularData*) new CMolecularData ( (strcGlobalParameters*)&glbParam ) ;
+    CMolecularData *oMolData = (CMolecularData*) new CMolecularData ( (strcGlobalParameters*)&glbParam ) ;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -251,18 +252,15 @@ int main( int argc, char *argv[] )
                 // cout << endl << "glbParam.indxEndSig: " << glbParam.indxEndSig << "\t glbParam.nBins: " << glbParam.nBins << "\t glbParam.rEndSig: " << glbParam.rEndSig ;
             // }
             */
-            // oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
-            oMolData_gen->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
-            // oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
-            oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData_gen->dataMol[c] ) ;
+            oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
+            oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
             for( int i=0 ; i <glbParam.nBins ; i++ )
                 pr2[t][c][i]    = (double)evSig.pr2[i] ;
 
             if ( c == indxWL_PDL1 )
             {
                 printf("\t --> Getting cloud profile...");
-                // oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
-                oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData_gen->dataMol[indxWL_PDL1] ) ;
+                oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
                 printf(" done.") ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
@@ -271,10 +269,8 @@ int main( int argc, char *argv[] )
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
-    // oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
-    //                              (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData_USStd*)oMolData ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int**)clouds_ON_mtx,
-                                 (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData_USStd*)oMolData_gen ) ;
+                                 (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
     for ( int e=0; e <glbParam.nEventsAVG ; e++  )
         delete [] clouds_ON_mtx[e] ;

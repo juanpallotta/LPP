@@ -3,13 +3,13 @@
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no", LOWERCASE
 L0="yes"
-L1="no"
+L1="yes"
 L2="no"
 
 #* RELATIVE INPUT PATH TO THE TEST LIDAR FILES FOLDER INCLUDED IN THE REPOSITORY
 #* DO NOT USE SPACES!!!! 
-PATH_IN="../signalsTest/Brazil/Manaus/"
-# PATH_IN="../signalsTest/Brazil/SPU/20210730/"
+# PATH_IN="../signalsTest/Brazil/Manaus/"
+PATH_IN="../signalsTest/Brazil/SPU/20210730/"
 
 # CONFIGURATION FILES --> RELATIVE TO THE FOLDER WICH IS RUNNING THE ANALYSIS!!
 FILE_CONF_L0="../Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf"

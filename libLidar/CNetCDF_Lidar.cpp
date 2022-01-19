@@ -426,7 +426,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
 }
 
 void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_File_Out, strcGlobalParameters *glbParam, int **clouds_ON_mtx, double ***pr_corr, 
-                                            double ***pr2, int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG, CMolecularData_USStd *oMolData )
+                                            double ***pr2, int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG, CMolecularData *oMolData )
 {
     int retval, nc_id ;
     if ( ( retval = nc_open( Path_File_Out->c_str(), NC_WRITE, &nc_id ) ) )

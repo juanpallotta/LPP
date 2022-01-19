@@ -14,7 +14,8 @@
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CDataLevel_1.hpp"
 #include "../libLidar/CDataLevel_2.hpp"
-#include "../libLidar/CMolecularData_USStd.hpp"
+// #include "../libLidar/CMolecularData_USStd.hpp"
+#include "../libLidar/CMolecularData.hpp"
 
 using namespace std;
 using namespace netCDF;
@@ -52,8 +53,7 @@ class CNetCDF_Lidar
 
 		void Save_SCC_NCDF_Format	 ( string, strcGlobalParameters*, double***, int*, string*, int*, string* ) ;
 		void Save_LALINET_NCDF_PDL0( string, strcGlobalParameters*, double***, int*, int* ) ;
-		// void Save_LALINET_NCDF_PDL1  ( string*, string*, strcGlobalParameters*, int**, double***, double***, CMolecularData_USStd* ) ;
-		void Save_LALINET_NCDF_PDL1  ( string*, string*, strcGlobalParameters*, int**, double***, double***, int*, int*, CMolecularData_USStd* ) ;
+		void Save_LALINET_NCDF_PDL1  ( string*, string*, strcGlobalParameters*, int**, double***, double***, int*, int*, CMolecularData* ) ;
 		void Save_LALINET_NCDF_PDL2  ( string*, strcGlobalParameters*, CDataLevel_2* ) ;
 		void CloseFile( int ) ;
 };
