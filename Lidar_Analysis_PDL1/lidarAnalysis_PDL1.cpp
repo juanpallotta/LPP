@@ -25,8 +25,6 @@ using namespace netCDF::exceptions;
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CDataLevel_1.hpp"
-
-// #include "../libLidar/CMolecularData_USStd.hpp"
 #include "../libLidar/CMolecularData.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
 

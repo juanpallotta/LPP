@@ -26,11 +26,12 @@ using namespace netCDF::exceptions;
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CDataLevel_1.hpp"
 #include "../libLidar/CDataLevel_2.hpp"
-#include "../libLidar/CMolecularData_USStd.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
 
 int main( int argc, char *argv[] )
 {
+    printf("\n\n---- lidarAnalisys_PDL2 (START) -----------------------------------------------------------------------------\n\n") ;
+ 
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
 
@@ -47,8 +48,6 @@ int main( int argc, char *argv[] )
     sprintf( cmdCopy, "cp %s %s", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
     system(cmdCopy) ;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // NETCDF FILE STUFF
     int  ncid   ;
     int  retval ;
@@ -64,8 +63,8 @@ int main( int argc, char *argv[] )
         ERR(retval);
 
     string  strNameVars[NVARS_LALINET] ;
-    strNameVars[0] = "Raw_Lidar_Data_Corrected" ;
-    strNameVars[1] = "Range_Corrected_Lidar_Signal" ;
+    strNameVars[0] = "Raw_Lidar_Data_L1" ; //! BORRAR
+    strNameVars[1] = "Range_Corrected_Lidar_Signal_L1" ;
     strNameVars[2] = "Molecular_Extinction" ;
     strNameVars[3] = "Molecular_Backscattering" ;
     int id_var_RCLS, id_var_beta_mol, id_var_alpha_mol  ;
@@ -99,7 +98,7 @@ int main( int argc, char *argv[] )
     glbParam.nCh     = size_dim[1] ;
     glbParam.nBins   = size_dim[2] ;
 
-    oNCL.ReadVar( (int)ncid, (const char*)"Wavelenghts", (double*)glbParam.iLambda ) ;
+    oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (double*)glbParam.iLambda ) ;
 
     CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
@@ -176,7 +175,7 @@ int main( int argc, char *argv[] )
     
     oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)&oDL2 ) ;
 
-    cout << endl << endl << "\tLidar Analisys PDL2 Done" << endl << endl << endl ;
+    printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
 	return 0 ;
 }
  

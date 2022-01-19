@@ -169,7 +169,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 					// }
 				}
 			}
-		}
+		} // while ( !myfile.eof() )
 		myfile.close();
     }
     else 
