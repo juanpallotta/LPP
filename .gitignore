@@ -31,10 +31,6 @@
 *.out
 *.app
 
-Lidar_Analysis_PDL0/lidarAnalysis_PDL0
-Lidar_Analysis_PDL1/lidarAnalysis_PDL1
-Lidar_Analysis_PDL2/lidarAnalysis_PDL2
-
 # IGNORING (MAINLY) AUGER STUFF...
 
 .vscode/
@@ -63,3 +59,6 @@ libLidar/CMolecularDataAuger.*
 
 # LIDAR DATA PRODUCTS IGNORED DUE TO ITS SIZE
 *.nc
+Lidar_Analysis_PDL0/lidarAnalysis_PDL0
+Lidar_Analysis_PDL1/lidarAnalysis_PDL1
+Lidar_Analysis_PDL2/lidarAnalysis_PDL2
