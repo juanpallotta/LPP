@@ -163,7 +163,6 @@ int main( int argc, char *argv[] )
 //     printf("\n lidarAnalysis_PDL1 --> Raw_Data_Start_Time_AVG[%i]: %i", i, Raw_Data_Start_Time_AVG[i] ) ;
 // }
 
-
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
         ERR(retval);
 
@@ -231,7 +230,7 @@ int main( int argc, char *argv[] )
         glbParam.event_analyzed = t ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
-            cout << endl << "Event: " << t << "\t Wavelengh: " << glbParam.iLambda[c] ;
+            cout << endl << "Event: " << t << "\t Wavelenght: " << glbParam.iLambda[c] ;
             for ( int i=0 ; i <glbParam.nBins ; i++ )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
 

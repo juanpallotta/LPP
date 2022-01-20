@@ -415,8 +415,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     PutVar( (int)ncid, (int)var_ids[6] , (const char*)"int"   , (int*)glbParam->iAnPhot             ) ;
     PutVar( (int)ncid, (int)var_ids[7] , (const char*)"int"   , (int*)glbParam->PMT_Voltage         ) ;
     PutVar( (int)ncid, (int)var_ids[8] , (const char*)"int"   , (int*)glbParam->nShots              ) ;
-    PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenith          ) ; // PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenithAVG       ) ;
-    PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuth         ) ; // PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuthAVG      ) ;
+    PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenith          ) ;
+    PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuth         ) ;
     PutVar( (int)ncid, (int)var_ids[13], (const char*)"int"   , (int*)glbParam->iADCbits            ) ;
     PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)glbParam->Laser_Src           ) ;
     PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBinsRaw_Ch         ) ;

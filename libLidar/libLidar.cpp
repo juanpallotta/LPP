@@ -1696,7 +1696,7 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 	printf( "\n\n" ) ;
     for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
     {
-        printf("Averaging in time Cluster Nº %d \r", fC ) ;
+        printf("Averaging in time Cluster Nº %d \n", fC ) ;
 
 		for ( int c=0 ; c <glbParam->nCh ; c++ )
 		{

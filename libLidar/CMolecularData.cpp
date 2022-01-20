@@ -105,7 +105,7 @@ void CMolecularData::Read_range_Temp_Pres_From_File( strcGlobalParameters *glbPa
 		// 	indxMax = i 	;
 		// }
 	}
-	RadSondeData.nBinsLR = lines - indxMin ; // indxMax - indxMin +1 ; // 
+	RadSondeData.nBinsLR = lines - indxMin ;
 	RadSondeData.zLR = (double*) new double [RadSondeData.nBinsLR] ;
 	RadSondeData.pLR = (double*) new double [RadSondeData.nBinsLR] ;
 	RadSondeData.tLR = (double*) new double [RadSondeData.nBinsLR] ;
