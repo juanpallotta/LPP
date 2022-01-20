@@ -25,7 +25,7 @@ class CDataLevel_1
 		double			errFitStage, errRefBkg, errFactor, errScanCheckFactor, errCloud, biasRef, sppm, spm, spmpm, m, thresholdFactor, errCloudCheckFactor ;
 		double			*prFit, *prS, *prprm, *prmprm ;
 		int 			nScanMax, AVG_CLOUD_DETECTION, CLOUD_MIN_THICK, first_cluster_ON, stepScanCloud, scanNumExit, sum_misc, DELTA_RANGE_LIM_BINS ;
-		int				mtxCloud_ON_counts ; // *mtxCloud_ON_counts ; // 
+		int				mtxCloud_ON_counts ;
 		double 			**mtxCloud_ON ;
 		char 			ifODcut[5] ;
 		strcFitParam	fitParam ;
