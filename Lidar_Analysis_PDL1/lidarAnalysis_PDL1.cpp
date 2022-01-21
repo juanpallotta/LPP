@@ -259,7 +259,7 @@ int main( int argc, char *argv[] )
                 printf("\t --> Getting cloud profile...");
                 oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
                 if ( oDL1.cloudProfiles[c].nClouds >0 )
-                    printf(" some clouds detected") ;
+                    printf(" some clouds detected at %lf m asl @ %lf deg", oMolData->dataMol[c].zr[ oDL1.cloudProfiles[c].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
                     printf(" NO clouds detected") ;
                 // printf(" done.") ;

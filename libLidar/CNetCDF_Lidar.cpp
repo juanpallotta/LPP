@@ -476,9 +476,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
     indxWL_PDL1++ ;
-    if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"Channel_Number_Cloud_Mask", NC_INT, 1, (const int*)&indxWL_PDL1 ) ) )
+    if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"Channel_Number_for_Cloud_Mask", NC_INT, 1, (const int*)&indxWL_PDL1 ) ) )
     {
-        printf("\n (4) \n") ;
         ERR(retval);
     }
 
@@ -491,14 +490,12 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
 
                 if ( (retval = nc_enddef(nc_id_group_L1)) )
                 {
-                    printf("\n (5) \n") ;
                     ERR(retval);
                 }
 
     // WRITE LASER ZERO BIN OFFSET
     if ( (retval = nc_put_var_int( (int)nc_id_group_L1, (int)var_id_laser_zero_bin_offset, (int*)&glbParam->indxOffset ) ) )
     {
-        printf("\n (6) \n") ;
         ERR(retval);
     }
 
@@ -511,13 +508,11 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         start_mol[0] =c ;
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_mol_extinction, start_mol, count_mol, (double*)&oMolData->dataMol[c].alphaMol[0]  ) ) )
         {
-            printf("\n (7) \n") ;
             ERR(retval) ;
         }
 
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_mol_backscattering, start_mol, count_mol, (double*)&oMolData->dataMol[c].betaMol[0] ) ) )
         {
-            printf("\n (8) \n") ;
             ERR(retval) ;
         }
     }
