@@ -263,7 +263,6 @@ printf(" glbParam.numEventsToAvg: %d \n", glbParam.numEventsToAvg ) ;
             {
                 printf("\t --> Getting cloud profile...");
                 oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-                // oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[indxWL_PDL1] ) ;
 
 // printf("\n\t Channel: %d \t Time: %d", c, t ) ;
 // printf("\n\t oDL1.cloudProfiles[t].nClouds: %d ", oDL1.cloudProfiles[t].nClouds ) ;
