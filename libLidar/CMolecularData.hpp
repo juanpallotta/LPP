@@ -15,8 +15,9 @@ class CMolecularData
 		CMolecularData( strcGlobalParameters* ) ;
 		virtual ~CMolecularData();
 
-    	strcMolecularData *dataMol ;
-	    void GetMem_dataMol( int, int ) ;
+    	strcMolecularData dataMol ;
+	    void GetMem_dataMol( int ) ;
+	    // void GetMem_dataMol( int, int ) ;
 		void Fill_dataMol( strcGlobalParameters*, int ) ;
     	strcRadioSoundingData RadSondeData ;
 

@@ -440,7 +440,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         ERR(retval);
     }
 
-    int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_backscattering, var_id_mol_extinction, var_id_Temp_Pres[2], var_id_Zen_Azm[2] ;
+    int var_id_pr_corr, var_id_pr2, var_id_laser_zero_bin_offset, var_id_mol_density, var_id_Temp_Pres[2], var_id_Zen_Azm[2] ;
+    // int var_id_mol_backscattering, var_id_mol_extinction ;
     int var_id_Raw_Data_Time[2] ;
     int dims_ids_pr_corr[3] ; // 0: TIME    1: CHANNELS     2:POINTS
 
@@ -462,8 +463,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
 
     DefineVariable( (int)nc_id_group_L1, (char*)"Range_Corrected_Lidar_Signal_L1", (const char*)"double", (int)3, (int*)&dims_ids_pr_corr[0], (int*)&var_id_pr2 ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Laser_Zero_Bin_Offset"          , (const char*)"int"   , (int)1, (int*)&dims_ids_pr_corr[1], (int*)&var_id_laser_zero_bin_offset ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Extinction"           , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_extinction ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Backscattering"       , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_backscattering ) ;
+    // DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Extinction"           , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_extinction ) ;
+    // DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Backscattering"       , (const char*)"double", (int)2, (int*)&dims_ids_pr_corr[1], (int*)&var_id_mol_backscattering ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Density"              , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[2], (int*)&var_id_mol_density  ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_ground_level"       , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[0] ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_ground_level"          , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[1] ) ;
 
@@ -498,24 +500,32 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     {
         ERR(retval);
     }
-
-    // WRITE MOLECULAR INFORMATION
-    size_t start_mol[2], count_mol[2];
-    start_mol[0] = 0;   count_mol[0] = 1 ;  // CHANNEL
-    start_mol[1] = 0;   count_mol[1] = glbParam->nBins ; // BINS
-    for( int c=0 ; c <glbParam->nCh  ; c++ )
+    
+    // WRITE MOLECULAR DENSITY
+    size_t start_mol[1], count_mol[1];
+    start_mol[0] = 0;   count_mol[0] = glbParam->nBins ; // BINS
+    if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_mol_density, start_mol, count_mol, (double*)&oMolData->dataMol.nMol[0]  ) ) )
     {
-        start_mol[0] =c ;
-        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_mol_extinction, start_mol, count_mol, (double*)&oMolData->dataMol[c].alphaMol[0]  ) ) )
-        {
-            ERR(retval) ;
-        }
-
-        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_mol_backscattering, start_mol, count_mol, (double*)&oMolData->dataMol[c].betaMol[0] ) ) )
-        {
-            ERR(retval) ;
-        }
+        ERR(retval) ;
     }
+    // WRITE MOLECULAR INFORMATION: EXTINCTION AND BACKSCATTER
+    // size_t start_mol[2], count_mol[2];
+    // start_mol[0] = 0;   count_mol[0] = 1 ;  // CHANNEL
+    // start_mol[1] = 0;   count_mol[1] = glbParam->nBins ; // BINS
+    // for( int c=0 ; c <glbParam->nCh  ; c++ )
+    // {
+        // start_mol[0] =c ;
+
+        // if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_mol_extinction, start_mol, count_mol, (double*)&oMolData->dataMol.alphaMol[0]  ) ) )
+        // {
+        //     ERR(retval) ;
+        // }
+
+    //     if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_mol_backscattering, start_mol, count_mol, (double*)&oMolData->dataMol.betaMol[0] ) ) )
+    //     {
+    //         ERR(retval) ;
+    //     }
+    // }
 
     // WRITE CLOUD MASK VARIABLE
     size_t start_CM[2], count_CM[2];

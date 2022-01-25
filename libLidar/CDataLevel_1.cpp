@@ -440,6 +440,11 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 		printf("\nGetCloudLim(...) --> error\n") ;
 
 	delete dco   ;
+
+// printf("\n\t CDataLevel_1::GetCloudLimits_v1() " ) ;
+// printf("\n\t cloudProfiles[c].nClouds: %d ", cloudProfiles[glbParam->event_analyzed].nClouds ) ;
+// printf("\n\t cloudProfiles[.].indxInitClouds[0]: %d ", cloudProfiles[glbParam->event_analyzed].indxInitClouds[0]  ) ;
+// printf("\n\t cloudProfiles[.].indxInitClouds[0]: %d ", cloudProfiles[glbParam->event_analyzed].indxEndClouds[0]  ) ;
 }
 
 void CDataLevel_1::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
