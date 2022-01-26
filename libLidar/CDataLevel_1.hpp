@@ -15,18 +15,21 @@ class CDataLevel_1
 		// void GetCloudLimits( strcGlobalParameters*, strcMolecularData*) ;
 		void GetCloudLimits_v1( strcGlobalParameters*) ;
 
-	    strcCloudProfiles *cloudProfiles ;
-		strcIndexMol      *indxMol  	 ;
+	    strcCloudProfiles 	*cloudProfiles ;
+		strcIndexMol      	*indxMol  	 ;
+		double 				**mtxCloud_ON ;
+		double				errRefBkg ;
 
 	private:
 		void	GetMem_indxMol( strcGlobalParameters*) ;
 	    void 	GetMem_cloudProfiles( strcGlobalParameters* ) ;
 
-		double			errFitStage, errRefBkg, errFactor, errScanCheckFactor, errCloud, biasRef, sppm, spm, spmpm, m, thresholdFactor, errCloudCheckFactor ;
+		double			errFitStage, errFactor, errScanCheckFactor, errCloud, biasRef, sppm, spm, spmpm, m, thresholdFactor, errCloudCheckFactor ;
+		// double			errRefBkg ;
 		double			*prFit, *prS, *prprm, *prmprm ;
 		int 			nScanMax, AVG_CLOUD_DETECTION, CLOUD_MIN_THICK, first_cluster_ON, stepScanCloud, scanNumExit, sum_misc, DELTA_RANGE_LIM_BINS ;
 		int				mtxCloud_ON_counts ;
-		double 			**mtxCloud_ON ;
+		// double 			**mtxCloud_ON ;
 		char 			ifODcut[5] ;
 		strcFitParam	fitParam ;
 };
