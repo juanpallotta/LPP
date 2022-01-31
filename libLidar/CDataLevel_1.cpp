@@ -144,7 +144,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 					for( int b=glbParam->indxInitSig ; b<=glbParam->indxEndSig ; b++ )
 					{
 						if( prS[b] > ( prFit[b] + errRefBkg *errFactor ) )
-							mtxCloud_ON[i][b] = (double)pow( (prS[b] - prFit[b] - errRefBkg *errFactor), 2) ; // mtxCloud_ON = D(i, r) IN THE PAPER
+							mtxCloud_ON[i][b] = (double)pow( (prS[b] - prFit[b] - errRefBkg *errFactor), 2) ; // mtxCloud_ON = D(i, r) --> SD(i, r)  IN THE PAPER
 					}
 					// REMOVE THE FIRST CLUSTER OF "BIN_CLOUD" IN mtxCloud_ON[i][:] VALUES (ABL BINS)
 					first_cluster_ON =0 ;
