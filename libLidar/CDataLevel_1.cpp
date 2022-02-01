@@ -21,11 +21,11 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 	prprm  = (double*) new double [glbParam->nBins] ;
 	prmprm = (double*) new double [glbParam->nBins] ;
 
-	mtxCloud_ON	= (double**) new double*[nScanMax] ;
+	SE_lay	= (double**) new double*[nScanMax] ;
 	for (int i=0 ; i<nScanMax ; i++)
-		mtxCloud_ON[i] = (double*) new double [glbParam->nBins] ;
+		SE_lay[i] = (double*) new double [glbParam->nBins] ;
 
-	mtxCloud_ON_counts = (int)0 ; // (int*) new int[nBins] ; // 
+	nMaxLoop = (int)0 ; // (int*) new int[nBins] ; // 
 	GetMem_cloudProfiles( (strcGlobalParameters*)glbParam ) ;
 	GetMem_indxMol      ( (strcGlobalParameters*)glbParam ) ;
 }
@@ -37,8 +37,8 @@ CDataLevel_1::~CDataLevel_1()
 	delete prmprm ;
 	delete prFit ;
 
-	for (int i =0; i <nScanMax; i++) delete mtxCloud_ON[i] ; 
-	delete mtxCloud_ON ;
+	for (int i =0; i <nScanMax; i++) delete SE_lay[i] ; 
+	delete SE_lay ;
 }
 
 void CDataLevel_1::GetMem_cloudProfiles( strcGlobalParameters *glbParam )
@@ -85,9 +85,8 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	{
 		prprm[b]  = (double)(prS[b] * dataMol->prMol[b]) ;
 		prmprm[b] = (double)(dataMol->prMol[b] * dataMol->prMol[b]) ;
-		// mtxCloud_ON_counts[b] = (int)0 ;
 	}
-	mtxCloud_ON_counts = (int)0 ;
+	nMaxLoop = (int)0 ;
 
  // ERROR REFERENCE CALCULATION
 	fitParam.indxEndFit  = glbParam->nBins - 1 ; // glbParam->indxEndSig - AVG_CLOUD_DETECTION ; //  
@@ -100,9 +99,9 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	// printf("\nindex fit=%d-%d\n", fitParam.indxInicFit, fitParam.indxEndFit ) ;
  
 	for ( int i=0 ; i<nScanMax ; i++ )
-	{ 	// RESET mtxCloud_ON
+	{ 	// RESET SE_lay
 		for (int k =0; k <glbParam->nBins ; k++)
-			mtxCloud_ON[i][k] =(double) 0.0 ;
+			SE_lay[i][k] =(double) 0.0 ;
 	}
 
 	fitParam.indxInicFit = (int) glbParam->indxInitSig ;
@@ -144,23 +143,23 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 					for( int b=glbParam->indxInitSig ; b<=glbParam->indxEndSig ; b++ )
 					{
 						if( prS[b] > ( prFit[b] + errRefBkg *errFactor ) )
-							mtxCloud_ON[i][b] = (double)pow( (prS[b] - prFit[b] - errRefBkg *errFactor), 2) ; // mtxCloud_ON = D(i, r) --> SD(i, r)  IN THE PAPER
+							SE_lay[i][b] = (double)pow( (prS[b] - prFit[b] - errRefBkg *errFactor), 2) ; // SE_lay = D(i, r) --> SE_lay(i, r)  IN THE PAPER
 					}
-					// REMOVE THE FIRST CLUSTER OF "BIN_CLOUD" IN mtxCloud_ON[i][:] VALUES (ABL BINS)
+					// REMOVE THE FIRST CLUSTER OF "BIN_CLOUD" IN SE_lay[i][:] VALUES (ABL BINS)
 					first_cluster_ON =0 ;
 					for( int b=(glbParam->indxInitSig) ; b<=glbParam->indxEndSig ; b++ )
 					{
-						if ( (mtxCloud_ON[i][b] >(double)0) )	{
-							mtxCloud_ON[i][b] =(double)0.0 ; // ELIMINATE THE BINS OF THE ABL.
+						if ( (SE_lay[i][b] >(double)0) )	{
+							SE_lay[i][b] =(double)0.0 ; // ELIMINATE THE BINS OF THE ABL.
 							first_cluster_ON  =(double)1   ;	}
 						else 			{
-							if ( first_cluster_ON ==1 ) // mtxCloud_ON[i][b] ==0 AND THE BINS WERE ALREADY RESETED.
+							if ( first_cluster_ON ==1 ) // SE_lay[i][b] ==0 AND THE BINS WERE ALREADY RESETED.
 								break ; }
 					}
 					// INCREASE THE COUNTER IF THERE IS A CLOUD DETECTED
 					for( int b=glbParam->indxInitSig ; b<=glbParam->indxEndSig ; b++ ) {
-						if( mtxCloud_ON[i][b] > 0 ) {
-							mtxCloud_ON_counts++ ;
+						if( SE_lay[i][b] > 0 ) {
+							nMaxLoop++ ;
 							break ;   				}						    	   }
 				}
 				else {
@@ -169,23 +168,23 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 			}  // END OF "SET THE CLOUDS CANDIDATES"
 		} // for ( int i=0 ; i<nScanMax ; i++ ) ------------------------------------------------------------------------------------------
 
-		if (mtxCloud_ON_counts == 0)
+		if (nMaxLoop == 0)
 		{
 			printf("\nCompletely pure Rayleigh lidar signal\n") ;
-			mtxCloud_ON_counts = 1 ;
+			nMaxLoop = 1 ;
 		}
 
 		for( int b=0 ; b <glbParam->nBins ; b++ )
 		{
 			for( int s=0 ; s <nScanMax ; s++ )
-				cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)(cloudProfiles[glbParam->event_analyzed].test_1[b] + (double)mtxCloud_ON[s][b]) ; // test1: SUM OF mtxCloud_ON
-			// cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)sqrt( cloudProfiles[glbParam->event_analyzed].test_1[b] /mtxCloud_ON_counts[b] ) ; 
-				cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)sqrt( cloudProfiles[glbParam->event_analyzed].test_1[b] /mtxCloud_ON_counts ) ;
-			// cloudProfiles[glbParam->event_analyzed].test_1[b]    = (double)    ( cloudProfiles[glbParam->event_analyzed].test_1[b] /mtxCloud_ON_counts ) ;
+				cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)(cloudProfiles[glbParam->event_analyzed].test_1[b] + (double)SE_lay[s][b]) ;
+			// cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)sqrt( cloudProfiles[glbParam->event_analyzed].test_1[b] /SE_lay_counts[b] ) ; 
+				cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)sqrt( cloudProfiles[glbParam->event_analyzed].test_1[b] /nMaxLoop )   ; // test1: RMSE_lay
+			// cloudProfiles[glbParam->event_analyzed].test_1[b]    = (double)    ( cloudProfiles[glbParam->event_analyzed].test_1[b] /nMaxLoop ) ;
 		}
 
 // printf("\n\n ScanCloud \n") ;
-// printf("\n mtxCloud_ON_counts: %d \n\n", mtxCloud_ON_counts) ;
+// printf("\n nMaxLoop: %d \n\n", nMaxLoop) ;
 
 		for( int b=0 ; b <glbParam->nBins ; b++ )
 		{

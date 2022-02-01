@@ -17,7 +17,8 @@ class CDataLevel_1
 
 	    strcCloudProfiles 	*cloudProfiles ;
 		strcIndexMol      	*indxMol  	 ;
-		double 				**mtxCloud_ON ;
+		// double 				**mtxCloud_ON ;
+		double 				**SE_lay ;
 		double				errRefBkg ;
 
 	private:
@@ -25,11 +26,9 @@ class CDataLevel_1
 	    void 	GetMem_cloudProfiles( strcGlobalParameters* ) ;
 
 		double			errFitStage, errFactor, errScanCheckFactor, errCloud, biasRef, sppm, spm, spmpm, m, thresholdFactor, errCloudCheckFactor ;
-		// double			errRefBkg ;
 		double			*prFit, *prS, *prprm, *prmprm ;
 		int 			nScanMax, AVG_CLOUD_DETECTION, CLOUD_MIN_THICK, first_cluster_ON, stepScanCloud, scanNumExit, sum_misc, DELTA_RANGE_LIM_BINS ;
-		int				mtxCloud_ON_counts ;
-		// double 			**mtxCloud_ON ;
+		int				nMaxLoop ;
 		char 			ifODcut[5] ;
 		strcFitParam	fitParam ;
 };

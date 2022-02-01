@@ -221,9 +221,9 @@ int main( int argc, char *argv[] )
     int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
         Cloud_Profiles[e] = (int*) new int[glbParam.nBins] ;
-    double  **Dmr = (double**) new double*[glbParam.nEventsAVG];
+    double  **RMSE_lay = (double**) new double*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-        Dmr[e] = (double*) new double[glbParam.nBins] ;
+        RMSE_lay[e] = (double*) new double[glbParam.nBins] ;
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
@@ -275,7 +275,7 @@ int main( int argc, char *argv[] )
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                 {
                     Cloud_Profiles[t][b] = (int)    oDL1.cloudProfiles[t].clouds_ON[b] ;
-                    Dmr           [t][b] = (double) oDL1.cloudProfiles[t].test_1[b]    ;
+                    RMSE_lay           [t][b] = (double) oDL1.cloudProfiles[t].test_1[b]    ; // RMSE_lay
                 }
                 RMSerr_Ref[t] = (double)oDL1.errRefBkg ;
             }
@@ -291,7 +291,7 @@ int main( int argc, char *argv[] )
 
     glbParam.event_analyzed = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
     oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
-    oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)Dmr, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
+    oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
     for ( int e=0; e <glbParam.nEventsAVG ; e++  )
