@@ -425,7 +425,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
         ERR(retval);
 }
 
-void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_File_Out, strcGlobalParameters *glbParam, double **Dmr, double *RMSerr_Ref, int **Cloud_Profiles, double ***pr_corr, 
+void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_File_Out, strcGlobalParameters *glbParam, double **RMSElay, double *RMSerr_Ref, int **Cloud_Profiles, double ***pr_corr, 
                                             double ***pr2, int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG, CMolecularData *oMolData )
 {
     int retval, nc_id ;
@@ -487,9 +487,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     int         dims_ids_CM[2] ;
     dims_ids_CM[0] = dims_ids_pr_corr[0] ; // TIME
     dims_ids_CM[1] = dims_ids_pr_corr[2] ; // POINTS
-    int         var_id_CM, var_id_Dmr, var_id_RMSerr_Ref ;
+    int         var_id_CM, var_id_RMSElay, var_id_RMSerr_Ref ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Cloud_Mask" , (const char*)"int"   , (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_CM          ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Dmr"        , (const char*)"double", (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_Dmr         ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"RMSElay"    , (const char*)"double", (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_RMSElay ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"RMSerr_Ref" , (const char*)"double", (int)1, (int*)&dims_ids_CM[0], (int*)&var_id_RMSerr_Ref  ) ;
 
                 if ( (retval = nc_enddef(nc_id_group_L1)) )
@@ -543,7 +543,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_id_CM , start_CM, count_CM, (int*)&Cloud_Profiles[e][0] ) ) )
             ERR(retval);
 
-        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Dmr, start_CM, count_CM, (double*)&Dmr[e][0] ) ) )
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_RMSElay, start_CM, count_CM, (double*)&RMSElay[e][0] ) ) )
             ERR(retval);
 
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Temp_Pres[0], start_CM, count_CM, (double*)&glbParam->temp_CelsiusAVG[e] ) ) )
