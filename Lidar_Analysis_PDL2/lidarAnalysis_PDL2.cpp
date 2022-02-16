@@ -65,8 +65,9 @@ int main( int argc, char *argv[] )
     string  strNameVars[NVARS_LALINET] ;
     strNameVars[0] = "Raw_Lidar_Data_L1" ; //! BORRAR
     strNameVars[1] = "Range_Corrected_Lidar_Signal_L1" ;
-    strNameVars[2] = "Molecular_Extinction" ;
-    strNameVars[3] = "Molecular_Backscattering" ;
+    strNameVars[2] = "Molecular_Density"
+    // strNameVars[2] = "Molecular_Extinction" ;
+    // strNameVars[3] = "Molecular_Backscattering" ;
     int id_var_RCLS, id_var_beta_mol, id_var_alpha_mol  ;
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[1].c_str(), (int*)&id_var_RCLS ) ) )
         ERR(retval);
