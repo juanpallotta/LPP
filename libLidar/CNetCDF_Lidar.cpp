@@ -618,23 +618,23 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
                     ERR(retval);
 
     // WRITE CLOUD RAW LIDAR DATA CORRECTED
-    size_t start[3], count[3];
-    start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
-    start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
-    start[2] = 0;   count[2] = glbParam->nBins ;
-    for( int e=0 ; e <glbParam->nEventsAVG ; e++ )
-    {
-        start[0] =e ;
-        for ( int c=0 ; c <glbParam->nCh ; c++ )
-        {
-            start[1] =c ;
-            if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_alpha_mol, start, count, (double*)&oDL2->alpha_Aer[e][c][0] ) ) )
-                ERR(retval);
+    // size_t start[3], count[3];
+    // start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
+    // start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
+    // start[2] = 0;   count[2] = glbParam->nBins ;
+    // for( int e=0 ; e <glbParam->nEventsAVG ; e++ )
+    // {
+    //     start[0] =e ;
+    //     for ( int c=0 ; c <glbParam->nCh ; c++ )
+    //     {
+            // start[1] =c ;
+            // if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_alpha_mol, start, count, (double*)&oDL2->alpha_Aer[e][c][0] ) ) )
+            //     ERR(retval);
 
-            if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_beta_mol, start, count, (double*)&oDL2->beta_Aer[e][c][0] ) ) )
-                ERR(retval);
-        }
-    }
+            // if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_beta_mol, start, count, (double*)&oDL2->beta_Aer[e][c][0] ) ) )
+            //     ERR(retval);
+    //     }
+    // }
 
     if ( (retval = nc_close(nc_id) ) )
         ERR(retval);
