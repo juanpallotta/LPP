@@ -11,7 +11,7 @@ class CDataLevel_2
 		~CDataLevel_2()  					  ;
 		void 	Fernald_1983( strcGlobalParameters*, int, int ) ;
 
-	    double  ***alpha_Aer, **alpha_Mol 			;
+	    double  ***alpha_Aer, **alpha_Mol, *nMol	;
 	    double  ***beta_Aer , **beta_Mol  			;
 		double  ***pr2, *pr2n, phi, p, ip, CalTerm, beta_Tot ;
 		double  *pr2_s 								;
