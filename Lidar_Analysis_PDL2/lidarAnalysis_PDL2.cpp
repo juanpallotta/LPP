@@ -121,9 +121,16 @@ int main( int argc, char *argv[] )
         }
     }
     // LOAD MOLECULAR PROFILES FROM THE FILE
-    start[0] = 0;   count[0] = 1 ; // TIME DIM. glbParam.nEventsAVG; 
-    start[1] = 0;   count[1] = 1 ; // CHANNEL DIM. glbParam.nCh; 
-    start[2] = 0;   count[2] = glbParam.nBins; // POINTS DIM. 
+    size_t start_mol[1], count_mol[1];
+    start_mol[0] = 0;   count_mol[0] = glbParam.nBins ; // BINS
+    if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, start_mol, count_mol, (double*)&oDL2.nMol[0] ) ) )
+    {
+        ERR(retval) ;
+    }
+
+    // start[0] = 0;   count[0] = 1 ; // TIME DIM. glbParam.nEventsAVG; 
+    // start[1] = 0;   count[1] = 1 ; // CHANNEL DIM. glbParam.nCh; 
+    // start[2] = 0;   count[2] = glbParam.nBins; // POINTS DIM. 
     // for ( int c=0 ; c <1 ; c++ )
     // {
         // start[1] =c ;
@@ -132,9 +139,10 @@ int main( int argc, char *argv[] )
         // if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_beta_mol, &start[1], &count[1], (double*)&oDL2.beta_Mol[c][0] ) ) )
         //     ERR(retval);
     // }
-    
-    if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, &start[2], &count[2], (double*)&oDL2.nMol[0] ) ) )
-        ERR(retval);
+
+    // if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, &start[2], &count[2], (double*)&oDL2.nMol[0] ) ) )
+    //     ERR(retval);
+
     for( int c=0 ; c <glbParam.nCh ; c++ )
     { 
         for( int i=0 ; i < glbParam.nBins ; i++ )
