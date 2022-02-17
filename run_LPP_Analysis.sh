@@ -55,7 +55,7 @@ do
                 echo "Deleting previous version of data Level 0 --> ${PATH_FILE_OUT_L0}" 
                 rm $PATH_FILE_OUT_L0 
             fi
-            echo "Running lidarAnalysis_PDL0"
+            echo "Running ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF_L0
     cd $PATH_TO_L0
     ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF_L0
         fi
@@ -74,7 +74,7 @@ do
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L1 ]]
             then
-                echo "Running lidarAnalysis_PDL1"
+                echo "Running ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF_L1_L2
     cd $PATH_TO_L1
     ./lidarAnalysis_PDL1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF_L1_L2  
             else
