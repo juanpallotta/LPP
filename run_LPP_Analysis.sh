@@ -30,7 +30,7 @@ do
 	then
         echo -e "\n------------------------------------------------------------\n" 
         # DEFINING THE INPUTS AND OUTPUTS PATHS
-            PATH_OUT_L0=$paths_In"/LPP_OUT/"
+            PATH_OUT_L0=$paths_In"LPP_OUT/"
             echo -e "\nOutput folder with the LPP products: "$PATH_OUT_L0
             if test -d "$PATH_OUT_L0"
             then 
@@ -55,7 +55,7 @@ do
                 echo "Deleting previous version of data Level 0 --> ${PATH_FILE_OUT_L0}" 
                 rm $PATH_FILE_OUT_L0 
             fi
-            echo "Running ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF_L0
+            echo -e "Running: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF_L0
     cd $PATH_TO_L0
     ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF_L0
         fi
@@ -74,7 +74,7 @@ do
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L1 ]]
             then
-                echo "Running ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF_L1_L2
+                echo -e "Running \n ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF_L1_L2
     cd $PATH_TO_L1
     ./lidarAnalysis_PDL1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF_L1_L2  
             else
@@ -97,13 +97,13 @@ do
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L2 ]]
             then
-                echo "Running ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
+                echo -e "Running \n ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
     cd $PATH_TO_L2
     ./lidarAnalysis_PDL2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
             else
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi
-            rm $PATH_FILE_OUT_L1
+            # rm $PATH_FILE_OUT_L1
         fi
 
 		echo ""

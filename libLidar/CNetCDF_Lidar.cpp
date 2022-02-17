@@ -594,9 +594,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
         ERR(retval);
 
     string  strNameVars[NVARS_LALINET] ;
-    strNameVars[0] = "Range_Corrected_Lidar_Signal_L2" ;
-    strNameVars[1] = "Molecular_Extinction" ;
-    strNameVars[2] = "Molecular_Backscattering" ;
+    strNameVars[0] = "Range_Corrected_Lidar_Signal_L1" ;
     int id_var_RCLS, id_var_beta_mol, id_var_alpha_mol  ;
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[0].c_str(), (int*)&id_var_RCLS ) ) )
         ERR(retval);

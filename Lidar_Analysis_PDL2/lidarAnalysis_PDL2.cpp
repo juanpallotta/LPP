@@ -63,19 +63,19 @@ int main( int argc, char *argv[] )
         ERR(retval);
 
     string  strNameVars[NVARS_LALINET] ;
-    strNameVars[0] = "Raw_Lidar_Data_L1" ; //! BORRAR
-    strNameVars[1] = "Range_Corrected_Lidar_Signal_L1" ;
-    strNameVars[2] = "Molecular_Density" ;
+    strNameVars[0] = "Range_Corrected_Lidar_Signal_L1" ;
+    strNameVars[1] = "Molecular_Density" ;
     // strNameVars[2] = "Molecular_Extinction" ;
     // strNameVars[3] = "Molecular_Backscattering" ;
     int id_var_RCLS, id_var_nmol ; // ,id_var_beta_mol, id_var_alpha_mol  ;
-    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[1].c_str(), (int*)&id_var_RCLS ) ) )
+    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[0].c_str(), (int*)&id_var_RCLS ) ) )
         ERR(retval);
+
     // if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[2].c_str(), (int*)&id_var_alpha_mol ) ) )
     //     ERR(retval);
     // if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[3].c_str(), (int*)&id_var_beta_mol ) ) )
     //     ERR(retval);
-    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[2].c_str(), (int*)&id_var_nmol ) ) )
+    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[1].c_str(), (int*)&id_var_nmol ) ) )
         ERR(retval);
 
     int num_dim_var ;
@@ -101,8 +101,8 @@ int main( int argc, char *argv[] )
     glbParam.nCh     = size_dim[1] ;
     glbParam.nBins   = size_dim[2] ;
 
+    glbParam.iLambda = (int*) new int [glbParam.nCh] ;
     oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (double*)glbParam.iLambda ) ;
-
     CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     // LOAD pr2 FROM THE FILE
@@ -135,24 +135,23 @@ int main( int argc, char *argv[] )
     
     if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, &start[2], &count[2], (double*)&oDL2.nMol[0] ) ) )
         ERR(retval);
-    // for( int c=0 ; c <glbParam.nCh ; c++ )
-    // { 
-    //     for( int i=0 ; i < glbParam.nBins ; i++ )
-    //     { // betaMol, alphaMol AND betaRam ACROSS r AND ¡¡¡¡¡¡¡ASL, STARTING AT THE SITE ALTITUDE!!!!!!!
-    //         oDL2.beta_Mol [c][i] = (double)(oDL2.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam.iLambda[c] ), 4) ) ) ; // r [1/m*sr]
-    //         oDL2.alpha_Mol[c][i] = (double)(oDL2.beta_Mol[c][i] * 8.0 * 3.1415/3.0) ; // r [1/m]
-    //     }
-    // }
+    for( int c=0 ; c <glbParam.nCh ; c++ )
+    { 
+        for( int i=0 ; i < glbParam.nBins ; i++ )
+        {
+            oDL2.beta_Mol [c][i] = (double)(oDL2.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam.iLambda[c] ), 4) ) ) ; // r [1/m*sr]
+            oDL2.alpha_Mol[c][i] = (double)(oDL2.beta_Mol[c][i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+        }
+    }
 
-    // if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
-    //     ERR(retval);
+    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
+        ERR(retval);
 
-    // if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL) ) )
-    //     ERR(retval);
+    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL) ) )
+        ERR(retval);
 
-    //         if ( (retval = nc_close(ncid)) )
-    //             ERR(retval) ;
-/*
+            if ( (retval = nc_close(ncid)) )
+                ERR(retval) ;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ GLOBAL PARAMETERS FROM NETCDF FILE
     glbParam.r = (double*) new double[glbParam.nBins] ;
@@ -165,14 +164,12 @@ int main( int argc, char *argv[] )
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr ) ;
     oDL2.indxInitSig     = (int)glbParam.indxInitSig ;
     oDL2.indxEndSig      = (int)glbParam.indxEndSig  ;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    int Ch_to_Invert[MAX_CH_LICEL] ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Ch_to_Invert" , (const char*)"int", (int*)&Ch_to_Invert ) ;
-    // for (int i = 0 ; i <MAX_CH_LICEL; i++)
-    // {
-    //     cout << endl << "Ch_to_Invert[i]: " << Ch_to_Invert[i] ;
-    // }
+    int indxWL_PDL2[glbParam.nCh] ;
+    for (int i = 0 ; i <glbParam.nCh; i++)  indxWL_PDL2[i] = -10 ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
+    // for (int i = 0 ; i <glbParam.nCh; i++)
+    //     cout << endl << "Ch_to_Invert[i]: " << indxWL_PDL2[i] ;
     
     for ( int t=0 ; t <glbParam.nEvents ; t++ )
     {
@@ -187,7 +184,7 @@ int main( int argc, char *argv[] )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     
     oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)&oDL2 ) ;
-*/
+
     printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
 	return 0 ;
 }
