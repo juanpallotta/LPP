@@ -179,7 +179,7 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << c << "\t Wavelenght: " << glbParam.iLambda[c] ;
-            // oDL2.Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)c ) ;
+            oDL2.Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)c ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     
