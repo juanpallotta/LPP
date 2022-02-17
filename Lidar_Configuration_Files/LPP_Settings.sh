@@ -10,7 +10,7 @@ L2="yes"
 #* DO NOT USE SPACES!!!! 
 # PATH_IN="../signalsTest/Brazil/Manaus/"
 # PATH_IN="/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/LPP/signalsTest/Brazil/Manaus/2011/"
-PATH_IN="C:\Users\jpall\Dropbox\procesamiento\LidarAnalysisCode\LPP\signalsTest\Brazil\Manaus\2011"
+PATH_IN="C:/Users/jpall/Dropbox/procesamiento/LidarAnalysisCode/LPP/signalsTest/Brazil/Manaus/2011/"
 # PATH_IN="../signalsTest/Brazil/SPU/20210730/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/volcan_Toga_AER/"
 

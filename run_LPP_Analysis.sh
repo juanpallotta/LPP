@@ -103,7 +103,7 @@ do
             else
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi
-        # rm $PATH_FILE_OUT_L1
+            rm $PATH_FILE_OUT_L1
         fi
 
 		echo ""
