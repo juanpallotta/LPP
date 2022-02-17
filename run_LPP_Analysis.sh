@@ -95,7 +95,7 @@ do
                 rm $PATH_FILE_OUT_L2 
             fi
             # CHECK IF THE INPUT FILE EXIST
-            if [[ -f $PATH_FILE_OUT_L0 ]]
+            if [[ -f $PATH_FILE_IN_L2 ]]
             then
                 echo "Runining lidarAnalysis_PDL2"
     cd $PATH_TO_L2
