@@ -256,7 +256,6 @@ int main( int argc, char *argv[] )
             // }
             */
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int) c ) ;
-        //  oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)c ) ;
             oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
             // oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
             for( int i=0 ; i <glbParam.nBins ; i++ )

@@ -145,7 +145,11 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, int ch )
 	if ( glbParam->event_analyzed <0 )
 		dataMol.zenith = (int)0 ;
 	else
+	{
 		dataMol.zenith = (int)glbParam->aZenithAVG[glbParam->event_analyzed] ;
+		if ( dataMol.zenith == -90 )
+			dataMol.zenith = (int) 0 ;
+	}
 
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;

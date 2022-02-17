@@ -11,8 +11,9 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
     alpha_Aer = (double***) new double**[glbParam->nEvents] ;
     beta_Aer  = (double***) new double**[glbParam->nEvents] ;
 
-    alpha_Mol = (double**) new double*[glbParam->nCh] ;
-    beta_Mol  = (double**) new double*[glbParam->nCh] ;
+    nMol	  = (double*)  new double[glbParam->nBins] ; 	memset( (double*)nMol, 0, sizeof(double)*glbParam->nBins ) ;
+    alpha_Mol = (double**) new double*[glbParam->nCh]  ;
+    beta_Mol  = (double**) new double*[glbParam->nCh]  ;
 	for ( int c=0 ; c <glbParam->nCh ; c++ )
 	{
 		alpha_Mol[c] = (double*) new double[glbParam->nBins] ;	memset( (double*)alpha_Mol[c], 0, sizeof(double)*glbParam->nBins ) ;

@@ -65,14 +65,17 @@ int main( int argc, char *argv[] )
     string  strNameVars[NVARS_LALINET] ;
     strNameVars[0] = "Raw_Lidar_Data_L1" ; //! BORRAR
     strNameVars[1] = "Range_Corrected_Lidar_Signal_L1" ;
-    strNameVars[2] = "Molecular_Extinction" ;
-    strNameVars[3] = "Molecular_Backscattering" ;
-    int id_var_RCLS, id_var_beta_mol, id_var_alpha_mol  ;
+    strNameVars[2] = "Molecular_Density" ;
+    // strNameVars[2] = "Molecular_Extinction" ;
+    // strNameVars[3] = "Molecular_Backscattering" ;
+    int id_var_RCLS, id_var_nmol ; // ,id_var_beta_mol, id_var_alpha_mol  ;
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[1].c_str(), (int*)&id_var_RCLS ) ) )
         ERR(retval);
-    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[2].c_str(), (int*)&id_var_alpha_mol ) ) )
-        ERR(retval);
-    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[3].c_str(), (int*)&id_var_beta_mol ) ) )
+    // if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[2].c_str(), (int*)&id_var_alpha_mol ) ) )
+    //     ERR(retval);
+    // if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[3].c_str(), (int*)&id_var_beta_mol ) ) )
+    //     ERR(retval);
+    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[2].c_str(), (int*)&id_var_nmol ) ) )
         ERR(retval);
 
     int num_dim_var ;
@@ -121,24 +124,34 @@ int main( int argc, char *argv[] )
     start[0] = 0;   count[0] = 1 ; // TIME DIM. glbParam.nEventsAVG; 
     start[1] = 0;   count[1] = 1 ; // CHANNEL DIM. glbParam.nCh; 
     start[2] = 0;   count[2] = glbParam.nBins; // POINTS DIM. 
-    for ( int c=0 ; c <glbParam.nCh ; c++ )
-    {
-        start[1] =c ;
-        if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_alpha_mol, &start[1], &count[1], (double*)&oDL2.alpha_Mol[c][0] ) ) )
-            ERR(retval);
-
-        if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_beta_mol, &start[1], &count[1], (double*)&oDL2.beta_Mol[c][0] ) ) )
-            ERR(retval);
-    }
-
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
+    // for ( int c=0 ; c <1 ; c++ )
+    // {
+        // start[1] =c ;
+        // if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_alpha_mol, &start[1], &count[1], (double*)&oDL2.alpha_Mol[c][0] ) ) )
+        //     ERR(retval);
+        // if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_beta_mol, &start[1], &count[1], (double*)&oDL2.beta_Mol[c][0] ) ) )
+        //     ERR(retval);
+    // }
+    
+    if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, &start[2], &count[2], (double*)&oDL2.nMol[0] ) ) )
         ERR(retval);
+    // for( int c=0 ; c <glbParam.nCh ; c++ )
+    // { 
+    //     for( int i=0 ; i < glbParam.nBins ; i++ )
+    //     { // betaMol, alphaMol AND betaRam ACROSS r AND ¡¡¡¡¡¡¡ASL, STARTING AT THE SITE ALTITUDE!!!!!!!
+    //         oDL2.beta_Mol [c][i] = (double)(oDL2.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam.iLambda[c] ), 4) ) ) ; // r [1/m*sr]
+    //         oDL2.alpha_Mol[c][i] = (double)(oDL2.beta_Mol[c][i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+    //     }
+    // }
 
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL) ) )
-        ERR(retval);
+    // if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
+    //     ERR(retval);
 
-            if ( (retval = nc_close(ncid)) )
-                ERR(retval) ;
+    // if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL) ) )
+    //     ERR(retval);
+
+    //         if ( (retval = nc_close(ncid)) )
+    //             ERR(retval) ;
 /*
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // READ GLOBAL PARAMETERS FROM NETCDF FILE
