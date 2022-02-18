@@ -176,9 +176,7 @@ int main( int argc, char *argv[] )
     int indxWL_PDL2[glbParam.nCh] ;
     for (int i = 0 ; i <glbParam.nCh; i++)  indxWL_PDL2[i] = -10 ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
-    // for (int i = 0 ; i <glbParam.nCh; i++)
-    //     cout << endl << "Ch_to_Invert[i]: " << indxWL_PDL2[i] ;
-    
+
     for ( int t=0 ; t <glbParam.nEvents ; t++ )
     {
         cout << endl ;

@@ -595,46 +595,46 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     string  strNameVars[NVARS_LALINET] ;
     strNameVars[0] = "Range_Corrected_Lidar_Signal_L1" ;
-    int id_var_RCLS, id_var_beta_mol, id_var_alpha_mol  ;
+    int id_var_RCLS, id_var_beta_aer, id_var_alpha_aer  ;
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)strNameVars[0].c_str(), (int*)&id_var_RCLS ) ) )
         ERR(retval);
-
     int num_dim_var ;
     if ( ( retval = nc_inq_varndims( (int)ncid_L1_Data, (int)id_var_RCLS, (int*)&num_dim_var ) ) )
         ERR(retval);
-
-    int id_dim_RCLS[num_dim_var] ;
-    if ( ( retval = nc_inq_vardimid( (int)ncid_L1_Data, (int)id_var_RCLS, (int*)id_dim_RCLS ) ) )
-        ERR(retval) ;
 
     int nc_id_group_L2 ;
     if ( (retval = nc_def_grp ( (int)nc_id, (const char*)"L2_Data", (int*)&nc_id_group_L2 ) ) )
         ERR(retval) ;
 
-    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction"    , (const char*)"double", (int)3, (int*)&id_dim_RCLS[0], (int*)&id_var_alpha_mol ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscattering", (const char*)"double", (int)3, (int*)&id_dim_RCLS[0], (int*)&id_var_beta_mol  ) ;
+    int id_dims_aer[num_dim_var] ;
+    DefineDims( (int)nc_id_group_L2, (char*)"time"    , (int)glbParam->nEventsAVG, (int*)&id_dims_aer[0] ) ;
+    DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh       , (int*)&id_dims_aer[1] ) ;
+    DefineDims( (int)nc_id_group_L2, (char*)"points"  , (int)glbParam->nBins     , (int*)&id_dims_aer[2] ) ;
+
+    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction"    , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&id_var_alpha_aer ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscattering", (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&id_var_beta_aer  ) ;
 
                 if ( (retval = nc_enddef(nc_id_group_L2)) )
                     ERR(retval);
 
     // WRITE CLOUD RAW LIDAR DATA CORRECTED
-    // size_t start[3], count[3];
-    // start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
-    // start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
-    // start[2] = 0;   count[2] = glbParam->nBins ;
-    // for( int e=0 ; e <glbParam->nEventsAVG ; e++ )
-    // {
-    //     start[0] =e ;
-    //     for ( int c=0 ; c <glbParam->nCh ; c++ )
-    //     {
-            // start[1] =c ;
-            // if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_alpha_mol, start, count, (double*)&oDL2->alpha_Aer[e][c][0] ) ) )
-            //     ERR(retval);
+    size_t start[3], count[3];
+    start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
+    start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
+    start[2] = 0;   count[2] = glbParam->nBins ;
+    for( int e=0 ; e <glbParam->nEventsAVG ; e++ )
+    {
+        start[0] =e ;
+        for ( int c=0 ; c <glbParam->nCh ; c++ )
+        {
+            start[1] =c ;
+            if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_alpha_aer, start, count, (double*)&oDL2->alpha_Aer[e][c][0] ) ) )
+                ERR(retval);
 
-            // if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_beta_mol, start, count, (double*)&oDL2->beta_Aer[e][c][0] ) ) )
-            //     ERR(retval);
-    //     }
-    // }
+            if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_beta_aer, start, count, (double*)&oDL2->beta_Aer[e][c][0] ) ) )
+                ERR(retval);
+        }
+    }
 
     if ( (retval = nc_close(nc_id) ) )
         ERR(retval);
