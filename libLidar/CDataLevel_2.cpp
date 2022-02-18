@@ -67,6 +67,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 	sum( (double*)pr2_s, (int)(indxRef -avg_Half_Points_Fernald_Ref), (int)(indxRef +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
 	pr2_Ref = pr2_Ref /(avg_Half_Points_Fernald_Ref +1) ;
 
+	// cout << endl ;
 	// cout << endl << "CDataLevel_2::Fernald_1983(...) indxRef: " << indxRef ;
 	// cout << endl << "CDataLevel_2::Fernald_1983(...) indxInitSig: " << indxInitSig ;
 	// cout << endl << "CDataLevel_2::Fernald_1983(...) indxEndSig: "  << indxEndSig ;
@@ -94,7 +95,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 
 		beta_Tot = p / ( CalTerm - 2*LR[0] * ip ) ;
 		beta_Aer[t][c][i]  = beta_Tot - beta_Mol[c][i] ;
-		alpha_Aer[t][c][i] = beta_Aer[t][c][i] * LR[0] ; // pr2_s[i] ; // 
+		alpha_Aer[t][c][i] = beta_Aer[t][c][i] * LR[0] ;
 	}
  	beta_Aer[t][c][indxRef-1] = beta_Mol[c][indxRef] ;
     invDirection = 1 ; // 1 = FORWARD
@@ -117,38 +118,4 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 		// alphaA(i) = betaA(i) * LR ;
 		alpha_Aer[t][c][i] = beta_Aer[t][c][i] * LR[0] ; // pr2_s[i] ; // 
 	}
-/*
-% FORWARD INVERSION - FERNALD 1983
-if ( strcmp(invDirection, 'forward') ==1 || (strcmp(invDirection, 'both') ==1))
-    betaA(nRef-1) = betaAerRef ; % attB(nRef) / exp(-2 * trapz( r(indxAnalysis(1):nRef), alfaM(indxAnalysis(1):nRef) ) ) -betaM(nRef) ;
-    dz = r(3)-r(2) ;
-    for i=nRef:indxAnalysis(end)
-      phi = (LR-LRM) * ( betaM(i-1) + betaM(i) ) *dz ; % dz >0 --> phi >0
-      p   = attBn(i) * exp(-phi);
-
-      CalTerm = attBn(i-1) / (betaA(i-1) + betaM(i-1) ) ;
-      ip =  ( attBn(i-1) + p ) *dz /2 ;
-
-      betaT = p ./ ( CalTerm - 2*LR * ip ) ;
-      betaA(i) = betaT - betaM(i) ;
-      alphaA(i) = betaA(i) * LR ;
-    endfor
-endif
-% BACKWARD INVERSION - FERNALD 1983
-if ( (strcmp(invDirection, 'backward') ==1) || (strcmp(invDirection, 'both') ==1) )
-  betaA(nRef+1) = betaAerRef ; % attB(nRef) / exp(-2 * trapz( r(indxAnalysis(1):nRef), alfaM(indxAnalysis(1):nRef) ) ) -betaM(nRef) ;
-  dz = r(2)-r(3) ;
-  for i=nRef:-1:indxAnalysis(2)
-    phi = (LR-LRM) * ( betaM(i+1) + betaM(i) ) *dz ; % dz <0 --> phi <0 IN THE NEXT LINE
-    p   = attBn(i) * exp(-phi); % attBn(i) * exp(phi);
-
-    CalTerm = attBn(i+1) / (betaA(i+1) + betaM(i+1) ) ;
-    ip = ( attBn(i+1) + p ) *dz /2 ;
-
-    betaT = p / ( CalTerm - 2*LR * ip ) ;
-    betaA(i) = betaT - betaM(i) ;
-    alphaA(i) = betaA(i) * LR ;
-  endfor
-endif
-*/
 }
