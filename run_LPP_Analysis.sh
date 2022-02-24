@@ -80,7 +80,7 @@ do
             else
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_settings.sh file"
             fi
-            rm $PATH_FILE_OUT_L0
+            # rm $PATH_FILE_OUT_L0
         fi
 
         if [[ "$L2" == "yes" ]]

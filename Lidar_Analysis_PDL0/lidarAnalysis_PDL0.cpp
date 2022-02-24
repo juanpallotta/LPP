@@ -23,12 +23,6 @@
 #define ERRCODE 2
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
 
-// #define NDIMS_SCC 5
-// #define NVARS_SCC 15
-
-// #define NDIMS_LALINET 5
-// #define NVARS_LALINET 20
-
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"

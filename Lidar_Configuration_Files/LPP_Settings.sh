@@ -11,9 +11,9 @@ L2="yes"
 # PATH_IN="../signalsTest/Brazil/Manaus/"
 # PATH_IN="/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/LPP/signalsTest/Brazil/Manaus/2011/"
 # PATH_IN="C:/Users/jpall/Dropbox/procesamiento/LidarAnalysisCode/LPP/signalsTest/Brazil/Manaus/2011/"
-# PATH_IN="../signalsTest/Brazil/SPU/20210730/"
+PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/volcan_Toga_AER/"
-PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/20/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/17/"
 
 # CONFIGURATION FILES --> RELATIVE TO THE FOLDER WICH IS RUNNING THE ANALYSIS!!
 # BRAZIL
