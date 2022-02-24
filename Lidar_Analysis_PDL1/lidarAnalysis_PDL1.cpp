@@ -59,11 +59,9 @@ int main( int argc, char *argv[] )
         ERR(retval);
 
     // READ VARIABLES FROM DE NETCDF INPUT FILE
-    string  *strNameVars = (string*)new string[NVARS_LALINET] ;
-    strNameVars[0] = "Raw_Lidar_Data" ;
     int id_var ;
-    if ( ( retval = nc_inq_varid( (int)ncid, (const char*)strNameVars[0].c_str(), (int*)&id_var ) ) )
-        ERR(retval);
+    if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var ) ) )
+        ERR(retval) ;
     int num_dim_var ;
     if ( ( retval = nc_inq_varndims( (int)ncid, (int)id_var, (int*)&num_dim_var ) ) )
         ERR(retval);

@@ -9,6 +9,7 @@ class CDataLevel_2
 	public:
 		CDataLevel_2( strcGlobalParameters* ) ;
 		~CDataLevel_2()  					  ;
+		// void 	Fernald_1983_v0( strcGlobalParameters*, int, int ) ;
 		void 	Fernald_1983( strcGlobalParameters*, int, int ) ;
 
 	    double  ***alpha_Aer, **alpha_Mol, *nMol	;
@@ -16,8 +17,9 @@ class CDataLevel_2
 		double  ***pr2, *pr2n, phi, p, ip, CalTerm, beta_Tot ;
 		double  *pr2_s 								;
 		double  dzr									;
-		double  LRM									;
-		int 	indxInitSig, indxEndSig   			;
+		double  LRM, LR[100]						;
+		int		nLRs 								;
+		int 	indxInitSig, indxEndSig, indxRef	;
 
 	private:
 
