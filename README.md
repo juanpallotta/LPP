@@ -73,17 +73,17 @@ An example of how to run this module using the sample signals included in this r
     ./lidarAnalysis_PDL0 
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/ 
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
-    /home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf
+    /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
-- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, there is no way to distinguish them from the rest of the files. Because of that, <u>**it is important that nothing but raw lidar data files must be in this input folder**</u>. 
-- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, **including the file name** of the output NetCDF file, in this example `20210730_L0.nc`. If the output file needs to be placed in a subfolder, generate it manually before running (in this example `LPP_OUT/`).
-- `/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
+- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
+- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file needs to be placed in a subfolder, generate it manually before running (in this example `/LPP_OUT/`).
+- `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
 
 It is highly recommentable to use absolute paths to avoid errors in the execution.
 
-An example of how L0 configuration file should looks like is seen in the next code:
+In this first LPP version, L0 configuration file looks like the next code:
 
 ```bash
 #############################################################
@@ -100,28 +100,31 @@ outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
 ```
 
-Configuration files for L0 data levels only need a few of basic inputs:
+L0 data levels configuration file only need a few of basic inputs:
 * `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) or Raymetric (`RAYMETRIC_FILE` option) data type file are accepted. There is planned to accept more input data types formats in the future. 
-* `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` this output is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different names conventions used in the variables inside the file. A detailed description of LALINET data type can be seen in later sections of this document ([LALINET data type format](#LALINET_data_type_format)).
+* `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different names conventions of the variables inside the file. A detailed description of LALINET data type can be seen in later sections of this document ([LALINET data type format](#LALINET_data_type_format)).
 
 If `SCC_NETCDF` is selected, the output file generated can be used as an input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). 
 
-In order to proceed without mistakes, it is highly recommended to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is uncommented.
+In order to proceed without making mistakes, we highly suggest to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
 
 
 # <a name="configuring_PDL1"></a> `lidarAnalysis_PDL1`: Producing data level 1 products: lidar signals corrections and cloud-mask
 
-This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as a first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
+This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as it first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the L0's module configuration file (`analysisParameters_PDL0_Brazil.conf` in this example).
 
 An example of how to run this module can be:
 
-    ./lidarAnalysis_PDL1 /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc /home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
+    ./lidarAnalysis_PDL1 
+    /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
+    /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc 
+    /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
 
-The configuration file (in this case, `/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The only important thing here are the variables included in the file passed as a third argument.
+The configuration file (in this case, `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The only thing that matters are the defined variables inside the file passed as a third argument.
 
-The sample files included in this repository use one file for `lidarAnalysis_PDL0`, and another for modules `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`.
+The sample files included in this repository use one configuration file for `lidarAnalysis_PDL0`, and another for the modules `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`.
 
-An example of a configuration file and its variables for L1 data-level retrieval could be:
+An example of the variables contained in a configuration file for L1 module is:
 
 ```bash
 
@@ -130,20 +133,15 @@ An example of a configuration file and its variables for L1 data-level retrieval
 ##########################################################################################
 
 # LASER-BIN-OFFSET OR TRIGGER-DELAY OR ZERO-BIN
-# VECTOR TYPE: ONE PER CHANNEL
-# MANAUS
-# indxOffset = 11 : 11 : 11 : 11 : 11 
-# SAO PAULO
+# ARRAY: ONE PER CHANNEL
 indxOffset = 2 : 3 : 7 : 5 : 8 : 2 : 9 : 2 : 2 : 2 : 2 : 2 
 
 # NUMBER OF FILES (EVENTS) THAT WILL BE AVERAGED INTO A SINGLE LIDAR SIGNAL
 numEventsToAvg_PDL1 = 10
 
-# WAVELENGHT USED FOR PDL1. INDEXES STARTING FROM 0
+# WAVELENGHT USED FOR PRODUCT DATA LEVEL 1 (PDL1). INDEXES STARTING FROM 0
 # SP
 indxWL_PDL1 = 2
-# MANAUS
-# indxWL_PDL1 = 0
 
 # MOLECULAR DATA
 # ABSOLUTE PATH TO THE RADIOSOUNDING/MODEL FILE. THIS FILE MUST BE FORMATTED:
@@ -152,7 +150,7 @@ indxWL_PDL1 = 2
 # - TEMPERATURE UNIT: KELVIN
 # - PRESSURE UNIT: HECTO PASCALS
 Path_To_Molecular_File = ./US-StdA_DB_CEILAP.csv
-# SETTINGS OF THE COLUMN INDEX (0-2) OF THE PARAMETERS RANGE-TEMPERATURE-PRESSURE IN THE FILE:
+# SETTINGS OF THE COLUMN INDEX (0-2) OF THE PARAMETERS: RANGE-TEMPERATURE-PRESSURE IN THE FILE:
 Range_column_index_in_File = 0
 Temp_column_index_in_File  = 1
 Pres_column_index_in_File  = 2
@@ -162,13 +160,13 @@ Pressure_at_Lidar_Station = 940.0
 
 # INITIAL RANGE OF ANALYSIS: rInitSig
 # END RANGE OF ANALYSIS: rEndSig
-rInitSig = 1100
+rInitSig = 400
 rEndSig = 25000
 
 # NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
 nBinsBkg = 1000
 
-# CLOUD DETECTION PARAMETERS
+# CLOUD-MASK RETRIEVAL PARAMETERS
 AVG_CLOUD_DETECTION = 101
 stepScanCloud = 1
 nScanMax = 5000
@@ -182,17 +180,20 @@ DELTA_RANGE_LIM_BINS = 100
 
 ```
 
-A description of each of these parameters is described below:
+Below is a description of each of these parameters:
 
-* `indxOffset`: The number of bins to remove from the beginning of the lidar track recorded due to the laser offset. This parameter should be a vector, with the number of elements equal to the number of channels in the file.
+* `indxOffset`: The number of bins to remove from the beginning of the lidar track recorded due to the laser offset. This parameter should be an array with one element for each channel acquired.
 
-* `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lidarAnalysis_PDL1` the numbers of lidar profiles to average and producing one merged profile. After this, the `time` dimension in the NetCDF file from the L1 data products will be reduced by `numEventsToAvg_PDL1` times.
+* `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lidarAnalysis_PDL1` the numbers of lidar profiles to average producing one merged profile. After this, the `time` dimension in the NetCDF file for the L1 data products will be reduced by `numEventsToAvg_PDL1` times.
 
-* `indxWL_PDL1`: An index (starting from 0) of the channel to use in cloud-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file.
+* `indxWL_PDL1`: An index (starting from 0) of the channel to use in cloud-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file for better cloud discrimination.
 
-* `Path_To_Molecular_File`: Path to the plain-text, comma-sepparated file containing the radiosonde/model data. This file must contain the altitude, temperature and pressure of the radiosonde/model used for the computation of the alpha and beta molecular profiles. The units of these variables are described in the comments of the setting file: altitude in m, temperature in K and pressure in hPa. This repository has a sample file of US standard model (file named `US-StdA_DB_CEILAP.csv` located in the same folder of the executable file for L1 products). In case of the radiosonde model is not in the same folder, please, write the complete path to this file. There is no necessary to write the path between inverted comas `"`.
-
-This file must be headerless, and the column order of each parameter is described in the next variables: `Range_column_index_in_File`, `Temp_column_index_in_File` and `Pres_column_index_in_File`. As is shown in the sample code, in this case the altitude is the first column (index 0), temperature the second (index 1), and the pressure the third column (index 2). The first lines of the `US-StdA_DB_CEILAP.csv` file contained in this repository are shown in the next lines:
+* `Path_To_Molecular_File`: Path to the plain-text, comma-sepparated file containing the radiosonde/model data. This file must contain the altitude, temperature and pressure of the radiosonde/model used for the computation of the alpha and beta molecular profiles. The units of these variables are described in the comments of the setting file: altitude in m, temperature in K and pressure in hPa. This repository has a sample file of US standard model (file `/LPP/Lidar_Analysis_PDL1/MolData/US-StdA_DB_CEILAP.csv`). The radiosonde/model file must be headerless, and the column order of each parameter (height, temperature and pressure) are described in the following variables (`Range_column_index_in_File`, `Temp_column_index_in_File` and `Pres_column_index_in_File`).
+* `Range_column_index_in_File`: Column index of the radiosonde/model file containing the range values. For this example, index 0 (first column).
+* `Temp_column_index_in_File`: Column index of the radiosonde/model file containing temperature values. For this example, index 1 (second column).
+* `Pres_column_index_in_File`: Column index of the radiosonde/model file containing the pressure values. For this example, index 2 (third column).
+  
+The first lines of the `US-StdA_DB_CEILAP.csv` file contained in this repository are shown in the next lines (data contained in columns indexes 3 to 7 are not taken into account):
 
 ```
 0,288.15,1013.27,0,0,1033.81,1.2247
@@ -203,18 +204,15 @@ This file must be headerless, and the column order of each parameter is describe
 1000,281.65,898.77,0,0,916.05,1.1113
 ...
 ```
-
-The data contained in columns indexes 3 to 7 are not taken into account.
-
 * `Temperature_at_Lidar_Station`: Temperature at ground level (in Celsius).
 * `Pressure_at_Lidar_Station`: Pressure at ground level (in hPa)
 
-* `rInitSig`: Initial range of the analysis (in meters from the lidar). It is preferable to use the first point where the full overlap is achieved.
-* `rEndSig`: End range of analysis (in meters).
+* `rInitSig`: Initial range of the analysis (in meters from the lidar line of sight). It is preferable to set this value to the first point where the full overlap is achieved.
+* `rEndSig`: End range of analysis (in meters from the lidar line of sight). It is preferable to set this value to the last processable point in the acquired signal.
 
-* `nBinsBkg = 1000`: Number of bins used for background removal. 
+* `nBinsBkg`: Number of bins used for background removal. 
 
-* **Cloud-mask retrieval parameters:** These parameters are required for the cloud detection algorithm. We strongly recommend using the values set in the files included in this repository. This algorithm is robust enough to work with a wide range of lidar signals using this setup, detecting clouds and plumes under a variety of conditions.
+* **Cloud-mask retrieval parameters:** These parameters are required for the cloud detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
 
 ```
 AVG_CLOUD_DETECTION = 101
@@ -224,22 +222,19 @@ errFactor = 2.0
 thresholdFactor = 5.0
 CLOUD_MIN_THICK = 5
 
-errScanCheckFactor = 1.0
-errCloudCheckFactor = 0.0
-DELTA_RANGE_LIM_BINS = 100
 ```
 
 # <a name="configuring_PDL2"></a> `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
-This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL1`) as a first parameter (in our example, `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
+This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL1`) as a first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
 
 An example of how to run this module can be:
 
     ./lidarAnalysis_PDL2
-    ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc
-    ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc 
-    ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
+    /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.n
+    /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc 
+    /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
 
-The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) is the same file used in module L1 and contains the variables needed for the optical products retrieval. This file is passed as a third argument.
+The configuration file (in this case, `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) is the same file used in module L1 and also contains the variables needed for the optical products retrieval (L2).
 
 An example of a configuration file and its variables for L2 data-level retrieval could be:
 
@@ -252,18 +247,18 @@ An example of a configuration file and its variables for L2 data-level retrieval
 # NUMBER OF FILES (EVENTS) THAT WILL BE MERGED (AVERAGED) INTO A SINGLE LIDAR SIGNAL
 numEventsToAvg_PDL2 = 18
 
-# MEAN AVERAGE POINTS TO BE APPLIED TO THE RCLS BEFORE FERNALD 1983 
+# NUMBER OF POINTS USED FOR A SMOOTHING SLIDING WINDOWS TO APPLY TO THE RCLS BEFORE FERNALD'S INVERSION
 avg_Points_Fernald = 51
 
 # FERNALD INVERSION PARAMETER
-# LR: COULD BE A VECTOR OR A SINGLE VALUE. THE NUMBER OF ELEMENTS OF THE VECTOR IS FREE
+# LR: COULD BE AN ARRAY OR A SINGLE VALUE
 LR = 50 : 60 : 70 : 80
 # INDEX OF THE CHANNEL TO BE INVERTED (INDEXED FROM 0)
 indxWL_PDL2 = 0
 
-# REFERENCE HETHGH FOR LIDAR SIGNAL NORMALIZATION
+# REFERENCE HEIGHT FOR LIDAR SIGNAL (ABOVE SEA LEVEL)
 heightRef_Inversion_ASL = 10000
-# HALF NUMBER OF POINTS (BINS) TO AVERAGE AROUND THE REFERENCE HEIGHT IN THE NORMALIZATION OF THE LIDAR SIGNAL.
+# HALF NUMBER OF POINTS (BINS) TO AVERAGE AROUND THE REFERENCE HEIGHT DURING THE NORMALIZATION OF THE LIDAR SIGNAL.
 avg_Half_Points_Fernald_Ref = 15
 
 ```
@@ -297,14 +292,14 @@ L2="no"
 # ABSOLUTE INPUT PATH
 PATH_IN="/mnt/Disk-1_8TB//Brazil/SPU/20210730/"
 
-FILE_CONF_L0="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf"
-FILE_CONF_L1_L2="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
+FILE_CONF_L0="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf"
+FILE_CONF_L1_L2="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
 
 ```
 
 As can be seen, a few lines are needed to run the automatic mode. These are:
 * `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"` at the variables `Lx`, you can control the run of each module.
-* `PATH_IN/`: Main path of the raw lidar data, in wich only lidar data files (Licel or Raymetric data format) must be stored. This is the starting folder for searching raw lidar files. A folder named `LPP_OUT/` will be created automatically in the last subfolder found with raw lidar files. The `LPP_OUT` folder will be used to store the NetCDF output files produced by each LPP module.
+* `PATH_IN/`: Main path of the raw lidar data, in wich only lidar data files (Licel or Raymetric data format) must be stored. This is the starting folder for searching raw lidar files. A folder named `/LPP_OUT/` will be created automatically in the last subfolder found with raw lidar files. The `/LPP_OUT/` folder will be used to store the NetCDF output files produced by each LPP module.
 Because there are different ways to store the data files and their folder structures, two examples will be shown and how the folder/files are generated automatically. 
 * `FILE_CONF_L0` and `FILE_CONF_L0_L1`: Path to the configuration file of each module.
 
@@ -312,7 +307,7 @@ In order to explain how paths are generated automatically, two examples are show
 
 ![SPU_files](./Docs/Figures/SPU_lidar_files.png "SPU lidar files")
 
-It can be seen that inside a single folder you can find all the files for that day. In this situation, the script `run_LPP_Analysis.sh` will create the folder `LPP_OUT/` automatically and the output files of each modules will save the data in it. If we take a look inside the folder `/LPP_OUT` it can be seen the NetCDF files created by the modules `lidar_Analysis_PDL0` and `lidar_Analysis_PDL1`:
+It can be seen that inside a single folder you can find all the files for that day. In this situation, the script `run_LPP_Analysis.sh` will create the folder `/LPP_OUT/` automatically and the output files of each modules will save the data in it. If we take a look inside the folder `/LPP_OUT` it can be seen the NetCDF files created by the modules `lidar_Analysis_PDL0` and `lidar_Analysis_PDL1`:
 
 ![SPU_output_folder_files](./Docs/Figures/SPU_files_LPP_folder.png "LPP output folder")
 
