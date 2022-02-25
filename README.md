@@ -98,28 +98,26 @@ inputDataFileFormat = LICEL_FILE
 # OUTPUT NETCDF DATAFILE FORMAT --> outDataFileFormat
 outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
-``
+```
 
-Configuration files for L0 data levels only need a few of basic inputs. 
-* `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE`) or Raymetric (`RAYMETRIC_FILE`) data type file are accepted. There is planned to accept more input data types formats in the future. 
-* `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. In case of select `SCC_NETCDF` option, . 
+Configuration files for L0 data levels only need a few of basic inputs:
+* `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) or Raymetric (`RAYMETRIC_FILE` option) data type file are accepted. There is planned to accept more input data types formats in the future. 
+* `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` this output is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different names conventions used in the variables inside the file. A detailed description of LALINET data type can be seen in later sections of this document ([LALINET data type format](#LALINET_data_type_format)).
 
-A description of LALINET data type and its name conventions, can be seen in later sections of this document ([LALINET data type format](#LALINET_data_type_format)).
+If `SCC_NETCDF` is selected, the output file generated can be used as an input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). 
 
-If `SCC_NETCDF` is selected, the output file generated can be used as an input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). It is also important to mention that if this output is selected, later modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) cannot be used.
-
-In order to proceed without mistakes, it is highly recommended to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so carefully check that only one line of each variable is uncommented.
+In order to proceed without mistakes, it is highly recommended to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is uncommented.
 
 
 # <a name="configuring_PDL1"></a> `lidarAnalysis_PDL1`: Producing data level 1 products: lidar signals corrections and cloud-mask
 
-This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as a first parameter (in our example, `../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
+This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as a first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
 
 An example of how to run this module can be:
 
-    ./lidarAnalysis_PDL1 ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc ../signalTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc ../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
+    ./lidarAnalysis_PDL1 /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc /home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf
 
-The configuration file (in this case, `../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The only important thing here are the variables included in the file passed as a third argument.
+The configuration file (in this case, `/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf`) could be the same file used in module L0, or use another one. The only important thing here are the variables included in the file passed as a third argument.
 
 The sample files included in this repository use one file for `lidarAnalysis_PDL0`, and another for modules `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`.
 
