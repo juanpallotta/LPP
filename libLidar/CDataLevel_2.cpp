@@ -10,6 +10,7 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	pr2       = (double***) new double**[glbParam->nEventsAVG] ;
     alpha_Aer = (double***) new double**[glbParam->nEventsAVG] ;
     beta_Aer  = (double***) new double**[glbParam->nEventsAVG] ;
+    AOD_LR	  = (double**)  new double *[glbParam->nEventsAVG] ;
 
     nMol	  = (double*)  new double[glbParam->nBins] ; 	memset( (double*)nMol, 0, sizeof(double)*glbParam->nBins ) ;
     alpha_Mol = (double**) new double*[glbParam->nCh]  ;
@@ -32,11 +33,11 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	}
 
 	nLRs = ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "LR ", "double", (double*)LR ) ;
-	AOD_LR = (double*) new double[nLRs] ;
 	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
 	{
 		alpha_Aer[e] = (double**) new double*[nLRs] ;
 		beta_Aer[e]  = (double**) new double*[nLRs] ;
+		AOD_LR[e]    = (double*)  new double [nLRs] ;
 
 		for ( int l=0 ; l <nLRs ; l++ )
 		{
@@ -106,9 +107,9 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 			beta_Aer[t][l][i]  = beta_Tot - beta_Mol[c][i] ;
 			alpha_Aer[t][l][i] = beta_Aer[t][l][i] * LR[l] ;
 		}
-		sum( (double*)&alpha_Aer[t][l][0] , (int)indxInitSig, (int)indxEndSig, (double*)&AOD_LR[l] ) ;
-		AOD_LR[l] = AOD_LR[l] * glbParam->dr ;
-		printf("\nAOD@LR = %lf --> %lf", LR[l], AOD_LR[l]) ;
+		sum( (double*)&alpha_Aer[t][l][0] , (int)indxInitSig, (int)indxEndSig, (double*)&AOD_LR[t][l] ) ;
+		AOD_LR[t][l] = AOD_LR[t][l] * glbParam->dr ;
+		printf("\nAOD@LR = %lf --> %lf", LR[l], AOD_LR[t][l]) ;
 	} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 }
 

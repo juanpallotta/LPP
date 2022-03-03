@@ -603,7 +603,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh       , (int*)&id_dims_pr2[1] ) ;
     id_dims_pr2[2] = id_dims_aer[2] ;
 
-    int id_var_beta_aer, id_var_alpha_aer, id_var_pr2, id_var_LRs, id_var_indx_ref_inv, id_var_start_time, id_var_stop_time ;
+    int id_var_beta_aer, id_var_alpha_aer, id_var_pr2, id_var_LRs, id_var_indx_ref_inv, id_var_AOD_LR, id_var_start_time, id_var_stop_time ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction"             , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0]   , (int*)&id_var_alpha_aer      ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscattering"         , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0]   , (int*)&id_var_beta_aer       ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Range_Corrected_Lidar_Signal_L2", (const char*)"double", (int)num_dim_var, (int*)&id_dims_pr2[0]   , (int*)&id_var_pr2            ) ;
@@ -611,8 +611,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineVariable( (int)nc_id_group_L2, (char*)"Start_Time_AVG_L2", (const char*)"int", (int)1, (int*)&id_dims_aer[0], (int*)&id_var_start_time ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Stop_Time_AVG_L2" , (const char*)"int", (int)1, (int*)&id_dims_aer[0], (int*)&id_var_stop_time  ) ;
     
-    DefineVariable( (int)nc_id_group_L2, (char*)"LRs"                            , (const char*)"double", (int)1          , (int*)&id_dims_aer[1]   , (int*)&id_var_LRs            ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Indx_Ref_Inv"                   , (const char*)"int"   , (int)1          , (int*)&id_dim_single_val, (int*)&id_var_indx_ref_inv   ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"LRs"                            , (const char*)"double", (int)1, (int*)&id_dims_aer[1]   , (int*)&id_var_LRs            ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Indx_Ref_Inv"                   , (const char*)"int"   , (int)1, (int*)&id_dim_single_val, (int*)&id_var_indx_ref_inv   ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"                         , (const char*)"double", (int)2, (int*)&id_dims_aer[0]   , (int*)&id_var_AOD_LR         ) ;
 
     int indxWL_PDL2 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&indxWL_PDL2 ) ;
@@ -634,13 +635,16 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     {
         start[0] =e ;
         // for ( int c=0 ; c <glbParam->nCh ; c++ )
-        for ( int c=0 ; c <oDL2->nLRs ; c++ )
+        for ( int l=0 ; l <oDL2->nLRs ; l++ )
         {
-            start[1] =c ;
-            if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_alpha_aer, start, count, (double*)&oDL2->alpha_Aer[e][c][0] ) ) )
+            start[1] =l ;
+            if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_alpha_aer, start, count, (double*)&oDL2->alpha_Aer[e][l][0] ) ) )
                 ERR(retval);
 
-            if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_beta_aer, start, count, (double*)&oDL2->beta_Aer[e][c][0] ) ) )
+            if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_beta_aer, start, count, (double*)&oDL2->beta_Aer[e][l][0] ) ) )
+                ERR(retval);
+
+            if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_AOD_LR, start, count, (double*)&oDL2->AOD_LR[e][l] ) ) )
                 ERR(retval);
         }
         for ( int c=0 ; c <glbParam->nCh ; c++ )
@@ -651,8 +655,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
         }
     }
 
-    PutVar( (int)nc_id_group_L2, (int)id_var_LRs           , (const char*)"double", (double*)oDL2->LR       ) ;
-    PutVar( (int)nc_id_group_L2, (int)id_var_indx_ref_inv  , (const char*)"int"   , (int*   )&oDL2->indxRef ) ;
+    PutVar( (int)nc_id_group_L2, (int)id_var_LRs           , (const char*)"double", (double*)oDL2->LR         ) ;
+    PutVar( (int)nc_id_group_L2, (int)id_var_indx_ref_inv  , (const char*)"int"   , (int*   )&oDL2->indxRef   ) ;
 
     PutVar( (int)nc_id_group_L2, (int)id_var_start_time, (const char*)"int", (int*)Start_Time_AVG ) ;
     PutVar( (int)nc_id_group_L2, (int)id_var_stop_time , (const char*)"int", (int*)Stop_Time_AVG  ) ;
