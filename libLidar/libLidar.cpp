@@ -48,6 +48,7 @@ int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, s
                 {
                     if ( ( strcmp( sMinTime, sMaxTime ) == 0 ) || ( isFileInTimeRange( (char*)dir->d_name, (time_t)minTime_num, (time_t)maxTime_num, (strcGlobalParameters*)glbParam ) == true ) )
                     {
+						// printf("\n nFilesInTime: %d \t PathFile_IN_FULL: %s  dir->d_name: %s \n", nFilesInTime, PathFile_IN_FULL, dir->d_name ) ;
                         sprintf(inputFilesInTime[nFilesInTime], "%s%s", PathFile_IN_FULL, dir->d_name ) ;
                         nFilesInTime = nFilesInTime +1 ;
                     }
@@ -56,7 +57,6 @@ int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, s
             closedir(d);
         }
         qsort( inputFilesInTime, nFilesInTime, sizeof(inputFilesInTime[0]), pstrcmp );
-    // }
 	return nFilesInTime ;
 }
 

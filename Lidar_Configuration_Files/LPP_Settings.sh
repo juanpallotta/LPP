@@ -4,7 +4,7 @@
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no", LOWERCASE
 L0="yes"
 L1="yes"
-L2="no"
+L2="yes"
 
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
@@ -12,7 +12,7 @@ L2="no"
 # PATH_IN="/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/LPP/signalsTest/Brazil/Manaus/2011/"
 # PATH_IN="C:/Users/jpall/Dropbox/procesamiento/LidarAnalysisCode/LPP/signalsTest/Brazil/Manaus/2011/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
-PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20220302/"
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20220301/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/17/"
 
 # CONFIGURATION FILES --> RELATIVE TO THE FOLDER WICH IS RUNNING THE ANALYSIS!!

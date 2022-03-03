@@ -18,6 +18,7 @@ class CDataLevel_2
 		double  *pr2_s 								;
 		double  dzr									;
 		double  LRM, LR[100]						;
+		double  *AOD_LR 							;
 		int		nLRs 								;
 		int 	indxInitSig, indxEndSig, indxRef	;
 

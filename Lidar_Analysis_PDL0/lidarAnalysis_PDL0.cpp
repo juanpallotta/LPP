@@ -78,7 +78,7 @@ int main( int argc, char *argv[] )
             if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) && ( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
                 nFilesInInputFolder++;
         }
-        // printf("\n nFilesInInputFolder: %d \n", nFilesInInputFolder) ;
+        printf("\n nFilesInInputFolder: %d \n", nFilesInInputFolder) ;
         if ( nFilesInInputFolder ==0 )
         {
             printf("\n There are not Licel files in the folder (see dirFile.sh) \nBye...") ;
@@ -118,8 +118,6 @@ int main( int argc, char *argv[] )
     printf( "\n Total Events: %d \n", glbParam.nEvents ) ;
 
 // * LICEL FILE READOUT ////////////////////////////////////////////////////////////////////////////////////
-    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam ) ;
-
     strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam.nEvents ] ;
     GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)&glbParam ) ;
     string  timeVec_str[glbParam.nEvents] ;

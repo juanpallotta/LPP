@@ -243,7 +243,7 @@ int main( int argc, char *argv[] )
         oDL2.dzr = (glbParam.r[2] - glbParam.r[1]) * 1 ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
-            cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << indxWL_PDL2[c] << "\t Wavelenght: " << glbParam.iLambda[c] ;
+            cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << indxWL_PDL2[c] << "\t Wavelenght: " << glbParam.iLambda[indxWL_PDL2[c]] ;
             oDL2.Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)indxWL_PDL2[c] ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
