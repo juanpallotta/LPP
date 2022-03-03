@@ -184,8 +184,8 @@ int main( int argc, char *argv[] )
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
 
 //! ------------------------ CORRECTIONS OF THE LIDAR SIGNAL: LASER OFFSET AND BIAS
-	int indxInicFit = glbParam.nBins - glbParam.nBinsBkg ; // glbParam.indxEndSig - glbParam.nBinsBkg ; // 
-	int indxEndFit  = glbParam.nBins -1 ;
+	int indxInicFit = glbParam.indxEndSig - glbParam.nBinsBkg ; // glbParam.nBins - glbParam.nBinsBkg ; // 
+	int indxEndFit  = glbParam.indxEndSig -1 ; // glbParam.nBins -1 ;
 
     CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
     oDL2.indxInitSig  = (int)glbParam.indxInitSig ;
