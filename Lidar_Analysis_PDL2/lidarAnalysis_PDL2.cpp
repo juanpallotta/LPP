@@ -117,6 +117,8 @@ int main( int argc, char *argv[] )
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)Raw_Data_Stop_Time  ) ;
 
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
+    glbParam.numEventsToAvg = (glbParam.numEventsToAvg <0) ? glbParam.nEvents : glbParam.numEventsToAvg ;
+
     glbParam.nEventsAVG = (int)round( glbParam.nEvents /glbParam.numEventsToAvg ) ;
 
     glbParam.aZenith     = (double*) new double [glbParam.nEvents]    ;
@@ -182,7 +184,7 @@ int main( int argc, char *argv[] )
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
 
 //! ------------------------ CORRECTIONS OF THE LIDAR SIGNAL: LASER OFFSET AND BIAS
-	int indxInicFit = glbParam.indxEndSig - glbParam.nBinsBkg ; // glbParam.nBins - glbParam.nBinsBkg ;
+	int indxInicFit = glbParam.nBins - glbParam.nBinsBkg ; // glbParam.indxEndSig - glbParam.nBinsBkg ; // 
 	int indxEndFit  = glbParam.nBins -1 ;
 
     CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
