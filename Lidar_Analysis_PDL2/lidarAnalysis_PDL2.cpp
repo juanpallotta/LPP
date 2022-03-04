@@ -184,8 +184,8 @@ int main( int argc, char *argv[] )
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
 
 //! ------------------------ CORRECTIONS OF THE LIDAR SIGNAL: LASER OFFSET AND BIAS
-	int indxInicFit = glbParam.indxEndSig - glbParam.nBinsBkg ; // glbParam.nBins - glbParam.nBinsBkg ; // 
-	int indxEndFit  = glbParam.indxEndSig -1 ; // glbParam.nBins -1 ;
+	int indxInicFit = glbParam.nBins - glbParam.nBinsBkg ; // glbParam.indxEndSig - glbParam.nBinsBkg ; // 3400 ; // 
+	int indxEndFit  = glbParam.nBins -1 ; // glbParam.indxEndSig -1 ; // 4000 ; // 
 
     CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
     oDL2.indxInitSig  = (int)glbParam.indxInitSig ;
@@ -213,7 +213,7 @@ int main( int argc, char *argv[] )
         }
         bkgSubstractionMean( (double*)pr[e], indxInicFit, indxEndFit, glbParam.nBins, (double*)&pr_noBkg[e][0] ) ;
         // RANGE CORRECTED: ONLY FOR THE CHANNEL SELECTED FOR THE INVERSION
-        for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2.pr2[e][indxWL_PDL2[0]][i] = (double)(pr_noBkg[e][i] * pow(glbParam.r[i], 2)) ;
+        for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2.pr2[e][indxWL_PDL2[0]][i] = (double)(pr_noBkg[e][i] * pow(glbParam.r[i], 2)) ; // +1.3e8 ;
     }
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
