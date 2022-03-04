@@ -103,7 +103,7 @@ int findLastCharInString( char *strOrig, const char charToFind )
 	}
 	return (offsetLastChar +1) ;
 }
-
+//! template<typedef T>
 int ReadAnalisysParameter( const char *fileName, const char *varToFind, const char *varType, void *var )
 {
     ifstream    myfile (fileName) ;
