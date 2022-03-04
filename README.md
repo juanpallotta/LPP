@@ -260,7 +260,8 @@ indxWL_PDL2 = 0
 heightRef_Inversion_ASL = 10000
 # HALF NUMBER OF POINTS (BINS) TO AVERAGE AROUND THE REFERENCE HEIGHT DURING THE NORMALIZATION OF THE LIDAR SIGNAL.
 avg_Half_Points_Fernald_Ref = 15
-
+# BACKSCATTERING RATIO = R_ref = BetaTot(rRef) / BetaMol(rRef) >1
+R_ref = 1
 ```
 
 A description of each of these parameters is described below:
@@ -271,6 +272,7 @@ A description of each of these parameters is described below:
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
 * `heightRef_Inversion_ASL`: Altitude above sea level (in meters) used as reference height used to normalize the lidar signal.
 * `avg_Half_Points_Fernald_Ref`: Number of bins used to obtain the mean value of the lidar signal around `heightRef_Inversion_ASL` altitude. The average is performed from `heightRef_Inversion_ASL - avg_Half_Points_Fernald_Ref` to `heightRef_Inversion_ASL + avg_Half_Points_Fernald_Ref`.
+* `R_ref`: Backscatter ratio at reference altitude, being the ratio for the total to the molecular backscatter. This parameter can control the turbidity of the reference altitude, being `R_ref=1` completely molecular, and higher values mean more polluted reference altitude.
 
 
 # <a name="Automatizing_LPP"></a>Automatizing LPP

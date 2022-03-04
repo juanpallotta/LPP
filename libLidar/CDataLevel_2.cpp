@@ -84,7 +84,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 		// beta_Aer[t][l][indxRef+1] = beta_Mol[c][indxRef] ;
 		beta_Aer[t][l][indxRef+1] = R_ref * beta_Mol[c][indxRef] - beta_Mol[c][indxRef] ;
 		int invDirection = -1 ; // 1 = BACKWARD
-		for( int i=indxRef ; i >indxInitSig ; i-- )
+		for( int i=indxRef ; i >=indxInitSig ; i-- )
 		{
 			phi = (LR[l]-LRM) * ( beta_Mol[c][i+1] + beta_Mol[c][i] ) * invDirection * glbParam->dr ;
 			p   = pr2n[i] * exp(-phi) ;
@@ -99,7 +99,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 		// beta_Aer[t][l][indxRef-1] = beta_Mol[c][indxRef] ;
 		beta_Aer[t][l][indxRef-1] = R_ref * beta_Mol[c][indxRef] - beta_Mol[c][indxRef] ;
 		invDirection = 1 ; // 1 = FORWARD
-		for ( int i=indxRef ; i <indxEndSig ; i++ )
+		for ( int i=indxRef ; i <=indxEndSig ; i++ )
 		{
 			phi = (LR[l]-LRM) * ( beta_Mol[c][i-1] + beta_Mol[c][i] ) * invDirection * glbParam->dr ;
 			p   = pr2n[i] * exp(-phi) ;
@@ -111,8 +111,12 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 			beta_Aer[t][l][i]  = beta_Tot - beta_Mol[c][i] ;
 			alpha_Aer[t][l][i] = beta_Aer[t][l][i] * LR[l] ;
 		}
-
-		sum( (double*)&alpha_Aer[t][l][0] , (int)indxInitSig, (int)indxEndSig, (double*)&AOD_LR[t][l] ) ;
+		for (int i =0 ; i <indxInitSig; i++)
+		{
+			alpha_Aer[t][l][i] = alpha_Aer[t][l][indxInitSig] ;
+			beta_Aer[t][l][i]  = beta_Aer[t][l][indxInitSig] ;
+		}
+		sum( (double*)&alpha_Aer[t][l][0] , (int)0, (int)indxEndSig, (double*)&AOD_LR[t][l] ) ;
 		AOD_LR[t][l] = AOD_LR[t][l] * glbParam->dr ;
 		printf("\nAOD@LR = %lf --> %lf", LR[l], AOD_LR[t][l]) ;
 	} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs

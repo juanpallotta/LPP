@@ -187,7 +187,6 @@ int main( int argc, char *argv[] )
 	int indxInicFit = glbParam.nBins - glbParam.nBinsBkg ; // glbParam.indxEndSig - glbParam.nBinsBkg ; // 3400 ; // 
 	int indxEndFit  = glbParam.nBins -1 ; // glbParam.indxEndSig -1 ; // 4000 ; // 
 
-    // CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
     CDataLevel_2 *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
     oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
     oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
