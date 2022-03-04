@@ -21,6 +21,7 @@ class CDataLevel_2
 		double  **AOD_LR 							;
 		int		nLRs 								;
 		int 	indxInitSig, indxEndSig, indxRef	;
+		double  R_ref    							;
 
 	private:
 

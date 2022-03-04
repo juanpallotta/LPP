@@ -280,13 +280,6 @@ int main( int argc, char *argv[] )
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
-    // int eventIndxToAnalyze ;
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"eventIndxToAnalyze", (const char*)"int", (int*)&eventIndxToAnalyze ) ;
-
-    // glbParam.event_analyzed = eventIndxToAnalyze ;
-    // oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
-    // oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-
     glbParam.event_analyzed = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
     oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,

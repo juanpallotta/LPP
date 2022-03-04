@@ -64,6 +64,8 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "double" , (double*)&heightRef_Inversion_ASL ) ;
 	indxRef = (int)round( (heightRef_Inversion_ASL - glbParam->siteASL) /dzr ) ;
 
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
+
 	int avg_Points_Fernald ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)&avg_Points_Fernald ) ;
 	smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)pr2_s ) ;
@@ -79,7 +81,8 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 
 	for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 	{	// BACKWARD INVERSION - FERNALD 1983
-		beta_Aer[t][l][indxRef+1] = beta_Mol[c][indxRef] ;
+		// beta_Aer[t][l][indxRef+1] = beta_Mol[c][indxRef] ;
+		beta_Aer[t][l][indxRef+1] = R_ref * beta_Mol[c][indxRef] - beta_Mol[c][indxRef] ;
 		int invDirection = -1 ; // 1 = BACKWARD
 		for( int i=indxRef ; i >indxInitSig ; i-- )
 		{
@@ -93,7 +96,8 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 			beta_Aer[t][l][i]  = beta_Tot - beta_Mol[c][i] ;
 			alpha_Aer[t][l][i] = beta_Aer[t][l][i] * LR[l] ;
 		}
-		beta_Aer[t][l][indxRef-1] = beta_Mol[c][indxRef] ;
+		// beta_Aer[t][l][indxRef-1] = beta_Mol[c][indxRef] ;
+		beta_Aer[t][l][indxRef-1] = R_ref * beta_Mol[c][indxRef] - beta_Mol[c][indxRef] ;
 		invDirection = 1 ; // 1 = FORWARD
 		for ( int i=indxRef ; i <indxEndSig ; i++ )
 		{

@@ -187,9 +187,10 @@ int main( int argc, char *argv[] )
 	int indxInicFit = glbParam.nBins - glbParam.nBinsBkg ; // glbParam.indxEndSig - glbParam.nBinsBkg ; // 3400 ; // 
 	int indxEndFit  = glbParam.nBins -1 ; // glbParam.indxEndSig -1 ; // 4000 ; // 
 
-    CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
-    oDL2.indxInitSig  = (int)glbParam.indxInitSig ;
-    oDL2.indxEndSig   = (int)glbParam.indxEndSig  ;
+    // CDataLevel_2 oDL2 = CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
+    CDataLevel_2 *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
+    oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
+    oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
 
     glbParam.r = (double*) new double[glbParam.nBins] ;
     for( int i=0 ; i <glbParam.nBins ; i++ )
@@ -213,7 +214,7 @@ int main( int argc, char *argv[] )
         }
         bkgSubstractionMean( (double*)pr[e], indxInicFit, indxEndFit, glbParam.nBins, (double*)&pr_noBkg[e][0] ) ;
         // RANGE CORRECTED: ONLY FOR THE CHANNEL SELECTED FOR THE INVERSION
-        for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2.pr2[e][indxWL_PDL2[0]][i] = (double)(pr_noBkg[e][i] * pow(glbParam.r[i], 2)) ; // +1.3e8 ;
+        for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2->pr2[e][indxWL_PDL2[0]][i] = (double)(pr_noBkg[e][i] * pow(glbParam.r[i], 2)) ; // +1.3e8 ;
     }
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
@@ -223,15 +224,15 @@ int main( int argc, char *argv[] )
 
     size_t start_mol[1], count_mol[1];
     start_mol[0] = 0;   count_mol[0] = glbParam.nBins ; // BINS
-    if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, start_mol, count_mol, (double*)&oDL2.nMol[0] ) ) )
+    if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, start_mol, count_mol, (double*)&oDL2->nMol[0] ) ) )
         ERR(retval) ;
 
     for( int c=0 ; c <glbParam.nCh ; c++ )
     { 
         for( int i=0 ; i < glbParam.nBins ; i++ )
         {
-            oDL2.beta_Mol [c][i] = (double)(oDL2.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam.iLambda[c] ), 4) ) ) ; // r [1/m*sr]
-            oDL2.alpha_Mol[c][i] = (double)(oDL2.beta_Mol[c][i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+            oDL2->beta_Mol [c][i] = (double)(oDL2->nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam.iLambda[c] ), 4) ) ) ; // r [1/m*sr]
+            oDL2->alpha_Mol[c][i] = (double)(oDL2->beta_Mol[c][i] * 8.0 * 3.1415/3.0) ; // r [1/m]
         }
     }
 
@@ -242,15 +243,15 @@ int main( int argc, char *argv[] )
     {
         cout << endl ;
         glbParam.event_analyzed = t ;
-        oDL2.dzr = (glbParam.r[2] - glbParam.r[1]) * 1 ;
+        oDL2->dzr = (glbParam.r[2] - glbParam.r[1]) * 1 ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
             cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << indxWL_PDL2[c] << "\t Wavelenght: " << glbParam.iLambda[indxWL_PDL2[c]] ;
-            oDL2.Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)indxWL_PDL2[c] ) ;
+            oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)indxWL_PDL2[c] ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
 
-    oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CDataLevel_2*)&oDL2 ) ;
+    oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CDataLevel_2*)oDL2 ) ;
 
     printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
 	return 0 ;
