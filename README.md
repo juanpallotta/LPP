@@ -287,7 +287,7 @@ In the configuration file (`/LPP/Lidar_Configuration_Files/LPP_Settings.sh`), th
 # DATA LEVEL TO PRODUCE IN THE RUN. 
 L0="yes"
 L1="yes"
-L2="no"
+L2="yes"
 
 # ABSOLUTE INPUT PATH
 PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
