@@ -16,6 +16,7 @@ It is important to remark the feature that the output files produced in stages 1
 
 ![Panoply subgroup](./Docs/Figures/sub_group_nc.png "NetCDF Subgroup")
 
+The description of each variables and its dimensions are described later in this document (section [LALINET Data Type Format](#LALINET_data_type_format)).
 Each lidar analysis tool must be run in a Linux terminal, following the convention:
 
 <a name="run_module"></a>
@@ -355,16 +356,16 @@ The variables of the L0 are the data stored in the headers of the lidar files (i
 The variables are listed below (in alphabetical order), with the dimensions used in parentheses:
 
 * `Accumulated_Pulses(channels)`: Number of laser pulses accumulated in each channel.
-* `ADC_Bits(channels)`: Number of bits for the ADC electronic.
-* `Azimuth(time)`: .
-* `DAQ_Range(channels)`:
-* `Laser_Source(channels)`:
-* `Number_Of_Bins(channels)`:
-* `PMT_Voltage(channels)`:
-* `Polarization(channels)`:
-* `Raw_Data_Start_Time(time)`:
-* `Raw_Data_Stop_Time(time)`:
-* `Raw_Lidar_Data(time, channels, points)`:
+* `ADC_Bits(channels)`: Number of bits for the ADC electronic for each channel.
+* `Azimuth(time)`: Azimuth angle in degrees of the measurement.
+* `DAQ_Range(channels)`: Maximun DAQ range set in the Licel, in mV.
+* `Laser_Source(channels)`: Number of laser source set for each channel.
+* `Number_Of_Bins(channels)`: Number of bins saved for each channel.
+* `PMT_Voltage(channels)`: Photomuliplier voltage used in each channel.
+* `Polarization(channels)`: Polarization information of each channel. Terminology used in the Licel/Raymetric files.
+* `Raw_Data_Start_Time(time)`: GPS start time of the measurement.
+* `Raw_Data_Stop_Time(time)`: GPS stop time of the measurement.
+* `Raw_Lidar_Data(time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
 * `Wavelengths(channels)`:
 * `Zenith(time)`:
 
