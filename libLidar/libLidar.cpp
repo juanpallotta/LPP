@@ -454,9 +454,13 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 		}
 		else
 		{
-			fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
-			glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-			&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed] ) ;
+			sprintf( glbParam->site, "%s", strMisc ) ;
+			fscanf( fid, "%10s %08s %10s %08s %lf %lf %lf %lf ",
+					glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
+					&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed] ) ;
+			// fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
+			// glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
+			// &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed] ) ;
 		}
 		// printf("\nReadLicelTime_and_Coord()") ;
 		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",

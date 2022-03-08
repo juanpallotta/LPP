@@ -13,8 +13,7 @@ L2="yes"
 # PATH_IN="C:/Users/jpall/Dropbox/procesamiento/LidarAnalysisCode/LPP/signalsTest/Brazil/Manaus/2011/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/17/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20220302/"
-PATH_IN="/mnt/Disk-1_8TB/Argentina/Comodoro/20220131/"
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20220302/"
 
 # CONFIGURATION FILES --> RELATIVE TO THE FOLDER WICH IS RUNNING THE ANALYSIS!!
 # BRAZIL
