@@ -226,7 +226,7 @@ int main( int argc, char *argv[] )
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
-    CDataLevel_1 oDL1 = CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
+    CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
 
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
@@ -238,44 +238,29 @@ int main( int argc, char *argv[] )
             for ( int i=0 ; i <glbParam.nBins ; i++ )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
 
-            /*
-            // if ( glbParam.rEndSig >0 )
-            //     glbParam.indxEndSig  = (int)round( glbParam.rEndSig /glbParam.dr ) ;
-            // else
-            // {
-                // double  min_pr      = *min_element( evSig.pr +100, evSig.pr +glbParam.nBins ) ;
-                // double  indx_min_pr =  min_element( evSig.pr +100, evSig.pr +glbParam.nBins ) -evSig.pr +100 ;
-                // glbParam.indxEndSig = min_element( evSig.pr +100, evSig.pr +glbParam.nBins-101 ) -evSig.pr +100 ;
-                // if ( glbParam.indxEndSig <2000 )
-                //     glbParam.indxEndSig  = (int)2000 ; // round( 20000 / glbParam.dr ) ;
-
-                // glbParam.rEndSig = glbParam.indxEndSig *glbParam.dr ;
-                // cout << endl << "glbParam.indxEndSig: " << glbParam.indxEndSig << "\t glbParam.nBins: " << glbParam.nBins << "\t glbParam.rEndSig: " << glbParam.rEndSig ;
-            // }
-            */
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int) c ) ;
-            oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-            // oDL1.MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol[c] ) ;
+            oDL1->MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+
             for( int i=0 ; i <glbParam.nBins ; i++ )
                 pr2[t][c][i]    = (double)evSig.pr2[i] ;
 
             if ( c == indxWL_PDL1 )
             {
                 printf("\t --> Getting cloud profile...");
-                oDL1.ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
-                if ( (oDL1.cloudProfiles[t].nClouds) >0 )
-                    printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle", oDL1.cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1.cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
+                if ( (oDL1->cloudProfiles[t].nClouds) >0 )
+                    printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
                     printf(" NO clouds detected at %lf zenithal angle", glbParam.aZenithAVG[t]  ) ;
                 // printf(" done.") ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                 {
-                    Cloud_Profiles[t][b] = (int)    oDL1.cloudProfiles[t].clouds_ON[b] ;
-                    RMSE_lay           [t][b] = (double) oDL1.cloudProfiles[t].test_1[b]    ; // RMSE_lay
+                    Cloud_Profiles[t][b] = (int)    oDL1->cloudProfiles[t].clouds_ON[b] ;
+                    RMSE_lay           [t][b] = (double) oDL1->cloudProfiles[t].test_1[b]    ; // RMSE_lay
                 }
-                RMSerr_Ref[t] = (double)oDL1.errRefBkg ;
+                RMSerr_Ref[t] = (double)oDL1->errRefBkg ;
             }
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )

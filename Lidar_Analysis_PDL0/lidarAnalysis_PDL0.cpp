@@ -200,9 +200,6 @@ int main( int argc, char *argv[] )
                                        (int*)Raw_Data_Start_Time, (int*)Raw_Data_Stop_Time ) ;
     }
 
-    // if ( (retval = nc_close(ncid)) )
-    //     ERR(retval);
-
     printf("\n\n*** SUCCESS writing example file %s!\n", Path_File_Out.c_str());
 
 	return 0 ;
