@@ -82,7 +82,6 @@ int main( int argc, char *argv[] )
     }
     glbParam.nEvents = size_dim[0] ; glbParam.nEventsAVG = glbParam.nEvents ; // 'time' DIMENSION
     glbParam.nCh     = size_dim[1] ; glbParam.nLambda    = glbParam.nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
-    glbParam.nCh     = size_dim[1] ; // 'channels' DIMENSION
     glbParam.nBins   = size_dim[2] ; // 'points' DIMENSION
 
     double  ***dataFile     = (double***) new double**[glbParam.nEvents];
@@ -157,11 +156,6 @@ int main( int argc, char *argv[] )
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                   ) ;
 
-// for (int i =0; i <glbParam.nEventsAVG ; i++)
-// {
-//     printf("\n lidarAnalysis_PDL1 --> Raw_Data_Start_Time_AVG[%i]: %i", i, Raw_Data_Start_Time_AVG[i] ) ;
-// }
-
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
         ERR(retval);
 
@@ -179,9 +173,6 @@ int main( int argc, char *argv[] )
     glbParam.iLambda = (int*) new int [glbParam.nCh] ;
     oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (int*)glbParam.iLambda ) ;
 
-                        if ( (retval = nc_close(ncid)) )
-                            ERR(retval);
-
     glbParam.indxOffset = (int*) new int [ glbParam.nCh ] ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)&glbParam.nBinsBkg      ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)glbParam.indxOffset    ) ;
@@ -190,9 +181,24 @@ int main( int argc, char *argv[] )
     glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
 
-// MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
-//! THE PATH SHOULD BE READ FROM glbParam.FILE_PARAMETERS
-    CMolecularData *oMolData = (CMolecularData*) new CMolecularData ( (strcGlobalParameters*)&glbParam ) ;
+    CDataLevel_1    *oDL1       = (CDataLevel_1*)   new CDataLevel_1    ( (strcGlobalParameters*)&glbParam ) ;
+    int id_var_noise ;
+    if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
+    {
+        size_t start_noise[2], count_noise[2];
+        start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam.nCh; 
+        start_noise[1] = 0;   count_noise[1] = glbParam.nBins;
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+        {
+            start_noise[0] =c ;
+            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL1->data_Noise[c][0] ) ) )
+                ERR(retval);    
+        }
+        oDL1->is_Noise_Data_Loaded = true ;
+    }
+
+                        if ( (retval = nc_close(ncid)) )
+                            ERR(retval);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -226,7 +232,8 @@ int main( int argc, char *argv[] )
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
-    CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
+    // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
+    CMolecularData  *oMolData   = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
 
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
@@ -234,26 +241,29 @@ int main( int argc, char *argv[] )
         glbParam.event_analyzed = t ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
+            glbParam.chSel = c ;
             cout << endl << "Event: " << t << "\t Wavelenght: " << glbParam.iLambda[c] ;
             for ( int i=0 ; i <glbParam.nBins ; i++ )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
 
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int) c ) ;
             oDL1->MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-
-            for( int i=0 ; i <glbParam.nBins ; i++ )
-                pr2[t][c][i]    = (double)evSig.pr2[i] ;
+            for ( int i=0 ; i <glbParam.nBins ; i++ )
+            {
+                pr_corr[t][c][i] = (double)evSig.pr_noBkg[i] ;
+                pr2[t][c][i]     = (double)evSig.pr2[i] ;
+            }
 
             if ( c == indxWL_PDL1 )
             {
                 printf("\t --> Getting cloud profile...");
-                oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                // oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr_noBkg , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
                     printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
                     printf(" NO clouds detected at %lf zenithal angle", glbParam.aZenithAVG[t]  ) ;
-                // printf(" done.") ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                 {

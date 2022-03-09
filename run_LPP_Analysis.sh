@@ -57,7 +57,7 @@ do
             fi
             echo -e "Running: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF_L0
     cd $PATH_TO_L0
-    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF_L0
+    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF_L0 $PATH_FILE_NOISE
         fi
 
         if [[ "$L1" == "yes" ]] || [[ "$L2" == "yes" ]]

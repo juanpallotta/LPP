@@ -195,6 +195,21 @@ int main( int argc, char *argv[] )
     for( int i=0 ; i <glbParam.nBins ; i++ )
         glbParam.r[i] = i*glbParam.dr ;
 
+    int id_var_noise ;
+    if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
+    {
+        size_t start_noise[2], count_noise[2];
+        start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam.nCh; 
+        start_noise[1] = 0;   count_noise[1] = glbParam.nBins;
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+        {
+            start_noise[0] =c ;
+            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL2->data_Noise[c][0] ) ) )
+                ERR(retval);    
+        }
+        oDL2->is_Noise_Data_Loaded = true ;
+    }
+
     double  **pr        = (double**) new double*[glbParam.nEventsAVG] ;
     double  **pr_noBkg  = (double**) new double*[glbParam.nEventsAVG] ;
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )

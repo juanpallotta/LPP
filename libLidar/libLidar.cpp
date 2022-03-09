@@ -377,7 +377,8 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 		printf("\n Failed to close the lidar file.\n\n") ;
 
 	glbParam->nLambda   = glbParam->nCh;
-	glbParam->nBinsRaw = *min_element( glbParam->nBinsRaw_Ch, glbParam->nBinsRaw_Ch +glbParam->nCh ) ;
+	glbParam->nBinsRaw  = *min_element( glbParam->nBinsRaw_Ch, glbParam->nBinsRaw_Ch +glbParam->nCh ) ;
+	glbParam->nBins		= glbParam->nBinsRaw ;
 	glbParam->nBins_in_File = glbParam->nBinsRaw ;
 	strcpy( glbParam->fileName, lidarHeaderData.Name ) ;
 

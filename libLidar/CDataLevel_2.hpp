@@ -16,12 +16,14 @@ class CDataLevel_2
 	    double  ***beta_Aer , **beta_Mol  			;
 		double  ***pr2, *pr2n, phi, p, ip, CalTerm, beta_Tot ;
 		double  *pr2_s 								;
+		double  **data_Noise						;
 		double  dzr									;
 		double  LRM, LR[100]						;
 		double  **AOD_LR 							;
 		int		nLRs 								;
 		int 	indxInitSig, indxEndSig, indxRef	;
 		double  R_ref    							;
+		bool	is_Noise_Data_Loaded =false 		;
 
 	private:
 

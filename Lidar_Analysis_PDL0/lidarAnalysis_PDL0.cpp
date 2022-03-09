@@ -98,7 +98,6 @@ int main( int argc, char *argv[] )
     }
     assert( glbParam.nEvents !=0 ); // SI SE CUMPLE, SIGUE DE LARGO.
 
-    // glbParam.nEventsAVG = (int)floor(glbParam.nEvents /glbParam.numEventsToAvg ) ;
     glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY --> ERASE
 
     if ( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
@@ -185,21 +184,41 @@ int main( int argc, char *argv[] )
     } // for ( int fC=0 ; fC <glbParam.nEventsAVG ; fC++ )
 
 // NETCDF FILE STUFF
-    CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
+    // CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
+    CNetCDF_Lidar   *oNCL = (CNetCDF_Lidar*) new CNetCDF_Lidar() ;
+    // CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
 
     if ( strcmp(glbParam.outputDataFileFormat, "SCC_NETCDF") ==0 )
     {
         cout << endl << "\tOutput datafile: SCC_NETCDF" << endl ;
-        oNCL.Save_SCC_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave, 
+        oNCL->Save_SCC_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave, 
                                    (int*)Raw_Data_Start_Time, (string*)Raw_Data_Start_Time_str, (int*)Raw_Data_Stop_Time, (string*)Raw_Data_Stop_Time_str ) ;
     }
     else if ( strcmp(glbParam.outputDataFileFormat, "LALINET_NETCDF") ==0 )
     {
         cout << endl << "\tOutput datafile: LALINET_NETCDF" << endl ;
-        oNCL.Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
+        oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (int*)Raw_Data_Start_Time, (int*)Raw_Data_Stop_Time ) ;
-    }
 
+        if (  strstr( argv[4], "bkg" ) != 0 )
+        {
+            printf("\n Adding noise file (%s) to NetCDF file \n", argv[4] ) ;
+            ReadLicelData ( (char*)argv[4], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[0] ) ;
+
+            double  **data_Noise = (double**) new double*[glbParam.nCh];
+            for ( int c=0 ; c <glbParam.nCh ; c++ )
+            {
+                data_Noise[c] = (double*) new double[glbParam.nBinsRaw] ;
+                for(int b =0; b <glbParam.nBinsRaw; b++)
+                    data_Noise[c][b] = (double) dataFile[0].db_ADC[c][b] ;
+            }
+            oNCL->Add_Noise_LALINET_NCDF_PDL0( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)data_Noise ) ;
+        }
+        else
+        {
+            printf("\nThere is no noise file to add. \n") ;
+        }
+    }
     printf("\n\n*** SUCCESS writing example file %s!\n", Path_File_Out.c_str());
 
 	return 0 ;

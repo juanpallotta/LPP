@@ -51,6 +51,10 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 			}
 		}
 	}
+
+	data_Noise = (double**) new double*[glbParam->nCh ] ;
+	for ( int c=0 ; c <glbParam->nCh ; c++ )
+		data_Noise[c] = (double*) new double[glbParam->nBins] ;
 }
 	
 CDataLevel_2::~CDataLevel_2()
