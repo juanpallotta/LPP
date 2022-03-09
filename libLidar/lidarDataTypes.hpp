@@ -135,6 +135,7 @@ struct strcGlobalParameters
 	int 	min 					;
 	int 	sec 					;
 	int 	run 					;
+	bool	is_Noise_Data_Loaded =false ;
 
 	double 	drFit					;
 	int 	dNFit					;

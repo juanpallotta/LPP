@@ -181,7 +181,7 @@ int main( int argc, char *argv[] )
     glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
 
-    CDataLevel_1    *oDL1       = (CDataLevel_1*)   new CDataLevel_1    ( (strcGlobalParameters*)&glbParam ) ;
+    CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
@@ -191,12 +191,12 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             start_noise[0] =c ;
-            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL1->data_Noise[c][0] ) ) )
+            // if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL1->data_Noise[c][0] ) ) )
+            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL1->oLOp->data_Noise[c][0] ) ) )
                 ERR(retval);    
         }
-        oDL1->is_Noise_Data_Loaded = true ;
+        glbParam.is_Noise_Data_Loaded = true ;
     }
-
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval);
 
@@ -247,7 +247,7 @@ int main( int argc, char *argv[] )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
 
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int) c ) ;
-            oDL1->MakeRangeCorrected ( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+            oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
             for ( int i=0 ; i <glbParam.nBins ; i++ )
             {
                 pr_corr[t][c][i] = (double)evSig.pr_noBkg[i] ;
@@ -257,7 +257,6 @@ int main( int argc, char *argv[] )
             if ( c == indxWL_PDL1 )
             {
                 printf("\t --> Getting cloud profile...");
-                // oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr_noBkg , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
