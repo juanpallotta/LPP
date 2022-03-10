@@ -674,7 +674,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     for( int e=0 ; e <glbParam->nEventsAVG ; e++ )
     {
         start[0] =e ;
-        // for ( int c=0 ; c <glbParam->nCh ; c++ )
         for ( int l=0 ; l <oDL2->nLRs ; l++ )
         {
             start[1] =l ;

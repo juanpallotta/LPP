@@ -197,6 +197,14 @@ int main( int argc, char *argv[] )
     for( int i=0 ; i <glbParam.nBins ; i++ )
         glbParam.r[i] = i*glbParam.dr ;
 
+    double  **data_Noise = (double**) new double*[glbParam.nCh] ;
+    for ( int c=0 ; c <glbParam.nCh ; c++ )
+    {
+        data_Noise[c] = (double*) new double[glbParam.nBins] ;
+        for(int b =0 ; b <glbParam.nBins ; b++)
+            data_Noise[c][b] = (double)0.0 ;
+    }
+
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
@@ -206,30 +214,10 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             start_noise[0] =c ;
-            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL2->oLOp->data_Noise[c][0] ) ) )
+            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
                 ERR(retval);    
         }
         glbParam.is_Noise_Data_Loaded = true ;
-    }
-
-    strcLidarSignal 	evSig ;
-    GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*) &glbParam );
-
-    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-    {
-        for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
-        {
-            evSig.pr[b]  = (double)dataFile_AVG[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-            oDL2->oLOp->data_Noise[indxWL_PDL2[0]][b]  = (double)oDL2->oLOp->data_Noise[indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-        }
-        for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
-        {
-            evSig.pr[b] = (double)dataFile_AVG[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-            oDL2->oLOp->data_Noise[indxWL_PDL2[0]][b] = (double)oDL2->oLOp->data_Noise[indxWL_PDL2[0]][glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]] ; // BIN OFFSET CORRECTION;
-        }
-
-        oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam ) ;
-        for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2->pr2[e][indxWL_PDL2[0]][i] = (double)(evSig.pr2[i]) ;
     }
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
@@ -243,7 +231,7 @@ int main( int argc, char *argv[] )
         ERR(retval) ;
 
     for( int c=0 ; c <glbParam.nCh ; c++ )
-    { 
+    { //! CARGAR dataMol ACA
         for( int i=0 ; i < glbParam.nBins ; i++ )
         {
             oDL2->beta_Mol [c][i] = (double)(oDL2->nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam.iLambda[c] ), 4) ) ) ; // r [1/m*sr]
@@ -251,8 +239,36 @@ int main( int argc, char *argv[] )
         }
     }
 
-            if ( (retval = nc_close(ncid)) )
-                ERR(retval) ;
+    strcLidarSignal evSig ;
+    GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*) &glbParam );
+    glbParam.chSel  = indxWL_PDL2[0] ;
+    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+    {
+        glbParam.event_analyzed = e ;
+
+        for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
+            evSig.pr[b]  = (double)dataFile_AVG[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+        for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
+            evSig.pr[b] = (double)dataFile_AVG[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+
+        if ( glbParam.is_Noise_Data_Loaded == true )
+        {
+            for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
+                data_Noise[indxWL_PDL2[0]][b]  = (double)data_Noise[indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+
+            for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
+                data_Noise[indxWL_PDL2[0]][b] = (double)data_Noise[indxWL_PDL2[0]][glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]] ; // BIN OFFSET CORRECTION;
+
+            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise ) ;
+        }
+        else // ONLY BIAS REMOVAL USING MEAN VALUES FROM THE LAST BINS ARE ALLOWED
+            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam ) ;
+
+        for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2->pr2[e][indxWL_PDL2[0]][i] = (double)(evSig.pr2[i]) ;
+    }
+
+                        if ( (retval = nc_close(ncid)) )
+                            ERR(retval) ;
 
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {

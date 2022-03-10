@@ -187,18 +187,23 @@ int main( int argc, char *argv[] )
     glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
 
-    // CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
+    double  **data_Noise = (double**) new double*[glbParam.nCh] ;
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+        {
+            data_Noise[c] = (double*) new double[glbParam.nBins] ;
+            for(int b =0 ; b <glbParam.nBins ; b++)
+                data_Noise[c][b] = (double)0.0 ;
+        }
         size_t start_noise[2], count_noise[2];
         start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam.nCh; 
         start_noise[1] = 0;   count_noise[1] = glbParam.nBins;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             start_noise[0] =c ;
-            // if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL1->data_Noise[c][0] ) ) )
-            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&oDL1->oLOp->data_Noise[c][0] ) ) )
+            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
                 ERR(retval);    
         }
         glbParam.is_Noise_Data_Loaded = true ;
@@ -253,7 +258,12 @@ int main( int argc, char *argv[] )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
 
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int) c ) ;
-            oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+
+            if ( glbParam.is_Noise_Data_Loaded == true )
+                oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise ) ;
+            else // ONLY BIAS REMOVAL USING MEAN VALUES FROM THE LAST BINS ARE ALLOWED
+                oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+
             for ( int i=0 ; i <glbParam.nBins ; i++ )
             {
                 pr_corr[t][c][i] = (double)evSig.pr_noBkg[i] ;
