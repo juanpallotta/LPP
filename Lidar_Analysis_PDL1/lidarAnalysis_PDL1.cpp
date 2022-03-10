@@ -149,12 +149,18 @@ int main( int argc, char *argv[] )
                 dataFile_AVG[e][c][b] = (double)0.0 ;
         }
     }
+    CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
+
     int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
     int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Stop_Time_AVG , 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
-    Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
+    oDL1->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
                                     (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                   ) ;
+    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
+    //                                 (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
+    //                                 (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
+    //                               ) ;
 
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
         ERR(retval);
@@ -181,7 +187,7 @@ int main( int argc, char *argv[] )
     glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
 
-    CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
+    // CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {

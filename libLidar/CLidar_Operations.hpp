@@ -17,9 +17,11 @@ public:
 
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*         ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*                             ) ;
-    void 	bkgSubstraction_Mean( double*, int, int, strcGlobalParameters*, double*                 ) ;
+    void 	bkgSubstraction_Mean( double*, strcFitParam*, strcGlobalParameters*, double*                ) ;
     void 	bkgSubstraction_MolFit(strcMolecularData*, const double*, strcFitParam*, double*        ) ;
     void 	bkgSubstraction_BkgFile( const double*, strcFitParam*, strcGlobalParameters*, double*   ) ;
+
+    void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
 
 private:
 

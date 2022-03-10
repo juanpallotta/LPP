@@ -150,12 +150,19 @@ int main( int argc, char *argv[] )
                 dataFile_AVG[e][c][b] = (double)0.0 ;
         }
     }
+
+    CDataLevel_2 *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
+
     int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
     int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Stop_Time_AVG , 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
-    Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
+    oDL2->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
                                     (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
-                                  ) ;
+                                    ) ;
+    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
+    //                                     (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
+    //                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
+    //                                 ) ;
 
     // READ VARIABLES FROM DE NETCDF FILE INSIDE THE GROUP "L1_Data": MOLECULAR INFORMATION
     int ncid_L1_Data ;
@@ -183,10 +190,6 @@ int main( int argc, char *argv[] )
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
 
 //! ------------------------ CORRECTIONS OF THE LIDAR SIGNAL: LASER OFFSET AND BIAS
-	int indxInicFit = glbParam.nBins - glbParam.nBinsBkg ; // glbParam.indxEndSig - glbParam.nBinsBkg ; // 3400 ; // 
-	int indxEndFit  = glbParam.nBins -1 ; // glbParam.indxEndSig -1 ; // 4000 ; // 
-
-    CDataLevel_2 *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
     oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
     oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
 
