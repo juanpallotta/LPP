@@ -8,7 +8,7 @@
   - [Building the code:](#building-the-code)
   - [Configuring and running LPP modules:](#configuring-and-running-lpp-modules)
 - [`lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file](#lidaranalysis_pdl0-converting-raw-lidar-files-in-a-single-netcdf-file)
-- [Lidar Data Level Products 1 and 2](#lidar-data-level-products-1-and-2)
+- [General Information About Lidar Data Level Products 1 and 2](#general-information-about-lidar-data-level-products-1-and-2)
 - [`lidarAnalysis_PDL1`: Producing data Level 1 products: lidar signals corrections and cloud-mask](#lidaranalysis_pdl1-producing-data-level-1-products-lidar-signals-corrections-and-cloud-mask)
 - [`lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters](#lidaranalysis_pdl2-producing-data-level-2-products-aerosol-optical-parameters)
 - [Automatizing LPP](#automatizing-lpp)
@@ -135,8 +135,8 @@ If `SCC_NETCDF` is selected, the output file generated can be used as an input f
 
 In order to proceed without making mistakes, we highly suggest to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
 
-# Lidar Data Level Products 1 and 2
-In the following sections, a description of the two main data level products (1 and 2) are made. Both modules uses the same configuration file passed as the third argument. The name of this file is free, but must contain
+# General Information About Lidar Data Level Products 1 and 2
+In the following sections, a description of the two main data level products (1 and 2) are made. Both modules uses the same configuration file passed as the third argument. The name of this file is free, but must contain the variables described in the following sections.
 
 ```bash
 ##########################################################################################
