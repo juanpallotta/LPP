@@ -1,4 +1,25 @@
-# Lidar Processing Pipeline (LPP)
+# Table of content: <!-- omit in toc -->
+
+- [Introduction](#introduction)
+- [Overall concept of the LPP tools](#overall-concept-of-the-lpp-tools)
+- [Installation:](#installation)
+- [Setting up the code](#setting-up-the-code)
+  - [Installing dependencies:](#installing-dependencies)
+  - [Building the code:](#building-the-code)
+  - [Configuring and running LPP modules:](#configuring-and-running-lpp-modules)
+- [`lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file](#lidaranalysis_pdl0-converting-raw-lidar-files-in-a-single-netcdf-file)
+- [Lidar Data Level Products 1 and 2](#lidar-data-level-products-1-and-2)
+- [`lidarAnalysis_PDL1`: Producing data Level 1 products: lidar signals corrections and cloud-mask](#lidaranalysis_pdl1-producing-data-level-1-products-lidar-signals-corrections-and-cloud-mask)
+- [`lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters](#lidaranalysis_pdl2-producing-data-level-2-products-aerosol-optical-parameters)
+- [Automatizing LPP](#automatizing-lpp)
+  - [LALINET NetCDF's Data Type Format File](#lalinet-netcdfs-data-type-format-file)
+    - [NetCDF's File Produced for Data Level 0](#netcdfs-file-produced-for-data-level-0)
+      - [Dimensions](#dimensions)
+      - [Variables](#variables)
+    - [NetCDF's File Produced for Data Level 1](#netcdfs-file-produced-for-data-level-1)
+    - [NetCDF's File Produced for Data Level 2](#netcdfs-file-produced-for-data-level-2)
+
+# Introduction
 
 The LPP is a collection of tools developed in C/C++ and Linux script, planned to handle all the steps of lidar analysis. In the present version of LPP, only elastic lidar signal are analyzed, but it is planned to manage Raman signals in the near future. 
 
@@ -29,6 +50,7 @@ Where:
 - `/Input_File_or_Folder/`: Input folder or file to produce the data Level ***x***. In the case of L0, this first parameter is the folder with the raw lidar data files in Licel or Raymetric data file format. For the rest of the data levels, the input is the NetCDF file produced in the previous stage.
 - `/Output_File`: Output NetCDF filename. The output file contains the information of the input folder/file, adding the information of the new data of the level under analysis.
 - `analysisParameters.conf`: Configuration file with all the variables needed for the level analysis.
+
 
 To avoid possible mistakes, it is preferable to use absolute paths for all the file's arguments passed to the modules.
 
@@ -66,7 +88,9 @@ The behavior of each module is based on the parameters written in its configurat
 
 The following sections describe each module, how to configure it, and how to run it. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
 
-# <a name="configuring_PDL0"></a> `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
+<!-- # <a name="configuring_PDL0"></a> `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file -->
+# `lidarAnalysis_PDL0`: Converting raw lidar files in a single NetCDF file
+
 This module is used to merge the raw lidar files located in a folder (passed as first argument), into a single NetCDF file (path and filename passed as a second argument). The configuration file is passed as the third argument, and it's going to be described in this section.
 
 An example of how to run this module using the sample signals included in this repository is shown below:
@@ -75,12 +99,14 @@ An example of how to run this module using the sample signals included in this r
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/ 
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
     /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf
+    [Background_Noise_File]
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file needs to be placed in a subfolder, generate it manually before running (in this example `/LPP_OUT/`).
 - `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
+- `[Background_Noise_File]`: This fourth argument is optional, and is the absolute path to the background noise file. This file is obtained by acquiring like a normal measurement with laser and Q-Switch trigger, but with fully covered telescope.
 
 It is highly recommentable to use absolute paths to avoid errors in the execution.
 
@@ -109,8 +135,24 @@ If `SCC_NETCDF` is selected, the output file generated can be used as an input f
 
 In order to proceed without making mistakes, we highly suggest to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
 
+# Lidar Data Level Products 1 and 2
+In the following sections, a description of the two main data level products (1 and 2) are made. Both modules uses the same configuration file passed as the third argument. The name of this file is free, but must contain
 
-# <a name="configuring_PDL1"></a> `lidarAnalysis_PDL1`: Producing data level 1 products: lidar signals corrections and cloud-mask
+```bash
+##########################################################################################
+# GENERAL PARAMETERS
+##########################################################################################
+
+# MAXIMUN ZENITHAL ANGLE TO ANALIZE [º] (IN CASE OF MULTIANGLE LIDARS)
+maxZthAngle = 90
+
+# BACKGROUND CORRECTION METHOD = FIT/MEAN/FILE_BKG
+BkgCorrMethod = FILE_BKG
+# NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
+nBinsBkg = 2000
+```
+
+# `lidarAnalysis_PDL1`: Producing data Level 1 products: lidar signals corrections and cloud-mask
 
 This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as it first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the L0's module configuration file (`analysisParameters_PDL0_Brazil.conf` in this example).
 
@@ -225,7 +267,7 @@ CLOUD_MIN_THICK = 5
 
 ```
 
-# <a name="configuring_PDL2"></a> `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
+# `lidarAnalysis_PDL2`. Producing data level 2 products: aerosol optical parameters
 This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL1`) as a first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
 
 An example of how to run this module can be:
@@ -246,6 +288,7 @@ An example of a configuration file and its variables for L2 data-level retrieval
 ##########################################################################################
 
 # NUMBER OF FILES (EVENTS) THAT WILL BE MERGED (AVERAGED) INTO A SINGLE LIDAR SIGNAL
+# IF NEGATIVE, ALL THE L0 PRIFILES WILL BE AVERAGED
 numEventsToAvg_PDL2 = 18
 
 # NUMBER OF POINTS USED FOR A SMOOTHING SLIDING WINDOWS TO APPLY TO THE RCLS BEFORE FERNALD'S INVERSION
@@ -267,7 +310,7 @@ R_ref = 1
 
 A description of each of these parameters is described below:
 
-* `numEventsToAvg_PDL2`: Time averaging for L2 data level products. This parameters tell to `lidarAnalysis_PDL2` the numbers of the adjacents lidar profiles to average producing one merged profile. After this, the `time` dimension in the NetCDF file for the L2 data products will be reduced by `numEventsToAvg_PDL2` times. The averaging is applied to the L0 lidar profiles matrix.
+* `numEventsToAvg_PDL2`: Time averaging for L2 data level products. This parameters tell to `lidarAnalysis_PDL2` the numbers of the adjacents lidar profiles to average and produce one merged profile. After this, the `time` dimension in the NetCDF file for the L2 data products will be reduced by `numEventsToAvg_PDL2` times. The averaging is applied to the L0 lidar profiles matrix. If this parameter is negative, all L0 profiles will be averaged producing only one profile to invert.
 * `avg_Points_Fernald`: Numbers of points used in the spatial smoothing of the signal.
 * `LR`: Lidar ratio used for the inversion. It can be more than one value, in wich each elements must be sepparated by `:`, with a space before and after `:` (see the example array in the previous lines: `LR = 50 : 60 : 70 : 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
@@ -276,7 +319,7 @@ A description of each of these parameters is described below:
 * `R_ref`: Backscatter ratio at reference altitude, being the ratio for the total to the molecular backscatter. This parameter can control the turbidity of the reference altitude, being `R_ref=1` completely molecular, and higher values mean more polluted reference altitude.
 
 
-# <a name="Automatizing_LPP"></a>Automatizing LPP
+# Automatizing LPP
 
 In order to run all the LPP modules automatically, this repository contains a Linux script to do this task. The name of this script is `run_LPP_Analysis.sh`, and you can find it in the root folder of this repository. It uses a general configuration file located in the configuration folder `/LPP/Lidar_Configuration_Files/LPP_Settings.sh` and contain the basics instructions for the automatic run.
 
@@ -332,7 +375,7 @@ As can be seen in last Figures, there are also rules for creating the NetCDF fil
 As was mentioned before, `17_L0_L1.nc` contains the information of `17_L0.nc`, and `17_L0_L1_L2.nc`, contains the information of `17_L0_L1.nc`.
 
 
-## <a name="LALINET_data_type_format"></a> LALINET NetCDF's Data Type Format File
+## LALINET NetCDF's Data Type Format File
 
 This section describes in detail the output NetCDF files for each level.
 
