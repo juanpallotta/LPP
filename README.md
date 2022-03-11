@@ -12,12 +12,19 @@
 - [<u>lidarAnalysis_PDL1</u>: Producing data Level 1 products: lidar signals corrections and cloud-mask](#ulidaranalysis_pdl1u-producing-data-level-1-products-lidar-signals-corrections-and-cloud-mask)
 - [<u>lidarAnalysis_PDL2</u>. Producing data level 2 products: aerosol optical parameters](#ulidaranalysis_pdl2u-producing-data-level-2-products-aerosol-optical-parameters)
 - [Automatizing LPP](#automatizing-lpp)
-  - [LALINET NetCDF's Data Type Format File](#lalinet-netcdfs-data-type-format-file)
-    - [NetCDF's File Produced for Data Level 0](#netcdfs-file-produced-for-data-level-0)
-      - [Dimensions](#dimensions)
-      - [Variables](#variables)
-    - [NetCDF's File Produced for Data Level 1](#netcdfs-file-produced-for-data-level-1)
-    - [NetCDF's File Produced for Data Level 2](#netcdfs-file-produced-for-data-level-2)
+- [LALINET NetCDF File Format](#lalinet-netcdf-file-format)
+- [NetCDF's File Produced for Data Level 0](#netcdfs-file-produced-for-data-level-0)
+  - [Dimensions](#dimensions)
+  - [Variables](#variables)
+  - [Global attributes](#global-attributes)
+- [NetCDF's File Produced for Data Level 1](#netcdfs-file-produced-for-data-level-1)
+  - [Dimensions](#dimensions-1)
+  - [Variables](#variables-1)
+  - [Global attributes](#global-attributes-1)
+- [NetCDF's File Produced for Data Level 2](#netcdfs-file-produced-for-data-level-2)
+  - [Dimensions](#dimensions-2)
+  - [Variables](#variables-2)
+  - [Global attributes](#global-attributes-2)
 
 # Introduction
 
@@ -347,6 +354,12 @@ L2="yes"
 # ABSOLUTE INPUT PATH
 PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 
+# NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
+# ! IF THERE IS NO NOISE FILE: THE FILENAME MUST BE SET AS: "-"
+# ! IF THERE IS    NOISE FILE: THE FILENAME MUST CONTAIN THE STRING 'bkg' IN SOME PART OF ITS NAME!!!
+# PATH_FILE_NOISE="-"
+PATH_FILE_NOISE="/mnt/Disk-1_8TB/Argentina/SPU/20210730/bkg_20210730"
+
 FILE_CONF_L0="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf"
 FILE_CONF_L1_L2="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
 
@@ -356,7 +369,8 @@ As can be seen, a few variables are needed to run LPP automatically. These are:
 * `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"` at these variables, the control of the run of each module can be controled.
 * `PATH_IN`: Path of the raw lidar data, in wich only lidar data files (Licel or Raymetric data file format) must be stored. Subfolders containing lidar data files will be also analyzed. A folder named `/LPP_OUT/` will be created automatically in the last subfolder found with raw lidar files. The `/LPP_OUT/` folder will be used to store the NetCDF output files produced by each LPP module.
 Because there are different ways to store the data files and their folder structures, two examples will be shown and how the folder/files are generated automatically. 
-* `FILE_CONF_L0` and `FILE_CONF_L0_L1`: Path to the configuration file of each module.
+* `PATH_FILE_NOISE`: Absolute path to the background file, which must contain the string `bkg` in some part of its name. This information is not mandatory, and if is not used, must be defined as `"-"`. This variable is passed as fourth argument to `lidarAnalysis_PDL0`.
+* `FILE_CONF_L0` and `FILE_CONF_L0_L1`: Absolute path to the configuration file of each module.
 
 In order to explain how paths are generated automatically, two typical examples are shown. The first one is used in Sao Paulo and Argentinean lidars, where the lidar files produced in a day are stored in a single folder with the full date in its name, as can be seen in the next figure:
 
@@ -386,15 +400,15 @@ As can be seen in last Figures, there are also rules for creating the NetCDF fil
 As was mentioned before, `17_L0_L1.nc` contains the information of `17_L0.nc`, and `17_L0_L1_L2.nc`, contains the information of `17_L0_L1.nc`.
 
 
-## LALINET NetCDF's Data Type Format File
+# LALINET NetCDF File Format
 
 This section describes in detail the output NetCDF files for each level.
 
-### NetCDF's File Produced for Data Level 0
+# NetCDF's File Produced for Data Level 0
 This file contains the raw lidar data extracted from the input files, with general information contained in its header. 
 <!-- As was explained in the section related to the product data level 0 ([PDL0](#configuring_PDL0)), extra information can be added to this file as global.--> 
 
-#### Dimensions
+## Dimensions
 In this version, 3 dimensions are defined:
 ```
 time
@@ -405,7 +419,7 @@ For the data level 0, the dimension `time` contains the number of lidar files lo
 `channels` dimension contains the number of channels contained in the lidar input files. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` considers that all the files contained in the input folder passed as first argument have the same hardware characteristics. If some changes in the hardware are made during a measurement, please, save them in another folder and analyze them in another run.
 `points` dimension is the number of bins of all lidar tracks recorded.
 
-#### Variables
+## Variables
 The variables of the L0 are the data stored in the headers of the lidar files (in Licel/Raymetric datatype format).
 The variables are listed below (in alphabetical order), with the dimensions used in parentheses:
 
@@ -423,7 +437,7 @@ The variables are listed below (in alphabetical order), with the dimensions used
 * `Wavelengths(channels)`:
 * `Zenith(time)`:
 
-**Global attributes**
+## Global attributes
 
 * `Site_Name`: String containing the lidar's site name.
 * `Altitude_meter_asl`: Double data type containing the altitude of the lidar site.
@@ -433,9 +447,29 @@ The variables are listed below (in alphabetical order), with the dimensions used
 * `Laser_Frec_1`: Double data type with the laser 1 repetition rate. 
 * `Laser_Frec_2`: Double data type with the laser 2 repetition rate. 
 
-### NetCDF's File Produced for Data Level 1
+# NetCDF's File Produced for Data Level 1
 
-### NetCDF's File Produced for Data Level 2
+## Dimensions
+In this version, 3 dimensions are defined:
+```
+time
+channels
+points
+```
+## Variables
 
+## Global attributes
+
+# NetCDF's File Produced for Data Level 2
+## Dimensions
+In this version, 3 dimensions are defined:
+```
+time
+channels
+points
+```
+## Variables
+
+## Global attributes
 
 
