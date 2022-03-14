@@ -408,8 +408,6 @@ This section describes in detail the NetCDF files produced in each modules.
 This file contains the raw lidar data extracted from the input files, with general information contained in its header. 
 <!-- As was explained in the section related to the product data level 0 ([PDL0](#configuring_PDL0)), extra information can be added to this file as global.--> 
 
-![NC_File_PDL0](./Docs/Figures/NC_File_PDL0.png "NC File PDL0")
-
 ### Dimensions
 In this version, 3 dimensions are defined:
 ```
@@ -423,6 +421,9 @@ For the data level 0, the dimension `time` contains the number of lidar files lo
 
 ### Variables
 The variables of the L0 are the data stored in the headers of the lidar files (in Licel/Raymetric datatype format).
+
+![NC_File_PDL0](./Docs/Figures/NC_File_PDL0.png "NC File PDL0")
+
 The variables are listed below (in alphabetical order), with the dimensions used in parentheses:
 
 * `Accumulated_Pulses(channels)`: Number of laser pulses accumulated in each channel.
@@ -451,7 +452,6 @@ The variables are listed below (in alphabetical order), with the dimensions used
 
 ## NetCDF's File Produced for Data Level 1
 
-![NC_File_PDL1](./Docs/Figures/NC_File_PDL1.png "NC File PDL1")
 
 ### Dimensions
 In this version, 3 dimensions are defined:
@@ -461,12 +461,13 @@ channels
 points
 ```
 ### Variables
+
+![NC_File_PDL1](./Docs/Figures/NC_File_PDL1.png "NC File PDL1")
 
 ### Global attributes
 
 ## NetCDF's File Produced for Data Level 2
 
-![NC_File_PDL2](./Docs/Figures/NC_File_PDL2.png "NC File PDL2")
 
 ### Dimensions
 In this version, 3 dimensions are defined:
@@ -476,6 +477,8 @@ channels
 points
 ```
 ### Variables
+
+![NC_File_PDL2](./Docs/Figures/NC_File_PDL2.png "NC File PDL2")
 
 ### Global attributes
 
