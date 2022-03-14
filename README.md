@@ -7,10 +7,10 @@
   - [Installing dependencies](#installing-dependencies)
   - [Building the code](#building-the-code)
   - [Configuring and running LPP modules](#configuring-and-running-lpp-modules)
-- [<u>lidarAnalysis_PDL0</u>: Converting raw lidar files in a single NetCDF file](#ulidaranalysis_pdl0u-converting-raw-lidar-files-in-a-single-netcdf-file)
+- [<u>Product Data Level 0 Module:</u> Converting raw lidar files in a single NetCDF file](#uproduct-data-level-0-moduleu-converting-raw-lidar-files-in-a-single-netcdf-file)
 - [General Information About Lidar Data Level Products 1 and 2](#general-information-about-lidar-data-level-products-1-and-2)
-- [<u>lidarAnalysis_PDL1</u>: Producing data Level 1 products: lidar signals corrections and cloud-mask](#ulidaranalysis_pdl1u-producing-data-level-1-products-lidar-signals-corrections-and-cloud-mask)
-- [<u>lidarAnalysis_PDL2</u>. Producing data level 2 products: aerosol optical parameters](#ulidaranalysis_pdl2u-producing-data-level-2-products-aerosol-optical-parameters)
+- [<u>Product Data Level 1 Module:</u> Lidar signals corrections and cloud-mask](#uproduct-data-level-1-moduleu-lidar-signals-corrections-and-cloud-mask)
+- [<u>Product Data Level 2 Module:</u> Aerosol optical products](#uproduct-data-level-2-moduleu-aerosol-optical-products)
 - [Automatizing LPP](#automatizing-lpp)
 - [LALINET NetCDF File Format](#lalinet-netcdf-file-format)
   - [NetCDF's File Produced for Data Level 0](#netcdfs-file-produced-for-data-level-0)
@@ -95,7 +95,7 @@ The behavior of each module is based on the parameters written in its configurat
 
 The following sections describe each module, how to configure it, and how to run it. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
 
-# <u>lidarAnalysis_PDL0</u>: Converting raw lidar files in a single NetCDF file
+# <u>Product Data Level 0 Module:</u> Converting raw lidar files in a single NetCDF file
 
 This module is used to merge the raw lidar files located in a folder (passed as first argument), into a single NetCDF file (path and filename passed as a second argument). The configuration file is passed as the third argument, and it's going to be described in this section.
 
@@ -170,7 +170,7 @@ Where:
 
 This variables are used by `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`, and both modules uses the same configuration for these data.
 
-# <u>lidarAnalysis_PDL1</u>: Producing data Level 1 products: lidar signals corrections and cloud-mask
+# <u>Product Data Level 1 Module:</u> Lidar signals corrections and cloud-mask
 
 This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as it first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the L0's module configuration file (`analysisParameters_PDL0_Brazil.conf` in this example).
 
@@ -285,7 +285,7 @@ CLOUD_MIN_THICK = 5
 
 ```
 
-# <u>lidarAnalysis_PDL2</u>. Producing data level 2 products: aerosol optical parameters
+# <u>Product Data Level 2 Module:</u> Aerosol optical products
 This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL1`) as a first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the configuration file of L0 module.
 
 An example of how to run this module can be:
