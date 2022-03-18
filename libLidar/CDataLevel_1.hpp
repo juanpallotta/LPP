@@ -17,18 +17,19 @@ class CDataLevel_1
 
 		CLidar_Operations 	*oLOp ;		
 
-	    strcCloudProfiles 	*cloudProfiles ;
-		strcIndexMol      	*indxMol  	 ;
-		double 				**SE_lay     ;
-		double				errRefBkg    ;
+	    strcCloudProfiles 	*cloudProfiles 		;
+		strcIndexMol      	*indxMol  	 		;
+		double 				**SE_lay     		;
+		double				*prS, errRefBkg		;
+		int					avg_Points_Cloud_Mask ;
 
 	private:
 		void	GetMem_indxMol( strcGlobalParameters*) ;
 	    void 	GetMem_cloudProfiles( strcGlobalParameters* ) ;
 
 		double			errFitStage, errFactor, errScanCheckFactor, errCloud, biasRef, sppm, spm, spmpm, m, thresholdFactor, errCloudCheckFactor ;
-		double			*prFit, *prS, *prprm, *prmprm ;
-		int 			nScanMax, AVG_CLOUD_DETECTION, CLOUD_MIN_THICK, first_cluster_ON, stepScanCloud, scanNumExit, sum_misc, DELTA_RANGE_LIM_BINS ;
+		double			*prFit, *prprm, *prmprm ;
+		int 			nScanMax, CLOUD_MIN_THICK, first_cluster_ON, stepScanCloud, scanNumExit, sum_misc, DELTA_RANGE_LIM_BINS ;
 		int				nMaxLoop ;
 		char 			ifODcut[5] ;
 		strcFitParam	fitParam ;

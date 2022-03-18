@@ -157,10 +157,6 @@ int main( int argc, char *argv[] )
                                     (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                   ) ;
-    // Average_In_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
-    //                                 (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
-    //                                 (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
-    //                               ) ;
 
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
         ERR(retval);
@@ -264,10 +260,12 @@ int main( int argc, char *argv[] )
             else // ONLY BIAS REMOVAL USING MEAN VALUES FROM THE LAST BINS ARE ALLOWED
                 oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
-            for ( int i=0 ; i <glbParam.nBins ; i++ )
+            if ( oDL1->avg_Points_Cloud_Mask !=0 )
+                smooth( (double*)&evSig.pr2[0], (int)0, (int)(glbParam.nBins-1), (int)oDL1->avg_Points_Cloud_Mask, (double*)&pr2[t][c][0]     ) ;
+            else
             {
-                pr_corr[t][c][i] = (double)evSig.pr_noBkg[i] ;
-                pr2[t][c][i]     = (double)evSig.pr2[i] ;
+                for ( int i=0 ; i <glbParam.nBins ; i++ )
+                    pr2     [t][c][i] = (double)evSig.pr2[i]      ;
             }
 
             if ( c == indxWL_PDL1 )
@@ -283,7 +281,8 @@ int main( int argc, char *argv[] )
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                 {
                     Cloud_Profiles[t][b] = (int)    oDL1->cloudProfiles[t].clouds_ON[b] ;
-                    RMSE_lay           [t][b] = (double) oDL1->cloudProfiles[t].test_1[b]    ; // RMSE_lay
+                    RMSE_lay      [t][b] = (double) oDL1->cloudProfiles[t].test_1[b]    ; // RMSE_lay
+                    pr_corr    [t][c][b] = (double) oDL1->prS[b]                        ;
                 }
                 RMSerr_Ref[t] = (double)oDL1->errRefBkg ;
             }

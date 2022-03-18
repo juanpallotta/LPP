@@ -254,7 +254,7 @@ int main( int argc, char *argv[] )
         if ( glbParam.is_Noise_Data_Loaded == true )
         {
             for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
-                data_Noise[indxWL_PDL2[0]][b]  = (double)data_Noise[indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+                data_Noise[indxWL_PDL2[0]][b] = (double)data_Noise[indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
 
             for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
                 data_Noise[indxWL_PDL2[0]][b] = (double)data_Noise[indxWL_PDL2[0]][glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]] ; // BIN OFFSET CORRECTION;
@@ -278,7 +278,7 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
             cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << indxWL_PDL2[c] << "\t Wavelenght: " << glbParam.iLambda[indxWL_PDL2[c]] ;
-            oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t , (int)indxWL_PDL2[c] ) ;
+            oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t, (int)indxWL_PDL2[c] ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
 

@@ -124,6 +124,11 @@ In this first LPP version, L0 configuration file looks like the next code:
 # RAW LIDAR DATA FILES TO NETCDF FILE - DATA LEVEL 0 (L0)
 #############################################################
 
+# DATE-TIME RANGE TO ANALYZE INSIDE THE FOLDER PASSED AS ARGUMENT TO lidarAnalysis_PDL0
+# IF minTime = maxTime --> ALL FILES INSIDE THE FOLDER
+minTime = 2022/03/02-01:00:00
+maxTime = 2022/03/02-02:00:00
+
 # INPUT DATAFILE FORMAT
 inputDataFileFormat = LICEL_FILE
 # inputDataFileFormat = RAYMETRIC_FILE
@@ -136,6 +141,7 @@ outputDataFileFormat = LALINET_NETCDF
 L0 data levels configuration file only need a few of basic inputs:
 * `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) or Raymetric (`RAYMETRIC_FILE` option) data type file are accepted. There is planned to accept more input data types formats in the future. 
 * `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different names conventions of the variables inside the file. A detailed description of LALINET data type can be seen in later sections of this document ([LALINET data type format](#LALINET_data_type_format)).
+* `minTime` and `maxTime`: Minimum and maximum time to analyze inside the folder passed as the first argument. The format must be like the example show above: **YYYY/MM/DD-HH:MM:SS**.
 
 If `SCC_NETCDF` is selected, the output file generated can be used as an input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). 
 
@@ -228,7 +234,7 @@ rEndSig = 25000
 nBinsBkg = 1000
 
 # CLOUD-MASK RETRIEVAL PARAMETERS
-AVG_CLOUD_DETECTION = 101
+avg_Points_Cloud_Mask = 101
 stepScanCloud = 1
 nScanMax = 5000
 errFactor = 2.0
@@ -276,7 +282,7 @@ The first lines of the `US-StdA_DB_CEILAP.csv` file contained in this repository
 * **Cloud-mask retrieval parameters:** These parameters are required for the cloud detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
 
 ```
-AVG_CLOUD_DETECTION = 101
+avg_Points_Cloud_Mask = 101
 stepScanCloud = 1
 nScanMax = 5000
 errFactor = 2.0

@@ -71,6 +71,8 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 	int avg_Points_Fernald ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)&avg_Points_Fernald ) ;
 	smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)pr2_s ) ;
+	for (int i =0; i <glbParam->nBins; i++)
+		pr2[t][c][i] = (double)pr2_s[i] ;
 
 	double 	pr2_Ref ;
 	int 	avg_Half_Points_Fernald_Ref ;

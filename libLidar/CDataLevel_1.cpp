@@ -3,7 +3,7 @@
 
 CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 {
-	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "AVG_CLOUD_DETECTION" , "int"   , (int*)&AVG_CLOUD_DETECTION 	 ) ;
+	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "avg_Points_Cloud_Mask" , "int"   , (int*)&avg_Points_Cloud_Mask 	 ) ;
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "errFactor"			, "double", (double*)&errFactor    		 ) ;
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "CLOUD_MIN_THICK"	  	, "int"   , (int*)&CLOUD_MIN_THICK 		 ) ;
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "stepScanCloud" 	  	, "int"   , (int*)&stepScanCloud 		 ) ;
@@ -78,8 +78,8 @@ void CDataLevel_1::GetMem_indxMol( strcGlobalParameters *glbParam )
 
 void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
-	if ( AVG_CLOUD_DETECTION !=0 )
-		smooth( (double*)pr, (int)0, (int)(glbParam->nBins-1), (int)AVG_CLOUD_DETECTION, (double*)prS ) ;
+	if ( avg_Points_Cloud_Mask !=0 )
+		smooth( (double*)pr, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)prS ) ;
 	else
 	{
 		for( int b=0 ; b <glbParam->nBins ; b++ )
@@ -93,7 +93,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	nMaxLoop = (int)0 ;
 
  // ERROR REFERENCE CALCULATION
-	fitParam.indxEndFit  = glbParam->nBins - 1 ; // glbParam->indxEndSig - AVG_CLOUD_DETECTION ; //  
+	fitParam.indxEndFit  = glbParam->nBins - 1 ; // glbParam->indxEndSig - avg_Points_Cloud_Mask ; //  
 	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
 		RayleighFit( (double*)prS, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
