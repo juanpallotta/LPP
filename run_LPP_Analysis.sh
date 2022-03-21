@@ -6,7 +6,8 @@ echo ""
 echo ""
 echo ""
 
-source ./Lidar_Configuration_Files/LPP_Settings.sh
+# source ./Lidar_Configuration_Files/LPP_Settings.sh
+source $1
 
 # GETTING THE ABSOLUTE PATHS TO EACH EXECUTABLE MODULE
 PATH_TO_LPP=`pwd`
