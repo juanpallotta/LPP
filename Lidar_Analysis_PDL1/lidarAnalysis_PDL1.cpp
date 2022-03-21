@@ -257,15 +257,15 @@ int main( int argc, char *argv[] )
 
             if ( glbParam.is_Noise_Data_Loaded == true )
                 oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise ) ;
-            else // ONLY BIAS REMOVAL USING MEAN VALUES FROM THE LAST BINS ARE ALLOWED
+            else // BIAS REMOVAL USING MEAN/FIT FROM THE LAST BINS ARE ALLOWED
                 oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
-            if ( oDL1->avg_Points_Cloud_Mask !=0 )
+            if ( oDL1->avg_Points_Cloud_Mask >0 )
                 smooth( (double*)&evSig.pr2[0], (int)0, (int)(glbParam.nBins-1), (int)oDL1->avg_Points_Cloud_Mask, (double*)&pr2[t][c][0]     ) ;
             else
             {
                 for ( int i=0 ; i <glbParam.nBins ; i++ )
-                    pr2     [t][c][i] = (double)evSig.pr2[i]      ;
+                    pr2[t][c][i] = (double)evSig.pr2[i] ;
             }
 
             if ( c == indxWL_PDL1 )

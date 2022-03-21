@@ -85,10 +85,9 @@ void CLidar_Operations::bkgSubstraction_Mean( double *sig, strcFitParam *fitPara
 {
 	double 	bkgMean = 0 ;
 
-	for( int j=fitParam->indxInicFit ; j<fitParam->indxInicFit ; j++ ) bkgMean = bkgMean + sig[j] ;
+	for( int j=fitParam->indxInicFit ; j<fitParam->indxEndFit ; j++ ) bkgMean = bkgMean + sig[j] ;
 
 	bkgMean = bkgMean /fitParam->nFit ;
-
 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	pr_noBkg[i] = (double)(sig[i] - bkgMean) ;
 }
 
