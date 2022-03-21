@@ -1,3 +1,4 @@
+#!/bin/bash
 
 L0="yes"
 L1="yes"
