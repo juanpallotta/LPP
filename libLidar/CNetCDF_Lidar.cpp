@@ -445,7 +445,7 @@ void CNetCDF_Lidar::Add_Noise_LALINET_NCDF_PDL0( string *Path_File_Out, strcGlob
     if ( (retval = nc_inq_dimid ( nc_id, "points", (int*)&id_dim_noise[1] ) ) )
             ERR(retval);
   
-    DefineVariable( (int)nc_id, (char*)"Noise", (const char*)"double", (int)2, (int*)&id_dim_noise[0], (int*)&id_var_noise ) ;
+    DefineVariable( (int)nc_id, (char*)"Bkg_Noise", (const char*)"double", (int)2, (int*)&id_dim_noise[0], (int*)&id_var_noise ) ;
 
     if ( (retval = nc_enddef(nc_id)) )
         ERR(retval);

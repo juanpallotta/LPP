@@ -206,7 +206,7 @@ int main( int argc, char *argv[] )
     }
 
     int id_var_noise ;
-    if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
+    if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
         size_t start_noise[2], count_noise[2];
         start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam.nCh; 

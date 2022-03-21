@@ -30,7 +30,7 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 		bkgSubstraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBkg ) ;
 	else
 	{
-		printf( "\n BkgCorrMethod = %s but there is no noise information... extracting bias usin the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->nBinsBkg ) ;
+		printf( "\n BkgCorrMethod = %s but there is no noise information... extracting bias using the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->nBinsBkg ) ;
 		bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
 	}
 	// RANGE CORRECTED

@@ -185,7 +185,7 @@ int main( int argc, char *argv[] )
 
     double  **data_Noise = (double**) new double*[glbParam.nCh] ;
     int id_var_noise ;
-    if ( ( nc_inq_varid ( (int)ncid, "Noise", (int*)&id_var_noise ) ) == NC_NOERR )
+    if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
