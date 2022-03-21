@@ -48,8 +48,8 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
 
-	if ( (strcmp( BkgCorrMethod, "MEAN" ) !=0) || (strcmp( BkgCorrMethod, "mean" ) !=0) )
-		printf( "\n BkgCorrMethod = %s set in %s\n But only MEAN method can be applied. Extracting bias using the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->FILE_PARAMETERS, glbParam->nBinsBkg ) ;
+	if ( (strcmp( BkgCorrMethod, "MEAN" ) !=0) && (strcmp( BkgCorrMethod, "mean" ) !=0) )
+		printf( "\nBkgCorrMethod = %s set in %s\n But only MEAN method can be applied. Extracting bias using the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->FILE_PARAMETERS, glbParam->nBinsBkg ) ;
 
 	bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
 
