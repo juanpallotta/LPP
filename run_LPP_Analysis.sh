@@ -9,8 +9,10 @@ echo ""
 if [ $# -eq 0 ]
     then # NO LPP_Settings.sh FILE PASSED AS ARGUMENTS.
         source ./Lidar_Configuration_Files/LPP_Settings.sh
+	echo -e "\n No file passed as argument to run_LPP..."
     else # A SETTINGS FILE WAS PASSED AS ARGUMENTS.
         source $1
+        echo -e "\n File passed as argument to run_LPP_..." $1
 fi
 
 # GETTING THE ABSOLUTE PATHS TO EACH EXECUTABLE MODULE

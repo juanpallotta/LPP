@@ -1,7 +1,7 @@
 
 L0="yes"
 L1="yes"
-L2="yes"
+L2="no"
 
 PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20220302/"
 PATH_FILE_NOISE="/mnt/Disk-1_8TB/Argentina/Aeroparque/bkg_20220307"

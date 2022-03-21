@@ -29,5 +29,3 @@ PATH_FILE_NOISE="/mnt/Disk-1_8TB/Argentina/Aeroparque/bkg_20220307"
 # ARGENTINA
 FILE_CONF_L0="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Argentina.conf"
 FILE_CONF_L1_L2="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Argentina.conf"
-
-
