@@ -507,8 +507,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_ground_level"       , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[0] ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_ground_level"          , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[1] ) ;
 
-    DefineVariable( (int)nc_id_group_L1, (char*)"Zenith_AVG"                     , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[0] ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Azimuth_AVG"                    , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[1] ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Zenith_AVG_L1"                  , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[0] ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Azimuth_AVG_L1"                 , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[1] ) ;
 
     DefineVariable( (int)nc_id_group_L1, (char*)"Start_Time_AVG_L1", (const char*)"int", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Raw_Data_Time[0] ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Stop_Time_AVG_L1" , (const char*)"int", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Raw_Data_Time[1] ) ;
@@ -582,10 +582,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         start_CM[0] =e ;
         if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_id_CM , start_CM, count_CM, (int*)&Cloud_Profiles[e][0] ) ) )
             ERR(retval);
-
         // if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_RMSElay, start_CM, count_CM, (double*)&RMSElay[e][0] ) ) )
         //     ERR(retval);
-
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Temp_Pres[0], start_CM, count_CM, (double*)&glbParam->temp_CelsiusAVG[e] ) ) )
             ERR(retval);
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Temp_Pres[1], start_CM, count_CM, (double*)&glbParam->pres_hPaAVG[e]     ) ) )
@@ -634,14 +632,14 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
         ERR(retval) ;
 
     int num_dim_var = 3 ;
-    int id_dims_aer[num_dim_var], id_dims_pr2[num_dim_var], id_dim_single_val ;
+    int id_dims_aer[num_dim_var], id_dims_pr2[num_dim_var], id_dim_single_val, var_id_Zen_Azm[2] ;
     DefineDims( (int)nc_id_group_L2, (char*)"time"    , (int)glbParam->nEventsAVG, (int*)&id_dims_aer[0] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"LRs"     , (int)oDL2->nLRs          , (int*)&id_dims_aer[1] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"points"  , (int)glbParam->nBins     , (int*)&id_dims_aer[2] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"Index"   , (int)1                   , (int*)&id_dim_single_val ) ;
 
     id_dims_pr2[0] = id_dims_aer[0] ;
-    DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh       , (int*)&id_dims_pr2[1] ) ;
+    DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh, (int*)&id_dims_pr2[1] ) ;
     id_dims_pr2[2] = id_dims_aer[2] ;
 
     int id_var_beta_aer, id_var_alpha_aer, id_var_pr2, id_var_LRs, id_var_indx_ref_inv, id_var_AOD_LR, id_var_start_time, id_var_stop_time ;
@@ -651,10 +649,13 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     DefineVariable( (int)nc_id_group_L2, (char*)"Start_Time_AVG_L2", (const char*)"int", (int)1, (int*)&id_dims_aer[0], (int*)&id_var_start_time ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Stop_Time_AVG_L2" , (const char*)"int", (int)1, (int*)&id_dims_aer[0], (int*)&id_var_stop_time  ) ;
-    
-    DefineVariable( (int)nc_id_group_L2, (char*)"LRs"                            , (const char*)"double", (int)1, (int*)&id_dims_aer[1]   , (int*)&id_var_LRs            ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Indx_Ref_Inv"                   , (const char*)"int"   , (int)1, (int*)&id_dim_single_val, (int*)&id_var_indx_ref_inv   ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"                         , (const char*)"double", (int)2, (int*)&id_dims_aer[0]   , (int*)&id_var_AOD_LR         ) ;
+
+    DefineVariable( (int)nc_id_group_L2, (char*)"Zenith_AVG_L2" , (const char*)"double", (int)1, (int*)&id_dims_pr2[0], (int*)&var_id_Zen_Azm[0] ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Azimuth_AVG_L2", (const char*)"double", (int)1, (int*)&id_dims_pr2[0], (int*)&var_id_Zen_Azm[1] ) ;
+
+    DefineVariable( (int)nc_id_group_L2, (char*)"LRs"         , (const char*)"double", (int)1, (int*)&id_dims_aer[1]   , (int*)&id_var_LRs            ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Indx_Ref_Inv", (const char*)"int"   , (int)1, (int*)&id_dim_single_val, (int*)&id_var_indx_ref_inv   ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"      , (const char*)"double", (int)2, (int*)&id_dims_aer[0]   , (int*)&id_var_AOD_LR         ) ;
 
     int indxWL_PDL2, avg_Points_Cloud_Mask ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2"        , (const char*)"int", (int*)&indxWL_PDL2           ) ;
@@ -696,6 +697,11 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
             if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_pr2, start, count, (double*)&oDL2->pr2[e][c][0] ) ) )
                 ERR(retval);
         }
+
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)var_id_Zen_Azm[0], start, count, (double*)&glbParam->aZenithAVG[e] ) ) )
+            ERR(retval);
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)var_id_Zen_Azm[1], start, count, (double*)&glbParam->aAzimuthAVG[e]   ) ) )
+            ERR(retval);
     }
 
     PutVar( (int)nc_id_group_L2, (int)id_var_LRs           , (const char*)"double", (double*)oDL2->LR         ) ;
