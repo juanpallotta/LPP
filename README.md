@@ -408,11 +408,10 @@ As was mentioned before, `17_L0_L1.nc` contains the information of `17_L0.nc`, a
 
 # LALINET NetCDF File Format
 
-This section describes in detail the NetCDF files produced in each modules.
+This section describes in detail the NetCDF's dimensions and variables and saved by each LPP's module.
 
 ## NetCDF's File Produced for Data Level 0
-This file contains the raw lidar data extracted from the input files, with general information contained in its header. 
-<!-- As was explained in the section related to the product data level 0 ([PDL0](#configuring_PDL0)), extra information can be added to this file as global.--> 
+This file contains the raw lidar data extracted from the raw lidar files. General information stored in the header files are also saved. 
 
 ### Dimensions
 In this version, 3 dimensions are defined:
@@ -421,54 +420,58 @@ time
 channels
 points
 ```
-For the data level 0, the dimension `time` contains the number of lidar files located in the input folder passed as first argument to `lidarAnalysis_PDL0`.
-`channels` dimension contains the number of channels contained in the lidar input files. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` considers that all the files contained in the input folder passed as first argument have the same hardware characteristics. If some changes in the hardware are made during a measurement, please, save them in another folder and analyze them in another run.
-`points` dimension is the number of bins of all lidar tracks recorded.
+The length of the `time` dimension is equal to the number of raw lidar signals stored in the variable `Raw_Lidar_Data`. The lenght of this dimmensions is not necessarily the same of the number of files of the input folder (variable name `PATH_IN` in `LPP_Settings.sh` or the first argument passed to `lidarAnalysis_PDL0`). This is because it is possible to set the time range of analysis in the configuration file of this module (variables `minTime`, `maxTime`).
+
+
+`channels` store the number of channels saved in the file. The length of this dimension is the number of channels contained in the raw lidar files inputs. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` considers that all the files contained in the input folder passed as first argument have the same hardware features. If some changes in the hardware are made during a measurement, please, save them in another folder and analyze them in another run.
+
+`points` dimension store the bins of the lidar tracks recorded.
+
 
 ### Variables
-The variables of the L0 are the data stored in the headers of the lidar files (in Licel/Raymetric datatype format).
+The variables of the data level 0 are the data stored in the headers of the raw lidar files (in Licel/Raymetric datatype format). In next figure, a list of the variables inspected with Panoply software is shown:
 
 ![NC_File_PDL0](./Docs/Figures/NC_File_PDL0.png "NC File PDL0")
 
-The variables are listed below (in alphabetical order), with the dimensions used in parentheses:
+Following, a brief description of the variables (in alphabetical order), is done. The dimensions of each one are shown between parentheses
 
-* `Accumulated_Pulses(channels)`: Number of laser pulses accumulated in each channel.
-* `ADC_Bits(channels)`: Number of bits for the ADC electronic for each channel.
-* `Azimuth(time)`: Azimuth angle in degrees of the measurement.
-* `DAQ_Range(channels)`: Maximun DAQ range set in the Licel, in mV.
-* `Laser_Source(channels)`: Number of laser source set for each channel.
-* `Number_Of_Bins(channels)`: Number of bins saved for each channel.
-* `PMT_Voltage(channels)`: Photomuliplier voltage used in each channel.
-* `Polarization(channels)`: Polarization information of each channel. Terminology used in the Licel/Raymetric files.
-* `Raw_Data_Start_Time(time)`: GPS start time of the measurement.
-* `Raw_Data_Stop_Time(time)`: GPS stop time of the measurement.
-* `Raw_Lidar_Data(time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
-* `Wavelengths(channels)`: Array with the wavelenghts recorded in the file (in nanometers).
-* `Zenith(time)`: Array with the zenithal angle of each saved profile. 
+* `Accumulated_Pulses (channels)`: Number of laser pulses accumulated in for channel.
+* `ADC_Bits (channels)`: Number of electronic ADC's bits.
+* `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
+* `DAQ_Range (channels)`: Maximun DAQ range set in the Licel, in mV.
+* `Laser_Source (channels)`: Number of laser source set for each channel.
+* `Number_Of_Bins (channels)`: Number of bins saved for each channel.
+* `PMT_Voltage (channels)`: Photomuliplier voltage used in each channel.
+* `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel/Raymetric files: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
+* `Raw_Data_Start_Time (time)`: GPS start time of each lidar profile.
+* `Raw_Data_Stop_Time (time)`: GPS stop time of each lidar profile.
+* `Raw_Lidar_Data (time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
+* `Wavelengths (channels)`: Array with the wavelenghts recorded in the file (in nanometers).
+* `Zenith (time)`: Array with the zenithal angle of each saved profile (in degrees). 
 
 ### Global attributes
 
 * `Site_Name`: String containing the lidar's site name.
-* `Altitude_meter_asl`: Double data type containing the altitude of the lidar site.
+* `Altitude_meter_asl`: Altitude of the lidar site, in meters and above sea level.
 * `Latitude_degrees_north`: Double data type with the latitude of the lidar site.
 * `Longitude_degrees_east`: Double data type with the longitude of the lidar site.
-* `Range_Resolution`: Double data type with the range resolution in meters.
-* `Laser_Frec_1`: Double data type with the laser 1 repetition rate. 
-* `Laser_Frec_2`: Double data type with the laser 2 repetition rate. 
+* `Range_Resolution`: Double data type with the range resolution (in meters).
+* `Laser_Frec_1`: Double data type with the laser 1 repetition rate (in Hz). 
+* `Laser_Frec_2`: Double data type with the laser 2 repetition rate (in Hz).
 
 ## NetCDF's File Produced for Data Level 1
-
-The L1 data is stored in the subgroup `L1_Data`.
+All the variables generated in module `lidarAnalysis_PDL1` are stored in a subgroup called `L1_Data`.
 
 ### Dimensions
 
-The dimensions name of this sub-group are inherited from L0 data. The `time` dimension could be different due to time-averaging setting in this data level.
+The dimensions name of this sub-group are inherited from L0 data.
 
 ```
 time
 channels
 points
 ```
+The `time` dimension from data L1 could be different from `time` dimension from de data L0 due to time-averaging.
 
 ### Variables
 
