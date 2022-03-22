@@ -443,8 +443,8 @@ The variables are listed below (in alphabetical order), with the dimensions used
 * `Raw_Data_Start_Time(time)`: GPS start time of the measurement.
 * `Raw_Data_Stop_Time(time)`: GPS stop time of the measurement.
 * `Raw_Lidar_Data(time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
-* `Wavelengths(channels)`:
-* `Zenith(time)`:
+* `Wavelengths(channels)`: Array with the wavelenghts recorded in the file (in nanometers).
+* `Zenith(time)`: Array with the zenithal angle of each saved profile. 
 
 ### Global attributes
 
@@ -458,14 +458,18 @@ The variables are listed below (in alphabetical order), with the dimensions used
 
 ## NetCDF's File Produced for Data Level 1
 
+The L1 data is stored in the subgroup `L1_Data`.
 
 ### Dimensions
-In this version, 3 dimensions are defined:
+
+The dimensions name of this sub-group are inherited from L0 data. The `time` dimension could be different due to time-averaging setting in this data level.
+
 ```
 time
 channels
 points
 ```
+
 ### Variables
 
 ![NC_File_PDL1](./Docs/Figures/NC_File_PDL1.png "NC File PDL1")
