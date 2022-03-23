@@ -497,6 +497,8 @@ In the next figure, a glimpse of the `L1_Data` can be seen.
 
 ### Global attributes
 
+* `avg_Points_Cloud_Mask`:
+
 ## NetCDF's File Produced for Data Level 2
 
 
@@ -524,4 +526,6 @@ lrs
 
 ### Global attributes
 
-
+* `Channel_Number_for_Cloud_Mask`: .
+* `avg_Points_Fernal`: . 
+* `Indx_Ref_Inv `: .
