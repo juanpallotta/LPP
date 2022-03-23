@@ -477,6 +477,8 @@ Due to time averagin, `time` dimension from data L1 could be different to `time`
 ### Variables
 In the next figure, a glimpse of the `L1_Data` can be seen.
 
+
+<b>CAMBIAR IMAGEN CON LOS NUEVOS NOMBRES DE Pressure_Ground_Level Y Temperature_Ground_Level </b>
 ![NC_File_PDL1](./Docs/Figures/NC_File_PDL1.png "NC File PDL1")
 
 
@@ -504,10 +506,21 @@ In this version, 3 dimensions are defined:
 time
 channels
 points
+lrs
 ```
 ### Variables
 
 ![NC_File_PDL2](./Docs/Figures/NC_File_PDL2.png "NC File PDL2")
+
+
+* `Aerosol_Backscattering (time, points)`: .
+* `Aerosol_Extinction (time, points)`: .
+* `AOD_LR (time, lrs)`: .
+      * `Indx_Ref_Inv `: .
+* `LRs (lrx)`: .
+* `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: .
+* `Start_Time_L2 (time)`: GPS start time of each lidar profile.
+* `Stop_Time_L2 (time)`: GPS stop time of each lidar profile.
 
 ### Global attributes
 

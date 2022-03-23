@@ -504,8 +504,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     DefineVariable( (int)nc_id_group_L1, (char*)"Range_Corrected_Lidar_Signal_L1", (const char*)"double", (int)3, (int*)&dims_ids_pr_corr[0], (int*)&var_id_pr2 ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Laser_Zero_Bin_Offset"          , (const char*)"int"   , (int)1, (int*)&dims_ids_pr_corr[1], (int*)&var_id_laser_zero_bin_offset ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Molecular_Density"              , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[2], (int*)&var_id_mol_density  ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_ground_level"       , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[0] ) ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_ground_level"          , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[1] ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_Ground_Level"       , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[0] ) ;
+    DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_Ground_Level"          , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Temp_Pres[1] ) ;
 
     DefineVariable( (int)nc_id_group_L1, (char*)"Zenith_AVG_L1"                  , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[0] ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Azimuth_AVG_L1"                 , (const char*)"double", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Zen_Azm[1] ) ;
