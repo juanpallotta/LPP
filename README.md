@@ -460,7 +460,8 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Laser_Frec_2`: Double data type with the laser 2 repetition rate (in Hz).
 
 ## NetCDF's File Produced for Data Level 1
-All the variables generated in module `lidarAnalysis_PDL1` are stored in a subgroup called `L1_Data`.
+
+All the variables generated in module `lidarAnalysis_PDL1` are stored in a subgroup called `L1_Data`, and the information from data level 0 is mantained in the root of the NetCDF file.
 
 ### Dimensions
 
@@ -471,11 +472,26 @@ time
 channels
 points
 ```
-The `time` dimension from data L1 could be different from `time` dimension from de data L0 due to time-averaging.
+Due to time averagin, `time` dimension from data L1 could be different to `time` dimension from data L0. Dimensions `channels` and `points` are equal to data L0. 
 
 ### Variables
+In the next figure, a glimpse of the `L1_Data` can be seen.
 
 ![NC_File_PDL1](./Docs/Figures/NC_File_PDL1.png "NC File PDL1")
+
+
+* `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
+* `Cloud_Mask (time, points)`: .
+* `Laser_Zero_Bin_Offset (channels)`: .
+* `Molecular_Density (points)`: .
+* `Pressure_Ground_Level (time)`: .
+* `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`: .
+* `Raw_Lidar_Data_L1 (time, channels, points)`: .
+* `Start_Time_L1 (time)`: GPS start time of each lidar profile.
+* `Stop_Time_L1 (time)`: GPS stop time of each lidar profile.
+* `Temperature_Ground_Level (time)`: .
+* `Zenith (time)`: Array with zenith angle of each saved profile (in degrees).
+
 
 ### Global attributes
 
