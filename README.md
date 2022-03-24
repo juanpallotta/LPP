@@ -477,8 +477,6 @@ Due to time averagin, `time` dimension from data L1 could be different to `time`
 ### Variables
 In the next figure, a glimpse of the `L1_Data` can be seen.
 
-
-<b>CAMBIAR IMAGEN CON LOS NUEVOS NOMBRES DE Pressure_Ground_Level Y Temperature_Ground_Level </b>
 ![NC_File_PDL1](./Docs/Figures/NC_File_PDL1.png "NC File PDL1")
 
 
@@ -497,10 +495,9 @@ In the next figure, a glimpse of the `L1_Data` can be seen.
 
 ### Group Attributes
 
-* `Channel_Number_for_Cloud_Mask`: .
-* `avg_Points_Fernald`: .
-* `avg_Points_Cloud_Mask`:
-
+* `indxChannel_for_Cloud_Mask`: Index number (started from 0) of the channel used to obtain the cloud mask.
+* `avg_Points_Cloud_Mask`: Number of points used for spatial smoothing to te lidar signal before to apply the cloud masking.
+* `num_Points_Bkg`: Numbers of points used to compute the bias of the raw lidar signal.
 
 ## NetCDF's File Produced for Data Level 2
 
@@ -528,6 +525,6 @@ lrs
 
 ### Group Attributes
 
-* `Number_Channel_Inverted`: .
+* `indxChannel_for_Fernald_inv`: .
 * `Wavelength_Inverted`: .
 * `Indx_Ref_Inv`: .

@@ -513,13 +513,11 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
     DefineVariable( (int)nc_id_group_L1, (char*)"Start_Time_AVG_L1", (const char*)"int", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Raw_Data_Time[0] ) ;
     DefineVariable( (int)nc_id_group_L1, (char*)"Stop_Time_AVG_L1" , (const char*)"int", (int)1, (int*)&dims_ids_pr_corr[0], (int*)&var_id_Raw_Data_Time[1] ) ;
 
-    int indxWL_PDL1, avg_Points_Fernald ;
+    int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"       , (const char*)"int", (int*)&indxWL_PDL1        ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"avg_Points_Fernald", (const char*)"int", (int*)&avg_Points_Fernald ) ;
-    indxWL_PDL1++ ;
-    if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"Channel_Number_for_Cloud_Mask", NC_INT, 1, (const int*)&indxWL_PDL1 ) ) )
+    if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"indxChannel_for_Cloud_Mask", NC_INT, 1, (const int*)&indxWL_PDL1 ) ) )
         ERR(retval);
-    if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"avg_Points_Fernald", NC_INT, 1, (const int*)&avg_Points_Fernald ) ) )
+    if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"num_Points_Bkg", NC_INT, 1, (const int*)&glbParam->nBinsBkg ) ) )
         ERR(retval);
 
 // CLOUD MASK VARIABLE DEFINITION
@@ -664,8 +662,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     int indxWL_PDL2 ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2"        , (const char*)"int", (int*)&indxWL_PDL2           ) ;
-    indxWL_PDL2++ ;
-    if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Number_Channel_Inverted", NC_INT, 1, (const int*)&indxWL_PDL2 ) ) )
+    // indxWL_PDL2++ ;
+    if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"indxChannel_for_Fernald_inv", NC_INT, 1, (const int*)&indxWL_PDL2 ) ) )
         ERR(retval);
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Wavelength_Inverted", NC_INT, 1, (const int*)&glbParam->iLambda[indxWL_PDL2-1] ) ) )
         ERR(retval);
