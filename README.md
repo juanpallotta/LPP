@@ -20,11 +20,11 @@
   - [NetCDF's File Produced for Data Level 1](#netcdfs-file-produced-for-data-level-1)
     - [Dimensions](#dimensions-1)
     - [Variables](#variables-1)
-    - [Global attributes](#global-attributes-1)
+    - [Group Attributes](#group-attributes)
   - [NetCDF's File Produced for Data Level 2](#netcdfs-file-produced-for-data-level-2)
     - [Dimensions](#dimensions-2)
     - [Variables](#variables-2)
-    - [Global attributes](#global-attributes-2)
+    - [Group Attributes](#group-attributes-1)
 
 # Introduction
 
@@ -495,9 +495,12 @@ In the next figure, a glimpse of the `L1_Data` can be seen.
 * `Zenith (time)`: Array with zenith angle of each saved profile (in degrees).
 
 
-### Global attributes
+### Group Attributes
 
+* `Channel_Number_for_Cloud_Mask`: .
+* `avg_Points_Fernald`: .
 * `avg_Points_Cloud_Mask`:
+
 
 ## NetCDF's File Produced for Data Level 2
 
@@ -515,17 +518,16 @@ lrs
 ![NC_File_PDL2](./Docs/Figures/NC_File_PDL2.png "NC File PDL2")
 
 
-* `Aerosol_Backscattering (time, points)`: .
-* `Aerosol_Extinction (time, points)`: .
+* `Aerosol_Backscattering (time, lrs, points)`: .
+* `Aerosol_Extinction (time, lrs, points)`: .
 * `AOD_LR (time, lrs)`: .
-      * `Indx_Ref_Inv `: .
 * `LRs (lrx)`: .
 * `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: .
 * `Start_Time_L2 (time)`: GPS start time of each lidar profile.
 * `Stop_Time_L2 (time)`: GPS stop time of each lidar profile.
 
-### Global attributes
+### Group Attributes
 
-* `Channel_Number_for_Cloud_Mask`: .
-* `avg_Points_Fernal`: . 
-* `Indx_Ref_Inv `: .
+* `Number_Channel_Inverted`: .
+* `Wavelength_Inverted`: .
+* `Indx_Ref_Inv`: .
