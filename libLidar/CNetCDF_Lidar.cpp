@@ -637,11 +637,11 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
         ERR(retval) ;
 
     int num_dim_var = 3 ;
-    int id_dims_aer[num_dim_var], id_dims_pr2[num_dim_var], id_dim_single_val, var_id_Zen_Azm[2] ;
+    int id_dims_aer[num_dim_var], id_dims_pr2[num_dim_var], var_id_Zen_Azm[2] ; // , id_dim_single_val
     DefineDims( (int)nc_id_group_L2, (char*)"time"    , (int)glbParam->nEventsAVG, (int*)&id_dims_aer[0] ) ;
-    DefineDims( (int)nc_id_group_L2, (char*)"LRs"     , (int)oDL2->nLRs          , (int*)&id_dims_aer[1] ) ;
+    DefineDims( (int)nc_id_group_L2, (char*)"lrs"     , (int)oDL2->nLRs          , (int*)&id_dims_aer[1] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"points"  , (int)glbParam->nBins     , (int*)&id_dims_aer[2] ) ;
-    DefineDims( (int)nc_id_group_L2, (char*)"Index"   , (int)1                   , (int*)&id_dim_single_val ) ;
+    // DefineDims( (int)nc_id_group_L2, (char*)"Index"   , (int)1                   , (int*)&id_dim_single_val ) ;
 
     id_dims_pr2[0] = id_dims_aer[0] ;
     DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh, (int*)&id_dims_pr2[1] ) ;
