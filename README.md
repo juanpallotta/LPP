@@ -495,9 +495,9 @@ In the next figure, a glimpse of the `L1_Data` can be seen.
 
 ### Group Attributes
 
-* `indxChannel_for_Cloud_Mask`: Index number (started from 0) of the channel used to obtain the cloud mask.
+* `indxChannel_for_Cloud_Mask`: Index number (started from 0) of the channel used to process the cloud mask.
 * `avg_Points_Cloud_Mask`: Number of points used for spatial smoothing to te lidar signal before to apply the cloud masking.
-* `num_Points_Bkg`: Numbers of points used to compute the bias of the raw lidar signal.
+* `num_Points_Bkg`: Numbers of points used to compute the bias of the raw lidar signal. This value is the same as `nBinsBkg` set in the configuration file passed as argument to `lidarAnalysis_PDL1`.
 
 ## NetCDF's File Produced for Data Level 2
 
@@ -525,6 +525,6 @@ lrs
 
 ### Group Attributes
 
-* `indxChannel_for_Fernald_inv`: .
-* `Wavelength_Inverted`: .
-* `Indx_Ref_Inv`: .
+* `indxChannel_for_Fernald_inv`: Index number (started from 0) of the channel used to process Fernald inversion.
+* `Wavelength_Inverted`: Wavelength inverted in nanometers.
+* `Indx_Ref_Inv`: Index (started from 0) of the point used as reference in the Fernald inversion. It must be located in a pure molecular range.
