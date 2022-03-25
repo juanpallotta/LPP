@@ -322,7 +322,7 @@ avg_Points_Fernald = 51
 # LR: COULD BE AN ARRAY OR A SINGLE VALUE
 LR = 50 : 60 : 70 : 80
 # INDEX OF THE CHANNEL TO BE INVERTED (INDEXED FROM 0)
-indxWL_PDL2indxWL_PDL2 = 0
+indxWL_PDL2 = 0
 
 # REFERENCE HEIGHT FOR LIDAR SIGNAL (ABOVE SEA LEVEL)
 heightRef_Inversion_ASL = 10000
@@ -429,7 +429,7 @@ The length of the `time` dimension is equal to the number of raw lidar signals s
 
 
 ### Variables
-The variables of the data level 0 are the data stored in the headers of the raw lidar files (in Licel/Raymetric datatype format). In next figure, a list of the variables inspected with Panoply software is shown:
+The variables of the data level 0 are not only the raw lidar signals, but also the data stored in the headers. In next figure, a list of the variables inspected with Panoply software is shown:
 
 ![NC_File_PDL0](./Docs/Figures/NC_File_PDL0.png "NC File PDL0")
 
@@ -450,6 +450,7 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Zenith (time)`: Array with the zenithal angle of each saved profile (in degrees). 
 
 ### Global attributes
+Here, global variables taken from the headers of the raw lidar files. All these data are dimensionless, being single values of any type.
 
 * `Site_Name`: String containing the lidar's site name.
 * `Altitude_meter_asl`: Altitude of the lidar site, in meters and above sea level.
@@ -461,7 +462,7 @@ Following, a brief description of the variables (in alphabetical order), is done
 
 ## NetCDF's File Produced for Data Level 1
 
-All the variables generated in module `lidarAnalysis_PDL1` are stored in a sub-group called `L1_Data`, and the information from data level 0 is mantained in the root of the NetCDF file.
+All the variables generated in module `lidarAnalysis_PDL1` are stored in a sub-group called `L1_Data`, and the information from data level 0 is mantained in the root structure of the NetCDF file.
 
 ### Dimensions
 
@@ -472,28 +473,30 @@ time
 channels
 points
 ```
-Due to time averagin, `time` dimension from data L1 could be different to `time` dimension from data L0. Dimensions `channels` and `points` are equal to data L0. 
+Due to time averaging, `time` dimension from data L1 could be different to `time` dimension from data L0. `channels` and `points` dimensions are equal to data L0. 
 
 ### Variables
-In the next figure, a glimpse of the `L1_Data` can be seen.
+In the next figure, a glimpse of the `L1_Data` are shown using Panoply software.
 
 ![NC_File_PDL1](./Docs/Figures/NC_File_PDL1.png "NC File PDL1")
 
+Following, a brief description of the variables (in alphabetical order), is done. The dimensions of each one are shown between parentheses.
 
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
-* `Cloud_Mask (time, points)`: .
-* `Laser_Zero_Bin_Offset (channels)`: .
-* `Molecular_Density (points)`: .
-* `Pressure_Ground_Level (time)`: .
-* `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`: .
-* `Raw_Lidar_Data_L1 (time, channels, points)`: .
-* `Start_Time_L1 (time)`: GPS start time of each lidar profile.
-* `Stop_Time_L1 (time)`: GPS stop time of each lidar profile.
-* `Temperature_Ground_Level (time)`: .
+* `Cloud_Mask (time, points)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
+* `Laser_Zero_Bin_Offset (channels)`: Number of points removed from each channel due to the laser offset.
+* `Molecular_Density (points)`: Molecular density profile to be used in the inversion module.
+* `Pressure_Ground_Level (time)`: Atmospheric pressure at site level (to be used in future versions of LPP).
+* `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
+* `Raw_Lidar_Data_L1 (time, channels, points)`: Raw lidar data used in level 1. These signals has the all the corrections as the time and spatial averaging.
+* `Start_Time_L1 (time)`: GPS start time of each averaged lidar profile.
+* `Stop_Time_L1 (time)`: GPS stop time of each averaged lidar profile.
+* `Temperature_Ground_Level (time)`:  Atmospheric temperature at site level (to be used in future versions of LPP)..
 * `Zenith (time)`: Array with zenith angle of each saved profile (in degrees).
 
 
 ### Group Attributes
+Here, the essentials constants needed for the correction of the lidar signals and cloud mask processing are stored.
 
 * `indxChannel_for_Cloud_Mask`: Index number (started from 0) of the channel used to process the cloud mask.
 * `avg_Points_Cloud_Mask`: Number of points used for spatial smoothing to te lidar signal before to apply the cloud masking.
@@ -512,24 +515,28 @@ points
 lrs
 ```
 
-As in `L1_Data` sub-group, `time` dimension is averaged using data level 0, so it could be different from `time` dimension from the previous data levels.
-`lidarAnalysis_PDL2` included in the current version of LPP only accept the inversion of only one wavelength per run. The channel selected for the inversion is set in the variable `indxWL_PDL2` in the configuration file passed as third argument to this module.
+As in `L1_Data` sub-group, `time` dimension is averaged using data from level 0, so it could be different from `time` dimension from the data level 1.
+The current version of `lidarAnalysis_PDL2` only accept the inversion of only one wavelength per run. The channel selected for the inversion is set in the variable `indxWL_PDL2` in the configuration file passed as third argument to this module. In this sense, the lidar ratio dimension is added for aerosols optical profiles, where has the dimensions (`time`, `lrs`, `points`).
 
 ### Variables
+The `L2_Data` sub-group data variables can be observed in the next Figure.
 
 ![NC_File_PDL2](./Docs/Figures/NC_File_PDL2.png "NC File PDL2")
 
+The variables (in alphabetical order) are described below. The dimensions of each one are shown between parentheses.
 
-* `Aerosol_Backscattering (time, lrs, points)`: .
-* `Aerosol_Extinction (time, lrs, points)`: .
-* `AOD_LR (time, lrs)`: .
-* `LRs (lrx)`: .
-* `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: .
+* `Aerosol_Backscattering (time, lrs, points)`: Aerosol backscattering profiles of the channel selected for the inversion. One profile per time and lidar ratio set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
+* `Aerosol_Extinction (time, lrs, points)`:  Aerosol extinction profiles of the channel selected for the inversion. One profile per time and lidar ratio set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
+* `AOD_LR (time, lrs)`: Aerosols optical depth obtained by integrating the aerosol extinction profile across the `point` dimmension.
+* `LRs (lrx)`: Lidar ratios used in the inversion.
+* `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
 * `Start_Time_L2 (time)`: GPS start time of each lidar profile.
 * `Stop_Time_L2 (time)`: GPS stop time of each lidar profile.
 
 ### Group Attributes
 
-* `indxChannel_for_Fernald_inv`: Index number (started from 0) of the channel used to process Fernald inversion.
+The essentials constants needed for applying the Fernald inversion are stored.
+
+* `indxChannel_for_Fernald_inv`: Index number (started from 0) of the channel used to process Fernald inversion. This value is taken from the configuration file passed as third argument to `lidarAnalysis_PDL2` in the variable `indxWL_PDL2`.
 * `Wavelength_Inverted`: Wavelength inverted in nanometers.
 * `Indx_Ref_Inv`: Index (started from 0) of the point used as reference in the Fernald inversion. It must be located in a pure molecular range.
