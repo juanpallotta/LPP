@@ -40,9 +40,9 @@ The Lidar Processing Pipeline (LPP) is formed by 3 completely independent softwa
 - `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produce a new NetCDF defined as data level 1 (L1). This L1 file contains the same information as the data level L0 and adds L1 information. These new data include: corrected lidar files (like laser offset, bias correction, etc.), the cloud-mask product, and molecular profiles for every wavelength used. Also, all the parameters used to produce this output are stored. This output is called L1 data level of LPP.
 - `lidarAnalysis_PDL2`: Receive the NetCDF file produced by `lidarAnalysis_PDL1` and produce a new NetCDF file defined as data level 2 (L2). This L2 file contains the same data as L0 and L1 and adds the optical products obtained from the elastic lidar signals. Also, all the parameters used to produce this output are stored. This output is the L2 data level of LPP.
 
-It is important to remark the feature that the output files produced in stages 1 and 2 contain all the information of its previous stage. The new file generated adds the new information of the stage under analysis in a NetCDF's subgroup called **L*x*_Data**, being ***x*** the data level number. This can be seen in the next figure, showing the data added in L1 stage:
+It is important to remark the feature that the output files produced in stages 1 and 2 contain all the information of its previous stage. The new file generated adds the new information of the stage under analysis in a NetCDF's sub-group called **L*x*_Data**, being ***x*** the data level number. This can be seen in the next figure, showing the data added in L1 stage:
 
-![Panoply subgroup](./Docs/Figures/sub_group_nc.png "NetCDF Subgroup")
+![Panoply sub-group](./Docs/Figures/sub_group_nc.png "NetCDF sub-group")
 
 The description of each variables and its dimensions are described later in this document (section [LALINET Data Type Format](#LALINET_data_type_format)).
 Each lidar analysis tool must be run in a Linux terminal, following the convention:
@@ -322,7 +322,7 @@ avg_Points_Fernald = 51
 # LR: COULD BE AN ARRAY OR A SINGLE VALUE
 LR = 50 : 60 : 70 : 80
 # INDEX OF THE CHANNEL TO BE INVERTED (INDEXED FROM 0)
-indxWL_PDL2 = 0
+indxWL_PDL2indxWL_PDL2 = 0
 
 # REFERENCE HEIGHT FOR LIDAR SIGNAL (ABOVE SEA LEVEL)
 heightRef_Inversion_ASL = 10000
@@ -461,7 +461,7 @@ Following, a brief description of the variables (in alphabetical order), is done
 
 ## NetCDF's File Produced for Data Level 1
 
-All the variables generated in module `lidarAnalysis_PDL1` are stored in a subgroup called `L1_Data`, and the information from data level 0 is mantained in the root of the NetCDF file.
+All the variables generated in module `lidarAnalysis_PDL1` are stored in a sub-group called `L1_Data`, and the information from data level 0 is mantained in the root of the NetCDF file.
 
 ### Dimensions
 
@@ -501,15 +501,20 @@ In the next figure, a glimpse of the `L1_Data` can be seen.
 
 ## NetCDF's File Produced for Data Level 2
 
+`lidarAnalysis_PDL2` module produces a copy of the NetCDF file made for `lidarAnalysis_PDL1`, adding the results of this data level in the sub-group called `L2_Data`.
 
 ### Dimensions
-In this version, 3 dimensions are defined:
+This module adds a new dimension related to the lidar ratios used in the inversion. The dimensions in this sub-group are:
 ```
 time
 channels
 points
 lrs
 ```
+
+As in `L1_Data` sub-group, `time` dimension is averaged using data level 0, so it could be different from `time` dimension from the previous data levels.
+`lidarAnalysis_PDL2` included in the current version of LPP only accept the inversion of only one wavelength per run. The channel selected for the inversion is set in the variable `indxWL_PDL2` in the configuration file passed as third argument to this module.
+
 ### Variables
 
 ![NC_File_PDL2](./Docs/Figures/NC_File_PDL2.png "NC File PDL2")
