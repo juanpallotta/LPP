@@ -525,13 +525,13 @@ The `L2_Data` sub-group data variables can be observed in the next Figure.
 
 The variables (in alphabetical order) are described below. The dimensions of each one are shown between parentheses.
 
-* `Aerosol_Backscattering (time, lrs, points)`: Aerosol backscattering profiles of the channel selected for the inversion. One profile per time and lidar ratio set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
-* `Aerosol_Extinction (time, lrs, points)`:  Aerosol extinction profiles of the channel selected for the inversion. One profile per time and lidar ratio set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
+* `Aerosol_Backscattering (time, lrs, points)`: Aerosol backscattering profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
+* `Aerosol_Extinction (time, lrs, points)`: Aerosol extinction profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
 * `AOD_LR (time, lrs)`: Aerosols optical depth obtained by integrating the aerosol extinction profile across the `point` dimmension.
-* `LRs (lrx)`: Lidar ratios used in the inversion.
-* `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
-* `Start_Time_L2 (time)`: GPS start time of each lidar profile.
-* `Stop_Time_L2 (time)`: GPS stop time of each lidar profile.
+* `LRs (lrx)`: Lidar ratios used in the inversion. The values are set in the configuration file as the variable `LR`.
+* `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: Range corrected lidar signals. These signals has all the corrections, as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
+* `Start_Time_L2 (time)`: GPS start time of each averaged lidar profile.
+* `Stop_Time_L2 (time)`: GPS stop time of each averaged lidar profile.
 
 ### Group Attributes
 
@@ -539,4 +539,5 @@ The essentials constants needed for applying the Fernald inversion are stored.
 
 * `indxChannel_for_Fernald_inv`: Index number (started from 0) of the channel used to process Fernald inversion. This value is taken from the configuration file passed as third argument to `lidarAnalysis_PDL2` in the variable `indxWL_PDL2`.
 * `Wavelength_Inverted`: Wavelength inverted in nanometers.
-* `Indx_Ref_Inv`: Index (started from 0) of the point used as reference in the Fernald inversion. It must be located in a pure molecular range.
+* `Indx_Ref_Inv`: Index (started from 0) of the point used as reference in the Fernald inversion. It must be located in a purest molecular range.
+* `R_ref`: Backscatter ratio at reference altitude (or index `Indx_Ref_Inv`) used in the inversion. This value is taken from the configuration file passed as third argument to this module in the variable `R_ref`.

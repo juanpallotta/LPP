@@ -639,7 +639,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineDims( (int)nc_id_group_L2, (char*)"time"    , (int)glbParam->nEventsAVG, (int*)&id_dims_aer[0] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"lrs"     , (int)oDL2->nLRs          , (int*)&id_dims_aer[1] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"points"  , (int)glbParam->nBins     , (int*)&id_dims_aer[2] ) ;
-    // DefineDims( (int)nc_id_group_L2, (char*)"Index"   , (int)1                   , (int*)&id_dim_single_val ) ;
 
     id_dims_pr2[0] = id_dims_aer[0] ;
     DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh, (int*)&id_dims_pr2[1] ) ;
@@ -657,17 +656,20 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineVariable( (int)nc_id_group_L2, (char*)"Azimuth_AVG_L2", (const char*)"double", (int)1, (int*)&id_dims_pr2[0], (int*)&var_id_Zen_Azm[1] ) ;
 
     DefineVariable( (int)nc_id_group_L2, (char*)"LRs"         , (const char*)"double", (int)1, (int*)&id_dims_aer[1]   , (int*)&id_var_LRs            ) ;
-    // DefineVariable( (int)nc_id_group_L2, (char*)"Indx_Ref_Inv", (const char*)"int"   , (int)1, (int*)&id_dim_single_val, (int*)&id_var_indx_ref_inv   ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"      , (const char*)"double", (int)2, (int*)&id_dims_aer[0]   , (int*)&id_var_AOD_LR         ) ;
 
-    int indxWL_PDL2 ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2"        , (const char*)"int", (int*)&indxWL_PDL2           ) ;
-    // indxWL_PDL2++ ;
+    int     indxWL_PDL2 ;
+    double  R_ref       ;
+    ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int"    , (int*)&indxWL_PDL2 ) ;
+    ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"R_ref"      , (const char*)"double" , (double*)&R_ref    ) ;
+
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"indxChannel_for_Fernald_inv", NC_INT, 1, (const int*)&indxWL_PDL2 ) ) )
         ERR(retval);
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Wavelength_Inverted", NC_INT, 1, (const int*)&glbParam->iLambda[indxWL_PDL2-1] ) ) )
         ERR(retval);
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Indx_Ref_Inv", NC_INT, 1, (const int*)&oDL2->indxRef ) ) )
+        ERR(retval);
+    if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"R_Ref", NC_INT, 1, (const int*)&R_ref ) ) )
         ERR(retval);
 
                 if ( (retval = nc_enddef(nc_id_group_L2)) )
