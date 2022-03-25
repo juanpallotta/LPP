@@ -2,7 +2,8 @@
 
 - [Introduction](#introduction)
 - [Overall concept of the LPP tools](#overall-concept-of-the-lpp-tools)
-- [Installation:](#installation)
+  - [Runing a LPP module](#runing-a-lpp-module)
+- [Installation](#installation)
 - [Setting up the code](#setting-up-the-code)
   - [Installing dependencies](#installing-dependencies)
   - [Building the code](#building-the-code)
@@ -39,18 +40,20 @@ The Lidar Processing Pipeline (LPP) is formed by 3 completely independent softwa
 - `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produces a new NetCDF defined as data level 1 (L1). This L1 file contains the same information as the data level L0 and adds L1 products. These new data include corrected lidar files (like laser offset, bias correction, etc.), the cloud-mask, and molecular density profiles. Also, all the parameters used to produce this output are stored. This output is called the L1 data level of LPP.
 - `lidarAnalysis_PDL2`: Receive the NetCDF file produced by `lidarAnalysis_PDL1` and produces a new NetCDF file defined as data level 2 (L2). This L2 file contains the same data as L0 and L1, adding the optical retrieval from one selected elastic channel. Also, all the parameters used to produce this output are stored. This output is the L2 data level of LPP.
 
-It is important to remark that the output files produced in stages 1 and 2 contain all the information of its previous stage. The new file generated adds the new information of the stage under analysis in a NetCDF's sub-group called **L*x*_Data**, being ***x*** the data level number. 
+It is important to remark that the output files produced in stages 1 and 2 contain all the information of its previous stage. The new file generated in each module adds the new information of the stage under analysis in a NetCDF's sub-group called **L*x*_Data**, being ***x*** the data level number. 
 
-In the next figure, an output file is inspected with the software Panoply ([https://www.giss.nasa.gov/tools/panoply/](https://www.giss.nasa.gov/tools/panoply/)), where the data added in the stages L1 and L2 can be seen in their corresponding groups.
+In the next figure, an output file is inspected with the software Panoply ([https://www.giss.nasa.gov/tools/panoply/](https://www.giss.nasa.gov/tools/panoply/)), where the data added in the stages L1 and L2 can be seen in their corresponding groups, while the L0 data is stored in the root of the NetCDF file.
 
 ![Panoply sub-group](./Docs/Figures/sub_group_nc.png "NetCDF sub-group")
 
 The description of each variables and its dimensions are described later in this document (section [LALINET Data Type Format](#lalinet-netcdf-file-format)).
-Each lidar analysis tool must be run in a Linux terminal, following the convention:
+
+## Runing a LPP module
+Each LPP's module must be run in a Linux terminal, following the convention:
 
 <a name="run_module"></a>
 ```
-$./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf
+$./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf [Extra_Files]
 ```
 
 Where:
@@ -58,30 +61,32 @@ Where:
 - `/Input_File_or_Folder/`: Input folder or file to produce the data Level ***x***. In the case of L0, this first parameter is the folder with the raw lidar data files in Licel or Raymetric data file format. For the rest of the data levels, the input is the NetCDF file produced in the previous stage.
 - `/Output_File`: Output NetCDF filename. The output file contains the information of the input folder/file, adding the information of the new data of the level under analysis.
 - `analysisParameters.conf`: Configuration file with all the variables needed for the level analysis.
+- `[Extra_Files]`: Not mandatory information containing extra data about the lidar system, like background noise or overlap function.
 
 
 To avoid possible mistakes, it is preferable to use absolute paths for all the file's arguments passed to the modules.
 
-In the next sections, a step-by-step on how to install and run these modules are described.
+In the next sections, a step-by-step on how to download/clone, build and run LPP's modules are described.
 
-# Installation:
-Download or clone the repository from GitHub: `www.github.com/juanpallotta/LPP`. You will find:
-- `/libLidar`: C/C++ lidar libraries source code.
-- `/Lidar_Analysis_L0`: C/C++ sources code of `lidarAnalysis_PDL0` to produce level 0 (L0) data products.
-- `/Lidar_Analysis_L1`: C/C++ sources code of `lidarAnalysis_PDL1` to produce level 1 (L1) data products.
-- `/Lidar_Analysis_L2`: C/C++ sources code of `lidarAnalysis_PDL2` to produce level 2 (L2) data products.
-- `/Lidar_Configuration_Files`: Contain the configuration files (`.conf`) for each module. Also, the settings file for an automatic run (see later [section](#Automatizing_LPP) about the LPP automation).
-- `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (pure Licel datatype files) and Brazil: Sao Paulo (folder `Brazil/SPU/`, Licel data type files) and Manaus (folder `Brazil/Manaus`, Raymetric datatype files).
-- `install_Lidar_Dependencies.sh`: Linux shell-script to install the basic software/libraries needed to compile and run the LPP software.
+# Installation
+Download or clone the repository from GitHub [https://www.github.com/juanpallotta/LPP](https://www.github.com/juanpallotta/LPP). Inside you will find:
+
+- `/libLidar`: Folder with C/C++ lidar libraries source code.
+- `/Lidar_Analysis_L0`: Folder with C/C++ sources code of the module `lidarAnalysis_PDL0` for producing data level 0.
+- `/Lidar_Analysis_L1`: Folder with C/C++ sources code of the module `lidarAnalysis_PDL1` for producing data level 1.
+- `/Lidar_Analysis_L2`: Folder with C/C++ sources code of the module `lidarAnalysis_PDL2` for producing data level 2.
+- `/Lidar_Configuration_Files`: Folder containing the configuration files (`.conf`) for each module. Also, the settings file for an automatic run (see later [section](#automatizing-lpp) about the LPP automation).
+- `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (Licel data type files) and Brazil: Sao Paulo (folder `Brazil/SPU/`, Licel data type files) and Manaus (folder `Brazil/Manaus`, Raymetric data type files).
+- `install_Lidar_Dependencies.sh`: Linux shell-script to install the basic software/libraries needed to use LPP.
 - `/compile_All.sh`: Linux shell script to compile all the modules.
-- `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. The main settings for automatic run are configured in its setting file (`/Lidar_Configuration_Files/LPP_Settings.sh`). More about the automatization of all modules in [Automatizing LPP](#Automatizing_LPP) section of this README file.
+- `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. The main settings for automatic run are configured the setting file `/Lidar_Configuration_Files/LPP_Settings.sh`. More about the automatization of all modules in [Automatizing LPP](#automatizing-lpp) section of this README file.
 - `README.md`: This file.
 
 # Setting up the code
+The first steps after downloading/cloning the LPP's source code are described in this section. After these steps, LPP will be ready to be used.
+
 ## Installing dependencies
-There are a few pre-requisites to be installed prior to the run of LPP. To do this job, just run the Linux shell script named `install_Lidar_Dependencies.sh`.
-It is a simple Linux shell script to install the basics packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials.
-Remember to set `install_Lidar_Dependencies.sh` with executable attributes: `chmod +x install_Lidar_Dependencies.sh`.
+There are a few prerequisites to be installed prior to building LPP. This job can be done by running the Linux shell script named `install_Lidar_Dependencies.sh`. It is a simple Linux shell script to install the basic packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials. Remember to set `install_Lidar_Dependencies.sh` with executable attributes: `chmod +x install_Lidar_Dependencies.sh`.
 
 ## Building the code
 To compile all the modules, just run the Linux shell script named `compile_All.sh`. This is a simple Linux script that produces the executables of each module inside their folders. Remember to set `compile_All.sh` with executable attributes prior run it: `chmod +x compile_All.sh`.
