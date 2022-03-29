@@ -67,5 +67,5 @@ Lidar_Analysis_PDL2/lidarAnalysis_PDL2
 *_test.conf
 *_test.sh
 
-/LPP/signalsTest/Fabio_20200805arge.nc
-/LPP/signalsTest/sync_Lidar_Signals.sh
+signalsTest/Fabio_20200805arge.nc
+signalsTest/sync_Lidar_Signals.sh
