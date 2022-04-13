@@ -1,5 +1,6 @@
 
 /* GENERAL LIDAR LIBRARY */
+#pragma once
 
 #ifndef LIBLIDAR_H
 #define LIBLIDAR_H
@@ -64,7 +65,7 @@ void 	RayleighFit 				( double*, double*, int, const char*, const char*, strcFit
 void 	TransmissionMethod_pr		( double*, strcGlobalParameters*, strcMolecularData*, int, int, double* ) ;
 void 	ODcut						( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int* ) ;
 
-void 	Elastic_Rayleigh_Lidar_Signal ( strcMolecularData*, double* ) ;
+void 	Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData*, double* ) ;
 
 // MEMORY GETTERS 
 void    GetMem_DataFile             	( strcLidarDataFile*, strcGlobalParameters* ) ;

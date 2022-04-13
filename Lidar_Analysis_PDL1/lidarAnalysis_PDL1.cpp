@@ -162,8 +162,10 @@ int main( int argc, char *argv[] )
         ERR(retval);
 
     glbParam.r = (double*) new double[glbParam.nBins] ;
-    for( int i=0 ; i <glbParam.nBins ; i++ )
-        glbParam.r[i] = i*glbParam.dr ;
+    // for( int i=0 ; i <glbParam.nBins ; i++ )
+    //     glbParam.r[i] = i*glbParam.dr ;
+    for( int i=1 ; i <=glbParam.nBins ; i++ )
+        glbParam.r[i-1] = i*glbParam.dr ;
 
     if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL ) ) )
         ERR(retval);
@@ -240,7 +242,7 @@ int main( int argc, char *argv[] )
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
     // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
-    CMolecularData  *oMolData   = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
+    CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
 
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
@@ -253,11 +255,11 @@ int main( int argc, char *argv[] )
             for ( int i=0 ; i <glbParam.nBins ; i++ )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
 
-            oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int) c ) ;
+            oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ;
 
             if ( glbParam.is_Noise_Data_Loaded == true )
-                oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise ) ;
-            else // BIAS REMOVAL USING MEAN/FIT FROM THE LAST BINS ARE ALLOWED
+                oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
+            else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
                 oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
             if ( oDL1->avg_Points_Cloud_Mask >0 )
@@ -290,7 +292,8 @@ int main( int argc, char *argv[] )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
     glbParam.event_analyzed = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
-    oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
+    glbParam.chSel = indxWL_PDL1 ;
+    oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ; // oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 

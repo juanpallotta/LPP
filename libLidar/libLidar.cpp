@@ -631,7 +631,7 @@ void ODcut( double *prS, strcMolecularData *dataMol, strcGlobalParameters *glbPa
 	// delete pr2 ;
 }
 
-void Elastic_Rayleigh_Lidar_Signal ( strcMolecularData *dataMol, double *r )
+void Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData *dataMol, double *r )
 {
 	double *MOD = (double*) new double[ dataMol->nBins ] ;
 

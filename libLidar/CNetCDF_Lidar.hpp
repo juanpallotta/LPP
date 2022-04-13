@@ -1,7 +1,8 @@
 
+#pragma once
+
 #ifndef CNETCDF_LIDAR_H
 #define CNETCDF_LIDAR_H
-// #pragma once
 
 #include <netcdf>
 #include <stdio.h>

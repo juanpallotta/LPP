@@ -166,10 +166,10 @@ In the first section of this configuration file contains common information for 
 # MAXIMUN ZENITHAL ANGLE TO ANALIZE [º] (IN CASE OF MULTIANGLE LIDARS)
 maxZthAngle = 90
 
+# BACKGROUND CORRECTION METHOD = AUTO/FIT/MEAN/NO_BKG
+BkgCorrMethod = AUTO
 # NUMBER OF BINS USED FOR BACKGROUND CORRECTION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
-nBinsBkg = 2000
-# BACKGROUND CORRECTION METHOD = FIT/MEAN/FILE_BKG
-BkgCorrMethod = FILE_BKG
+nBinsBkg = 1000
 ```
 
 Where:
@@ -177,8 +177,9 @@ Where:
 - `nBinsBkg`: Number of bins used for background correction. This quantity is taken from the tail of the lidar signal. From the exsample number in the previous line: last 2000 bins will be used.
 - `BkgCorrMethod`: Background method used for the background substraction. There are 3 options:
     - `MEAN`: The bias of the lidar signal is obtained computing the mean average of the last `nBinsBkg` bins.
-    - `FIT`: The bias of the lidar signal is obtained computing the linear fit of the pure molecular attenuated backscatter to the lidar signal across the last `nBinsBkg` bins.
-    - `FILE_BKG`: The bias of the lidar signal is obtained using the background data. If this option is choosen, backgroun data file must be provided in the run of `lidarAnalysis_PDL0`.
+    - `FIT`: The bias of the lidar signal is obtained computing the linear fit of the pure molecular attenuated backscatter to the lidar signal across the last `nBinsBkg` bins. The independent term of the fit is taken as the bias of the lidar signal.
+    - `AUTO`: An automated method to compute the bias of the raw lidar signal. This method is recommended in cases where molecular modulation is still detected al the end of the track recorded. This method is based on guessing a set of bias and a test algorithm to find wich of the the bias tested is the best.
+    - `NO_BKG`: No background is subtracted to the lidar signal.
 
 This variables are used by `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`, and both modules uses the same configuration for these data.
 
@@ -369,8 +370,8 @@ PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 # NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
 # ! IF THERE IS NO NOISE FILE: THE FILENAME MUST BE SET AS: "-"
 # ! IF THERE IS    NOISE FILE: THE FILENAME MUST CONTAIN THE STRING 'bkg' IN SOME PART OF ITS NAME!!!
-# PATH_FILE_NOISE="-"
-PATH_FILE_NOISE="/mnt/Disk-1_8TB/Argentina/SPU/20210730/bkg_20210730"
+# PATH_DARK_FILE="-"
+PATH_DARK_FILE="/mnt/Disk-1_8TB/Argentina/SPU/20210730/bkg_20210730"
 
 FILE_CONF_L0="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL0_Brazil.conf"
 FILE_CONF_L1_L2="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
@@ -381,7 +382,7 @@ As can be seen, a few variables are needed to run LPP automatically. These are:
 * `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"` at these variables, the control of the run of each module can be controled.
 * `PATH_IN`: Path of the raw lidar data, in wich only lidar data files (Licel or Raymetric data file format) must be stored. Subfolders containing lidar data files will be also analyzed. A folder named `/LPP_OUT/` will be created automatically in the last subfolder found with raw lidar files. The `/LPP_OUT/` folder will be used to store the NetCDF output files produced by each LPP module.
 Because there are different ways to store the data files and their folder structures, two examples will be shown and how the folder/files are generated automatically. 
-* `PATH_FILE_NOISE`: Absolute path to the background file, which must contain the string `bkg` in some part of its name. This information is not mandatory, and if is not used, must be defined as `"-"`. This variable is passed as fourth argument to `lidarAnalysis_PDL0`.
+* `PATH_DARK_FILE`: Absolute path to the background file, which must contain the string `bkg` in some part of its name. This information is not mandatory, and if is not used, must be defined as `"-"`. This variable is passed as fourth argument to `lidarAnalysis_PDL0`.
 * `FILE_CONF_L0` and `FILE_CONF_L0_L1`: Absolute path to the configuration file of each module.
 
 In order to explain how paths are generated automatically, two typical examples are shown. The first one is used in Sao Paulo and Argentinean lidars, where the lidar files produced in a day are stored in a single folder with the full date in its name, as can be seen in the next figure:

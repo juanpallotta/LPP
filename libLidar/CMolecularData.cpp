@@ -127,7 +127,7 @@ void CMolecularData::Read_range_Temp_Pres_From_File( strcGlobalParameters *glbPa
 		RadSondeData.zLR[b] = (double) zLR[b+indxMin] ; // RadSondeData.zLR --> ASL
 		RadSondeData.tLR[b] = (double) tLR[b+indxMin] ; // RadSondeData.tLR --> ASL
 		RadSondeData.pLR[b] = (double) pLR[b+indxMin] ; // RadSondeData.pLR --> ASL
-		RadSondeData.nLR[b] = (double) (100*RadSondeData.pLR[b]/RadSondeData.tLR[b]) /1.3800653e-23 ; // [1/m3]? ¡¡¡¡ASL!!!!
+		RadSondeData.nLR[b] = (double) (100*RadSondeData.pLR[b]/RadSondeData.tLR[b]) /1.3800653e-23 ; // [1/m3] ¡¡¡¡ASL!!!!
 	}
 	RadSondeData.nHR = (double*) new double [glbParam->nBins] ;
 
@@ -138,7 +138,8 @@ void CMolecularData::Read_range_Temp_Pres_From_File( strcGlobalParameters *glbPa
 	delete nLR ;
 }
 
-void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, int ch )
+// void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, int ch )
+void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam )
 {
 	int 	i ;
 
@@ -170,47 +171,40 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, int ch )
 		// double N2_shift = 2331e2 ;
 		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
 
- 	for( i=0 ; i < glbParam->nBins ; i++ )
-	{ // betaMol, alphaMol AND betaRam ACROSS r AND ¡¡¡¡¡¡¡ASL, STARTING AT THE SITE ALTITUDE!!!!!!!
-		dataMol.betaMol [i] = (double)(dataMol.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[ch] ), 4) ) ) ; // r [1/m*sr]
-		dataMol.alphaMol[i] = (double)(dataMol.betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
-		// dataMol->betaRam [i] = (double)(N2_XS_BS * dataMol->nMol[i]) ; // r
-	}
-		Elastic_Rayleigh_Lidar_Signal ( (strcMolecularData*)&dataMol, (double*)glbParam->r ) ;
+ 	// for( i=0 ; i < glbParam->nBins ; i++ )
+	// { // betaMol, alphaMol AND betaRam ACROSS r AND ¡¡¡¡¡¡¡ASL, STARTING AT THE SITE ALTITUDE!!!!!!!
+	// 	dataMol.betaMol [i] = (double)(dataMol.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[glbParam->chSel] ), 4) ) ) ; // r [1/m*sr]
+	// 	dataMol.alphaMol[i] = (double)(dataMol.betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+	// 	// dataMol->betaRam [i] = (double)(N2_XS_BS * dataMol->nMol[i]) ; // r
+	// }
+	// 	Elastic_Rayleigh_Lidar_Signal ( (strcMolecularData*)&dataMol, (double*)glbParam->r ) ;
+
+	Alpha_Beta_Mol_from_N_Mol( (strcMolecularData*)&dataMol, (strcGlobalParameters*)glbParam ) ;
 }
-// void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, int indxWL )
-// {
-// 	int 	i ;
 
-// 	dataMol[indxWL].zenith = glbParam->aZenithAVG[glbParam->event_analyzed] ;
+void CMolecularData::Alpha_Beta_Mol_from_N_Mol( strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+{
+ 	for( int i=0 ; i < glbParam->nBins ; i++ )
+	{
+		dataMol->betaMol[i]  = (double)(dataMol->nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[glbParam->chSel] ), 4) ) ) ; // r [1/m*sr]
+		dataMol->alphaMol[i] = (double)(dataMol->betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+	}
+	Elastic_Rayleigh_Lidar_Signal ( (strcMolecularData*)dataMol, (double*)glbParam->r ) ;
+}
 
-// 	// VALUES FROM ASL
-// 	dataMol[indxWL].nBins = glbParam->nBins ;
-// 	for ( i=0 ; i < glbParam->nBins ; i++ )
-// 		dataMol[indxWL].zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol[indxWL].zenith *PI/180) ; // zr = ASL
-// 	dataMol[indxWL].dzr = (double)(dataMol[indxWL].zr[1] - dataMol[indxWL].zr[0]) ; // [m]
-// 	glbParam->dzr = dataMol[indxWL].dzr ;
+void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( strcMolecularData *dataMol, double *r )
+{
+	double *MOD = (double*) new double[ dataMol->nBins ] ;
 
-// // printf("\n CMolecularData::Fill_dataMol() --> glbParam->siteASL: %lf \n", glbParam->siteASL ) ;
-// // printf(" CMolecularData::Fill_dataMol() --> glbParam->r[10]: %lf \n", glbParam->r[10] ) ;
-// // printf(" CMolecularData::Fill_dataMol() --> cos(dataMol[indxWL].zenith *PI/180): %lf \n", cos(dataMol[indxWL].zenith *PI/180) ) ;
-// // printf(" CMolecularData::Fill_dataMol() --> dataMol[indxWL].zr[10]: %lf \n", dataMol[indxWL].zr[10] ) ;
-// // printf(" CMolecularData::Fill_dataMol() --> dataMol[indxWL].dzr: %lf \n", dataMol[indxWL].dzr ) ;
+	cumtrapz( (r[1]-r[0]), dataMol->alphaMol, 0, dataMol->nBins-1, (double*)MOD ) ;
 
-// 	RadLowToHighRes() ;
-// 	for ( i =0 ; i <glbParam->nBins ; i++ )
-// 		dataMol[indxWL].nMol[i] = RadSondeData.nHR[i] ;
-// 		// double N2_shift = 2331e2 ;
-// 		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda[indxWL])-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
-
-//  	for( i=0 ; i < glbParam->nBins ; i++ )
-// 	{ // betaMol, alphaMol AND betaRam ACROSS r AND ¡¡¡¡¡¡¡ASL, STARTING AT THE SITE ALTITUDE!!!!!!!
-// 		dataMol[indxWL].betaMol [i] = (double)(dataMol[indxWL].nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[indxWL]), 4) ) ) ; // r [1/m*sr]
-// 		dataMol[indxWL].alphaMol[i] = (double)(dataMol[indxWL].betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
-// 		// dataMol[indxWL]->betaRam [i] = (double)(N2_XS_BS * dataMol[indxWL]->nMol[i]) ; // r
-// 	}
-// 		Elastic_Rayleigh_Lidar_Signal ( (strcMolecularData*)&dataMol[indxWL], (double*)glbParam->r ) ;
-// }
+	for ( int b=0 ; b < dataMol->nBins  ; b++ )
+	{
+		dataMol->pr2Mol[b] 	= (double)  dataMol->betaMol[b] * exp( -2*MOD[b] ) ;
+		dataMol->prMol [b] 	= (double) ( dataMol->pr2Mol[b]/(r[b]*r[b]) ) ;
+	}
+	delete MOD ;
+}
 
 void CMolecularData::RadLowToHighRes( )
 {

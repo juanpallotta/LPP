@@ -1,4 +1,6 @@
 
+#pragma once
+
 #ifndef LIDARMATHFUNC_H
 #define LIDARMATHFUNC_H
 
@@ -20,7 +22,7 @@
 void trapz				( double , double*, int, int, double* 			) ;
 double sum				( double*, int, int, double* 					) ;
 void cumtrapz			( double, double*, int, int, double* 			) ;
-void diffPr				( const double*, int, double*					 		) ;
+void diffPr				( const double*, int, double*			 		) ;
 void findIndxMin		( double*, int, int, int*, double* 				) ;
 void findIndxMax		( double*, int, int, int*, double* 				) ;
 void smooth	    		( double*, int, int, int, double* 				) ;

@@ -1,3 +1,4 @@
+#pragma once
 
 #ifndef CDATALEVEL_1_H
 #define CDATALEVEL_1_H

@@ -145,7 +145,7 @@ void CMolecularData_USStd::Fill_dataMol( strcGlobalParameters *glbParam, int ind
 		dataMol[indxWL].alphaMol[i] = (double)(dataMol[indxWL].betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
 		// dataMol[indxWL]->betaRam [i] = (double)(N2_XS_BS * dataMol[indxWL]->nMol[i]) ; // r
 	}
-		Elastic_Rayleigh_Lidar_Signal ( (strcMolecularData*)&dataMol[indxWL], (double*)glbParam->r ) ;
+		Elastic_Rayleigh_Lidar_Signal_ ( (strcMolecularData*)&dataMol[indxWL], (double*)glbParam->r ) ;
 }
 
 void CMolecularData_USStd::RadLowToHighRes( )

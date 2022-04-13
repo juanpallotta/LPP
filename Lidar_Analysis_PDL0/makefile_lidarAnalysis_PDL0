@@ -21,4 +21,4 @@ CNetCDF_Lidar.o: ../libLidar/CNetCDF_Lidar.cpp
 
 
 clean:
-	rm -f core *.o
+	rm -f core *.o *.gch
