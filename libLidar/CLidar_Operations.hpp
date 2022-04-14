@@ -19,7 +19,7 @@ public:
     // void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**                               ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
-    void    FindBias_Pr       ( double*, double*           , strcGlobalParameters*, strcFitParam*, int, double*, double*   ) ;
+    void    Find_Max_Range    ( double*, double*, strcGlobalParameters*, int*                                   ) ;
     void    FindBias_Pr       ( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int, double*, double*   ) ;
     void 	bkgSubstraction_Mean( double*, strcFitParam*, strcGlobalParameters*, double*                        ) ;
     void 	bkgSubstraction_MolFit(strcMolecularData*, const double*, strcFitParam*, double*                    ) ;

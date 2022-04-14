@@ -15,7 +15,7 @@ CLidar_Operations::~CLidar_Operations()
 	delete dummy 	;
 }
 
-// MakeRangeCorrected() USING 'MEAN' OR 'FIT' METHODS TO REMOVE BIAS.
+// MakeRangeCorrected() USING 'MEAN', 'FIT', 'NO_BKG' OR 'AUTO' METHODS TO REMOVE BIAS.
 void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
 	char BkgCorrMethod[10] ;
@@ -32,18 +32,22 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 			evSig->pr_noBkg[i] = evSig->pr[i] ;
 	}
 	else if ( (strcmp( BkgCorrMethod, "MEAN" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
+	{
 		bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
+	}
 	else if ( (strcmp( BkgCorrMethod, "FIT" ) ==0) || (strcmp( BkgCorrMethod, "fit" ) ==0) )
+	{
 		bkgSubstraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBkg ) ;
+	}
 	else if ( (strcmp( BkgCorrMethod, "AUTO" ) ==0) || (strcmp( BkgCorrMethod, "auto" ) ==0) )
 	{
 		fitParam.indxInicFit = glbParam->indxEndSig - glbParam->nBinsBkg ;
 		fitParam.indxEndFit  = glbParam->indxEndSig ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-		int 	n_steps = 1000 ;
+		int 	nStepsAuto ; 
 		double 	Bias_Pr ;
-		// FindBias_Pr( (double*)evSig->pr, (double*)dataMol->pr2Mol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)n_steps, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
-		FindBias_Pr( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)n_steps, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
+		FindBias_Pr( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)nStepsAuto, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
 	}
 	else
 	{
@@ -81,65 +85,78 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 		fitParam.indxInicFit = glbParam->indxEndSig - glbParam->nBinsBkg ;
 		fitParam.indxEndFit  = glbParam->indxEndSig ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-		int 	n_steps = 1000 ;
+		int 	nStepsAuto ;
 		double 	Bias_Pr ;
-		// FindBias_Pr( (double*)evSig->pr, (double*)dataMol->pr2Mol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)n_steps, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
-		FindBias_Pr( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)n_steps, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
+		FindBias_Pr( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)nStepsAuto, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
 	}
 
 	// RANGE CORRECTED
 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBkg[i] * pow(glbParam->r[i], 2) ;
 }
 
-void CLidar_Operations::FindBias_Pr( double *pr, double *pr2Mol, strcGlobalParameters *glbParam, strcFitParam *fitParam, int n_steps, double *pr_noBkg, double *Bias_Pr )
-{
-  	double b_ref = 0.0 ;
+// void CLidar_Operations::FindBias_Pr( double *pr, double *pr2Mol, strcGlobalParameters *glbParam, strcFitParam *fitParam, int nStepsAuto, double *pr_noBkg, double *Bias_Pr )
+// {
+//   	double b_ref = 0.0 ;
 	
-	for( int j=(glbParam->nBins-20) ; j<glbParam->nBins ; j++ ) b_ref = b_ref + pr[j] ;
-	b_ref = 1.2* b_ref /20 ;
+// 	for( int j=(glbParam->nBins-20) ; j<glbParam->nBins ; j++ ) b_ref = b_ref + pr[j] ;
+// 	b_ref = 1.2* b_ref /20 ;
 
-  	double b_step = b_ref /n_steps ;
-  	double *b_i   		= (double*) new double [ n_steps ] ;
-  	double *errRMS_Bias = (double*) new double [ n_steps ] ;
+//   	double b_step = b_ref /nStepsAuto ;
+//   	double *b_i   		= (double*) new double [ nStepsAuto ] ;
+//   	double *errRMS_Bias = (double*) new double [ nStepsAuto ] ;
 
-	for ( int s =0; s <n_steps; s++)
-		b_i[s] = (double) s*b_step ;
+// 	for ( int s =0; s <nStepsAuto; s++)
+// 		b_i[s] = (double) s*b_step ;
 
-	for (int s =0; s <n_steps; s++)
-	{
-		for ( int i =0 ; i <glbParam->nBins ; i++ )
-		{
-			pr_NObkg_i[i]  = pr[i] - b_i[s] ;
-			pr2_i[i]       = pr_NObkg_i[i] * pow(glbParam->r[i], 2) ;
-		}
-		RayleighFit( (double*)pr2_i, (double*)pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
-		errRMS_Bias[s] = fitParam->sumsq_m ;
-	}
+// 	for (int s =0; s <nStepsAuto; s++)
+// 	{
+// 		for ( int i =0 ; i <glbParam->nBins ; i++ )
+// 		{
+// 			pr_NObkg_i[i]  = pr[i] - b_i[s] ;
+// 			pr2_i[i]       = pr_NObkg_i[i] * pow(glbParam->r[i], 2) ;
+// 		}
+// 		RayleighFit( (double*)pr2_i, (double*)pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
+// 		errRMS_Bias[s] = fitParam->sumsq_m ;
+// 	}
 
-	int 	indxMinErr ;
-	double	minErr ;
-	findIndxMin( errRMS_Bias, 0, (n_steps-1), &indxMinErr, &minErr ) ;
-	*Bias_Pr = (double) b_i[indxMinErr] ;
+// 	int 	indxMinErr ;
+// 	double	minErr ;
+// 	findIndxMin( errRMS_Bias, 0, (nStepsAuto-1), &indxMinErr, &minErr ) ;
+// 	*Bias_Pr = (double) b_i[indxMinErr] ;
 
-	for ( int i =0; i <glbParam->nBins ; i++)
-	   pr_noBkg[i] = (pr[i] - *Bias_Pr);
-}
+// 	for ( int i =0; i <glbParam->nBins ; i++)
+// 	   pr_noBkg[i] = (pr[i] - *Bias_Pr);
+// }
 
-void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, strcFitParam *fitParam, int n_steps, double *pr_noBkg, double *Bias_Pr )
+void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, strcFitParam *fitParam, int nStepsAuto, double *pr_noBkg, double *Bias_Pr )
 {
-  	double b_ref = 0.0 ;
-	
+  	double 	b_ref_max = 0.0 ;
+  	double 	b_ref_min = 0.0 ;
+
+	// int 	indxMaxRange = glbParam->nBins -1 ;
+	// Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+
+// BIAS OBTAINED BY APPLYING A LINEAR FIT FROM rEndSig SET IN THE CONFIGURATION FILE PASSED AS ARGUMENT
+	fitParam->indxEndFit  = glbParam->indxEndSig ; // indxMaxRange ;
+	fitParam->indxInicFit = fitParam->indxEndFit - glbParam->nBinsBkg ;
 	RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
-	b_ref = fitParam->b ;
+	b_ref_max = 1.5* fitParam->b ;
+	b_ref_min = 0.5* fitParam->b ;
 
-  	double b_step = b_ref /n_steps ;
-  	double *b_i   		= (double*) new double [ n_steps ] ;
-  	double *errRMS_Bias = (double*) new double [ n_steps ] ;
+  	double b_step = (b_ref_max - b_ref_min) /nStepsAuto ;
+  	double *b_i   		= (double*) new double [ nStepsAuto +2 ] ;
+  	double *errRMS_Bias = (double*) new double [ nStepsAuto +2 ] ;
 
-	for ( int s =0; s <n_steps; s++)
-		b_i[s] = (double) s*b_step ;
+	b_i[0] = (double)0.0 ; // IN CASE OF NO BACKGROUND NEEDED TO BE SUBSTRACTED.
+	b_i[1] = (double)0.0 ; // MEAN VALUE OF THE glbParam->nBinsBkg BINS TAKEN FROM THE TAIL OF THE LIDAR SIGNAL.
+	for( int j=(glbParam->nBins-glbParam->nBinsBkg) ; j<glbParam->nBins ; j++ ) b_i[1] = (double)(b_i[1] + pr[j]) ;
+		b_i[1] = (double)(b_i[1] /glbParam->nBinsBkg) ;
 
-	for (int s =0; s <n_steps; s++)
+	for ( int s =2; s <(nStepsAuto+2); s++ )
+		b_i[s] = (double) b_ref_min + (s-2) *b_step ;
+
+	for (int s =0; s <(nStepsAuto +2); s++)
 	{
 		for ( int i =0 ; i <glbParam->nBins ; i++ )
 		{
@@ -152,11 +169,44 @@ void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, str
 
 	int 	indxMinErr ;
 	double	minErr ;
-	findIndxMin( errRMS_Bias, 0, (n_steps-1), &indxMinErr, &minErr ) ;
+	findIndxMin( errRMS_Bias, 0, (nStepsAuto +2-1), &indxMinErr, &minErr ) ;
 	*Bias_Pr = (double) b_i[indxMinErr] ;
+	// printf("\n *Bias_Pr: %lf \n", *Bias_Pr) ;
 
 	for ( int i =0; i <glbParam->nBins ; i++)
 	   pr_noBkg[i] = (pr[i] - *Bias_Pr);
+	
+	delete errRMS_Bias  ;
+	delete b_i			;
+}
+
+void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
+{
+    strcFitParam fitParam ;
+	fitParam.indxEndFit  = glbParam->nBins ;
+    fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
+
+    double *k_ones = (double*) new double[glbParam->nBins] ;
+	for (int i =0; i <glbParam->nBins; i++)		k_ones[i] = (double)1.0 ;
+
+    int i =0 ;
+	double	errRMS_mol, errRMS_k, m ;
+    do
+	{
+		RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins , "wB"    , "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		errRMS_mol 	= fitParam.sumsq_m ;
+		m			= fitParam.m ;
+
+		RayleighFit( (double*)pr, (double*)k_ones, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		errRMS_k = fitParam.sumsq_m ;
+
+		i = i+10 ;
+		fitParam.indxEndFit  = glbParam->nBins - i        				;
+		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
+  	} while ( ( errRMS_mol > (errRMS_k *1.0) ) || ( m <0 ) ) ; //  OK
+
+  	*indxMaxRange = fitParam.indxEndFit + 10 ;
+	printf( "\n *indxMaxRange: %d \n", *indxMaxRange ) ;
 }
 
 // BIAS SUBSTRACTION METHODS

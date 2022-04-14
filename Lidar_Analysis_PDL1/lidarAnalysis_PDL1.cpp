@@ -162,8 +162,6 @@ int main( int argc, char *argv[] )
         ERR(retval);
 
     glbParam.r = (double*) new double[glbParam.nBins] ;
-    // for( int i=0 ; i <glbParam.nBins ; i++ )
-    //     glbParam.r[i] = i*glbParam.dr ;
     for( int i=1 ; i <=glbParam.nBins ; i++ )
         glbParam.r[i-1] = i*glbParam.dr ;
 

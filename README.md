@@ -170,6 +170,7 @@ maxZthAngle = 90
 BkgCorrMethod = AUTO
 # NUMBER OF BINS USED FOR BACKGROUND CORRECTION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
 nBinsBkg = 1000
+nStepsAuto = 3000 
 ```
 
 Where:
@@ -180,6 +181,7 @@ Where:
     - `FIT`: The bias of the lidar signal is obtained computing the linear fit of the pure molecular attenuated backscatter to the lidar signal across the last `nBinsBkg` bins. The independent term of the fit is taken as the bias of the lidar signal.
     - `AUTO`: An automated method to compute the bias of the raw lidar signal. This method is recommended in cases where molecular modulation is still detected al the end of the track recorded. This method is based on guessing a set of bias and a test algorithm to find wich of the the bias tested is the best.
     - `NO_BKG`: No background is subtracted to the lidar signal.
+- `nStepAuto`: Number of iterations used for obtaining the bias automatically. Only used when `BkgCorrMethod = AUTO`.  
 
 This variables are used by `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`, and both modules uses the same configuration for these data.
 

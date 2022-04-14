@@ -503,9 +503,6 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 {
 	fitParam->sumsq_m = (double)0  ;
 
-	// cout<<"---- RayleighFit" ;
-	// printf("\n\nfitParam->indxInicFit: %d\nfitParam->indxEndFit: %d\nfitParam->nFit: %d\n\n", fitParam->indxInicFit, fitParam->indxEndFit, fitParam->nFit) ;
-
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
 		double *coeff = (double*) new double[2] ;
