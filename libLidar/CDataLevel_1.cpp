@@ -114,8 +114,8 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 		{
 			for (int b =0; b <glbParam->nBins ; b++)
 			{
-				cloudProfiles[glbParam->event_analyzed].test_1[b] 	 =(double) 0.0 ;
-				cloudProfiles[glbParam->event_analyzed].clouds_ON[b] =(int)    0.0 ;
+				cloudProfiles[glbParam->evSel].test_1[b] 	 =(double) 0.0 ;
+				cloudProfiles[glbParam->evSel].clouds_ON[b] =(int)    0.0 ;
 				prFit[b] 									  	 	 =(double) 0.0 ;
 			}
 			sppm = (double)0.0 ;	spm = (double)0.0 ;		spmpm = (double)0.0 ;	 m = (double)0.0 ;
@@ -135,7 +135,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 			if ( (errFitStage <= (errRefBkg *errScanCheckFactor )) && ( (m*fitParam.m) >0 ) )
 			{ // ME FIJO SI ESE FUE EL ULTIMO FIT...
 				scanNumExit =i;
-				// printf("\n(%d) ScanCloud_RayleightFit(...): SALIENDO *OK* EN nScan = %d --> fit=%d-%d -- errFit / errRefBkg = %f / %f ",glbParam->event_analyzed, i, fitParam.indxInicFit, fitParam.indxEndFit, errFitStage, errRefBkg ) ;
+				// printf("\n(%d) ScanCloud_RayleightFit(...): SALIENDO *OK* EN nScan = %d --> fit=%d-%d -- errFit / errRefBkg = %f / %f ",glbParam->evSel, i, fitParam.indxInicFit, fitParam.indxEndFit, errFitStage, errRefBkg ) ;
 				break ;
 			}
 			else // SET THE CLOUDS CANDIDATES
@@ -181,10 +181,10 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 		for( int b=0 ; b <glbParam->nBins ; b++ )
 		{
 			for( int s=0 ; s <nScanMax ; s++ )
-				cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)(cloudProfiles[glbParam->event_analyzed].test_1[b] + (double)SE_lay[s][b]) ;
-			// cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)sqrt( cloudProfiles[glbParam->event_analyzed].test_1[b] /SE_lay_counts[b] ) ; 
-				cloudProfiles[glbParam->event_analyzed].test_1[b] = (double)sqrt( cloudProfiles[glbParam->event_analyzed].test_1[b] /nMaxLoop )   ; // test1: RMSE_lay
-			// cloudProfiles[glbParam->event_analyzed].test_1[b]    = (double)    ( cloudProfiles[glbParam->event_analyzed].test_1[b] /nMaxLoop ) ;
+				cloudProfiles[glbParam->evSel].test_1[b] = (double)(cloudProfiles[glbParam->evSel].test_1[b] + (double)SE_lay[s][b]) ;
+			// cloudProfiles[glbParam->evSel].test_1[b] = (double)sqrt( cloudProfiles[glbParam->evSel].test_1[b] /SE_lay_counts[b] ) ; 
+				cloudProfiles[glbParam->evSel].test_1[b] = (double)sqrt( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop )   ; // test1: RMSE_lay
+			// cloudProfiles[glbParam->evSel].test_1[b]    = (double)    ( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop ) ;
 		}
 
 // printf("\n\n ScanCloud \n") ;
@@ -192,24 +192,24 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 
 		for( int b=0 ; b <glbParam->nBins ; b++ )
 		{
-			if ( cloudProfiles[glbParam->event_analyzed].test_1[b] > (double)(errRefBkg *thresholdFactor) )
-				cloudProfiles[glbParam->event_analyzed].clouds_ON[b] = (int)BIN_CLOUD ;
+			if ( cloudProfiles[glbParam->evSel].test_1[b] > (double)(errRefBkg *thresholdFactor) )
+				cloudProfiles[glbParam->evSel].clouds_ON[b] = (int)BIN_CLOUD ;
 			else
-				cloudProfiles[glbParam->event_analyzed].clouds_ON[b] = (int)0 ;
+				cloudProfiles[glbParam->evSel].clouds_ON[b] = (int)0 ;
 		}
 		//// CHECK CLOUDS TESTS:
 		//// REMOVE CLOUDS THINNER THAN CLOUD_MIN_THICK BINS.
 		for (int b =0 ; b <=(glbParam->indxEndSig -CLOUD_MIN_THICK -1) ; b++)
 		{
-			if ( (cloudProfiles[glbParam->event_analyzed].clouds_ON[b] == (int)0) && (cloudProfiles[glbParam->event_analyzed].clouds_ON[b+1] == (int)BIN_CLOUD) ) // IF A CLOUD START...
+			if ( (cloudProfiles[glbParam->evSel].clouds_ON[b] == (int)0) && (cloudProfiles[glbParam->evSel].clouds_ON[b+1] == (int)BIN_CLOUD) ) // IF A CLOUD START...
 			{
 				int sum_misc =0 ;
 				for (int i =(b+1) ; i <=(b+1+CLOUD_MIN_THICK); i++)
-					sum_misc = sum_misc + cloudProfiles[glbParam->event_analyzed].clouds_ON[i];
+					sum_misc = sum_misc + cloudProfiles[glbParam->evSel].clouds_ON[i];
 				if ( sum_misc < (CLOUD_MIN_THICK*BIN_CLOUD) )
 				{
 					for (int k =(b+1) ; k <=(b+1+CLOUD_MIN_THICK); k++)
-						cloudProfiles[glbParam->event_analyzed].clouds_ON[k] = (int)0 ;
+						cloudProfiles[glbParam->evSel].clouds_ON[k] = (int)0 ;
 				}
 				b = b +CLOUD_MIN_THICK ;
 			}
@@ -217,30 +217,30 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 		// REMOVE CLOUDS'S GAPS THINNER THAN CLOUD_MIN_THICK BINS.
 		for (int b =0 ; b <=(glbParam->indxEndSig -CLOUD_MIN_THICK -1) ; b++)
 		{
-			if ( (cloudProfiles[glbParam->event_analyzed].clouds_ON[b] == (int)BIN_CLOUD) && (cloudProfiles[glbParam->event_analyzed].clouds_ON[b+1] == (int)0) ) // IF A CLOUD ENDS...
+			if ( (cloudProfiles[glbParam->evSel].clouds_ON[b] == (int)BIN_CLOUD) && (cloudProfiles[glbParam->evSel].clouds_ON[b+1] == (int)0) ) // IF A CLOUD ENDS...
 			{
 				sum_misc =0 ;
 				for (int i =(b+1) ; i <=(b+1+CLOUD_MIN_THICK); i++)
-					sum_misc = sum_misc + cloudProfiles[glbParam->event_analyzed].clouds_ON[i];
+					sum_misc = sum_misc + cloudProfiles[glbParam->evSel].clouds_ON[i];
 				if ( sum_misc >0 )
 				{
 					for (int k =(b+1) ; k <=(b+1+CLOUD_MIN_THICK); k++)
-						cloudProfiles[glbParam->event_analyzed].clouds_ON[k] = (int)BIN_CLOUD ;
+						cloudProfiles[glbParam->evSel].clouds_ON[k] = (int)BIN_CLOUD ;
 				}
 				b = b +CLOUD_MIN_THICK ;
 			}
 		}
-		cloudProfiles[glbParam->event_analyzed].clouds_ON[0] 				    = (int)0 ; // NO -> THE ABL IS CONSIDERED AS CLOUD. FIRST BIN IS SET TO ZERO BE COHERENT FOR THE INDEXES COMPUTATION.
-		cloudProfiles[glbParam->event_analyzed].clouds_ON[glbParam->indxEndSig] = (int)0 ; // LAST BIN IS SET TO ONE BE COHERENT FOR THE INDEXES COMPUTATION.
+		cloudProfiles[glbParam->evSel].clouds_ON[0] 				    = (int)0 ; // NO -> THE ABL IS CONSIDERED AS CLOUD. FIRST BIN IS SET TO ZERO BE COHERENT FOR THE INDEXES COMPUTATION.
+		cloudProfiles[glbParam->evSel].clouds_ON[glbParam->indxEndSig] = (int)0 ; // LAST BIN IS SET TO ONE BE COHERENT FOR THE INDEXES COMPUTATION.
 
 // DONE WITH cloudProfile, NOW GET THE CLOUD LIMITS
 	// GetCloudLimits( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 	GetCloudLimits_v1( (strcGlobalParameters*)glbParam ) ;
 
-		for( int i=0 ; i <cloudProfiles[glbParam->event_analyzed].nClouds ; i++ )
+		for( int i=0 ; i <cloudProfiles[glbParam->evSel].nClouds ; i++ )
 		{
-			fitParam.indxInicFit = cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] -DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->event_analyzed].indxInitClouds[0] 					   -DELTA_RANGE_LIM_BINS ; // 
-			fitParam.indxEndFit  = cloudProfiles[glbParam->event_analyzed].indxEndClouds[i]  +DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->event_analyzed].indxEndClouds[cloudProfiles[glbParam->event_analyzed].nClouds-1]  +DELTA_RANGE_LIM_BINS ; // 
+			fitParam.indxInicFit = cloudProfiles[glbParam->evSel].indxInitClouds[i] -DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->evSel].indxInitClouds[0] 					   -DELTA_RANGE_LIM_BINS ; // 
+			fitParam.indxEndFit  = cloudProfiles[glbParam->evSel].indxEndClouds[i]  +DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->evSel].indxEndClouds[cloudProfiles[glbParam->evSel].nClouds-1]  +DELTA_RANGE_LIM_BINS ; // 
 			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
 
 			if( fitParam.indxInicFit > glbParam->indxInitSig )
@@ -253,17 +253,17 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 				if ( errCloud <= (errRefBkg *errCloudCheckFactor) )
 				{
 					for( int b =(fitParam.indxInicFit) ; b <=(fitParam.indxEndFit) ; b++ ) // for( int b =(fitParam.indxInicFit-2) ; b <=(fitParam.indxEndFit+2) ; b++ ) // 
-						cloudProfiles[glbParam->event_analyzed].clouds_ON[b] =0;
+						cloudProfiles[glbParam->evSel].clouds_ON[b] =0;
 				}
 				// else
-				// 	printf("SC_RF() - (%d) Clouds: errRefBkg: %2.3lf \t errCloud: %2.3lf --> Cloud: %d-%d --> Fit: %d-%d\n", glbParam->event_analyzed, errRefBkg, errCloud, cloudProfiles[glbParam->event_analyzed].indxInitClouds[i], cloudProfiles[glbParam->event_analyzed].indxEndClouds[i], cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] -DELTA_RANGE_LIM_BINS, cloudProfiles[glbParam->event_analyzed].indxEndClouds[i]  +DELTA_RANGE_LIM_BINS) ;
+				// 	printf("SC_RF() - (%d) Clouds: errRefBkg: %2.3lf \t errCloud: %2.3lf --> Cloud: %d-%d --> Fit: %d-%d\n", glbParam->evSel, errRefBkg, errCloud, cloudProfiles[glbParam->evSel].indxInitClouds[i], cloudProfiles[glbParam->evSel].indxEndClouds[i], cloudProfiles[glbParam->evSel].indxInitClouds[i] -DELTA_RANGE_LIM_BINS, cloudProfiles[glbParam->evSel].indxEndClouds[i]  +DELTA_RANGE_LIM_BINS) ;
 			
 				if ( strcmp(ifODcut, "YES") ==0 )
-					ODcut( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int*)cloudProfiles[glbParam->event_analyzed].clouds_ON ) ;
+					ODcut( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int*)cloudProfiles[glbParam->evSel].clouds_ON ) ;
 			}
 		}
-		// if (cloudProfiles[glbParam->event_analyzed].nClouds ==0)
-		// 	printf("\nSC_RF() - (%d) NO Clouds detected\n", glbParam->event_analyzed) ;
+		// if (cloudProfiles[glbParam->evSel].nClouds ==0)
+		// 	printf("\nSC_RF() - (%d) NO Clouds detected\n", glbParam->evSel) ;
 		
 		// GetCloudLimits( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 		GetCloudLimits_v1( (strcGlobalParameters*)glbParam ) ;
@@ -274,7 +274,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 // 	double *dco   = (double*) new double[glbParam->nBins] ;
 // 	memset( (double*)dco  , 0, (sizeof(double) * glbParam->nBins) ) ;
 // 	for ( int i = 0 ; i<=glbParam->indxEndSig ; i++ )
-// 		dco[i] = (double)( cloudProfiles[glbParam->event_analyzed].clouds_ON[i+1] - cloudProfiles[glbParam->event_analyzed].clouds_ON[i] ) ;
+// 		dco[i] = (double)( cloudProfiles[glbParam->evSel].clouds_ON[i+1] - cloudProfiles[glbParam->evSel].clouds_ON[i] ) ;
 
 // 	int nInicCloud=0, nEndCloud=0 ;
 // 	for (int i =0; i <=glbParam->indxEndSig; i++)
@@ -286,64 +286,64 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 // 	}
 // 	if ( nInicCloud == nEndCloud )
 // 	{
-// 		memset( cloudProfiles[glbParam->event_analyzed].indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-// 		memset( cloudProfiles[glbParam->event_analyzed].indxEndClouds , 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-// 		memset( indxMol[glbParam->event_analyzed].indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-// 		memset( indxMol[glbParam->event_analyzed].indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-// 		cloudProfiles[glbParam->event_analyzed].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-// 		indxMol[glbParam->event_analyzed].nMolRanges 	= 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
+// 		memset( cloudProfiles[glbParam->evSel].indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
+// 		memset( cloudProfiles[glbParam->evSel].indxEndClouds , 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
+// 		memset( indxMol[glbParam->evSel].indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
+// 		memset( indxMol[glbParam->evSel].indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
+// 		cloudProfiles[glbParam->evSel].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
+// 		indxMol[glbParam->evSel].nMolRanges 	= 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
 
 // 		//CLOUDS DETECTION
 // 		for( int i=0 ; i <=(glbParam->indxEndSig-1) ; i++ )
 // 		{
 // 			if( dco[i] == (double)BIN_CLOUD ) // INIT CLOUD
 // 			{
-// 				cloudProfiles[glbParam->event_analyzed].indxInitClouds[cloudProfiles[glbParam->event_analyzed].nClouds] = i ;
+// 				cloudProfiles[glbParam->evSel].indxInitClouds[cloudProfiles[glbParam->evSel].nClouds] = i ;
 // 				for (int j =i ; j <=(glbParam->indxEndSig-1) ; j++)
 // 				{	// SEARCH THE END OF THE CLOUD
 // 					if( dco[j] == (double)(-BIN_CLOUD) ) // END CLOUD
 // 					{
-// 						cloudProfiles[glbParam->event_analyzed].indxEndClouds[cloudProfiles[glbParam->event_analyzed].nClouds] = j -1;
-// 						cloudProfiles[glbParam->event_analyzed].nClouds++ ; // COUNT CLOUDS
+// 						cloudProfiles[glbParam->evSel].indxEndClouds[cloudProfiles[glbParam->evSel].nClouds] = j -1;
+// 						cloudProfiles[glbParam->evSel].nClouds++ ; // COUNT CLOUDS
 // 						break ;
 // 					}
 // 				}
 // 			}
 // 		}
 // 		// MOLECULAR RANGES DETECTION
-// 		indxMol[glbParam->event_analyzed].nMolRanges = cloudProfiles[glbParam->event_analyzed].nClouds +1 ;
-// 		if ( indxMol[glbParam->event_analyzed].nMolRanges ==1 )
+// 		indxMol[glbParam->evSel].nMolRanges = cloudProfiles[glbParam->evSel].nClouds +1 ;
+// 		if ( indxMol[glbParam->evSel].nMolRanges ==1 )
 // 		{
 // 			int 	heightRef_Inversion_ASL ;
 // 			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "int" , (int*)&heightRef_Inversion_ASL ) ;
-// 			indxMol[glbParam->event_analyzed].indxRef = (int)round(heightRef_Inversion_ASL /dataMol->dzr) ;
-// 				if ( indxMol[glbParam->event_analyzed].indxRef > (glbParam->nBins-1) )
-// 					indxMol[glbParam->event_analyzed].indxRef = glbParam->nBins -10 ;
+// 			indxMol[glbParam->evSel].indxRef = (int)round(heightRef_Inversion_ASL /dataMol->dzr) ;
+// 				if ( indxMol[glbParam->evSel].indxRef > (glbParam->nBins-1) )
+// 					indxMol[glbParam->evSel].indxRef = glbParam->nBins -10 ;
 
 // 			for (int i =0; i < NMAXCLOUDS ; i++)
 // 			{
-// 				cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] = 0 ;
-// 				cloudProfiles[glbParam->event_analyzed].indxEndClouds [i] = 0 ;
-// 				indxMol[glbParam->event_analyzed].indxInicMol[i] = 0 ;
-// 				indxMol[glbParam->event_analyzed].indxEndMol[i]  = glbParam->indxEndSig  ;
+// 				cloudProfiles[glbParam->evSel].indxInitClouds[i] = 0 ;
+// 				cloudProfiles[glbParam->evSel].indxEndClouds [i] = 0 ;
+// 				indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
+// 				indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig  ;
 // 			}
 // 		}
 // 		else
 // 		{
-// 			for( int i=0 ; i <indxMol[glbParam->event_analyzed].nMolRanges ; i++ )
+// 			for( int i=0 ; i <indxMol[glbParam->evSel].nMolRanges ; i++ )
 // 			{
 // 				if (i==0)
 // 				{
-// 					indxMol[glbParam->event_analyzed].indxInicMol[i] = 0 ;
-// 					indxMol[glbParam->event_analyzed].indxEndMol[i]  = cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] -1  ;
+// 					indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
+// 					indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1  ;
 // 				}
 // 				else
 // 				{
-// 					indxMol[glbParam->event_analyzed].indxInicMol[i] = cloudProfiles[glbParam->event_analyzed].indxEndClouds[i-1] +1 ;
-// 					if ( i == (indxMol[glbParam->event_analyzed].nMolRanges-1) )
-// 						indxMol[glbParam->event_analyzed].indxEndMol[i]  = glbParam->indxEndSig ;
+// 					indxMol[glbParam->evSel].indxInicMol[i] = cloudProfiles[glbParam->evSel].indxEndClouds[i-1] +1 ;
+// 					if ( i == (indxMol[glbParam->evSel].nMolRanges-1) )
+// 						indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig ;
 // 					else
-// 						indxMol[glbParam->event_analyzed].indxEndMol[i]  = cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] -1 ;
+// 						indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1 ;
 // 				}
 // 			}
 // 		}
@@ -359,7 +359,7 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 	double *dco   = (double*) new double[glbParam->nBins] ;
 	memset( (double*)dco  , 0, (sizeof(double) * glbParam->nBins) ) ;
 	for ( int i = 0 ; i<=glbParam->indxEndSig ; i++ )
-		dco[i] = (double)( cloudProfiles[glbParam->event_analyzed].clouds_ON[i+1] - cloudProfiles[glbParam->event_analyzed].clouds_ON[i] ) ;
+		dco[i] = (double)( cloudProfiles[glbParam->evSel].clouds_ON[i+1] - cloudProfiles[glbParam->evSel].clouds_ON[i] ) ;
 
 	int nInicCloud=0, nEndCloud=0 ;
 	for (int i =0; i <=glbParam->indxEndSig; i++)
@@ -371,64 +371,64 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 	}
 	if ( nInicCloud == nEndCloud )
 	{
-		memset( cloudProfiles[glbParam->event_analyzed].indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-		memset( cloudProfiles[glbParam->event_analyzed].indxEndClouds , 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-		memset( indxMol[glbParam->event_analyzed].indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-		memset( indxMol[glbParam->event_analyzed].indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-		cloudProfiles[glbParam->event_analyzed].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-		indxMol[glbParam->event_analyzed].nMolRanges 	 = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
+		memset( cloudProfiles[glbParam->evSel].indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
+		memset( cloudProfiles[glbParam->evSel].indxEndClouds , 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
+		memset( indxMol[glbParam->evSel].indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
+		memset( indxMol[glbParam->evSel].indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
+		cloudProfiles[glbParam->evSel].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
+		indxMol[glbParam->evSel].nMolRanges 	 = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
 
 		//CLOUDS DETECTION
 		for( int i=0 ; i <=(glbParam->indxEndSig-1) ; i++ )
 		{
 			if( dco[i] == (double)BIN_CLOUD ) // INIT CLOUD
 			{
-				cloudProfiles[glbParam->event_analyzed].indxInitClouds[cloudProfiles[glbParam->event_analyzed].nClouds] = i ;
+				cloudProfiles[glbParam->evSel].indxInitClouds[cloudProfiles[glbParam->evSel].nClouds] = i ;
 				for (int j =i ; j <=(glbParam->indxEndSig-1) ; j++)
 				{	// SEARCH THE END OF THE CLOUD
 					if( dco[j] == (double)(-BIN_CLOUD) ) // END CLOUD
 					{
-						cloudProfiles[glbParam->event_analyzed].indxEndClouds[cloudProfiles[glbParam->event_analyzed].nClouds] = j -1;
-						cloudProfiles[glbParam->event_analyzed].nClouds++ ; // COUNT CLOUDS
+						cloudProfiles[glbParam->evSel].indxEndClouds[cloudProfiles[glbParam->evSel].nClouds] = j -1;
+						cloudProfiles[glbParam->evSel].nClouds++ ; // COUNT CLOUDS
 						break ;
 					}
 				}
 			}
 		}
 		// MOLECULAR RANGES DETECTION
-		indxMol[glbParam->event_analyzed].nMolRanges = cloudProfiles[glbParam->event_analyzed].nClouds +1 ;
-		if ( indxMol[glbParam->event_analyzed].nMolRanges ==1 )
+		indxMol[glbParam->evSel].nMolRanges = cloudProfiles[glbParam->evSel].nClouds +1 ;
+		if ( indxMol[glbParam->evSel].nMolRanges ==1 )
 		{
 			int 	heightRef_Inversion_ASL ;
 			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "int" , (int*)&heightRef_Inversion_ASL ) ;
-			indxMol[glbParam->event_analyzed].indxRef = (int)round(heightRef_Inversion_ASL /glbParam->dzr) ;
-				if ( indxMol[glbParam->event_analyzed].indxRef > (glbParam->nBins-1) )
-					indxMol[glbParam->event_analyzed].indxRef = glbParam->nBins -10 ;
+			indxMol[glbParam->evSel].indxRef = (int)round(heightRef_Inversion_ASL /glbParam->dzr) ;
+				if ( indxMol[glbParam->evSel].indxRef > (glbParam->nBins-1) )
+					indxMol[glbParam->evSel].indxRef = glbParam->nBins -10 ;
 
 			for (int i =0; i < NMAXCLOUDS ; i++)
 			{
-				cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] = 0 ;
-				cloudProfiles[glbParam->event_analyzed].indxEndClouds [i] = 0 ;
-				indxMol[glbParam->event_analyzed].indxInicMol[i] = 0 ;
-				indxMol[glbParam->event_analyzed].indxEndMol[i]  = glbParam->indxEndSig  ;
+				cloudProfiles[glbParam->evSel].indxInitClouds[i] = 0 ;
+				cloudProfiles[glbParam->evSel].indxEndClouds [i] = 0 ;
+				indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
+				indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig  ;
 			}
 		}
 		else
 		{
-			for( int i=0 ; i <indxMol[glbParam->event_analyzed].nMolRanges ; i++ )
+			for( int i=0 ; i <indxMol[glbParam->evSel].nMolRanges ; i++ )
 			{
 				if (i==0)
 				{
-					indxMol[glbParam->event_analyzed].indxInicMol[i] = 0 ;
-					indxMol[glbParam->event_analyzed].indxEndMol[i]  = cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] -1  ;
+					indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
+					indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1  ;
 				}
 				else
 				{
-					indxMol[glbParam->event_analyzed].indxInicMol[i] = cloudProfiles[glbParam->event_analyzed].indxEndClouds[i-1] +1 ;
-					if ( i == (indxMol[glbParam->event_analyzed].nMolRanges-1) )
-						indxMol[glbParam->event_analyzed].indxEndMol[i]  = glbParam->indxEndSig ;
+					indxMol[glbParam->evSel].indxInicMol[i] = cloudProfiles[glbParam->evSel].indxEndClouds[i-1] +1 ;
+					if ( i == (indxMol[glbParam->evSel].nMolRanges-1) )
+						indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig ;
 					else
-						indxMol[glbParam->event_analyzed].indxEndMol[i]  = cloudProfiles[glbParam->event_analyzed].indxInitClouds[i] -1 ;
+						indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1 ;
 				}
 			}
 		}
@@ -439,9 +439,9 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 	delete dco   ;
 
 // printf("\n\t CDataLevel_1::GetCloudLimits_v1() " ) ;
-// printf("\n\t cloudProfiles[c].nClouds: %d ", cloudProfiles[glbParam->event_analyzed].nClouds ) ;
-// printf("\n\t cloudProfiles[.].indxInitClouds[0]: %d ", cloudProfiles[glbParam->event_analyzed].indxInitClouds[0]  ) ;
-// printf("\n\t cloudProfiles[.].indxInitClouds[0]: %d ", cloudProfiles[glbParam->event_analyzed].indxEndClouds[0]  ) ;
+// printf("\n\t cloudProfiles[c].nClouds: %d ", cloudProfiles[glbParam->evSel].nClouds ) ;
+// printf("\n\t cloudProfiles[.].indxInitClouds[0]: %d ", cloudProfiles[glbParam->evSel].indxInitClouds[0]  ) ;
+// printf("\n\t cloudProfiles[.].indxInitClouds[0]: %d ", cloudProfiles[glbParam->evSel].indxEndClouds[0]  ) ;
 }
 
 // void CDataLevel_1::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )

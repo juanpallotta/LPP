@@ -38,4 +38,4 @@ CLidar_Operations.o: ../libLidar/CLidar_Operations.cpp
 
 
 clean:
-	rm -f core *.o *.gch
+	rm -f core *.o *.gch *.hpp.gch

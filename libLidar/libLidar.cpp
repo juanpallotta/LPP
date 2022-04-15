@@ -310,7 +310,7 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 	glbParam->aZenithAVG   	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aZenithAVG     , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->temp_CelsiusAVG = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_CelsiusAVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->pres_hPaAVG     = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_hPaAVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->indxEndSigEvnt  = (int*) new int[glbParam->nEventsAVG] ;
+	glbParam->indxEndSig_ev   = (int*) new int[glbParam->nEventsAVG] ;
 
 	strcLicelDataFile lidarHeaderData ;
 // LINE 1: File name
@@ -451,31 +451,31 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 			sprintf( glbParam->site, "Sao Paul" ) ;
 			fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
 			strMisc, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-			&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed] ) ;
+			&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
 		}
 		else
 		{
 			sprintf( glbParam->site, "%s", strMisc ) ;
 			fscanf( fid, "%10s %08s %10s %08s %lf %lf %lf %lf ",
 					glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-					&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed] ) ;
+					&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
 			// fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
 			// glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-			// &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed] ) ;
+			// &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
 		}
 		// printf("\nReadLicelTime_and_Coord()") ;
 		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
 		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
-		glbParam->aAzimuth[glbParam->event_analyzed] 	 = (double)0 ;
-		glbParam->temp_Celsius[glbParam->event_analyzed] = (double)-999.0 ;
-		glbParam->pres_hPa[glbParam->event_analyzed]     = (double)-999.0 ;
+		glbParam->aAzimuth[glbParam->evSel] 	 = (double)0 ;
+		glbParam->temp_Celsius[glbParam->evSel] = (double)-999.0 ;
+		glbParam->pres_hPa[glbParam->evSel]     = (double)-999.0 ;
 	}
 	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
 	{
 		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
 		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->event_analyzed], 
-		&glbParam->aAzimuth[glbParam->event_analyzed], &glbParam->temp_Celsius[glbParam->event_analyzed], &glbParam->pres_hPa[glbParam->event_analyzed] ) ;
+		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel], 
+		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_Celsius[glbParam->evSel], &glbParam->pres_hPa[glbParam->evSel] ) ;
 	}
 		// printf("\nReadLicelTime_and_Coord()") ;
 		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
@@ -501,7 +501,7 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 
 void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
 {
-	fitParam->sumsq_m = (double)0  ;
+	fitParam->sumsq_m = (double)0.0  ;
 
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
@@ -618,7 +618,7 @@ void ODcut( double *prS, strcMolecularData *dataMol, strcGlobalParameters *glbPa
 
 	if( (OD >=0) && (OD <= OD_cut) )
 	{
-		printf("\n<%d> filtering cloud due to OD (%lf)...\n", glbParam->event_analyzed, OD) ;
+		printf("\n<%d> filtering cloud due to OD (%lf)...\n", glbParam->evSel, OD) ;
 		for (int i =fitParam->indxEndFit; i <=fitParam->indxEndFit ; i++)
 			clouds_ON[i] =0;
 	}
@@ -968,22 +968,22 @@ SET_NEW_INDX_END_SIG:
 	{
 		if ( fitParam.indxInicFit > (int)round(15000/glbParam->dr) ) // if ( fitParam.indxEndFit > (int)round(15000/glbParam->dr) )
 		{ // EVENT PROBABLY WITH UNDERSHOOT, BUT STILL USEFULL...
-			glbParam->indxEndSigEvnt[glbParam->event_analyzed] = (int)round(fitParam.indxEndFit *nBinsFactor) ;
-			glbParam->rEndSig    	 = (double)(glbParam->indxEndSigEvnt[glbParam->event_analyzed] * glbParam->dr) ;
+			glbParam->indxEndSig_ev[glbParam->evSel] = (int)round(fitParam.indxEndFit *nBinsFactor) ;
+			glbParam->rEndSig    	 = (double)(glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr) ;
 		}
 		else // EVENT WITH UNDERSHOOT, UN-USEFULL...
 		{
-			evStatusAVG[glbParam->event_analyzed] = EVNT_WRONG_USHOOT ;
-			glbParam->indxEndSigEvnt[glbParam->event_analyzed] = (int)round(fitParam.indxEndFit *nBinsFactor) ;
-			glbParam->rEndSig    	 = (double)(glbParam->indxEndSigEvnt[glbParam->event_analyzed] * glbParam->dr) ;
+			evStatusAVG[glbParam->evSel] = EVNT_WRONG_USHOOT ;
+			glbParam->indxEndSig_ev[glbParam->evSel] = (int)round(fitParam.indxEndFit *nBinsFactor) ;
+			glbParam->rEndSig    	 = (double)(glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr) ;
 		}
 	}
 
-	// printf("(%d) NEW VALUES --> glbParam->nBins: %d \t glbParam->rEndSig: %lf \t glbParam->indxEndSig: %d", glbParam->event_analyzed, glbParam->nBins, glbParam->rEndSig, glbParam->indxEndSigEvnt[glbParam->event_analyzed] ) ;
+	// printf("(%d) NEW VALUES --> glbParam->nBins: %d \t glbParam->rEndSig: %lf \t glbParam->indxEndSig: %d", glbParam->evSel, glbParam->nBins, glbParam->rEndSig, glbParam->indxEndSig_ev[glbParam->evSel] ) ;
 	delete prFit ;
 
-	// cout << endl <<"-------------------- checkUnderShoot -> e: " << glbParam->event_analyzed << endl ;
-	// printf("glbParam->indxEndSigEvnt[glbParam->event_analyzed]: %d\n", glbParam->indxEndSigEvnt[glbParam->event_analyzed] ) ;
+	// cout << endl <<"-------------------- checkUnderShoot -> e: " << glbParam->evSel << endl ;
+	// printf("glbParam->indxEndSig_ev[glbParam->evSel]: %d\n", glbParam->indxEndSig_ev[glbParam->evSel] ) ;
 }
 
 // int checkUnderShoot( strcLidarDataFile *dataFileAVG, strcGlobalParameters *glbParam, int e )

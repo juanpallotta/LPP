@@ -182,6 +182,9 @@ int main( int argc, char *argv[] )
     glbParam.iLambda = (int*) new int [glbParam.nCh] ;
     oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (double*)glbParam.iLambda ) ;
 
+    glbParam.indxEndSig_ev = (int*)    new int    [ glbParam.nEventsAVG ] ;
+    glbParam.rEndSig_ev    = (double*) new double [ glbParam.nEventsAVG ] ;
+
     int indxWL_PDL2[glbParam.nCh], nCh_to_invert ;
     for (int i = 0 ; i <glbParam.nCh; i++)  indxWL_PDL2[i] = -10 ;
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
@@ -269,7 +272,7 @@ int main( int argc, char *argv[] )
 
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
     {
-        glbParam.event_analyzed = e ;
+        glbParam.evSel = e ;
 
         for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
             evSig.pr[b]  = (double)dataFile_AVG[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
@@ -300,7 +303,7 @@ int main( int argc, char *argv[] )
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         cout << endl ;
-        glbParam.event_analyzed = t ;
+        glbParam.evSel = t ;
         oDL2->dzr = (glbParam.r[2] - glbParam.r[1]) * 1 ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {

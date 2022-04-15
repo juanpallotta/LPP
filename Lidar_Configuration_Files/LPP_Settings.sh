@@ -11,10 +11,9 @@ L2="yes"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Holger_Sim/bkg1e0/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
-# PATH_IN="../signalsTest/Brazil/Manaus/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/17/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20220301/"
-PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/20190928/test/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/20190928/test/"
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20221204_Toga_AER/"
 
 # NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
 # ! IF THERE IS NO NOISE FILE: THE FILENAME MUST BE SET AS: "-"

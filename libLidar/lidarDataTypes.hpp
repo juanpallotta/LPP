@@ -77,14 +77,15 @@ struct strcGlobalParameters
 	int 	nBins_in_File			;
 	int 	nBinsBkg 				;
 	int 	nBins					;
+	double 	*r	 					;
 	double 	rInitSig				;
 	double 	rEndSig					;
+	double 	*rEndSig_ev				;
 	int 	indxInitSig				;
 	int 	indxEndSig				;
-	int 	*indxEndSigEvnt			;
+	int 	*indxEndSig_ev			;
 	int 	indxInitErr				;
 	int 	indxInitInversion   	;
-	double 	*r	 					;
 	double 	tBin_us					;
 	int 	nShots[MAX_CH_LICEL] 	;
 	int		lambda					;
@@ -100,7 +101,7 @@ struct strcGlobalParameters
 	double 	ScaleFactor_Analog 		;
 	double 	ScaleFactor_Dig 		;
     int     *event_gps_sec  		;
-    int     event_analyzed  		;
+    int     evSel  		 			;
 	double 	*aZenith 				;
 	double 	*aZenithAVG 			;
 	double 	*aAzimuth 				;

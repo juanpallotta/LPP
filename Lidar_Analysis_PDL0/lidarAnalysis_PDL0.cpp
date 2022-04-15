@@ -143,7 +143,7 @@ int main( int argc, char *argv[] )
 // MAIN LOOP ACROSS THE CLUSTER FILES ////////////////////////////////////////////////////////////////////////////
     for ( int fC=0 ; fC <glbParam.nEvents ; fC++ )
     {
-        glbParam.event_analyzed = fC;
+        glbParam.evSel = fC;
         // printf("\n File Nº %d: %s \n", fC, inputFilesInTime[fC] ) ;
         // avgTime_num =0 ;
             if( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )

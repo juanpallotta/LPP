@@ -124,7 +124,7 @@ void CMolecularData_USStd::Fill_dataMol( strcGlobalParameters *glbParam, int ind
 {
 	int 	i ;
 
-	dataMol->zenith = glbParam->aZenithAVG[glbParam->event_analyzed] ;
+	dataMol->zenith = glbParam->aZenithAVG[glbParam->evSel] ;
 
 	// VALUES FROM ASL
 	dataMol[indxWL].nBins = glbParam->nBins ;

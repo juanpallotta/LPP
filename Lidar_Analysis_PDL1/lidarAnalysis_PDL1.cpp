@@ -183,6 +183,9 @@ int main( int argc, char *argv[] )
     glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
     glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
 
+    glbParam.indxEndSig_ev = (int*)    new int    [ glbParam.nEventsAVG ] ;
+    glbParam.rEndSig_ev    = (double*) new double [ glbParam.nEventsAVG ] ;
+
     double  **data_Noise = (double**) new double*[glbParam.nCh] ;
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
@@ -245,7 +248,7 @@ int main( int argc, char *argv[] )
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         cout << endl << endl ;
-        glbParam.event_analyzed = t ;
+        glbParam.evSel = t ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;
@@ -289,7 +292,7 @@ int main( int argc, char *argv[] )
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
-    glbParam.event_analyzed = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
+    glbParam.evSel = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
     glbParam.chSel = indxWL_PDL1 ;
     oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ; // oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
