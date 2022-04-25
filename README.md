@@ -452,8 +452,8 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Number_Of_Bins (channels)`: Number of bins saved for each channel.
 * `PMT_Voltage (channels)`: Photomuliplier voltage used in each channel.
 * `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel/Raymetric files: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
-* `Raw_Data_Start_Time (time)`: GPS start time of each lidar profile.
-* `Raw_Data_Stop_Time (time)`: GPS stop time of each lidar profile.
+* `Raw_Data_Start_Time (time)`: Start time expressed in seconds since its epoch time (seconds since 1, January 1970).
+* `Raw_Data_Stop_Time (time)`: Stop time expressed in seconds since its epoch time (seconds since 1, January 1970).
 * `Raw_Lidar_Data (time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
 * `Wavelengths (channels)`: Array with the wavelenghts recorded in the file (in nanometers).
 * `Zenith (time)`: Array with the zenithal angle of each saved profile (in degrees). 
@@ -498,8 +498,8 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Pressure_Ground_Level (time)`: Atmospheric pressure at site level (to be used in future versions of LPP).
 * `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
 * `Raw_Lidar_Data_L1 (time, channels, points)`: Raw lidar data used in level 1. These signals has the all the corrections as the time and spatial averaging.
-* `Start_Time_L1 (time)`: GPS start time of each averaged lidar profile.
-* `Stop_Time_L1 (time)`: GPS stop time of each averaged lidar profile.
+* `Start_Time_L1 (time)`: Start time expressed in seconds since its epoch time (seconds since 1, January 1970).
+* `Stop_Time_L1 (time)`: Stop time expressed in seconds since its epoch time (seconds since 1, January 1970).
 * `Temperature_Ground_Level (time)`:  Atmospheric temperature at site level (to be used in future versions of LPP)..
 * `Zenith (time)`: Array with zenith angle of each saved profile (in degrees).
 
@@ -539,8 +539,8 @@ The variables (in alphabetical order) are described below. The dimensions of eac
 * `AOD_LR (time, lrs)`: Aerosols optical depth obtained by integrating the aerosol extinction profile across the `point` dimmension.
 * `LRs (lrx)`: Lidar ratios used in the inversion. The values are set in the configuration file as the variable `LR`.
 * `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: Range corrected lidar signals. These signals has all the corrections, as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
-* `Start_Time_L2 (time)`: GPS start time of each averaged lidar profile.
-* `Stop_Time_L2 (time)`: GPS stop time of each averaged lidar profile.
+* `Start_Time_L2 (time)`: Start time expressed in seconds since its epoch time (seconds since 1, January 1970).
+* `Stop_Time_L2 (time)`: Stop time expressed in seconds since its epoch time (seconds since 1, January 1970).
 
 ### Group Attributes
 
