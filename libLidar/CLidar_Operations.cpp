@@ -22,7 +22,7 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 
 	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ;
 	fitParam.indxEndFit  = glbParam->nBins -1 ;
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
 
@@ -47,7 +47,7 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 	{
 		fitParam.indxInicFit = glbParam->indxEndSig - glbParam->nBinsBkg ;
 		fitParam.indxEndFit  = glbParam->indxEndSig ;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
 		int 	nStepsAuto ; 
 		double 	Bias_Pr ;
 		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
@@ -108,11 +108,11 @@ void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, str
   	double 	b_ref_max = 0.0 ;
   	double 	b_ref_min = 0.0 ;
 
-	int 	indxMaxRange ; // = glbParam->nBins -1 ;
-	Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	// int 	indxMaxRange ; // = glbParam->nBins -1 ;
+	// Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
 
 // BIAS OBTAINED BY APPLYING A LINEAR FIT FROM rEndSig SET IN THE CONFIGURATION FILE PASSED AS ARGUMENT
-	fitParam->indxEndFit  = indxMaxRange ; // glbParam->indxEndSig ; // 
+	fitParam->indxEndFit  = glbParam->indxEndSig ; // indxMaxRange ; // 
 	fitParam->indxInicFit = fitParam->indxEndFit - glbParam->nBinsBkg ;
 	RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
 	b_ref_max = 1.5* fitParam->b ;
@@ -162,8 +162,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
     double *k_ones = (double*) new double[glbParam->nBins] ;
 	for (int i =0; i <glbParam->nBins; i++)		k_ones[i] = (double)1.0 ;
 
-    int i =0 ;
-	double	errRMS_mol, errRMS_k, m ;
+    int i =0 ; // , j=0 ;
+	double	errRMS_mol, errRMS_k, m ; // , errRMS_k_Ref, coeff_k_Ref ;
     while ( true )
 	{
 		RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins , "wB"    , "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
@@ -173,10 +173,18 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		RayleighFit( (double*)pr, (double*)k_ones, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 		errRMS_k = fitParam.sumsq_m ;
 
-			if ( ( errRMS_mol < errRMS_k )  && ( m >0 )  )  
+		// if ( j==0 )
+		// {
+		// 	errRMS_k_Ref = errRMS_k   ;
+		// 	coeff_k_Ref	 = fitParam.m ;
+		// }
+
+			// if ( ( errRMS_mol < (1.0*errRMS_k) )  && ( m >0 ) && ( fitParam.m > (coeff_k_Ref + 3*errRMS_k_Ref) ) )
+			if ( ( errRMS_mol < (0.5*errRMS_k) )  && ( m >0 )  )
 				break ;
 
 		i = i+10 ;
+		// j++ ;
 		fitParam.indxEndFit  = glbParam->nBins - i        				;
 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
   	} 
@@ -233,9 +241,9 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 					if( (b==0) && (c==0) )
 					{	// TIME IS *NOT* AVERAGED!!!!
 						if ( t ==0 )
-							Raw_Data_Start_Time_AVG[fC]	  = (int)Raw_Data_Start_Time[ fC *glbParam->numEventsToAvg ] ;
+							Raw_Data_Start_Time_AVG[fC]	  = (long)Raw_Data_Start_Time[ fC *glbParam->numEventsToAvg ] ;
 						if ( t ==(glbParam->numEventsToAvg -1) )
-							Raw_Data_Stop_Time_AVG[fC] 	  = (int)Raw_Data_Stop_Time[ fC *glbParam->numEventsToAvg +t ] ;
+							Raw_Data_Stop_Time_AVG[fC] 	  = (long)Raw_Data_Stop_Time[ fC *glbParam->numEventsToAvg +t ] ;
 
 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;

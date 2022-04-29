@@ -135,11 +135,13 @@ int main( int argc, char *argv[] )
 
     struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;
     struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;
-    int     *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
-    int     *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
-    string  Raw_Data_Start_Time_str[glbParam.nEvents], Raw_Data_Stop_Time_str[glbParam.nEvents] ;
+    time_t     *Raw_Data_Start_Time = (time_t*) new time_t [glbParam.nEvents] ; // int     *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
+    time_t     *Raw_Data_Stop_Time  = (time_t*) new time_t [glbParam.nEvents] ; // int     *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
+    string      Raw_Data_Start_Time_str[glbParam.nEvents], Raw_Data_Stop_Time_str[glbParam.nEvents] ;
     char	dumpChar = '\0' ;
 
+    float  Time_Zone ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"double", (float*)&Time_Zone ) ;
 // MAIN LOOP ACROSS THE CLUSTER FILES ////////////////////////////////////////////////////////////////////////////
     for ( int fC=0 ; fC <glbParam.nEvents ; fC++ )
     {
@@ -150,27 +152,30 @@ int main( int argc, char *argv[] )
                 ReadLicelData ( (char*)inputFilesInTime[fC], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[fC] ) ;
             sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year  ) ;
             sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;
-            sscanf( glbParam.StopDate, "%2d%2d%4d" , &tmFile_stop->tm_mday , &tmFile_stop->tm_mon , &tmFile_stop->tm_year   ) ;
-            sscanf( glbParam.StopTime, "%2d%2d%2d" , &tmFile_stop->tm_hour , &tmFile_stop->tm_min , &tmFile_stop->tm_sec    ) ;
+            sscanf( glbParam.StopDate , "%2d%2d%4d", &tmFile_stop->tm_mday , &tmFile_stop->tm_mon , &tmFile_stop->tm_year   ) ;
+            sscanf( glbParam.StopTime , "%2d%2d%2d", &tmFile_stop->tm_hour , &tmFile_stop->tm_min , &tmFile_stop->tm_sec    ) ;
+        tmFile_start->tm_mon  = tmFile_start->tm_mon -1 ;       // TRANSLATE TO struct tm CONVENTION.
+        tmFile_stop->tm_mon   = tmFile_stop->tm_mon  -1 ;       // TRANSLATE TO struct tm CONVENTION.
+        tmFile_start->tm_year = tmFile_start->tm_year -1900 ;   // TRANSLATE TO struct tm CONVENTION.
+        tmFile_stop->tm_year  = tmFile_stop->tm_year  -1900 ;   // TRANSLATE TO struct tm CONVENTION.
 
                 sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
                 Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Start_Time[fC] = (int)mktime( (tm*)tmFile_start ) ;
+                Raw_Data_Start_Time[fC] = (time_t)mktime( (tm*)tmFile_start ) + (int)round(Time_Zone *60*60) ;
 
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
                 Raw_Data_Stop_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Stop_Time[fC] = (int)mktime( (tm*)tmFile_stop ) ;
-
-                tmFile_start->tm_year = 1900 + tmFile_start->tm_year ;
+                Raw_Data_Stop_Time[fC] = (time_t)mktime( (tm*)tmFile_stop ) + (int)round(Time_Zone *60*60) ;
 
                 mkdir  ( Path_Out.c_str(), 0777 ) ;
-                sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_start->tm_year, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
+                sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_start->tm_year +1900, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
                 sprintf( glbParam.fileName, "%s", Path_File_Out.c_str() ) ;
-                sprintf( strTimeMerged, "%04d%02d%02d%02d%02d%02d", tmFile_start->tm_year, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
+                sprintf( strTimeMerged, "%04d%02d%02d%02d%02d%02d", tmFile_start->tm_year +1900, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
                 timeVec_str[fC].assign(strTimeMerged) ;
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
 
                 // cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
+                // cout << endl << "t_dump: " << t_dump ;
                 // cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
                 // cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
                 // cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
@@ -192,13 +197,13 @@ int main( int argc, char *argv[] )
     {
         cout << endl << "\tOutput datafile: SCC_NETCDF" << endl ;
         oNCL->Save_SCC_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave, 
-                                   (int*)Raw_Data_Start_Time, (string*)Raw_Data_Start_Time_str, (int*)Raw_Data_Stop_Time, (string*)Raw_Data_Stop_Time_str ) ;
+                                   (long*)Raw_Data_Start_Time, (string*)Raw_Data_Start_Time_str, (long*)Raw_Data_Stop_Time, (string*)Raw_Data_Stop_Time_str ) ;
     }
     else if ( strcmp(glbParam.outputDataFileFormat, "LALINET_NETCDF") ==0 )
     {
         cout << endl << "\tOutput datafile: LALINET_NETCDF" << endl ;
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
-                                       (int*)Raw_Data_Start_Time, (int*)Raw_Data_Stop_Time ) ;
+                                       (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time ) ;
 
         if (  strstr( argv[4], "bkg" ) != 0 )
         {

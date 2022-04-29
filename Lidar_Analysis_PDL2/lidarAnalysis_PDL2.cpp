@@ -194,8 +194,6 @@ int main( int argc, char *argv[] )
     oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
 
     glbParam.r = (double*) new double[glbParam.nBins] ;
-    // for( int i=0 ; i <glbParam.nBins ; i++ )
-    //     glbParam.r[i] = i*glbParam.dr ;
     for( int i=1 ; i <=glbParam.nBins ; i++ )
         glbParam.r[i-1] = i*glbParam.dr ;
 
@@ -263,6 +261,7 @@ int main( int argc, char *argv[] )
     {
         dataMol.pr2Mol[b] 	= (double)  dataMol.betaMol[b] * exp( -2*MOD[b] ) ;
         dataMol.prMol [b] 	= (double) ( dataMol.pr2Mol[b]/(glbParam.r[b]*glbParam.r[b]) ) ;
+        oDL2->pr2_Mol[b]    = (double) dataMol.pr2Mol[b] ; // P(r)r^2 @ indxWL_PDL2[0]
     }
     delete MOD ;
 
@@ -270,8 +269,10 @@ int main( int argc, char *argv[] )
     GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*) &glbParam );
     glbParam.chSel  = indxWL_PDL2[0] ;
 
+    printf("\n\n") ;
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
     {
+        printf("Applying corrections to the lidar signal number %d \r", e) ;
         glbParam.evSel = e ;
 
         for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
@@ -289,13 +290,14 @@ int main( int argc, char *argv[] )
 
             oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&dataMol ) ;
         }
-        else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
+        else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN THE SETTING FILE PASSED AS THIRD ARGUMENT TO lidarAnalysis_PDL2
         { 
             oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&dataMol ) ;
         }
 
         for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2->pr2[e][indxWL_PDL2[0]][i] = (double)(evSig.pr2[i]) ;
     }
+    printf("\nDone\n") ;
 
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval) ;
@@ -311,6 +313,7 @@ int main( int argc, char *argv[] )
             oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t, (int)indxWL_PDL2[c] ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
+    printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;
 
     oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CDataLevel_2*)oDL2 ) ;
 

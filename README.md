@@ -139,6 +139,9 @@ maxTime = 2022/03/02-02:00:00
 inputDataFileFormat = LICEL_FILE
 # inputDataFileFormat = RAYMETRIC_FILE
 
+# UTC REFERENCE
+Time_Zone = 0.0
+
 # OUTPUT NETCDF DATAFILE FORMAT --> outDataFileFormat
 outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
@@ -146,6 +149,8 @@ outputDataFileFormat = LALINET_NETCDF
 
 L0 data levels configuration file only need a few of basic inputs:
 * `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) or Raymetric (`RAYMETRIC_FILE` option) data type file are accepted. There is planned to accept more input data types formats in the future. 
+* `Time_Zone`: Hours difference related to UTC time. If the time in lidar signals are in UTC time, it variable must be zero. If the time is set in local time, and you are in Argentina, it must be set -3. 
+ IF THE FILES CONTAIN LOCAL TIME, SET HERE THE DIFFERENCE RELATED TO UTC
 * `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different names conventions of the variables inside the file. A detailed description of LALINET data type can be seen in later sections of this document ([LALINET data type format](#lalinet-netcdf-file-format)).
 * `minTime` and `maxTime`: Minimum and maximum time to analyze inside the folder passed as the first argument. The format must be like the example show above: **YYYY/MM/DD-HH:MM:SS**.
 
@@ -337,6 +342,8 @@ indxWL_PDL2 = 0
 heightRef_Inversion_ASL = 10000
 # HALF NUMBER OF POINTS (BINS) TO AVERAGE AROUND THE REFERENCE HEIGHT DURING THE NORMALIZATION OF THE LIDAR SIGNAL.
 avg_Half_Points_Fernald_Ref = 15
+# LIDAR SIGNAL NORMALIZATION METHOD: MEAN/FIT
+reference_method = FIT
 # BACKSCATTERING RATIO = R_ref = BetaTot(rRef) / BetaMol(rRef) >1
 R_ref = 1
 ```
@@ -344,11 +351,13 @@ R_ref = 1
 A description of each of these parameters is described below:
 
 * `numEventsToAvg_PDL2`: Time averaging for L2 data level products. This parameters tell to `lidarAnalysis_PDL2` the numbers of the adjacents lidar profiles to average and produce one merged profile. After this, the `time` dimension in the NetCDF file for the L2 data products will be reduced by `numEventsToAvg_PDL2` times. The averaging is applied to the L0 lidar profiles matrix. If this parameter is negative, all L0 profiles will be averaged producing only one profile to invert.
-* `avg_Points_Fernald`: Numbers of points used in the spatial smoothing of the signal.
+* `avg_Points_Fernald`: Numbers of points used for spatial smoothing to apply to the inverted retrieved profiles (extinction and backscatter).
 * `LR`: Lidar ratio used for the inversion. It can be more than one value, in wich each elements must be sepparated by `:`, with a space before and after `:` (see the example array in the previous lines: `LR = 50 : 60 : 70 : 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
 * `heightRef_Inversion_ASL`: Altitude above sea level (in meters) used as reference height used to normalize the lidar signal.
+* `integral_max_range_for_AOD`: Maximun range to integrate the extinction profile to obtain the aerosol optical depth.
 * `avg_Half_Points_Fernald_Ref`: Number of bins used to obtain the mean value of the lidar signal around `heightRef_Inversion_ASL` altitude. The average is performed from `heightRef_Inversion_ASL - avg_Half_Points_Fernald_Ref` to `heightRef_Inversion_ASL + avg_Half_Points_Fernald_Ref`.
+* `reference_method`: This variable is used to define how the reference value is obtained from the lidar signal, having two values to adopt: MEAN and FIT. If MEAN option is set, a mean value is taken around the altitude `heightRef_Inversion_ASL` +/- `avg_Half_Points_Fernald_Ref`. If FIT option is set, a Rayleigh-Fit is done from `heightRef_Inversion_ASL - avg_Half_Points_Fernald_Ref` to `heightRef_Inversion_ASL + avg_Half_Points_Fernald_Ref`. Then, the value of the fit at `heightRef_Inversion_ASL` is taken from the fitted profile.
 * `R_ref`: Backscatter ratio at reference altitude, being the ratio for the total to the molecular backscatter. This parameter can control the turbidity of the reference altitude, being `R_ref=1` completely molecular, and higher values mean more polluted reference altitude.
 
 
@@ -452,8 +461,8 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Number_Of_Bins (channels)`: Number of bins saved for each channel.
 * `PMT_Voltage (channels)`: Photomuliplier voltage used in each channel.
 * `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel/Raymetric files: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
-* `Raw_Data_Start_Time (time)`: Start time expressed in seconds since its epoch time (seconds since 1, January 1970).
-* `Raw_Data_Stop_Time (time)`: Stop time expressed in seconds since its epoch time (seconds since 1, January 1970).
+* `Raw_Data_Start_Time (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).
+* `Raw_Data_Stop_Time (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).
 * `Raw_Lidar_Data (time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
 * `Wavelengths (channels)`: Array with the wavelenghts recorded in the file (in nanometers).
 * `Zenith (time)`: Array with the zenithal angle of each saved profile (in degrees). 
@@ -498,8 +507,8 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Pressure_Ground_Level (time)`: Atmospheric pressure at site level (to be used in future versions of LPP).
 * `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
 * `Raw_Lidar_Data_L1 (time, channels, points)`: Raw lidar data used in level 1. These signals has the all the corrections as the time and spatial averaging.
-* `Start_Time_L1 (time)`: Start time expressed in seconds since its epoch time (seconds since 1, January 1970).
-* `Stop_Time_L1 (time)`: Stop time expressed in seconds since its epoch time (seconds since 1, January 1970).
+* `Start_Time_L1 (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).
+* `Stop_Time_L1 (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).
 * `Temperature_Ground_Level (time)`:  Atmospheric temperature at site level (to be used in future versions of LPP)..
 * `Zenith (time)`: Array with zenith angle of each saved profile (in degrees).
 
@@ -539,8 +548,8 @@ The variables (in alphabetical order) are described below. The dimensions of eac
 * `AOD_LR (time, lrs)`: Aerosols optical depth obtained by integrating the aerosol extinction profile across the `point` dimmension.
 * `LRs (lrx)`: Lidar ratios used in the inversion. The values are set in the configuration file as the variable `LR`.
 * `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: Range corrected lidar signals. These signals has all the corrections, as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument.
-* `Start_Time_L2 (time)`: Start time expressed in seconds since its epoch time (seconds since 1, January 1970).
-* `Stop_Time_L2 (time)`: Stop time expressed in seconds since its epoch time (seconds since 1, January 1970).
+* `Start_Time_L2 (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).
+* `Stop_Time_L2 (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).
 
 ### Group Attributes
 
@@ -548,5 +557,5 @@ The essentials constants needed for applying the Fernald inversion are stored.
 
 * `indxChannel_for_Fernald_inv`: Index number (started from 0) of the channel used to process Fernald inversion. This value is taken from the configuration file passed as third argument to `lidarAnalysis_PDL2` in the variable `indxWL_PDL2`.
 * `Wavelength_Inverted`: Wavelength inverted in nanometers.
-* `Indx_Ref_Inv`: Index (started from 0) of the point used as reference in the Fernald inversion. It must be located in a purest molecular range.
-* `R_ref`: Backscatter ratio at reference altitude (or index `Indx_Ref_Inv`) used in the inversion. This value is taken from the configuration file passed as third argument to this module in the variable `R_ref`.
+* `Ref_Range`: Range used as reference in the Fernald inversion. It must be located in the purest molecular range. This is the distance from the lidar line of sight (not altitude).
+* `R_ref`: Backscatter ratio at reference altitude (`Ref_Range`) used in the inversion. This value is taken from the configuration file passed as third argument to this module in the variable `R_ref`.

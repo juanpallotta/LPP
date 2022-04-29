@@ -111,8 +111,8 @@ int main( int argc, char *argv[] )
         }
     }
 
-    int *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
-    int *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
+    int *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ; // long *Raw_Data_Start_Time = (long*) new long [glbParam.nEvents] ; // 
+    int *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ; // long *Raw_Data_Stop_Time  = (long*) new long [glbParam.nEvents] ; // 
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)Raw_Data_Start_Time ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)Raw_Data_Stop_Time  ) ;
 
@@ -153,6 +153,7 @@ int main( int argc, char *argv[] )
 
     int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
     int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Stop_Time_AVG , 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
+
     oDL1->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
                                     (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
@@ -245,6 +246,9 @@ int main( int argc, char *argv[] )
     // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
 
+    string  strCompCM ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
+
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         cout << endl << endl ;
@@ -273,8 +277,13 @@ int main( int argc, char *argv[] )
 
             if ( c == indxWL_PDL1 )
             {
-                printf("\t --> Getting cloud profile...");
-                oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr_noBkg , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
+                {
+                    printf("\t --> Getting cloud profile...");
+                    oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr_noBkg , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                }
+                else
+                    printf("\n Cloud profiles are not computed. \n") ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
                     printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;

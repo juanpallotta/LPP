@@ -46,6 +46,11 @@ void CNetCDF_Lidar::PutVar( int nc_file_id, int var_id,  const char *dataType, v
         if ( (retval = nc_put_var_int((int)nc_file_id, (int)var_id, (int*)dataToSave ) ) )
             ERR(retval);
     }
+    else if ( strcmp(dataType, "long") ==0 )
+    {
+        if ( (retval = nc_put_var_long((int)nc_file_id, (int)var_id, (long*)dataToSave ) ) )
+            ERR(retval);
+    }
     else if ( strcmp(dataType, "double") ==0 )
     {
         if ( (retval = nc_put_var_double((int)nc_file_id, (int)var_id, (double*)dataToSave ) ) )
@@ -97,6 +102,11 @@ void CNetCDF_Lidar::ReadVar( int ncid, const char *strNameVars, void *dataRead )
     {
         // cout << endl << strNameVars << "  --> DATA TYPE: INT" << endl;
         if ( ( retval = nc_get_var_int( (int)ncid, (int)var_id, (int*)dataRead ) ) )
+            ERR(retval);
+    }
+    else if ( var_type == NC_LONG )
+    {
+        if ( ( retval = nc_get_var_long( (int)ncid, (int)var_id, (long*)dataRead ) ) )
             ERR(retval);
     }
     else if ( var_type == NC_DOUBLE )
@@ -183,7 +193,7 @@ void CNetCDF_Lidar::Set_LALINET_Units_L1( int ncid, int *var_ids )
 }
 
 // ! SEE FOR DETAILS: --> https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html
-void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time, string *Raw_Data_Start_Time_str, int *Raw_Data_Stop_Time, string *Raw_Data_Stop_Time_str )
+void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, long *Raw_Data_Start_Time, string *Raw_Data_Start_Time_str, long *Raw_Data_Stop_Time, string *Raw_Data_Stop_Time_str )
 {
     int  ncid ;
     int  retval ;
@@ -308,15 +318,15 @@ void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParame
     PutVar( (int)ncid, (int)var_ids[9] , (const char*)"int"   , (int*)&Molecular_Calc                  ) ;
     PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)&Pressure_at_Lidar_Station    ) ;
     PutVar( (int)ncid, (int)var_ids[11], (const char*)"double", (double*)&Temperature_at_Lidar_Station ) ;
-    PutVar( (int)ncid, (int)var_ids[12], (const char*)"int"   , (int*)Raw_Data_Start_Time              ) ;
-    PutVar( (int)ncid, (int)var_ids[13], (const char*)"int"   , (int*)Raw_Data_Stop_Time               ) ;
+    PutVar( (int)ncid, (int)var_ids[12], (const char*)"long"  , (int*)Raw_Data_Start_Time              ) ;
+    PutVar( (int)ncid, (int)var_ids[13], (const char*)"long"  , (int*)Raw_Data_Stop_Time               ) ;
     PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)Laser_Pointing_Angle_of_Profiles ) ;
 
     if ( (retval = nc_close(ncid)) )
         ERR(retval);
 }
 
-void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, int *Raw_Data_Start_Time_sec, int *Raw_Data_Stop_Time_sec )
+void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, long *Raw_Data_Start_Time_sec, long *Raw_Data_Stop_Time_sec )
 {
     int  ncid ;
     int  retval ;
@@ -407,8 +417,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
         }
     }
 
-    PutVar( (int)ncid, (int)var_ids[1] , (const char*)"int"   , (int*)Raw_Data_Start_Time_sec       ) ; 
-    PutVar( (int)ncid, (int)var_ids[2] , (const char*)"int"   , (int*)Raw_Data_Stop_Time_sec        ) ;
+    PutVar( (int)ncid, (int)var_ids[1] , (const char*)"long"  , (long*)Raw_Data_Start_Time_sec       ) ; 
+    PutVar( (int)ncid, (int)var_ids[2] , (const char*)"long"  , (long*)Raw_Data_Stop_Time_sec        ) ;
     PutVar( (int)ncid, (int)var_ids[3] , (const char*)"int"   , (int*)glbParam->iLambda             ) ;
     PutVar( (int)ncid, (int)var_ids[4] , (const char*)"char"  , (char*)glbParam->sPol               ) ;
     PutVar( (int)ncid, (int)var_ids[5] , (const char*)"double", (double*)glbParam->iMax_mVLic       ) ;
@@ -525,13 +535,16 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         ERR(retval);
 
 // CLOUD MASK VARIABLE DEFINITION
-    int         dims_ids_CM[2] ;
-    dims_ids_CM[0] = dims_ids_pr_corr[0] ; // TIME
-    dims_ids_CM[1] = dims_ids_pr_corr[2] ; // POINTS
-    int         var_id_CM ; // , var_id_RMSElay , var_id_RMSerr_Ref ;
-    DefineVariable( (int)nc_id_group_L1, (char*)"Cloud_Mask" , (const char*)"int"   , (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_CM          ) ;
-    // DefineVariable( (int)nc_id_group_L1, (char*)"RMSElay"    , (const char*)"double", (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_RMSElay ) ;
-    // DefineVariable( (int)nc_id_group_L1, (char*)"RMSerr_Ref" , (const char*)"double", (int)1, (int*)&dims_ids_CM[0], (int*)&var_id_RMSerr_Ref  ) ;
+    // if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
+    // {
+        int         dims_ids_CM[2] ;
+        dims_ids_CM[0] = dims_ids_pr_corr[0] ; // TIME
+        dims_ids_CM[1] = dims_ids_pr_corr[2] ; // POINTS
+        int         var_id_CM ; // , var_id_RMSElay , var_id_RMSerr_Ref ;
+        DefineVariable( (int)nc_id_group_L1, (char*)"Cloud_Mask" , (const char*)"int"   , (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_CM          ) ;
+        // DefineVariable( (int)nc_id_group_L1, (char*)"RMSElay"    , (const char*)"double", (int)2, (int*)&dims_ids_CM[0], (int*)&var_id_RMSElay ) ;
+        // DefineVariable( (int)nc_id_group_L1, (char*)"RMSerr_Ref" , (const char*)"double", (int)1, (int*)&dims_ids_CM[0], (int*)&var_id_RMSerr_Ref  ) ;
+    // }    
 
     int avg_Points_Cloud_Mask ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
@@ -600,9 +613,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_In, string *Path_F
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_id_Zen_Azm[1], start_CM, count_CM, (double*)&glbParam->aAzimuth[e]   ) ) )
             ERR(retval);
     }
-
-    PutVar( (int)nc_id_group_L1, (int)var_id_Raw_Data_Time[0], (const char*)"int", (int*)Start_Time_AVG ) ;
-    PutVar( (int)nc_id_group_L1, (int)var_id_Raw_Data_Time[1], (const char*)"int", (int*)Stop_Time_AVG  ) ;
+    PutVar( (int)nc_id_group_L1, (int)var_id_Raw_Data_Time[0], (const char*)"int", (long*)Start_Time_AVG ) ;
+    PutVar( (int)nc_id_group_L1, (int)var_id_Raw_Data_Time[1], (const char*)"int", (long*)Stop_Time_AVG  ) ;
 
     PutVar( (int)nc_id_group_L1, (int)var_id_maxRange, (const char*)"double", (double*)glbParam->rEndSig_ev ) ;
 
@@ -668,8 +680,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineVariable( (int)nc_id_group_L2, (char*)"LRs"         , (const char*)"double", (int)1, (int*)&id_dims_aer[1]   , (int*)&id_var_LRs            ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"      , (const char*)"double", (int)2, (int*)&id_dims_aer[0]   , (int*)&id_var_AOD_LR         ) ;
 
-    int     indxWL_PDL2 ;
-    double  R_ref       ;
+    int     indxWL_PDL2         ;
+    double  R_ref, Ref_Range    ;
+    Ref_Range = oDL2->indxRef *glbParam->dr ;
     ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int"    , (int*)&indxWL_PDL2 ) ;
     ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"R_ref"      , (const char*)"double" , (double*)&R_ref    ) ;
 
@@ -677,14 +690,13 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
         ERR(retval);
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Wavelength_Inverted", NC_INT, 1, (const int*)&glbParam->iLambda[indxWL_PDL2] ) ) )
         ERR(retval);
-    if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Indx_Ref_Inv", NC_INT, 1, (const int*)&oDL2->indxRef ) ) )
+    if ( ( retval = nc_put_att_double( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Ref_Range", NC_DOUBLE, 1, (const double*)&Ref_Range ) ) )
         ERR(retval);
-    if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"R_Ref", NC_INT, 1, (const int*)&R_ref ) ) )
+    if ( ( retval = nc_put_att_double( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"R_Ref", NC_DOUBLE, 1, (const double*)&R_ref ) ) )
         ERR(retval);
 
                 if ( (retval = nc_enddef(nc_id_group_L2)) )
                     ERR(retval);
-
     // WRITE CLOUD RAW LIDAR DATA CORRECTED
     size_t start[3], count[3];
     start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 

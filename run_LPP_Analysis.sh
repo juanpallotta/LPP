@@ -59,10 +59,13 @@ do
             then 
                 echo "Deleting previous version of data Level 0 --> ${PATH_FILE_OUT_L0}" 
                 rm $PATH_FILE_OUT_L0 
+                sleep 1
             fi
-            echo -e "Running PDL0: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF_L0
+    echo -e "Running PDL0: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF_L0
     cd $PATH_TO_L0
+    
     ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF_L0 $PATH_DARK_FILE
+    
         fi
 
         if [[ "$L1" == "yes" ]] || [[ "$L2" == "yes" ]]
@@ -75,6 +78,7 @@ do
                 then 
                     echo "Deleting previous version of data Level 1 --> ${PATH_FILE_OUT_L1}" 
                     rm $PATH_FILE_OUT_L1 
+                    sleep 1
                 fi
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L1 ]]
@@ -98,11 +102,12 @@ do
             then
                 echo "Deleting previous version of data Level 2 --> ${PATH_FILE_OUT_L2}" 
                 rm $PATH_FILE_OUT_L2 
+                sleep 1
             fi
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L2 ]]
             then
-                echo -e "Running PDL2 \n ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
+    echo -e "Running PDL2 \n ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
     cd $PATH_TO_L2
     ./lidarAnalysis_PDL2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
             else
