@@ -70,5 +70,21 @@ Lidar_Analysis_PDL2/lidarAnalysis_PDL2
 analysisParameters_PDL0_Pilar_2009_AgoSep.conf
 analysisParameters_PDL1_2_Pilar_2009_AgoSep.conf
 
+analysisParameters_PDL0_Argentina.conf
+analysisParameters_PDL1_2_Argentina.conf
+analysisParameters_PDL0_Argentina_GUI.conf
+analysisParameters_PDL1_2_Argentina_GUI.conf
+
+analysisParameters_PDL0_Brazil.conf
+analysisParameters_PDL1_2_Brazil.conf
+analysisParameters_PDL0_Brazil_GUI.conf
+analysisParameters_PDL1_2_Brazil_GUI.conf
+
+analysisParameters_PDL0_Hector.conf
+analysisParameters_PDL1_2_Hector.conf
+
+analysisParameters_PDL0_Holger.conf
+analysisParameters_PDL1_2_Holger.conf
+
 *_GUI.conf
 
