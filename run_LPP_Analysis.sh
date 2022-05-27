@@ -61,10 +61,10 @@ do
                 rm $PATH_FILE_OUT_L0 
                 sleep 1
             fi
-    echo -e "Running PDL0: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF_L0
+    echo -e "Running PDL0: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF
     cd $PATH_TO_L0
     
-    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF_L0 $PATH_DARK_FILE
+    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF $PATH_DARK_FILE
     
         fi
 
@@ -83,9 +83,9 @@ do
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L1 ]]
             then
-                echo -e "Running PDL1 \n ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF_L1_L2
+                echo -e "Running PDL1 \n ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF
     cd $PATH_TO_L1
-    ./lidarAnalysis_PDL1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF_L1_L2  
+    ./lidarAnalysis_PDL1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF  
             else
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_settings.sh file"
             fi
@@ -107,9 +107,9 @@ do
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L2 ]]
             then
-    echo -e "Running PDL2 \n ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
+    echo -e "Running PDL2 \n ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF
     cd $PATH_TO_L2
-    ./lidarAnalysis_PDL2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF_L1_L2
+    ./lidarAnalysis_PDL2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF
             else
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi
