@@ -9,7 +9,6 @@
   - [Building the code](#building-the-code)
   - [Configuring and running LPP modules](#configuring-and-running-lpp-modules)
 - [<u>Product Data Level 0 Module:</u> Converting raw lidar files in a single NetCDF file](#uproduct-data-level-0-moduleu-converting-raw-lidar-files-in-a-single-netcdf-file)
-- [General Information About Lidar Data Level Products 1 and 2](#general-information-about-lidar-data-level-products-1-and-2)
 - [<u>Product Data Level 1 Module:</u> Lidar signals corrections and cloud-mask](#uproduct-data-level-1-moduleu-lidar-signals-corrections-and-cloud-mask)
 - [<u>Product Data Level 2 Module:</u> Aerosol optical products](#uproduct-data-level-2-moduleu-aerosol-optical-products)
 - [Automatizing LPP](#automatizing-lpp)
@@ -95,9 +94,48 @@ At the moment, the compiler output will show some warnings. All of them will be 
 ## Configuring and running LPP modules
 The behavior of each module is based on the parameters written in its configuration file, passed as the [third argument](#runing-a-lpp-module). They are stored in the `/Lidar_Configuration_Files` folder of this repository. These are text-based files and have the variables needed for the module, having to follow only 4 main rules:
 1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable for you. The configuration files included in this repository have many comments to explain each variable.
-2. Variables definition has to follow the convention `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variables data type can be integer, float, double, or string. Also, in some cases, a variable can be an array of values, in this case, a comment in the line before warning about this.
-3. Some variables have to be set as vectors. Each element must be separated by the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3` <u>**and a minimum of 1 space character has to be placed before and after the "`:`" character**</u>. The number of elements depends on the variable, and how LPP has it implemented. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and exit the execution.
+2. Variables definition must follow the convention typo `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variables data type can be integer, float, double, or string. Also, in some cases, a variable can be an array of values, in this case, a comment in the line before warning about this.
+3. Some variables have to be set as vectors. Each element must be separated by the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3` <u>**and a minimum of 1 space character has to be placed before and after the "`:`" character**</u>. The number of elements depends on the variable, and how LPP make use of it. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
 4. The configuration file could be the same for all the modules, or use one file for all of them, as long as it contains the variables needed for the run. These variables are described in this document.
+
+The next piece of code shows the general variables contained in the configuration files. These variables are used for more than one module and are set the same for all of them:
+
+```bash
+##########################################################################################
+# GENERAL PARAMETERS
+##########################################################################################
+
+# MAXIMUN ZENITHAL ANGLE TO ANALIZE [º] (IN CASE OF MULTIANGLE LIDARS)
+maxZthAngle = 90
+
+# LASER-BIN-OFFSET (OR TRIGGER-DELAY OR ZERO-BIN)
+# ARRAY: ONE PER CHANNEL
+indxOffset = 2 : 3 : 7 : 5 : 8 : 2 : 9 : 2 : 2 : 2 : 2 : 2 
+
+# BACKGROUND CORRECTION METHOD = AUTO/FIT/MEAN/NO_BKG
+BkgCorrMethod = AUTO
+# NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
+nBinsBkg = 1000
+nStepsAuto = 1000 
+
+# INITIAL RANGE OF ANALYSIS: rInitSig
+# END RANGE OF ANALYSIS: rEndSig
+rInitSig = 800
+rEndSig = 30000
+```
+
+Where:
+- `maxZthAngle`: Maximum zenithal angle (in degrees) to be used in the analysis.
+- `indxOffset`: The number of bins to remove from the beginning of the lidar track recorded due to the laser offset. This parameter should be an array with one element for each channel acquired.
+- `nBinsBkg`: Number of bins used for background correction. This quantity is taken from the tail of the lidar signal. From the exsample number in the previous line: last 2000 bins will be used.
+- `BkgCorrMethod`: Background method used for the background substraction. There are 3 options:
+    - `MEAN`: The bias of the lidar signal is obtained computing the mean average of the last `nBinsBkg` bins.
+    - `FIT`: The bias of the lidar signal is obtained computing the linear fit of the pure molecular attenuated backscatter to the lidar signal across the last `nBinsBkg` bins. The independent term of the fit is taken as the bias of the lidar signal.
+    - `AUTO`: An automated method to compute the bias of the raw lidar signal. This method is recommended in cases where molecular modulation is still detected al the end of the track recorded. This method is based on guessing a set of bias and a test algorithm to find wich of the the bias tested is the best.
+    - `NO_BKG`: No background is subtracted to the lidar signal.
+- `nStepsAuto`: Number of iterations used for obtaining the bias automatically. Only used when `BkgCorrMethod = AUTO`.
+* `rInitSig`: Initial range of the analysis (in meters from the lidar line of sight). It is preferable to set this value to the first point where the full overlap is achieved.
+* `rEndSig`: End range of analysis (in meters from the lidar line of sight). It is preferable to set this value to the last processable point in the acquired signal.
 
 The following sections describe each module, how to configure it, and how to run it. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
 
@@ -121,7 +159,6 @@ Where:
 - `[Background_Noise_File]`: This fourth argument is optional, and is the absolute path to the background noise file. This file is obtained by acquiring like a normal measurement with laser and Q-Switch trigger, but with fully covered telescope. If this file is provided, the data will be stored in the NetCDF file generated by this module.
 
 It is highly recommentable to use absolute paths to avoid errors in the execution.
-
 The level 0 variables contained in the configuration file are listed in the next code:
 
 
@@ -159,39 +196,6 @@ If `SCC_NETCDF` is selected, the output file generated can be used as an input f
 
 In order to proceed without making mistakes, we highly suggest to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
 
-# General Information About Lidar Data Level Products 1 and 2
-In the following sections, a description of the two main data level products (1 and 2) are made. The variables need for the analysis of these data levels must be contained in the configuration file passed as third argument, and can be the same file used for data level 0.
-
-There are 3 general variables used in these two data levels, as can be seen in the next example:
-
-
-```bash
-##########################################################################################
-# GENERAL PARAMETERS
-##########################################################################################
-
-# MAXIMUN ZENITHAL ANGLE TO ANALIZE [º] (IN CASE OF MULTIANGLE LIDARS)
-maxZthAngle = 90
-
-# BACKGROUND CORRECTION METHOD = AUTO/FIT/MEAN/NO_BKG
-BkgCorrMethod = AUTO
-# NUMBER OF BINS USED FOR BACKGROUND CORRECTION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
-nBinsBkg = 1000
-nStepsAuto = 3000 
-```
-
-Where:
-- `maxZthAngle`: Maximum zenithal angle (in degrees) to be used in the analysis.
-- `nBinsBkg`: Number of bins used for background correction. This quantity is taken from the tail of the lidar signal. From the exsample number in the previous line: last 2000 bins will be used.
-- `BkgCorrMethod`: Background method used for the background substraction. There are 3 options:
-    - `MEAN`: The bias of the lidar signal is obtained computing the mean average of the last `nBinsBkg` bins.
-    - `FIT`: The bias of the lidar signal is obtained computing the linear fit of the pure molecular attenuated backscatter to the lidar signal across the last `nBinsBkg` bins. The independent term of the fit is taken as the bias of the lidar signal.
-    - `AUTO`: An automated method to compute the bias of the raw lidar signal. This method is recommended in cases where molecular modulation is still detected al the end of the track recorded. This method is based on guessing a set of bias and a test algorithm to find wich of the the bias tested is the best.
-    - `NO_BKG`: No background is subtracted to the lidar signal.
-- `nStepAuto`: Number of iterations used for obtaining the bias automatically. Only used when `BkgCorrMethod = AUTO`.  
-
-This variables are used by `lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`, and both modules uses the same configuration for these data.
-
 # <u>Product Data Level 1 Module:</u> Lidar signals corrections and cloud-mask
 
 This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as it first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the L0's module configuration file (`analysisParameters_PDL0_Brazil.conf` in this example).
@@ -215,9 +219,6 @@ An example of the settings variables for data level 1 contained in a configurati
 # PARAMETERS FOR lidarAnalysis_PDL1
 ##########################################################################################
 
-# LASER-BIN-OFFSET OR TRIGGER-DELAY OR ZERO-BIN
-# ARRAY: ONE PER CHANNEL
-indxOffset = 2 : 3 : 7 : 5 : 8 : 2 : 9 : 2 : 2 : 2 : 2 : 2 
 
 # NUMBER OF FILES (EVENTS) THAT WILL BE AVERAGED INTO A SINGLE LIDAR SIGNAL
 numEventsToAvg_PDL1 = 10
@@ -241,14 +242,6 @@ Pres_column_index_in_File  = 2
 Temperature_at_Lidar_Station = 25.0
 Pressure_at_Lidar_Station = 940.0
 
-# INITIAL RANGE OF ANALYSIS: rInitSig
-# END RANGE OF ANALYSIS: rEndSig
-rInitSig = 400
-rEndSig = 25000
-
-# NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
-nBinsBkg = 1000
-
 # CLOUD-MASK RETRIEVAL PARAMETERS
 avg_Points_Cloud_Mask = 101
 stepScanCloud = 1
@@ -264,8 +257,6 @@ DELTA_RANGE_LIM_BINS = 100
 ```
 
 Below is a description of each of these parameters:
-
-* `indxOffset`: The number of bins to remove from the beginning of the lidar track recorded due to the laser offset. This parameter should be an array with one element for each channel acquired.
 
 * `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lidarAnalysis_PDL1` the numbers of the adjacents lidar profiles to average producing one merged profile. After this, the `time` dimension in the NetCDF file for the L1 data products will be reduced by `numEventsToAvg_PDL1` times. The averaging is applied to the L0 lidar profiles matrix.
 
@@ -289,11 +280,6 @@ The first lines of the `US-StdA_DB_CEILAP.csv` file contained in this repository
 ```
 * `Temperature_at_Lidar_Station`: Temperature at ground level (in Celsius).
 * `Pressure_at_Lidar_Station`: Pressure at ground level (in hPa)
-
-* `rInitSig`: Initial range of the analysis (in meters from the lidar line of sight). It is preferable to set this value to the first point where the full overlap is achieved.
-* `rEndSig`: End range of analysis (in meters from the lidar line of sight). It is preferable to set this value to the last processable point in the acquired signal.
-
-* `nBinsBkg`: Number of bins used for background removal. 
 
 * **Cloud-mask retrieval parameters:** These parameters are required for the cloud detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
 

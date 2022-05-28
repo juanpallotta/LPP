@@ -467,6 +467,10 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
 		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
 		glbParam->aAzimuth[glbParam->evSel] 	 = (double)0 ;
+		//! IMPLEMENT THIS: IF THE FILE IS LICEL TYPE, SET THE TEMP AND PRESSURE FROM THE CONFIGURATION FILE.
+		//! SAVE THIS ARRAYS IN DATA LEVEL 0 
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station", "double", (double*)&glbParam->temp_Celsius[glbParam->evSel] ) ;
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station"   , "double", (double*)&glbParam->pres_hPa[glbParam->evSel]     ) ;
 		glbParam->temp_Celsius[glbParam->evSel] = (double)-999.0 ;
 		glbParam->pres_hPa[glbParam->evSel]     = (double)-999.0 ;
 	}

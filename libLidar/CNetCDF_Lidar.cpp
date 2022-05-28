@@ -829,10 +829,10 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh, (int*)&id_dims_pr2[1] ) ;
     id_dims_pr2[2] = id_dims_aer[2] ;
 
-    int id_var_beta_aer, id_var_alpha_aer, id_var_LRs, id_var_AOD_LR, id_var_start_time, id_var_stop_time ; // id_var_pr2, id_var_indx_ref_inv
+    int id_var_beta_aer, id_var_alpha_aer, id_var_LRs, id_var_AOD_LR, id_var_start_time, id_var_stop_time, id_var_pr2 ; //  id_var_indx_ref_inv
     DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction"             , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0]   , (int*)&id_var_alpha_aer      ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscattering"         , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0]   , (int*)&id_var_beta_aer       ) ;
-    // DefineVariable( (int)nc_id_group_L2, (char*)"Range_Corrected_Lidar_Signal_L2", (const char*)"double", (int)num_dim_var, (int*)&id_dims_pr2[0]   , (int*)&id_var_pr2            ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Range_Corrected_Lidar_Signal_L2", (const char*)"double", (int)num_dim_var, (int*)&id_dims_pr2[0]   , (int*)&id_var_pr2            ) ;
 
     DefineVariable( (int)nc_id_group_L2, (char*)"Start_Time_AVG_L2", (const char*)"int", (int)1, (int*)&id_dims_aer[0], (int*)&id_var_start_time ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Stop_Time_AVG_L2" , (const char*)"int", (int)1, (int*)&id_dims_aer[0], (int*)&id_var_stop_time  ) ;
@@ -882,12 +882,12 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
             if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)id_var_AOD_LR, start, count, (double*)&oDL2->AOD_LR[e][l] ) ) )
                 ERR(retval);
         }
-        // for ( int c=0 ; c <glbParam->nCh ; c++ )
-        // {
-            // start[1] =c ;
-            // if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_pr2, start, count, (double*)&oDL2->pr2[e][c][0] ) ) )
-            //     ERR(retval);
-        // }
+        for ( int c=0 ; c <glbParam->nCh ; c++ )
+        {
+            start[1] =c ;
+            if ( (retval = nc_put_vara_double((int)nc_id_group_L2, (int)id_var_pr2, start, count, (double*)&oDL2->pr2[e][c][0] ) ) )
+                ERR(retval);
+        }
 
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L2, (int)var_id_Zen_Azm[0], start, count, (double*)&glbParam->aZenithAVG[e] ) ) )
             ERR(retval);
