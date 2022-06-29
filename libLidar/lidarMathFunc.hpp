@@ -27,6 +27,10 @@ void findIndxMin		( double*, int, int, int*, double* 				) ;
 void findIndxMax		( double*, int, int, int*, double* 				) ;
 void smooth	    		( double*, int, int, int, double* 				) ;
 int  polyfitCoeff   	(const double* const, const double* const, unsigned int, unsigned int, double*);
+
+float  correlationCoefficient_int( int*, int*, int ) ;
+double correlationCoefficient_dbl( double*, double*, int ) ;
+
 // bool polynomialfit		( int, int, double*, double*, double *			) ;
 // void smoothGSL			( double*, int, int, double*	 				) ;
 // void splineGSL			( int, double*, double*, int, double*, double*  ) ;

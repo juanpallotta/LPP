@@ -133,15 +133,15 @@ int main( int argc, char *argv[] )
         }
     }
 
-    struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;
-    struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;
+    float  Time_Zone ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"float", (float*)&Time_Zone ) ;
+    struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;    tmFile_start->tm_gmtoff = round(Time_Zone *60*60) ;
+    struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;    tmFile_stop->tm_gmtoff  = round(Time_Zone *60*60) ;    
     time_t     *Raw_Data_Start_Time = (time_t*) new time_t [glbParam.nEvents] ; // int     *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
     time_t     *Raw_Data_Stop_Time  = (time_t*) new time_t [glbParam.nEvents] ; // int     *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
     string      Raw_Data_Start_Time_str[glbParam.nEvents], Raw_Data_Stop_Time_str[glbParam.nEvents] ;
     char	dumpChar = '\0' ;
 
-    float  Time_Zone ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"double", (float*)&Time_Zone ) ;
 // MAIN LOOP ACROSS THE CLUSTER FILES ////////////////////////////////////////////////////////////////////////////
     for ( int fC=0 ; fC <glbParam.nEvents ; fC++ )
     {
@@ -161,11 +161,11 @@ int main( int argc, char *argv[] )
 
                 sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
                 Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Start_Time[fC] = (time_t)mktime( (tm*)tmFile_start ) + (int)round(Time_Zone *60*60) ;
+                Raw_Data_Start_Time[fC] = (time_t)timegm( (tm*)tmFile_start ) + (int)round(Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
                 Raw_Data_Stop_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Stop_Time[fC] = (time_t)mktime( (tm*)tmFile_stop ) + (int)round(Time_Zone *60*60) ;
+                Raw_Data_Stop_Time[fC] = (time_t)timegm( (tm*)tmFile_stop ) + (int)round(Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
                 mkdir  ( Path_Out.c_str(), 0777 ) ;
                 sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_start->tm_year +1900, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;

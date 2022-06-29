@@ -52,6 +52,8 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 		double 	Bias_Pr ;
 		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
 		FindBias_Pr( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)nStepsAuto, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
+		glbParam->indxEndSig_ev[glbParam->evSel] = (int)glbParam->indxEndSig ;
+		glbParam->rEndSig_ev[glbParam->evSel]    = (double)glbParam->indxEndSig_ev[glbParam->evSel] *glbParam->dr ;
 	}
 	else
 	{
@@ -154,6 +156,10 @@ void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, str
 
 void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
 {
+/**
+	IMPLEMENT THIS WHITH PEARSON COEFFICIENT: 
+												double correlationCoefficient_dbl( double X[], double Y[], int n)
+*/
     strcFitParam fitParam ;
 	fitParam.indxEndFit  = glbParam->nBins ;
     fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;

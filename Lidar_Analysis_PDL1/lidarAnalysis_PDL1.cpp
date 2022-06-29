@@ -228,9 +228,9 @@ int main( int argc, char *argv[] )
             pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
 
             for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]-1] ; // BIN OFFSET CORRECTION;
+                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ; // -1 BIN OFFSET CORRECTION;
             for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]-1] ; // BIN OFFSET CORRECTION;
+                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]] ; // -1 BIN OFFSET CORRECTION;
         }
     }
 
@@ -294,7 +294,6 @@ int main( int argc, char *argv[] )
                 {
                     Cloud_Profiles[t][b] = (int)    oDL1->cloudProfiles[t].clouds_ON[b] ;
                     RMSE_lay      [t][b] = (double) oDL1->cloudProfiles[t].test_1[b]    ; // RMSE_lay
-                    pr_corr    [t][c][b] = (double) oDL1->prS[b]                        ;
                 }
                 RMSerr_Ref[t] = (double)oDL1->errRefBkg ;
             }
@@ -306,7 +305,7 @@ int main( int argc, char *argv[] )
     oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ; // oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
     // oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
     //                              (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
-    oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
+    oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
     for ( int e=0; e <glbParam.nEventsAVG ; e++  )
