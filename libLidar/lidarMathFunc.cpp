@@ -49,6 +49,25 @@ void findIndxMin( double *vec, int indxInic, int indxEnd, int *indxMin, double *
 	}
 }
 
+void findIndxFirstNeg( double *vec, int indxInic, int indxEnd, int *indxMin, double *min )
+{ // ALL INDEXES ARE REFERENCED TO [0-nBins] OF vec
+	*min = 0 ;
+    int found =0 ;
+
+	for( int i=indxInic ; i<=indxEnd ; i++ )
+	{
+		if ( vec[i] < *min )
+		{
+			*min 	 = vec[i] ;
+			*indxMin = i 	  ; // REFERENCED TO [0-nBins] OF vec
+            found = INT_MAX ;
+            break ;
+		}
+	}
+    if ( found == 0 )
+        *indxMin = indxInic ;
+}
+
 void findIndxMax( double *vec, int indxInic, int indxEnd, int *indxMax, double *max )
 { // ALL INDEXES ARE REFERENCED TO [0-nBins] OF vec
 	*max = DBL_MIN ;

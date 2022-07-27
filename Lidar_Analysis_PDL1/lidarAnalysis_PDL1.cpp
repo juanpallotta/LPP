@@ -256,7 +256,7 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;
-            cout << endl << "Event: " << t << "\t Wavelenght: " << glbParam.iLambda[c] ;
+            printf("Event: %d \t Wavelenght: %d", t, glbParam.iLambda[c] ) ;
             for ( int i=0 ; i <glbParam.nBins ; i++ )
                 evSig.pr[i] = (double)pr_corr[t][c][i] ;
 
@@ -283,12 +283,12 @@ int main( int argc, char *argv[] )
                     oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr_noBkg , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 }
                 else
-                    printf("\n Cloud profiles are not computed. \n") ;
+                    printf("\t Cloud profiles are not computed. \t") ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
-                    printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
+                    printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle \n", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
-                    printf(" NO clouds detected at %lf zenithal angle", glbParam.aZenithAVG[t]  ) ;
+                    printf(" NO clouds detected at %lf zenithal angle \n", glbParam.aZenithAVG[t]  ) ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                 {

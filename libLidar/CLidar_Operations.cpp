@@ -105,16 +105,17 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBkg[i] * pow(glbParam->r[i], 2) ;
 }
 
+//! IMPLEMENT A FASTER CODE ALREADY DONE IN OCATVE (SEE FindBias_Pr.m)
 void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, strcFitParam *fitParam, int nStepsAuto, double *pr_noBkg, double *Bias_Pr )
 {
   	double 	b_ref_max = 0.0 ;
   	double 	b_ref_min = 0.0 ;
 
-	// int 	indxMaxRange ; // = glbParam->nBins -1 ;
-	// Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	int 	indxMaxRange ; // = glbParam->nBins -1 ;
+	Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
 
 // BIAS OBTAINED BY APPLYING A LINEAR FIT FROM rEndSig SET IN THE CONFIGURATION FILE PASSED AS ARGUMENT
-	fitParam->indxEndFit  = glbParam->indxEndSig ; // indxMaxRange ; // 
+	fitParam->indxEndFit  = indxMaxRange ; // glbParam->indxEndSig ; // 
 	fitParam->indxInicFit = fitParam->indxEndFit - glbParam->nBinsBkg ;
 	RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
 	b_ref_max = 1.5* fitParam->b ;
@@ -127,7 +128,7 @@ void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, str
 	b_i[1] = (double)0.0 ; // MEAN VALUE OF THE glbParam->nBinsBkg BINS TAKEN FROM THE TAIL OF THE LIDAR SIGNAL.
 	for( int j=(glbParam->nBins-glbParam->nBinsBkg) ; j<glbParam->nBins ; j++ ) b_i[1] = (double)(b_i[1] + pr[j]) ;
 		b_i[1] = (double)(b_i[1] /glbParam->nBinsBkg) ;
-
+	// PRODUCE THE ARRAY OF BIAS TO TEST b_i[.]
 	for ( int s =2; s <(nStepsAuto+2); s++ )
 		b_i[s] = (double) b_ref_min + (s-2) *b_step ;
 
@@ -156,49 +157,38 @@ void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, str
 
 void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
 {
-/**
-	IMPLEMENT THIS WHITH PEARSON COEFFICIENT: 
-												double correlationCoefficient_dbl( double X[], double Y[], int n)
-*/
     strcFitParam fitParam ;
-	fitParam.indxEndFit  = glbParam->nBins ;
+	fitParam.indxEndFit  = glbParam->nBins -1 ;
     fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
 	fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
 
-    double *k_ones = (double*) new double[glbParam->nBins] ;
-	for (int i =0; i <glbParam->nBins; i++)		k_ones[i] = (double)1.0 ;
-
-    int i =0 ; // , j=0 ;
-	double	errRMS_mol, errRMS_k, m ; // , errRMS_k_Ref, coeff_k_Ref ;
+    int i =0 ;
+	double	corrCoeff ;
+	printf("\n") ;
     while ( true )
 	{
 		RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins , "wB"    , "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-		errRMS_mol 	= fitParam.sumsq_m ;
-		m			= fitParam.m ;
 
-		RayleighFit( (double*)pr, (double*)k_ones, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-		errRMS_k = fitParam.sumsq_m ;
+		corrCoeff = (double) correlationCoefficient_dbl( (double*)&pr[fitParam.indxInicFit], (double*)&dummy[fitParam.indxInicFit], (int)fitParam.nFit ) ;
 
-		// if ( j==0 )
-		// {
-		// 	errRMS_k_Ref = errRMS_k   ;
-		// 	coeff_k_Ref	 = fitParam.m ;
-		// }
-
-			// if ( ( errRMS_mol < (1.0*errRMS_k) )  && ( m >0 ) && ( fitParam.m > (coeff_k_Ref + 3*errRMS_k_Ref) ) )
-			if ( ( errRMS_mol < (0.5*errRMS_k) )  && ( m >0 )  )
-				break ;
+		if ( corrCoeff > 0.95 )
+			break ;
 
 		i = i+10 ;
-		// j++ ;
-		fitParam.indxEndFit  = glbParam->nBins - i        				;
-		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
+		if ( i< round(glbParam->nBins*0.9) )
+		{
+			fitParam.indxEndFit  = glbParam->nBins - i        				;
+			fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
+		}
+		else
+			break;
   	} 
 
-  	*indxMaxRange = fitParam.indxEndFit ; // + 10 ;
-	// printf( "\n Final *indxMaxRange: %d \n", *indxMaxRange ) ;
+  	*indxMaxRange = fitParam.indxEndFit ;
 	glbParam->indxEndSig_ev[glbParam->evSel] = *indxMaxRange ;
-	glbParam->rEndSig_ev[glbParam->evSel] 	 = glbParam->indxEndSig * glbParam->dr ;
+	glbParam->rEndSig_ev[glbParam->evSel] 	 = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+
+	// printf( "\n ev: %d \t indxMaxRange: %d \t Max. Range: %lf \t corrCoeff: %lf \n", glbParam->evSel, *indxMaxRange, glbParam->rEndSig_ev[glbParam->evSel], corrCoeff ) ;
 }
 
 // BIAS SUBSTRACTION METHODS

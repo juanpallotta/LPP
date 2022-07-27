@@ -109,7 +109,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	}
 
 	fitParam.indxInicFit = (int) glbParam->indxInitSig ;
-	fitParam.indxEndFit  = (int) glbParam->indxEndSig  ;
+	fitParam.indxEndFit  = (int) glbParam->indxEndSig  ; // glbParam->indxEndSig_ev[glbParam->evSel] ;
 		for ( int i=0 ; i<nScanMax ; i++ ) // ------------------------------------------------------------------------------------------
 		{
 			for (int b =0; b <glbParam->nBins ; b++)

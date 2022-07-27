@@ -141,9 +141,13 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 			alpha_Aer[t][l][i] = alpha_Aer[t][l][indxInitSig] ;
 			beta_Aer[t][l][i]  = beta_Aer[t][l][indxInitSig] ;
 		}
-		int integral_max_range_for_AOD, indx_integral_max_range_for_AOD ;
+		int indx_integral_max_range_for_AOD ;
+		int integral_max_range_for_AOD ;
 		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
 		indx_integral_max_range_for_AOD = (int)round(integral_max_range_for_AOD /glbParam->dr) ;
+		// double min_ ;
+		// findIndxFirstNeg( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int*)&indx_integral_max_range_for_AOD, (double*)&min_ ) ;
+		// printf("\n Fernald integral till: %lf \n", indx_integral_max_range_for_AOD *glbParam->dr ) ;
 
 		smooth( (double*)&beta_Aer[t][l][0] , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)&beta_Aer[t][l][0]  ) ;
 		smooth( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)&alpha_Aer[t][l][0] ) ;

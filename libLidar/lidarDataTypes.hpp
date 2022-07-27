@@ -100,7 +100,7 @@ struct strcGlobalParameters
 	int 	nPhotCh 				;
 	double 	ScaleFactor_Analog 		;
 	double 	ScaleFactor_Dig 		;
-    int     *event_gps_sec  		;
+    long    *event_gps_sec  		;
     int     evSel  		 			;
 	double 	*aZenith 				;
 	double 	*aZenithAVG 			;
@@ -256,8 +256,8 @@ struct strcCloudInfoDB
 	double	lowestCloudHeight_ASL 	;
 	double 	lowestCloudThickness  	;
 	double 	highestCloud_VOD       	;
-	int 	lowestCloud_GPSstart  	;
-	int 	lowestCloud_GPSend    	;
+	long 	lowestCloud_GPSstart  	;
+	long 	lowestCloud_GPSend    	;
 } ;
 
 struct strcCLFdata

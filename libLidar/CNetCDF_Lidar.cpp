@@ -696,6 +696,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalPar
         ERR(retval);
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"num_Points_Bkg", NC_INT, 1, (const int*)&glbParam->nBinsBkg ) ) )
         ERR(retval);
+    if ( ( retval = nc_put_att_int( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"Averaged_Profiles_L1", NC_INT, 1, (const int*)&glbParam->numEventsToAvg ) ) )
+        ERR(retval);
     if ( ( retval = nc_put_att_double( (int)nc_id_group_L1, (int)NC_GLOBAL, (const char*)"Max_Range_Analyzed", NC_DOUBLE, 1, (double*)&glbParam->rEndSig ) ) )
         ERR(retval);
 
@@ -856,6 +858,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Wavelength_Inverted", NC_INT, 1, (const int*)&glbParam->iLambda[indxWL_PDL2] ) ) )
         ERR(retval);
     if ( ( retval = nc_put_att_double( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Ref_Range", NC_DOUBLE, 1, (const double*)&Ref_Range ) ) )
+        ERR(retval);
+    if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"Averaged_Profiles_L2", NC_INT, 1, (const int*)&glbParam->numEventsToAvg ) ) )
         ERR(retval);
     if ( ( retval = nc_put_att_double( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"R_Ref", NC_DOUBLE, 1, (const double*)&R_ref ) ) )
         ERR(retval);
