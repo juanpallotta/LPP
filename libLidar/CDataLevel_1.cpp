@@ -174,7 +174,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 
 		if (nMaxLoop == 0)
 		{
-			printf("\nCompletely pure Rayleigh lidar signal\n") ;
+			printf("\t Completely pure Rayleigh lidar signal\t") ;
 			nMaxLoop = 1 ;
 		}
 
@@ -455,24 +455,24 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 // 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
 
 // 	if ( (strcmp( BkgCorrMethod, "MEAN" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
-// 		bkgSubstractionMean_L1( (double*)evSig->pr, fitParam.indxInicFit, fitParam.indxEndFit, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
+// 		bkgSubstractionMean_L1( (double*)evSig->pr, fitParam.indxInicFit, fitParam.indxEndFit, (strcGlobalParameters*)glbParam, (double*)evSig.pr_noBias ) ;
 // 	else if ( (strcmp( BkgCorrMethod, "FIT" ) ==0) || (strcmp( BkgCorrMethod, "fit" ) ==0) )
-// 		bkgSubstractionMolFit_L1( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBkg ) ;
+// 		bkgSubstractionMolFit_L1( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig.pr_noBias ) ;
 // 	else if ( (strcmp( BkgCorrMethod, "FILE_BKG" ) ==0) || (strcmp( BkgCorrMethod, "file_bkg" ) ==0) )
 // 		if ( glbParam->is_Noise_Data_Loaded == true )
-// 			bkgSubstraction_BkgFile_L1( (const double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
+// 			bkgSubstraction_BkgFile_L1( (const double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig.pr_noBias ) ;
 // 		else
 // 		{
 // 			printf("\n Noise data is not loaded \n") ;
-// 			bkgSubstractionMean_L1( (double*)evSig->pr, fitParam.indxInicFit, fitParam.indxEndFit, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
+// 			bkgSubstractionMean_L1( (double*)evSig->pr, fitParam.indxInicFit, fitParam.indxEndFit, (strcGlobalParameters*)glbParam, (double*)evSig.pr_noBias ) ;
 // 		}
 // 	else
 // 	{
 // 		printf("\n Wrong setting of 'Background Correction Method (BkgCorrMethod) in %s. Used FIT method' \n", (char*)glbParam->FILE_PARAMETERS) ;
-// 		bkgSubstractionMolFit ( (strcMolecularData*)dataMol, (double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBkg ) ;
+// 		bkgSubstractionMolFit ( (strcMolecularData*)dataMol, (double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig.pr_noBias ) ;
 // 	}
 // 	// RANGE CORRECTED
-// 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBkg[i] * pow(glbParam->r[i], 2) ;
+// 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig.pr_noBias[i] * pow(glbParam->r[i], 2) ;
 // }
 
 // void CDataLevel_1::bkgSubstractionMean_L1( double *sig, int binInitMean, int binEndMean, strcGlobalParameters *glbParam, double *pr_noBkg)

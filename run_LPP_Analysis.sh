@@ -18,6 +18,7 @@ PATH_TO_LPP=`pwd`
 PATH_TO_L0=`dirname $(realpath $(find . -name lidarAnalysis_PDL0.cpp))`
 PATH_TO_L1=`dirname $(realpath $(find . -name lidarAnalysis_PDL1.cpp))`
 PATH_TO_L2=`dirname $(realpath $(find . -name lidarAnalysis_PDL2.cpp))`
+PATH_TO_LPP_PLOT=`dirname $(realpath $(find .. -name LPP_Plots_L1.py))`
 
 # SEARCH FOR THE LAST SUB-FOLDERS INSIDE THE INPUT PATH
 cd $PATH_TO_L0
@@ -89,7 +90,11 @@ do
             else
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_settings.sh file"
             fi
-            # rm $PATH_FILE_OUT_L0
+            rm $PATH_FILE_IN_L1 
+    #   PLOTTING
+            echo -e "\n\nGenerating plots for L1..."
+            PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"/LPP_Plots_L1.py"
+            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L1
         fi
 
         if [[ "$L2" == "yes" ]]
@@ -113,7 +118,11 @@ do
             else
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi
-            # rm $PATH_FILE_OUT_L1
+            rm $PATH_FILE_IN_L2
+    #   PLOTTING
+            echo -e "\n\nGenerating plots for L2..."
+            PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"/LPP_Plots_L2.py"
+            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 3
         fi
 
 		echo ""

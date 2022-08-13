@@ -1,9 +1,10 @@
 
-OBJS = lidarAnalysis_PDL2.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o CDataLevel_1.o CDataLevel_2.o CLidar_Operations.o
+OBJS = lidarAnalysis_PDL2.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o CMolecularData.o CDataLevel_2.o CLidar_Operations.o
 NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include -L/usr/lib/x86_64-linux-gnu -lnetcdf_c++4 
 
 lidarAnalysis_PDL2: $(OBJS)
 	g++ -Wall -o lidarAnalysis_PDL2 $(OBJS) $(NETCDF_LIB)
+
 
 lidarAnalysis_PDL2.o: lidarAnalysis_PDL2.cpp
 	g++ -Wall -c lidarAnalysis_PDL2.cpp
@@ -20,21 +21,18 @@ CNetCDF_Lidar.o: ../libLidar/CNetCDF_Lidar.cpp
 	g++ -Wall -c ../libLidar/CNetCDF_Lidar.cpp
 # g++ -Wall -c ../libLidar/CNetCDF_Lidar.hpp ../libLidar/CNetCDF_Lidar.cpp
 
-# CMolecularData_USStd.o: ../libLidar/CMolecularData_USStd.cpp
-# 	g++ -Wall -c ../libLidar/CMolecularData_USStd.hpp ../libLidar/CMolecularData_USStd.cpp
+CMolecularData.o: ../libLidar/CMolecularData.cpp
+	g++ -Wall -c ../libLidar/CMolecularData.cpp
 
-CDataLevel_1.o: ../libLidar/CDataLevel_1.cpp
-	g++ -Wall -c ../libLidar/CDataLevel_1.cpp
-# g++ -Wall -c ../libLidar/CDataLevel_1.hpp ../libLidar/CDataLevel_1.cpp
+# CDataLevel_1.o: ../libLidar/CDataLevel_1.cpp
+# 	g++ -Wall -c ../libLidar/CDataLevel_1.cpp
+
+CLidar_Operations.o: ../libLidar/CLidar_Operations.cpp
+	g++ -Wall -c ../libLidar/CLidar_Operations.cpp
 
 CDataLevel_2.o: ../libLidar/CDataLevel_2.cpp
 	g++ -Wall -c ../libLidar/CDataLevel_2.cpp
 # g++ -Wall -c ../libLidar/CDataLevel_2.hpp ../libLidar/CDataLevel_2.cpp
-
-CLidar_Operations.o: ../libLidar/CLidar_Operations.cpp
-	g++ -Wall -c ../libLidar/CLidar_Operations.cpp
-# g++ -Wall -c ../libLidar/CLidar_Operations.hpp ../libLidar/CLidar_Operations.cpp
-
 
 clean:
 	rm -f core *.o *.gch *.hpp.gch

@@ -12,18 +12,18 @@ public:
     ~CLidar_Operations();
 
     strcFitParam    fitParam            ;
-    double          *noiseFit, *dummy   ;
-    // double          **data_Noise        ;
+    double          *dummy   ;
+    // double       *noiseFit, **data_Noise        ;
 
-    // void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*                                         ) ;
-    // void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**                               ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
+    void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
+    void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
     void    Find_Max_Range    ( double*, double*, strcGlobalParameters*, int*                                   ) ;
-    void    FindBias_Pr       ( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int, double*, double*   ) ;
-    void 	bkgSubstraction_Mean( double*, strcFitParam*, strcGlobalParameters*, double*                        ) ;
-    void 	bkgSubstraction_MolFit(strcMolecularData*, const double*, strcFitParam*, double*                    ) ;
-    void 	bkgSubstraction_BkgFile( const double*, strcFitParam*, double**, strcGlobalParameters*, double*     ) ;
+    void    bkgSubstraction_Auto( double*, strcMolecularData*, strcGlobalParameters*, int, double*, double*       ) ;
+    void 	bkgSubstraction_Mean( double*, strcMolecularData*, strcGlobalParameters*, double*                   ) ;
+    void 	bkgSubstraction_MolFit(strcMolecularData*, const double*, strcGlobalParameters*, double*            ) ;
+    // void 	bkgSubstraction_BkgFile( const double*, strcFitParam*, double**, strcGlobalParameters*, double*     ) ;
 
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
 

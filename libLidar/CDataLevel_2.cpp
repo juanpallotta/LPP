@@ -83,7 +83,6 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c )
 
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
 	{
-			// sum( (double*)pr2_s, (int)(indxRef -avg_Half_Points_Fernald_Ref), (int)(indxRef +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
 			sum( (double*)&pr2[t][c][0], (int)(indxRef -avg_Half_Points_Fernald_Ref), (int)(indxRef +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
 			pr2_Ref = pr2_Ref /(avg_Half_Points_Fernald_Ref +1) ;
 	}

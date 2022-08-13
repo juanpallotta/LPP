@@ -1,6 +1,13 @@
 #! /bin/bash
 
-clear
+# clear
+
+echo ""
+echo ""
+echo ""
+echo ""
+echo "Building LPP..."
+echo ""
 
 sleep 1
 

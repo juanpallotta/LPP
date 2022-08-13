@@ -64,9 +64,8 @@ struct strcGlobalParameters
 {
 	char 	FILE_PARAMETERS[500] 	; //! MAKE IT string CLASS!!!!!
 	char    inputDataFileFormat[50]	;
+	char    exeFile[50]				;
 	char    outputDataFileFormat[50];
-	char 	PDL[10]					;
-	char 	OUTPUT_FILE[10]			;
 	double 	dr 						;
 	double 	dzr						;
 	int 	nChMax 					;
@@ -183,6 +182,7 @@ struct strcLidarSignal
 {
 	double 	*pr		  =NULL	;
 	double 	*pr_noBkg =NULL	;
+	double 	*pr_noBias=NULL	;
 	double 	*pr2	  =NULL	;
 	double 	*prFit	  =NULL	;
 	double 	*pr2Fit	  =NULL	;

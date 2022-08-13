@@ -3,7 +3,7 @@
 
 CLidar_Operations::CLidar_Operations( strcGlobalParameters *glbParam )
 {
-	noiseFit 	= (double*) new double[glbParam->nBins] ;
+	// noiseFit 	= (double*) new double[glbParam->nBins] ;
 	dummy 	 	= (double*) new double[glbParam->nBins] ; 
     pr_NObkg_i	= (double*) new double[glbParam->nBins] ; 
 	pr2_i 		= (double*) new double[glbParam->nBins] ;	
@@ -11,115 +11,40 @@ CLidar_Operations::CLidar_Operations( strcGlobalParameters *glbParam )
 
 CLidar_Operations::~CLidar_Operations()
 {
-	delete noiseFit ;
+	// delete noiseFit ;
 	delete dummy 	;
 }
 
-// MakeRangeCorrected() USING 'MEAN', 'FIT', 'NO_BKG' OR 'AUTO' METHODS TO REMOVE BIAS.
+// MakeRangeCorrected() WITHOUT BACKGROUND NOISE FILE, USING 'MEAN', 'FIT', 'NO_BKG' OR 'AUTO' METHODS TO REMOVE BIAS.
 void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
-	char BkgCorrMethod[10] ;
-
-	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ;
-	fitParam.indxEndFit  = glbParam->nBins -1 ;
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
-
-	if ( (strcmp( BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( BkgCorrMethod, "no_bkg" ) ==0) )
-	{
-		for (int i =0; i <glbParam->nBins ; i++)
-			evSig->pr_noBkg[i] = evSig->pr[i] ;
-	}
-	else if ( (strcmp( BkgCorrMethod, "MEAN" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
-	{
-		bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
-		glbParam->indxEndSig_ev[glbParam->evSel] = (int)glbParam->nBins -1 ;
-		glbParam->rEndSig_ev[glbParam->evSel]    = (double)glbParam->indxEndSig_ev[glbParam->evSel] *glbParam->dr ;
-	}
-	else if ( (strcmp( BkgCorrMethod, "FIT" ) ==0) || (strcmp( BkgCorrMethod, "fit" ) ==0) )
-	{
-		bkgSubstraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBkg ) ;
-		glbParam->indxEndSig_ev[glbParam->evSel] = (int)glbParam->nBins -1 ;
-		glbParam->rEndSig_ev[glbParam->evSel]    = (double)glbParam->indxEndSig_ev[glbParam->evSel] *glbParam->dr ;
-	}
-	else if ( (strcmp( BkgCorrMethod, "AUTO" ) ==0) || (strcmp( BkgCorrMethod, "auto" ) ==0) )
-	{
-		fitParam.indxInicFit = glbParam->indxEndSig - glbParam->nBinsBkg ;
-		fitParam.indxEndFit  = glbParam->indxEndSig ;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
-		int 	nStepsAuto ; 
-		double 	Bias_Pr ;
-		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
-		FindBias_Pr( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)nStepsAuto, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
-		glbParam->indxEndSig_ev[glbParam->evSel] = (int)glbParam->indxEndSig ;
-		glbParam->rEndSig_ev[glbParam->evSel]    = (double)glbParam->indxEndSig_ev[glbParam->evSel] *glbParam->dr ;
-	}
-	else
-	{
-		printf( "\n BkgCorrMethod = %s but there is no noise information... extracting bias using the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->nBinsBkg ) ;
-		bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
-	}
-	// RANGE CORRECTED
-	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBkg[i] * pow(glbParam->r[i], 2) ;
+	BiasCorrection( (strcLidarSignal*)evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBias[i] * pow(glbParam->r[i], 2) ;
 }
 
 // IF data_noise IS PASSED AS ARGUMENT, IT IS USED
 void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, double **data_Noise, strcMolecularData *dataMol )
 {
-	char BkgCorrMethod[10] ;
-
-	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ;
-	fitParam.indxEndFit  = glbParam->nBins -1 ;
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-
-	for (int i =0; i <glbParam->nBins; i++)
-		evSig->pr_noBkg[i] = (double)( evSig->pr[i] - data_Noise[glbParam->chSel][i] ) ;
-
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
-
-	if ( (strcmp( BkgCorrMethod, "FIT" ) ==0) || (strcmp( BkgCorrMethod, "fit" ) ==0) )
-	{
-		bkgSubstraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr_noBkg, (strcFitParam*)&fitParam, (double*)evSig->pr_noBkg ) ;
-		glbParam->indxEndSig_ev[glbParam->evSel] = (int)glbParam->nBins -1 ;
-		glbParam->rEndSig_ev[glbParam->evSel]    = (double)glbParam->indxEndSig_ev[glbParam->evSel] *glbParam->dr ;
-	}
-	else if ( (strcmp( BkgCorrMethod, "MEAN" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
-	{
-		bkgSubstraction_Mean( (double*)evSig->pr_noBkg, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
-		glbParam->indxEndSig_ev[glbParam->evSel] = (int)glbParam->nBins -1 ;
-		glbParam->rEndSig_ev[glbParam->evSel]    = (double)glbParam->indxEndSig_ev[glbParam->evSel] *glbParam->dr ;
-	}
-	else if  ( (strcmp( BkgCorrMethod, "AUTO" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
-	{
-		fitParam.indxInicFit = glbParam->indxEndSig - glbParam->nBinsBkg ;
-		fitParam.indxEndFit  = glbParam->indxEndSig ;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-		int 	nStepsAuto ;
-		double 	Bias_Pr ;
-		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
-		FindBias_Pr( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int)nStepsAuto, (double*)evSig->pr_noBkg, (double*)&Bias_Pr ) ;
-	}
-
-	// RANGE CORRECTED
-	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBkg[i] * pow(glbParam->r[i], 2) ;
+	BiasCorrection( (strcLidarSignal*)evSig, (strcGlobalParameters*)glbParam, (double**)data_Noise, (strcMolecularData*)dataMol ) ;
+	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBias[i] * pow(glbParam->r[i], 2) ;
 }
 
 //! IMPLEMENT A FASTER CODE ALREADY DONE IN OCATVE (SEE FindBias_Pr.m)
-void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, strcFitParam *fitParam, int nStepsAuto, double *pr_noBkg, double *Bias_Pr )
+//! CALL IT FROM C:\Users\jpall\Mega\procesamiento\Octave\Lidar_Analysis_Plot_NetCDF\temp.m
+void CLidar_Operations::bkgSubstraction_Auto( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, int nStepsAuto, double *pr_noBkg, double *Bias_Pr )
 {
+	int 	indxMaxRange ;
+	Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
   	double 	b_ref_max = 0.0 ;
   	double 	b_ref_min = 0.0 ;
 
-	int 	indxMaxRange ; // = glbParam->nBins -1 ;
-	Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
-
 // BIAS OBTAINED BY APPLYING A LINEAR FIT FROM rEndSig SET IN THE CONFIGURATION FILE PASSED AS ARGUMENT
-	fitParam->indxEndFit  = indxMaxRange ; // glbParam->indxEndSig ; // 
-	fitParam->indxInicFit = fitParam->indxEndFit - glbParam->nBinsBkg ;
-	RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
-	b_ref_max = 1.5* fitParam->b ;
-	b_ref_min = 0.5* fitParam->b ;
+	fitParam.indxEndFit  = indxMaxRange ; // glbParam->indxEndSig ; // 
+	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+	RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+	b_ref_max = 1.5* fitParam.b ;
+	b_ref_min = 0.5* fitParam.b ;
 
   	double b_step 		= (b_ref_max - b_ref_min) /nStepsAuto ;
   	double *b_i   		= (double*) new double [ nStepsAuto +2 ] ;
@@ -139,8 +64,8 @@ void CLidar_Operations::FindBias_Pr( double *pr, strcMolecularData *dataMol, str
 			pr_NObkg_i[i]  = pr[i] - b_i[s] ;
 			pr2_i[i]       = pr_NObkg_i[i] * pow(glbParam->r[i], 2) ;
 		}
-		RayleighFit( (double*)pr2_i, (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
-		errRMS_Bias[s] = fitParam->sumsq_m ;
+		RayleighFit( (double*)pr2_i, (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		errRMS_Bias[s] = fitParam.sumsq_m ;
 	}
 
 	int 	indxMinErr ;
@@ -164,17 +89,14 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 
     int i =0 ;
 	double	corrCoeff ;
-	printf("\n") ;
     while ( true )
 	{
 		RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins , "wB"    , "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-
 		corrCoeff = (double) correlationCoefficient_dbl( (double*)&pr[fitParam.indxInicFit], (double*)&dummy[fitParam.indxInicFit], (int)fitParam.nFit ) ;
-
-		if ( corrCoeff > 0.95 )
+		if ( corrCoeff > 0.90 )
 			break ;
 
-		i = i+10 ;
+		i = i+50 ;
 		if ( i< round(glbParam->nBins*0.9) )
 		{
 			fitParam.indxEndFit  = glbParam->nBins - i        				;
@@ -183,40 +105,69 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		else
 			break;
   	} 
+	*indxMaxRange = fitParam.indxEndFit ;
 
-  	*indxMaxRange = fitParam.indxEndFit ;
-	glbParam->indxEndSig_ev[glbParam->evSel] = *indxMaxRange ;
-	glbParam->rEndSig_ev[glbParam->evSel] 	 = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+    int indxWL_PDLx ;
+	if ( strcmp(glbParam->exeFile, "./lidarAnalysis_PDL1" ) ==0 )
+	    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDLx ) ;
+	else if ( strcmp(glbParam->exeFile, "./lidarAnalysis_PDL2" ) ==0 )
+	    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&indxWL_PDLx ) ;
 
+	if ( glbParam->chSel== indxWL_PDLx )
+	{
+		glbParam->indxEndSig_ev[glbParam->evSel] = *indxMaxRange ;
+		glbParam->rEndSig_ev[glbParam->evSel] 	 = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
 	// printf( "\n ev: %d \t indxMaxRange: %d \t Max. Range: %lf \t corrCoeff: %lf \n", glbParam->evSel, *indxMaxRange, glbParam->rEndSig_ev[glbParam->evSel], corrCoeff ) ;
+	}
 }
 
 // BIAS SUBSTRACTION METHODS
-void CLidar_Operations::bkgSubstraction_Mean( double *sig, strcFitParam *fitParam, strcGlobalParameters *glbParam, double *pr_noBkg)
+void CLidar_Operations::bkgSubstraction_Mean( double *sig, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBkg)
 {
+	int 	indxMaxRange ;
+	Find_Max_Range( (double*)sig, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+
+	if ( indxMaxRange<glbParam->nBins )
+	{
+		fitParam.indxInicFit = (int)round( (glbParam->nBins-1 + indxMaxRange)/2 ) ;
+		fitParam.indxEndFit  = glbParam->nBins -1 ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+	}
+	else
+	{
+		fitParam.indxInicFit = glbParam->nBins -1 - glbParam->nBinsBkg ;
+		fitParam.indxEndFit  = glbParam->nBins -1 ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+	}
 	double 	bkgMean = 0 ;
+	for( int j=fitParam.indxInicFit ; j<fitParam.indxEndFit ; j++ ) bkgMean = bkgMean + sig[j] ;
 
-	for( int j=fitParam->indxInicFit ; j<fitParam->indxEndFit ; j++ ) bkgMean = bkgMean + sig[j] ;
-
-	bkgMean = bkgMean /fitParam->nFit ;
+	bkgMean = bkgMean /fitParam.nFit ;
 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	pr_noBkg[i] = (double)(sig[i] - bkgMean) ;
 }
 
-void CLidar_Operations::bkgSubstraction_MolFit(strcMolecularData *dataMol, const double *prEl, strcFitParam *fitParam, double *pr_noBkg)
+void CLidar_Operations::bkgSubstraction_MolFit(strcMolecularData *dataMol, const double *prEl, strcGlobalParameters *glbParam, double *pr_noBkg)
 {
-	RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
-		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam->b) ; 
+	int 	indxMaxRange ;
+	Find_Max_Range( (double*)prEl, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+
+	fitParam.indxEndFit  = indxMaxRange ;
+	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
+	fitParam.nFit	   	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+
+	RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam.b) ; 
 }
 
-void CLidar_Operations::bkgSubstraction_BkgFile( const double *prEl, strcFitParam *fitParam, double **data_Noise, strcGlobalParameters *glbParam, double *pr_noBkg)
-{
-	// smooth( (double*)&data_Noise[glbParam->chSel][0], (int)0, (int)(glbParam->nBins-1), (int)3, (double*)dummy ) ;
-	smooth( (double*)&data_Noise[glbParam->chSel][0], (int)0, (int)(glbParam->nBins-1), (int)3, (double*)noiseFit ) ;
+// void CLidar_Operations::bkgSubstraction_BkgFile( const double *prEl, strcFitParam *fitParam, double **data_Noise, strcGlobalParameters *glbParam, double *pr_noBkg)
+// {
+// 	// smooth( (double*)&data_Noise[glbParam->chSel][0], (int)0, (int)(glbParam->nBins-1), (int)3, (double*)dummy ) ;
+// 	smooth( (double*)&data_Noise[glbParam->chSel][0], (int)0, (int)(glbParam->nBins-1), (int)3, (double*)noiseFit ) ;
 
-	// RayleighFit( (double*)prEl, (double*)dummy, glbParam->nBins, "wOutB", "all", (strcFitParam*)fitParam, (double*)noiseFit ) ;
+// 	// RayleighFit( (double*)prEl, (double*)dummy, glbParam->nBins, "wOutB", "all", (strcFitParam*)fitParam, (double*)noiseFit ) ;
 
-	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	pr_noBkg[i] = (double)( prEl[i] - noiseFit[i] ) ; 
-}
+// 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	pr_noBkg[i] = (double)( prEl[i] - noiseFit[i] ) ; 
+// }
 
 void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***dataFile, double ***dataFile_AVG, 
 														int *Raw_Data_Start_Time    , int *Raw_Data_Stop_Time, 
@@ -260,64 +211,63 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 	}
 }
 
+// BiasCorrection() WITHOUT BACKGROUND NOISE FILE, USING 'MEAN', 'FIT', 'NO_BKG' OR 'AUTO' METHODS TO REMOVE BIAS.
+void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
+{
+	char BkgCorrMethod[10] ;
 
+	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
 
+	if ( (strcmp( BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( BkgCorrMethod, "no_bkg" ) ==0) )
+	{
+		for (int i =0; i <glbParam->nBins ; i++)
+			evSig->pr_noBias[i] = evSig->pr[i] ;
+	}
+	else if ( (strcmp( BkgCorrMethod, "MEAN" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
+	{
+		bkgSubstraction_Mean( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if ( (strcmp( BkgCorrMethod, "FIT" ) ==0) || (strcmp( BkgCorrMethod, "fit" ) ==0) )
+	{
+		bkgSubstraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if ( (strcmp( BkgCorrMethod, "AUTO" ) ==0) || (strcmp( BkgCorrMethod, "auto" ) ==0) )
+	{
+		int 	nStepsAuto ; 
+		double 	Bias_Pr ;
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
+		bkgSubstraction_Auto( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)nStepsAuto, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
+	}
+	else
+	{
+		printf( "\n BkgCorrMethod = %s but there is no noise information... extracting bias using the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->nBinsBkg ) ;
+		bkgSubstraction_Mean( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+}
 
-// MakeRangeCorrected() USING 'MEAN' METHODS TO REMOVE BIAS.
-// void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam )
-// {
-// 	char BkgCorrMethod[10] ;
+// IF data_noise IS PASSED AS ARGUMENT, IT IS USED
+void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParameters *glbParam, double **data_Noise, strcMolecularData *dataMol )
+{
+	char BkgCorrMethod[10] ;
 
-// 	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ;
-// 	fitParam.indxEndFit  = glbParam->nBins -1 ;
-// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+	for (int i =0; i <glbParam->nBins; i++)
+		evSig->pr_noBkg[i] = (double)( evSig->pr[i] - data_Noise[glbParam->chSel][i] ) ;
 
-// 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
+	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
 
-// 	if ( (strcmp( BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( BkgCorrMethod, "no_bkg" ) ==0) )
-// 	{
-// 		for (int i =0; i <glbParam->nBins ; i++)
-// 			evSig->pr_noBkg[i] = evSig->pr[i] ;
-// 	}
-// 	else if ( (strcmp( BkgCorrMethod, "MEAN" ) !=0) || (strcmp( BkgCorrMethod, "mean" ) !=0) )
-// 	{
-// 		printf( "\nBkgCorrMethod = %s set in %s\n But only MEAN method can be applied. Extracting bias using the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->FILE_PARAMETERS, glbParam->nBinsBkg ) ;
-// 		bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
-// 	}
-// 	else
-// 	{
-// 		printf( "\nBkgCorrMethod = %s set in %s\n But only MEAN method can be applied. Extracting bias using the mean of the last %d bins.' \n", BkgCorrMethod, glbParam->FILE_PARAMETERS, glbParam->nBinsBkg ) ;
-// 		bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
-// 	}
-
-// 	// RANGE CORRECTED
-// 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBkg[i] * pow(glbParam->r[i], 2) ;
-// }
-
-// MakeRangeCorrected() USING 'FILE_BKG' OR 'MEAN' METHODS TO REMOVE BIAS.
-// void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, double **data_Noise )
-// {
-// 	char BkgCorrMethod[10] ;
-
-// 	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ;
-// 	fitParam.indxEndFit  = glbParam->nBins -1 ;
-// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-
-// 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
-
-// 	if ( (strcmp( BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( BkgCorrMethod, "no_bkg" ) ==0) )
-// 	{
-// 		for (int i =0; i <glbParam->nBins ; i++)
-// 			evSig->pr_noBkg[i] = evSig->pr[i] ;
-// 	}
-// 	else if ( (strcmp( BkgCorrMethod, "FILE_BKG" ) ==0) || (strcmp( BkgCorrMethod, "file_bkg" ) ==0) )
-// 		bkgSubstraction_BkgFile( (const double*)evSig->pr, (strcFitParam*)&fitParam, (double**)data_Noise, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
-// 	else
-// 	{
-// 		printf( "\nBkgCorrMethod = %s \nBUT there is noise information available.\nIt is highly recommended to use BkgCorrMethod = FILE_BKG in configuration file %s.' \n", BkgCorrMethod, glbParam->FILE_PARAMETERS ) ;
-// 		bkgSubstraction_Mean( (double*)evSig->pr, (strcFitParam*)&fitParam, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBkg ) ;
-// 	}
-
-// RANGE CORRECTED
-// 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBkg[i] * pow(glbParam->r[i], 2) ;
-// }
+	if ( (strcmp( BkgCorrMethod, "FIT" ) ==0) || (strcmp( BkgCorrMethod, "fit" ) ==0) )
+	{
+		bkgSubstraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr_noBkg, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if ( (strcmp( BkgCorrMethod, "MEAN" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
+	{
+		bkgSubstraction_Mean( (double*)evSig->pr_noBkg, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if  ( (strcmp( BkgCorrMethod, "AUTO" ) ==0) || (strcmp( BkgCorrMethod, "mean" ) ==0) )
+	{
+		int 	nStepsAuto ;
+		double 	Bias_Pr ;
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nStepsAuto", "int" , (int*)&nStepsAuto) ;
+		bkgSubstraction_Auto( (double*)evSig->pr_noBkg, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)nStepsAuto, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
+	}
+}

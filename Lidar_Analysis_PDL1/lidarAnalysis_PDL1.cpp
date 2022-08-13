@@ -34,6 +34,7 @@ int main( int argc, char *argv[] )
 
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
+	sprintf( glbParam.exeFile         , "%s", argv[0] ) ;
 
 	string	Path_File_In  ;
 	string	Path_File_Out ;
@@ -191,6 +192,7 @@ int main( int argc, char *argv[] )
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
+        double buff ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             data_Noise[c] = (double*) new double[glbParam.nBins] ;
@@ -205,6 +207,17 @@ int main( int argc, char *argv[] )
             start_noise[0] =c ;
             if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
                 ERR(retval);    
+            
+            for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
+            {
+                buff = (double)data_Noise[c][b +glbParam.indxOffset[c]] ;
+                data_Noise[c][b] = (double)buff ;
+            }
+            for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
+            {
+                buff = (double)data_Noise[c][glbParam.nBins -glbParam.indxOffset[c]] ;
+                data_Noise[c][b] = buff ; 
+            }
         }
         glbParam.is_Noise_Data_Loaded = true ;
     }
@@ -228,9 +241,10 @@ int main( int argc, char *argv[] )
             pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
 
             for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ; // -1 BIN OFFSET CORRECTION;
+                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ;
+
             for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]] ; // -1 BIN OFFSET CORRECTION;
+                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]] ;
         }
     }
 
@@ -245,6 +259,7 @@ int main( int argc, char *argv[] )
 
     // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
+    oMolData->Read_range_Temp_Pres_From_File( (strcGlobalParameters*)&glbParam ) ;
 
     string  strCompCM ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
@@ -256,39 +271,42 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;
-            printf("Event: %d \t Wavelenght: %d", t, glbParam.iLambda[c] ) ;
-            for ( int i=0 ; i <glbParam.nBins ; i++ )
-                evSig.pr[i] = (double)pr_corr[t][c][i] ;
+            printf("\nEvent: %d/%d \t Wavelenght: %d", t, glbParam.nEventsAVG, glbParam.iLambda[c] ) ;
 
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ;
 
-            if ( glbParam.is_Noise_Data_Loaded == true )
-                oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
-            else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
-                oDL1->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+            for ( int i=0 ; i <glbParam.nBins ; i++ )
+                evSig.pr[i] = (double)pr_corr[t][c][i] ;
 
-            if ( oDL1->avg_Points_Cloud_Mask >0 )
-                smooth( (double*)&evSig.pr2[0], (int)0, (int)(glbParam.nBins-1), (int)oDL1->avg_Points_Cloud_Mask, (double*)&pr2[t][c][0]     ) ;
-            else
+            if ( glbParam.is_Noise_Data_Loaded == true )
             {
-                for ( int i=0 ; i <glbParam.nBins ; i++ )
-                    pr2[t][c][i] = (double)evSig.pr2[i] ;
+                if ( oDL1->avg_Points_Cloud_Mask >0 )
+                {
+                    smooth( (double*)&evSig.pr[0]     , (int)0, (int)(glbParam.nBins-1),  (int)oDL1->avg_Points_Cloud_Mask, (double*)&pr_corr[t][c][0] ) ;
+                    smooth( (double*)&data_Noise[c][0], (int)0, (int)(glbParam.nBins-1),  (int)oDL1->avg_Points_Cloud_Mask, (double*)&data_Noise[c][0] ) ;
+                }
+                oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
             }
+            else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
+                oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+
+            for ( int i=0 ; i <glbParam.nBins ; i++ )
+                pr_corr[t][c][i] = (double)evSig.pr_noBias[i] ; // NOW, pr_corr HAS NO BIAS AND SMOOTHED
 
             if ( c == indxWL_PDL1 )
             {
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
                 {
                     printf("\t --> Getting cloud profile...");
-                    oDL1->ScanCloud_RayleightFit( (const double*)evSig.pr_noBkg , (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                    oDL1->ScanCloud_RayleightFit( (const double*)&pr_corr[t][c][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 }
                 else
                     printf("\t Cloud profiles are not computed. \t") ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
-                    printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle \n", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
+                    printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
-                    printf(" NO clouds detected at %lf zenithal angle \n", glbParam.aZenithAVG[t]  ) ;
+                    printf(" NO clouds detected at %lf zenithal angle ", glbParam.aZenithAVG[t]  ) ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                 {
@@ -297,6 +315,12 @@ int main( int argc, char *argv[] )
                 }
                 RMSerr_Ref[t] = (double)oDL1->errRefBkg ;
             }
+            // if ( glbParam.is_Noise_Data_Loaded == true )
+            //     oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
+            // else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
+            //     oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+            // for( int b=0 ; b <glbParam.nBins ; b++ )
+            //     pr_corr[t][c][b] = (double)evSig.pr_noBias[b] ;
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 

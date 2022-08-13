@@ -24,7 +24,6 @@ using namespace netCDF::exceptions;
 
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
-#include "../libLidar/CDataLevel_1.hpp"
 #include "../libLidar/CDataLevel_2.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
 #include "../libLidar/CMolecularData.hpp"
@@ -35,6 +34,7 @@ int main( int argc, char *argv[] )
  
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
+    sprintf( glbParam.exeFile         , "%s", argv[0] ) ;
 
 	string	Path_File_In  ;
 	string	Path_File_Out ;
@@ -57,6 +57,14 @@ int main( int argc, char *argv[] )
 
     if ( (retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid)) )
         ERR(retval);
+
+// ASK IF L2_Data ALREADY EXIST. IF IT EXIST, RUN THE REANALYSIS BETWEEN minTime AND maxTime
+// CDataLevel_2 *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
+    // int ncid_L2_Data ;
+    // if ( ( retval = nc_inq_grp_ncid( (int)ncid, (const char*)"L2_Data", (int*)&ncid_L2_Data ) ) != NC_NOERR )
+    // EXISTE L2_Data, REANALISIS -->  oDL2->Reanalysis( (int*)&ncid, (strcGlobalParameters*)&glbParam )
+    // else
+    // NO EXISTE L2_Data, ANALISIS (LO QUE YA ESTA HECHO) --> oDL2->Analysis( (int*)&ncid, (strcGlobalParameters*)&glbParam )
 
     // READ VARIABLES FROM DE NETCDF INPUT FILE
     int id_var_pr ;
@@ -230,6 +238,9 @@ int main( int argc, char *argv[] )
     if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, start_mol, count_mol, (double*)&oDL2->nMol[0] ) ) )
         ERR(retval) ;
 
+//! USE (SEE lidarAnalysis_PDL1.cpp) CMolecularData
+    // CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
+
     strcMolecularData   dataMol ;
     dataMol.nBins	 = (int)glbParam.nBins ;
     dataMol.zr		 = (double*) new double [glbParam.nBins] ; memset( dataMol.zr	   , 0, ( sizeof(double) * glbParam.nBins) ) ;
@@ -266,7 +277,7 @@ int main( int argc, char *argv[] )
     delete MOD ;
 
     strcLidarSignal evSig ;
-    GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*) &glbParam );
+    GetMem_evSig( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam );
     glbParam.chSel  = indxWL_PDL2[0] ;
 
     printf("\n\n") ;
@@ -287,7 +298,6 @@ int main( int argc, char *argv[] )
 
             for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
                 data_Noise[indxWL_PDL2[0]][b] = (double)data_Noise[indxWL_PDL2[0]][glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]] ; // BIN OFFSET CORRECTION;
-
             oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&dataMol ) ;
         }
         else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN THE SETTING FILE PASSED AS THIRD ARGUMENT TO lidarAnalysis_PDL2
@@ -302,6 +312,7 @@ int main( int argc, char *argv[] )
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval) ;
 
+//! RE-ANALYSIS: SWIPE ACROSS THE EVENTS SELECTED BETWEEN minTime and maxTime
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         cout << endl ;

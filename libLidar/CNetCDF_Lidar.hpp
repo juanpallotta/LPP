@@ -25,8 +25,11 @@ using namespace netCDF::exceptions;
 #define NDIMS_SCC 5
 #define NVARS_SCC 15
 
-#define NDIMS_LALINET 5
-#define NVARS_LALINET 20
+#define NDIMS_LALINET_L0 3
+#define NVARS_LALINET_L0 20
+#define NDIMS_LALINET_L1 3
+#define NVARS_LALINET_L1 14
+#define NVARS_LALINET_L2 10
 
 #define ERRCODE 20
 #define ERR(e) {printf("NetCDF Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
@@ -50,12 +53,13 @@ class CNetCDF_Lidar
 		void Putt_Bulk_Att_Int( int, int, int, string*, int* ) ;
 		void Set_LALINET_Units_L0( int, int* ) ;
 		void Set_LALINET_Units_L1( int, int* ) ;
+		void Set_LALINET_Units_L2( int, int* ) ;
 		void ReadVar( int, const char*, void* ) ;
 
 		void Save_SCC_NCDF_Format	 	( string, strcGlobalParameters*, double***, long*, string*, long*, string* ) ;
 		void Save_LALINET_NCDF_PDL0		( string, strcGlobalParameters*, double***, long*, long* ) ;
 		void Add_Noise_LALINET_NCDF_PDL0( string*, strcGlobalParameters*, double** ) ;
-		void Save_LALINET_NCDF_PDL1  	( string*, string*, strcGlobalParameters*, double**, double*, int**, double***, double***, int*, int*, CMolecularData* ) ;
+		// void Save_LALINET_NCDF_PDL1  	( string*, string*, strcGlobalParameters*, double**, double*, int**, double***, double***, int*, int*, CMolecularData* ) ;
 		void Save_LALINET_NCDF_PDL1  	( string*, strcGlobalParameters*, double**, double*, int**, double***, 	  	   int*, int*, CMolecularData* ) ;
 		void Save_LALINET_NCDF_PDL2 	( string*, strcGlobalParameters*, int*, int*, CDataLevel_2* ) ;
 		void CloseFile( int ) ;

@@ -189,9 +189,7 @@ int main( int argc, char *argv[] )
     } // for ( int fC=0 ; fC <glbParam.nEventsAVG ; fC++ )
 
 // NETCDF FILE STUFF
-    // CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
     CNetCDF_Lidar   *oNCL = (CNetCDF_Lidar*) new CNetCDF_Lidar() ;
-    // CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
 
     if ( strcmp(glbParam.outputDataFileFormat, "SCC_NETCDF") ==0 )
     {
