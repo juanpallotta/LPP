@@ -64,9 +64,9 @@ do
             fi
     echo -e "Running PDL0: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF
     cd $PATH_TO_L0
-    
-    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF $PATH_DARK_FILE
-    
+
+    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF $PATH_DARK_FILE $OVERLAP_FILE
+
         fi
 
         if [[ "$L1" == "yes" ]] || [[ "$L2" == "yes" ]]
@@ -118,11 +118,11 @@ do
             else
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi
-            rm $PATH_FILE_IN_L2
+            # rm $PATH_FILE_IN_L2
     #   PLOTTING
             echo -e "\n\nGenerating plots for L2..."
             PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"/LPP_Plots_L2.py"
-            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 3
+            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 2
         fi
 
 		echo ""

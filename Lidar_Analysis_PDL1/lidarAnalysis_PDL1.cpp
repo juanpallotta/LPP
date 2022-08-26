@@ -33,6 +33,7 @@ int main( int argc, char *argv[] )
     printf("\n\n---- lidarAnalisys_PDL1 (START) -----------------------------------------------------------------------------\n\n") ;
 
     strcGlobalParameters    glbParam  ;
+
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
 	sprintf( glbParam.exeFile         , "%s", argv[0] ) ;
 
@@ -42,7 +43,7 @@ int main( int argc, char *argv[] )
 	Path_File_In.assign  ( argv[1] ) ;
 	Path_File_Out.assign ( argv[2] ) ;
 
-    printf("\n Path_File_In: %s " , Path_File_In.c_str()  ) ;
+    printf("\n Path_File_In: %s " , Path_File_In.c_str() ) ;
     printf("\n Path_File_Out: %s", Path_File_Out.c_str() ) ;
     printf("\n Settings File: %s\n\n", glbParam.FILE_PARAMETERS ) ;
 
@@ -81,9 +82,18 @@ int main( int argc, char *argv[] )
             ERR(retval);
         // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
     }
+
+    if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
+        ERR(retval);
+
+    if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL ) ) )
+        ERR(retval);
+
     glbParam.nEvents = size_dim[0] ; glbParam.nEventsAVG = glbParam.nEvents ; // 'time' DIMENSION
     glbParam.nCh     = size_dim[1] ; glbParam.nLambda    = glbParam.nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
     glbParam.nBins   = size_dim[2] ; // 'points' DIMENSION
+
+    CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
 
     double  ***dataFile     = (double***) new double**[glbParam.nEvents];
     for ( int e=0 ; e <glbParam.nEvents ; e++ )
@@ -117,27 +127,8 @@ int main( int argc, char *argv[] )
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)Raw_Data_Start_Time ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)Raw_Data_Stop_Time  ) ;
 
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
-    glbParam.nEventsAVG = (int)round( glbParam.nEvents /glbParam.numEventsToAvg ) ;
-
-    glbParam.aZenith     = (double*) new double [glbParam.nEvents]    ;
-    glbParam.aAzimuth    = (double*) new double [glbParam.nEvents]    ;
-    glbParam.aZenithAVG  = (double*) new double [glbParam.nEventsAVG] ;     memset( (double*)glbParam.aZenithAVG , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    glbParam.aAzimuthAVG = (double*) new double [glbParam.nEventsAVG] ;     memset( (double*)glbParam.aAzimuthAVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Zenith"  , (int*)glbParam.aZenith  ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Azimuth" , (int*)glbParam.aAzimuth ) ;
-
-    glbParam.temp_Celsius     = (double*) new double [glbParam.nEvents]     ;
-    glbParam.pres_hPa         = (double*) new double [glbParam.nEvents]     ;
-    glbParam.temp_CelsiusAVG  = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.temp_CelsiusAVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    glbParam.pres_hPaAVG      = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.pres_hPaAVG    , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station", (const char*)"double", (int*)&glbParam.temp_Celsius[0] ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station"   , (const char*)"double", (int*)&glbParam.pres_hPa[0]     ) ;
-    for (  int i =1 ; i < glbParam.nEvents ; i++ )
-    {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
-        glbParam.temp_Celsius[i] = glbParam.temp_Celsius[0]  ;
-        glbParam.pres_hPa[i]     = glbParam.pres_hPa[0]      ;
-    }
 
     double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
@@ -150,7 +141,6 @@ int main( int argc, char *argv[] )
                 dataFile_AVG[e][c][b] = (double)0.0 ;
         }
     }
-    CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
 
     int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
     int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Stop_Time_AVG , 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
@@ -160,38 +150,17 @@ int main( int argc, char *argv[] )
                                     (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                   ) ;
 
-    if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
-        ERR(retval);
-
-    glbParam.r = (double*) new double[glbParam.nBins] ;
-    for( int i=1 ; i <=glbParam.nBins ; i++ )
-        glbParam.r[i-1] = i*glbParam.dr ;
-
-    if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL ) ) )
-        ERR(retval);
-
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
     assert( indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
-    glbParam.iLambda = (int*) new int [glbParam.nCh] ;
     oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (int*)glbParam.iLambda ) ;
 
-    glbParam.indxOffset = (int*) new int [ glbParam.nCh ] ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)&glbParam.nBinsBkg      ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)glbParam.indxOffset    ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam.rInitSig   ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"rEndSig"    , (const char*)"double", (double*)&glbParam.rEndSig    ) ;
-    glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
-    glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr );
-
-    glbParam.indxEndSig_ev = (int*)    new int    [ glbParam.nEventsAVG ] ;
-    glbParam.rEndSig_ev    = (double*) new double [ glbParam.nEventsAVG ] ;
-
-    double  **data_Noise = (double**) new double*[glbParam.nCh] ;
+    double  **data_Noise ;
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
+        data_Noise = (double**) new double*[glbParam.nCh] ;
         double buff ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
@@ -266,7 +235,8 @@ int main( int argc, char *argv[] )
 
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
-        cout << endl << endl ;
+        printf("\n\n\t%s", Path_File_In.c_str()) ;
+
         glbParam.evSel = t ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
@@ -315,12 +285,6 @@ int main( int argc, char *argv[] )
                 }
                 RMSerr_Ref[t] = (double)oDL1->errRefBkg ;
             }
-            // if ( glbParam.is_Noise_Data_Loaded == true )
-            //     oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
-            // else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
-            //     oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-            // for( int b=0 ; b <glbParam.nBins ; b++ )
-            //     pr_corr[t][c][b] = (double)evSig.pr_noBias[b] ;
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 

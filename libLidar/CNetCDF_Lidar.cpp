@@ -500,6 +500,46 @@ void CNetCDF_Lidar::Add_Noise_LALINET_NCDF_PDL0( string *Path_File_Out, strcGlob
 
 }
 
+void CNetCDF_Lidar::Add_Overlap_LALINET_NCDF_PDL0( string *Path_File_Out, strcGlobalParameters *glbParam, double **ovlp )
+{
+    int retval, nc_id ;
+    if ( ( retval = nc_open( Path_File_Out->c_str(), NC_WRITE, &nc_id ) ) )
+    {
+        printf("\nAdd_Overlap_LALINET_NCDF_PDL0() (1) \n") ;
+        ERR(retval) ;
+    }
+    if ( ( retval = nc_redef( (int)nc_id ) ) )
+    {
+        printf("\nAdd_Overlap_LALINET_NCDF_PDL0() (2) \n") ;
+        ERR(retval);
+    }
+
+    int id_dim_ovlp[2], id_var_ovlp ; 
+    if ( (retval = nc_inq_dimid ( nc_id, "channels", (int*)&id_dim_ovlp[0] ) ) )
+            ERR(retval);
+    if ( (retval = nc_inq_dimid ( nc_id, "points", (int*)&id_dim_ovlp[1] ) ) )
+            ERR(retval);
+  
+    DefineVariable( (int)nc_id, (char*)"Overlap", (const char*)"double", (int)2, (int*)&id_dim_ovlp[0], (int*)&id_var_ovlp ) ;
+
+    if ( (retval = nc_enddef(nc_id)) )
+        ERR(retval);
+
+    size_t start_ovlp[2], count_ovlp[2];
+    start_ovlp[0] = 0;   count_ovlp[0] = 1 ; // glbParam.nCh; 
+    start_ovlp[1] = 0;   count_ovlp[1] = glbParam->nBins ;
+    for ( int c=0 ; c <glbParam->nCh ; c++ )
+    {
+        start_ovlp[0] =c ;
+        if ( (retval = nc_put_vara_double( (int)nc_id, (int)id_var_ovlp, start_ovlp, count_ovlp, (double*)&ovlp[c][0] ) ) )
+            ERR(retval);
+    }
+
+    if ( (retval = nc_close(nc_id) ) )
+        ERR(retval);
+
+}
+
 void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalParameters *glbParam, double **RMSElay, double *RMSerr_Ref, int **Cloud_Profiles, 
                                             double ***pr_corr, int *Start_Time_AVG, int *Stop_Time_AVG, CMolecularData *oMolData )
 {

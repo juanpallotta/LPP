@@ -9,7 +9,7 @@
 CMolecularData::CMolecularData( strcGlobalParameters *glbParam )
 {
 	GetMem_dataMol( (int)glbParam->nBins ) ; // MEMORY ALLOCATION FOR dataMol STRUCTURE.
-	Read_range_Temp_Pres_From_File( (strcGlobalParameters*)glbParam ) ;
+	// Read_range_Temp_Pres_From_File( (strcGlobalParameters*)glbParam ) ;
 }
 
 CMolecularData::~CMolecularData()
@@ -17,7 +17,6 @@ CMolecularData::~CMolecularData()
 
 }
 
-// void CMolecularData::GetMem_dataMol( int nBins, int nLambda )
 void CMolecularData::GetMem_dataMol( int nBins )
 {
 		dataMol.nBins	 = (int)nBins ;
@@ -152,7 +151,8 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam )
 		// double N2_shift = 2331e2 ;
 		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
 
-	Alpha_Beta_Mol_from_N_Mol( (strcMolecularData*)&dataMol, (strcGlobalParameters*)glbParam ) ;
+	// Alpha_Beta_Mol_from_N_Mol( (strcMolecularData*)&dataMol, (strcGlobalParameters*)glbParam ) ;
+	Alpha_Beta_Mol_from_N_Mol( (strcGlobalParameters*)glbParam ) ;
 }
 
 void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, double *nMol )
@@ -171,39 +171,45 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, double *nMol 
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( i=0 ; i < glbParam->nBins ; i++ )
-		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
+		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180)) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
-	// RadLowToHighRes() ;
 	for ( i =0 ; i <glbParam->nBins ; i++ )
-		dataMol.nMol[i] = nMol[i] ;
-		// double N2_shift = 2331e2 ;
-		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
+		dataMol.nMol[i] = (double)nMol[i] ;
+		// // double N2_shift = 2331e2 ;
+		// // double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
 
-	Alpha_Beta_Mol_from_N_Mol( (strcMolecularData*)&dataMol, (strcGlobalParameters*)glbParam ) ;
+	// Alpha_Beta_Mol_from_N_Mol( (strcMolecularData*)&dataMol, (strcGlobalParameters*)glbParam ) ;
+	Alpha_Beta_Mol_from_N_Mol( (strcGlobalParameters*)glbParam ) ;
 }
 
-void CMolecularData::Alpha_Beta_Mol_from_N_Mol( strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+// void CMolecularData::Alpha_Beta_Mol_from_N_Mol( strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+void CMolecularData::Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters *glbParam )
 {
  	for( int i=0 ; i < glbParam->nBins ; i++ )
 	{
-		dataMol->betaMol[i]  = (double)(dataMol->nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[glbParam->chSel] ), 4) ) ) ; // r [1/m*sr]
-		dataMol->alphaMol[i] = (double)(dataMol->betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+		// dataMol->betaMol[i]  = (double)(dataMol->nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[glbParam->chSel] ), 4) ) ) ; // r [1/m*sr]
+		// dataMol->alphaMol[i] = (double)(dataMol->betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+		dataMol.betaMol[i]  = (double)(dataMol.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[glbParam->chSel] ), 4) ) ) ; // r [1/m*sr]
+		dataMol.alphaMol[i] = (double)(dataMol.betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
+
 	}
-	Elastic_Rayleigh_Lidar_Signal ( (strcMolecularData*)dataMol, (double*)glbParam->r ) ;
+	// Elastic_Rayleigh_Lidar_Signal ( (strcMolecularData*)dataMol, (double*)glbParam->r ) ;
+	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
 }
 
-void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( strcMolecularData *dataMol, double *r )
+// void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( strcMolecularData *dataMol, double *r )
+void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
 {
-	double *MOD = (double*) new double[ dataMol->nBins ] ;
+	double *MOD = (double*) new double[ dataMol.nBins ] ;
 
-	cumtrapz( (r[1]-r[0]), dataMol->alphaMol, 0, dataMol->nBins-1, (double*)MOD ) ;
+	cumtrapz( (r[1]-r[0]), dataMol.alphaMol, 0, dataMol.nBins-1, (double*)MOD ) ;
 
-	for ( int b=0 ; b < dataMol->nBins  ; b++ )
+	for ( int b=0 ; b < dataMol.nBins  ; b++ )
 	{
-		dataMol->pr2Mol[b] 	= (double)  dataMol->betaMol[b] * exp( -2*MOD[b] ) ;
-		dataMol->prMol [b] 	= (double) ( dataMol->pr2Mol[b]/(r[b]*r[b]) ) ;
+		dataMol.pr2Mol[b] 	= (double)  dataMol.betaMol[b] * exp( -2*MOD[b] ) ;
+		dataMol.prMol [b] 	= (double) ( dataMol.pr2Mol[b]/(r[b]*r[b]) ) ;
 	}
 	delete MOD ;
 }

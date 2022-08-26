@@ -196,6 +196,7 @@ int main( int argc, char *argv[] )
     int indxWL_PDL2[glbParam.nCh], nCh_to_invert ;
     for (int i = 0 ; i <glbParam.nCh; i++)  indxWL_PDL2[i] = -10 ;
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
+    glbParam.chSel  = indxWL_PDL2[0] ;
 
 //! ------------------------ CORRECTIONS OF THE LIDAR SIGNAL: LASER OFFSET AND BIAS
     oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
@@ -205,17 +206,18 @@ int main( int argc, char *argv[] )
     for( int i=1 ; i <=glbParam.nBins ; i++ )
         glbParam.r[i-1] = i*glbParam.dr ;
 
-    double  **data_Noise = (double**) new double*[glbParam.nCh] ;
-    for ( int c=0 ; c <glbParam.nCh ; c++ )
-    {
-        data_Noise[c] = (double*) new double[glbParam.nBins] ;
-        for(int b =0 ; b <glbParam.nBins ; b++)
-            data_Noise[c][b] = (double)0.0 ;
-    }
-
+    double  **data_Noise ;
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
+        data_Noise = (double**) new double*[glbParam.nCh] ;
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+        {
+            data_Noise[c] = (double*) new double[glbParam.nBins] ;
+            for(int b =0 ; b <glbParam.nBins ; b++)
+                data_Noise[c][b] = (double)0.0 ;
+        }
+
         size_t start_noise[2], count_noise[2];
         start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam.nCh; 
         start_noise[1] = 0;   count_noise[1] = glbParam.nBins;
@@ -238,53 +240,18 @@ int main( int argc, char *argv[] )
     if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, start_mol, count_mol, (double*)&oDL2->nMol[0] ) ) )
         ERR(retval) ;
 
-//! USE (SEE lidarAnalysis_PDL1.cpp) CMolecularData
-    // CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
-
-    strcMolecularData   dataMol ;
-    dataMol.nBins	 = (int)glbParam.nBins ;
-    dataMol.zr		 = (double*) new double [glbParam.nBins] ; memset( dataMol.zr	   , 0, ( sizeof(double) * glbParam.nBins) ) ;
-    dataMol.nMol     = (double*) new double [glbParam.nBins] ; memset( dataMol.nMol    , 0, ( sizeof(double) * glbParam.nBins) ) ;
-    dataMol.betaMol  = (double*) new double [glbParam.nBins] ; memset( dataMol.betaMol , 0, ( sizeof(double) * glbParam.nBins) ) ;
-    dataMol.alphaMol = (double*) new double [glbParam.nBins] ; memset( dataMol.alphaMol, 0, ( sizeof(double) * glbParam.nBins) ) ;
-    dataMol.prMol	 = (double*) new double [glbParam.nBins] ; memset( dataMol.prMol   , 0, ( sizeof(double) * glbParam.nBins) ) ;
-    dataMol.pr2Mol	 = (double*) new double [glbParam.nBins] ; memset( dataMol.pr2Mol  , 0, ( sizeof(double) * glbParam.nBins) ) ;
-    dataMol.zenith	 = 0 ;
-
-    for( int c=0 ; c <glbParam.nCh ; c++ )
-    {
-        for( int i=0 ; i < glbParam.nBins ; i++ )
-        {
-            oDL2->beta_Mol [c][i] = (double)(oDL2->nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam.iLambda[c] ), 4) ) ) ; // r [1/m*sr]
-            oDL2->alpha_Mol[c][i] = (double)(oDL2->beta_Mol[c][i] * 8.0 * 3.1415/3.0) ; // r [1/m]
-
-            if ( c == indxWL_PDL2[0] )
-            {
-                dataMol.nMol[i]     = oDL2->nMol       [i]  ;
-                dataMol.betaMol[i]  = oDL2->beta_Mol[c][i]  ;
-                dataMol.alphaMol[i] = oDL2->alpha_Mol[c][i] ;
-            }
-        }
-    }
-    double *MOD = (double*) new double[ dataMol.nBins ] ;
-    cumtrapz( ( glbParam.r[1]-glbParam.r[0]), dataMol.alphaMol, 0, dataMol.nBins-1, (double*)MOD ) ;
-    for ( int b=0 ; b < dataMol.nBins  ; b++ )
-    {
-        dataMol.pr2Mol[b] 	= (double)  dataMol.betaMol[b] * exp( -2*MOD[b] ) ;
-        dataMol.prMol [b] 	= (double) ( dataMol.pr2Mol[b]/(glbParam.r[b]*glbParam.r[b]) ) ;
-        oDL2->pr2_Mol[b]    = (double) dataMol.pr2Mol[b] ; // P(r)r^2 @ indxWL_PDL2[0]
-    }
-    delete MOD ;
+    CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
 
     strcLidarSignal evSig ;
     GetMem_evSig( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam );
-    glbParam.chSel  = indxWL_PDL2[0] ;
 
     printf("\n\n") ;
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
     {
         printf("Applying corrections to the lidar signal number %d \r", e) ;
         glbParam.evSel = e ;
+
+        oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
 
         for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
             evSig.pr[b]  = (double)dataFile_AVG[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
@@ -298,14 +265,17 @@ int main( int argc, char *argv[] )
 
             for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
                 data_Noise[indxWL_PDL2[0]][b] = (double)data_Noise[indxWL_PDL2[0]][glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]] ; // BIN OFFSET CORRECTION;
-            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&dataMol ) ;
+
+            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
         }
         else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN THE SETTING FILE PASSED AS THIRD ARGUMENT TO lidarAnalysis_PDL2
-        { 
-            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&dataMol ) ;
-        }
+            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
-        for ( int i=0 ; i<glbParam.nBins ; i++ )    oDL2->pr2[e][indxWL_PDL2[0]][i] = (double)(evSig.pr2[i]) ;
+        for ( int i=0 ; i<glbParam.nBins ; i++ )
+        {
+            oDL2->pr2[e][indxWL_PDL2[0]][i] = (double)(evSig.pr2[i]) ;
+            oDL2->pr[e][i]                  = (double)(evSig.pr_noBias[i]) ;
+        }
     }
     printf("\nDone\n") ;
 
@@ -317,11 +287,14 @@ int main( int argc, char *argv[] )
     {
         cout << endl ;
         glbParam.evSel = t ;
-        oDL2->dzr = (glbParam.r[2] - glbParam.r[1]) * 1 ;
+
+        oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
+
+        oDL2->dzr = (glbParam.r[2] - glbParam.r[1]) ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
             cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << indxWL_PDL2[c] << "\t Wavelenght: " << glbParam.iLambda[indxWL_PDL2[c]] ;
-            oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t, (int)indxWL_PDL2[c] ) ;
+            oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t, (int)indxWL_PDL2[c], (strcMolecularData*)&oMolData->dataMol ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;

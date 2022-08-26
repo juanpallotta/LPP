@@ -31,6 +31,7 @@ int main( int argc, char *argv[] )
 {
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS, "%s", argv[3] ) ;
+    
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"inputDataFileFormat" , (const char*)"string", (char*)glbParam.inputDataFileFormat  ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"outputDataFileFormat", (const char*)"string", (char*)glbParam.outputDataFileFormat ) ;
 
@@ -93,7 +94,7 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        cout << endl << "A folder should be passed as first argument (check dirFile.sh file)" << endl ;
+        cout << endl << "A folder must be passed as first argument (check dirFile.sh file)" << endl ;
         return -1 ;
     }
     assert( glbParam.nEvents !=0 ); // SI SE CUMPLE, SIGUE DE LARGO.
@@ -206,9 +207,13 @@ int main( int argc, char *argv[] )
         if (  strstr( argv[4], "bkg" ) != 0 )
         {
             printf("\n Adding noise file (%s) to NetCDF file \n", argv[4] ) ;
+            
+            // double *data_Bkg = (double*) new double [glbParam.nBins] ;
+            // Read_Bkg_Data_Files( (char*)"/mnt/Disk-1_8TB/Brazil/SPU/20200914/dark_current/", (double*)data_Bkg ) ;
+            
             ReadLicelData ( (char*)argv[4], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[0] ) ;
 
-            double  **data_Noise = (double**) new double*[glbParam.nCh];
+            double **data_Noise = (double**) new double*[glbParam.nCh];
             for ( int c=0 ; c <glbParam.nCh ; c++ )
             {
                 data_Noise[c] = (double*) new double[glbParam.nBinsRaw] ;
@@ -221,8 +226,34 @@ int main( int argc, char *argv[] )
         {
             printf("\nThere is no noise file to add. \n") ;
         }
+
+        if (  strcmp( argv[5], "-" ) != 0 )
+        {
+            printf("\n Adding overlap file (%s) to NetCDF file \n", argv[5] ) ;
+            
+            double **ovlp = (double**)new double*[ glbParam.nCh ] ;
+            for (int c =0; c <glbParam.nCh; c++)
+            {
+                ovlp[c] = (double*) new double[ glbParam.nBins ] ;
+                memset( (double*)ovlp[c], 0, sizeof(double)*glbParam.nBins ) ;
+            }
+            
+            if ( Read_Overlap_File ( (char*)argv[5], (strcGlobalParameters*)&glbParam, (double**)ovlp ) >=0 )
+            {
+                oNCL->Add_Overlap_LALINET_NCDF_PDL0( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)ovlp ) ;
+            }
+            else
+            {
+                printf("\n\n*** Overlap file is not saved in file %s due to inconsistencies in the number of bins and/or channels.\nSee documentation to know how the overlap file must be formatted.***\n\n", Path_File_Out.c_str() ) ;
+            }
+        }
+        else
+        {
+            printf("\nThere is no overlap file to add. \n") ;
+        }
+
     }
-    printf("\n\n*** SUCCESS writing example file %s!\n", Path_File_Out.c_str());
+    printf("\n\n\t\t SUCCESS writing %s file!\n", Path_File_Out.c_str() ) ;
 
 	return 0 ;
 }

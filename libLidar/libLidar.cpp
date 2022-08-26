@@ -503,6 +503,36 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
 }
 
+int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam , double *data_Bkg )
+{
+	char    **inputFilesInTime ;
+//   if ( S_ISDIR(path_to_bkg_files) )
+//     { // A *FOLDER* WAS PASSED AS AN ARGUMENT --> analyze all the files within the time bin set in analysisParameter.dat
+	int     nFilesInInputFolder =0 ;
+	DIR *d;
+	struct dirent *dir;
+	// GET THE NUMBER OF FILES IN THE INPUT FOLDER
+	d = opendir( path_to_bkg_files ) ;
+	while ( (dir = readdir(d)) != NULL )
+	{ // GET THE NUMBER OF FILES INSIDE THE FOLDER
+		if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) && ( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
+			nFilesInInputFolder++;
+	}
+	printf("\n nFilesInInputFolder: %d \n", nFilesInInputFolder) ;
+	if ( nFilesInInputFolder ==0 )
+	{
+		printf("\n There are not Licel files in the folder (see dirFile.sh) \nBye...") ;
+		return -1 ;
+	}
+	rewinddir(d) ;
+	inputFilesInTime  = (char**) new char* [nFilesInInputFolder] ;
+	for( int f=0 ; f<nFilesInInputFolder ; f++ )
+		inputFilesInTime[f] = (char*) new char [200] ;
+
+    // }
+	return 0 ;
+}
+
 void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
 {
 	fitParam->sumsq_m = (double)0.0  ;
@@ -581,16 +611,20 @@ void TransmissionMethod_pr( double *pr, strcGlobalParameters *glbParam, strcMole
 	{
 		fitParam_before_cloud.indxInicFit = indxBefCloud - (int)round(DELTA_RANGE_LIM_BINS) ;
 		fitParam_before_cloud.indxEndFit  = indxBefCloud - (int)round(DELTA_RANGE_LIM_BINS/5) ;
-		fitParam_before_cloud.nFit = fitParam_before_cloud.indxEndFit - fitParam_before_cloud.indxInicFit ;
+		fitParam_before_cloud.nFit = fitParam_before_cloud.indxEndFit - fitParam_before_cloud.indxInicFit +1;
 			RayleighFit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_before_cloud, (double*)prFit ) ;
 			indxB = indxBefCloud -(int)round(DELTA_RANGE_LIM_BINS/2) ;
 			prBeforeCloud = prFit[indxB] ;
+			// printf("\n prFit[indxB]= %lf \t fitParam_before_cloud.m= %lf \n", prFit[indxB], fitParam_before_cloud.m ) ;
+			// printf(" pr[%d]= %lf \n", indxB, pr[indxB] ) ;
 		fitParam_after_cloud.indxInicFit = indxAftCloud + (int)round(DELTA_RANGE_LIM_BINS/5) ;
 		fitParam_after_cloud.indxEndFit  = indxAftCloud + (int)round(DELTA_RANGE_LIM_BINS) ;
-		fitParam_after_cloud.nFit = fitParam_after_cloud.indxEndFit - fitParam_after_cloud.indxInicFit ;
+		fitParam_after_cloud.nFit = fitParam_after_cloud.indxEndFit - fitParam_after_cloud.indxInicFit +1;
 			RayleighFit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_after_cloud, (double*)prFit ) ;
 			indxA = indxAftCloud +(int)round(DELTA_RANGE_LIM_BINS/2) ;
 			prAfterCloud = prFit[indxA] ;
+			// printf(" prFit[indxA]= %lf \t fitParam_after_cloud.m= %lf \n", prFit[indxA], fitParam_after_cloud.m ) ;
+			// printf(" pr[%d]= %lf \n", indxA, pr[indxA] ) ;
 		// DELTA_RANGE_LIM_BINS = DELTA_RANGE_LIM_BINS -3 ;
 		indxBefCloud = indxBefCloud -1 ;
 		indxAftCloud = indxAftCloud +1 ;
@@ -600,7 +634,8 @@ void TransmissionMethod_pr( double *pr, strcGlobalParameters *glbParam, strcMole
 	double rPrMol   = dataMol->prMol[indxA] / dataMol->prMol[indxB] ;
 	double rR2 		= pow(glbParam->r[indxA], 2) / pow(glbParam->r[indxB], 2) ;
 	double Tp2Cloud	= rPr / (rPrMol * rR2) ;
-//  printf("\t\t %d-%d --- rPr: %lf - rPrMol: %lf - Tp2Cloud: %lf \n", indxBefCloud, indxAftCloud, rPr, rPrMol, Tp2Cloud) ;
+	// printf("\t\t rPr: %lf - prAfterCloud[%d]: %lf - prBeforeCloud[%d]: %lf \n", rPr, indxA, prAfterCloud, indxB, prBeforeCloud ) ;
+	// printf("\t\t %d-%d --- rPr: %lf - rPrMol: %lf - Tp2Cloud: %lf \n", indxBefCloud, indxAftCloud, rPr, rPrMol, Tp2Cloud) ;
 	*VOD = -0.5*log(Tp2Cloud) *cos(dataMol->zenith*PI/180) ;
 	delete prFit ;
 }
@@ -646,6 +681,68 @@ void Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData *dataMol, double *r )
 	delete MOD ;
 }
 
+
+int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double **ovlp )
+{
+	char 	line[1024] ;
+	int		nRows_ovlpFile =0, nCols_ovlpFile =0 ;
+	char 	*v ;
+
+	FILE *fid = fopen( ovlp_File, "r") ;
+	if ( fid == NULL )
+		printf("\n Read_Overlap_File(...): Overlap file %s can't be openend\n", ovlp_File ) ;
+
+// GET THE NUMBER OF LINES (BINS) IN THE OVERLAP FILE
+	while( !feof(fid) )
+	{
+		fgets(line, 1024, fid) ;
+		nRows_ovlpFile++     ;
+	}
+	nRows_ovlpFile--;
+// GET THE NUMBER OF COLUMNS (CHANNELS) IN THE OVERLAP FILE
+	v = strtok( line, ",") ;
+	while(v)
+	{
+		v = strtok(NULL, ",") ;
+		nCols_ovlpFile++ ;
+	}
+	nCols_ovlpFile--;
+
+	if ( (nRows_ovlpFile !=glbParam->nBins ) || ( nCols_ovlpFile !=glbParam->nCh ) )
+	{
+		printf( "\n\n*** Read_Overlap_File() --> Overlap file (%s) contain %d lines and %d channels saved, and its inconsistent with the number of bins (%d) and channels (%d) of the signals***\n\n", ovlp_File, nRows_ovlpFile, nCols_ovlpFile, glbParam->nBins, glbParam->nCh ) ;
+		return -1 ;
+	}
+
+	fseek( fid, 0, 0 ) ; // RESET THE POINTER
+
+	// READ THE HEADER
+	fgets(line, 1024, fid) ;
+	int c=0, i=0 ;
+	while( fgets(line, 1024, fid ) )
+	{
+		v = strtok( line, "," ) ; // TOKENIZE THE READ LINE
+		v = strtok( NULL, "," ) ; // JUMP THE FIRST ELEMENT (RANGE)
+		while(v)
+		{
+			ovlp[c][i] = atof(v)  ;
+			v = strtok(NULL, ",") ; // JUMP TO THE NEXT ELEMENT (CHANNEL)
+			c++ ;
+		}
+		c =0 ;
+		i++  ;
+	}
+	return 10 ;
+}
+
+
+
+
+
+
+
+
+
 // void RadLowToHighRes( int nLR, double *xLR, double *yLR, int nHR, double *xHR, double *yHR )
 // {
 // 	double *coeff = (double*) new double[3 +1] ;
@@ -673,7 +770,7 @@ void Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData *dataMol, double *r )
 // 	if ( fid == NULL )
 // 		printf("\n ReadUsSTDfile(...): No se puede abrir el archivo %s \n", radFile) ;
 
-// // OBTENGO LA CANTIDAD DE FILAS, O CANTIDAD DE BINES DEL RADIOSONDEO (BAJA RESOLUCION).
+// OBTENGO LA CANTIDAD DE FILAS, O CANTIDAD DE BINES DEL RADIOSONDEO (BAJA RESOLUCION).
 // 	while( !feof(fid) )
 // 	{
 // 	  ch = fgetc(fid);

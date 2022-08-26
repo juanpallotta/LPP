@@ -91,7 +91,7 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 	double	corrCoeff ;
     while ( true )
 	{
-		RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins , "wB"    , "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 		corrCoeff = (double) correlationCoefficient_dbl( (double*)&pr[fitParam.indxInicFit], (double*)&dummy[fitParam.indxInicFit], (int)fitParam.nFit ) ;
 		if ( corrCoeff > 0.90 )
 			break ;

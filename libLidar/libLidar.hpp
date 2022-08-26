@@ -50,6 +50,7 @@ long 	FileSearch					( FILE*, const char*, long, const int ) ;
 
 void 	ReadLicelGobalParameters    ( char*, strcGlobalParameters* ) ;
 void 	ReadLicelData				( char*, strcGlobalParameters*, strcLidarDataFile* ) ;
+int     Read_Bkg_Data_Files         ( char*, strcGlobalParameters *, double* ) ;
 void    ReadLicelTime_and_Coord     ( FILE*, strcGlobalParameters* ) ;
 void    ReadLicel_AzZth             ( FILE*, strcGlobalParameters* ) ;
 void    fill_up_line                (char*, int, char) ;
@@ -98,14 +99,8 @@ void	RayleighFit_Factor			( double*, double*, strcFitParam*, double* ) ;
 // void 	RayleighFit_M				( double*, double*, int, strcFitParam*, double* ) ;
 //void 	FindMolecularRange			( double*, strcMolecularData*, strcGlobalParameters*, strcIndexMol*) ;
 void 	FindMolecularRange_v2		( double*, strcMolecularData*, strcGlobalParameters*, strcIndexMol*) ;
-// void 	FindMolecularRange_v3       ( double*, strcMolecularData*, strcGlobalParameters*, double*, int, int, strcIndexMol* ) ;
-// void 	RayleighFit_Gluing			( double*, double*, int, int, double* ) ;
-//void	RayleighFit_Gluing_v2		( double*, double*, strcFitParam, double* ) ;
-// void 	RayleighFit_Gluing_Clouds	( double*, double*, strcIndexMol*, int, double* ) ;
-// void 	CloudDetection				( double*, strcGlobalParameters*, strcCloudProfiles* ) ;
-// void 	ScanCloud_RayleightFit		( const double*, strcGlobalParameters*, strcCloudProfiles* ) ;
 
-
+int     Read_Overlap_File           (char *, strcGlobalParameters*, double **) ;
 void	overlapCorrection			( double*, int, const char * ) ;
 void	overlapCorrectionSignal		( double*, int ) ;
 

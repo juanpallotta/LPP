@@ -56,12 +56,12 @@ class CNetCDF_Lidar
 		void Set_LALINET_Units_L2( int, int* ) ;
 		void ReadVar( int, const char*, void* ) ;
 
-		void Save_SCC_NCDF_Format	 	( string, strcGlobalParameters*, double***, long*, string*, long*, string* ) ;
-		void Save_LALINET_NCDF_PDL0		( string, strcGlobalParameters*, double***, long*, long* ) ;
-		void Add_Noise_LALINET_NCDF_PDL0( string*, strcGlobalParameters*, double** ) ;
-		// void Save_LALINET_NCDF_PDL1  	( string*, string*, strcGlobalParameters*, double**, double*, int**, double***, double***, int*, int*, CMolecularData* ) ;
-		void Save_LALINET_NCDF_PDL1  	( string*, strcGlobalParameters*, double**, double*, int**, double***, 	  	   int*, int*, CMolecularData* ) ;
-		void Save_LALINET_NCDF_PDL2 	( string*, strcGlobalParameters*, int*, int*, CDataLevel_2* ) ;
+		void Save_SCC_NCDF_Format	 		( string, strcGlobalParameters*, double***, long*, string*, long*, string* ) ;
+		void Save_LALINET_NCDF_PDL0			( string, strcGlobalParameters*, double***, long*, long* ) ;
+		void Add_Noise_LALINET_NCDF_PDL0	( string*, strcGlobalParameters*, double** ) ;
+		void Add_Overlap_LALINET_NCDF_PDL0	( string *Path_File_Out, strcGlobalParameters *glbParam, double **ovlp ) ;
+		void Save_LALINET_NCDF_PDL1  		( string*, strcGlobalParameters*, double**, double*, int**, double***, 	  	   int*, int*, CMolecularData* ) ;
+		void Save_LALINET_NCDF_PDL2		 	( string*, strcGlobalParameters*, int*, int*, CDataLevel_2* ) ;
 		void CloseFile( int ) ;
 };
 #endif
