@@ -21,6 +21,7 @@ class CDataLevel_2
 	    double  ***beta_Aer 						;
 		double  *nMol 								;
 		double  ***pr2, **pr, *pr2n, phi, p, ip, CalTerm, beta_Tot ;
+		int 	**layer_mask ;
 		double  *dummy 								;
 		double  dzr									;
 		double  LRM, LR[100]						;

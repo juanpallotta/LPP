@@ -1,5 +1,5 @@
 
-#pragma once
+// #pragma once
 
 #ifndef LIDARMATHFUNC_H
 #define LIDARMATHFUNC_H

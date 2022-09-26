@@ -3,15 +3,15 @@
 
 CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 {
-	LRM		  = 8*M_PI/3 ;
-	pr2n      = (double*)   new double  [glbParam->nBins  ] ;	memset( (double*)pr2n , 0, sizeof(double)*glbParam->nBins ) ;
-	pr2       = (double***) new double**[glbParam->nEventsAVG] ;
-    alpha_Aer = (double***) new double**[glbParam->nEventsAVG] ;
-    beta_Aer  = (double***) new double**[glbParam->nEventsAVG] ;
-    AOD_LR	  = (double**)  new double *[glbParam->nEventsAVG] ;
-    pr		  = (double**)  new double *[glbParam->nEventsAVG] ;
-    nMol	  = (double*)   new double[glbParam->nBins] 	   ;	memset( (double*)nMol     , 0, sizeof(double)*glbParam->nBins ) ;
-    dummy     = (double*)  new double [glbParam->nBins ] ;		memset( (double*)dummy  , 0, sizeof(double)*glbParam->nBins ) ;
+	LRM		   = 8*M_PI/3 ;
+	pr2n       = (double*)   new double  [glbParam->nBins  ]    ;	memset( (double*)pr2n , 0, sizeof(double)*glbParam->nBins ) ;
+	pr2        = (double***) new double**[glbParam->nEventsAVG] ;
+    alpha_Aer  = (double***) new double**[glbParam->nEventsAVG] ;
+    beta_Aer   = (double***) new double**[glbParam->nEventsAVG] ;
+    AOD_LR	   = (double**)  new double *[glbParam->nEventsAVG] ;
+    pr		   = (double**)  new double *[glbParam->nEventsAVG] ;
+    nMol	   = (double*)   new double  [glbParam->nBins]      ;	memset( (double*)nMol , 0, sizeof(double)*glbParam->nBins ) ;
+    dummy      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)dummy, 0, sizeof(double)*glbParam->nBins ) ;
 
 	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
 	{
@@ -79,8 +79,11 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
 	{
-			sum( (double*)&pr2[t][c][0], (int)(indxRef -avg_Half_Points_Fernald_Ref), (int)(indxRef +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
+			// sum( (double*)&pr2[t][c][0], (int)(indxRef -avg_Half_Points_Fernald_Ref), (int)(indxRef +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
+			// pr2_Ref = pr2_Ref /(avg_Half_Points_Fernald_Ref +1) ;
+			sum( (double*)&pr[t][0], (int)(indxRef -avg_Half_Points_Fernald_Ref), (int)(indxRef +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
 			pr2_Ref = pr2_Ref /(avg_Half_Points_Fernald_Ref +1) ;
+			pr2_Ref = pr2_Ref * glbParam->r[indxRef]* glbParam->r[indxRef] ;
 	}
 	else if ( strcmp( reference_method.c_str(), "FIT" ) ==0 )
 	{
@@ -89,8 +92,11 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 		fitParam.indxInicFit = indxRef - avg_Half_Points_Fernald_Ref ;
 		fitParam.indxEndFit  = indxRef - avg_Half_Points_Fernald_Ref ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-			RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
-		pr2_Ref = pr2Fit[indxRef] ;
+		// 	RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
+		// pr2_Ref = pr2Fit[indxRef] ;
+		RayleighFit( (double*)&pr[t][0], (double*)dataMol->prMol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
+		pr2_Ref = pr2Fit[indxRef] * glbParam->r[indxRef]* glbParam->r[indxRef] ;
+
 		delete pr2Fit ;
 	}
 	pr2_Ref = pr2_Ref *1.0 ;
@@ -181,4 +187,34 @@ int CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularD
   	} 
 	return (fitParam.indxInicFit+avg_Half_Points_Fernald_Ref) ;
 }
+
+// int CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
+// {
+// 	printf("\n pr[%d][100]= %e \n"  , glbParam->evSel, pr[glbParam->evSel][100] ) ;
+// 	printf(" pr_Mol[%d][100]= %e \n", glbParam->evSel, dataMol->prMol[100] ) ;
+
+// 	int avg_Half_Points_Fernald_Ref ;
+// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Half_Points_Fernald_Ref", "int", (int*)&avg_Half_Points_Fernald_Ref ) ;
+// 	strcFitParam fitParam ;
+//     fitParam.indxInicFit = indxInitSig ; // round( 3000/7.5 ); // 
+// 	fitParam.indxEndFit  = fitParam.indxInicFit + 2*avg_Half_Points_Fernald_Ref -1;
+// 	fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+
+// 	double	corrCoeff ;
+//     while ( fitParam.indxEndFit <(glbParam->nBins-1) )
+// 	{
+// 		RayleighFit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+// 		corrCoeff = (double) correlationCoefficient_dbl( (double*)&pr[glbParam->evSel][fitParam.indxInicFit], (double*)&dummy[fitParam.indxInicFit], (int)fitParam.nFit ) ;
+// 		if ( corrCoeff > 0.999 )
+// 		{	
+// 			printf("\n Break: %lf \t fitParam.m= %e \t glbParam->evSel: %d \t fitParam.indxInitFit: %d", corrCoeff, fitParam.m, glbParam->evSel, fitParam.indxInicFit+avg_Half_Points_Fernald_Ref) ;
+// 			break ;
+// 		}
+
+// 		fitParam.indxInicFit = fitParam.indxInicFit +100 ;
+// 		fitParam.indxEndFit  = fitParam.indxInicFit + 2*avg_Half_Points_Fernald_Ref -1;
+// 		fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+//   	} 
+// 	return (fitParam.indxInicFit+avg_Half_Points_Fernald_Ref) ;
+// }
 

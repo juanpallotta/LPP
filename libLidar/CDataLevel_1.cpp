@@ -35,8 +35,8 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
     }
 
     glbParam->r = (double*) new double[glbParam->nBins] ;
-    for( int i=1 ; i <=glbParam->nBins ; i++ )
-        glbParam->r[i-1] = i*glbParam->dr ;
+    for( int i=0 ; i <glbParam->nBins ; i++ )
+		glbParam->r[i] = (i+1)*glbParam->dr ;
 
 	glbParam->iLambda = (int*) new int [glbParam->nCh] ;
 
@@ -146,8 +146,9 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 			SE_lay[i][k] =(double) 0.0 ;
 	}
 
+	glbParam->indxEndSig = glbParam->indxEndSig_ev[glbParam->evSel] ;
 	fitParam.indxInicFit = (int) glbParam->indxInitSig ;
-	fitParam.indxEndFit  = (int) glbParam->indxEndSig  ; // glbParam->indxEndSig_ev[glbParam->evSel] ;
+	fitParam.indxEndFit  = (int) glbParam->indxEndSig  ;
 		for ( int i=0 ; i<nScanMax ; i++ ) // ------------------------------------------------------------------------------------------
 		{
 			for (int b =0; b <glbParam->nBins ; b++)
@@ -414,7 +415,7 @@ void CDataLevel_1::GetCloudLimits_v1( strcGlobalParameters *glbParam )
 		memset( indxMol[glbParam->evSel].indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
 		memset( indxMol[glbParam->evSel].indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
 		cloudProfiles[glbParam->evSel].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-		indxMol[glbParam->evSel].nMolRanges 	 = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
+		indxMol[glbParam->evSel].nMolRanges 	= 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
 
 		//CLOUDS DETECTION
 		for( int i=0 ; i <=(glbParam->indxEndSig-1) ; i++ )

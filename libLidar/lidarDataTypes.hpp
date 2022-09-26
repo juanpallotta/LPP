@@ -66,6 +66,7 @@ struct strcGlobalParameters
 	char    inputDataFileFormat[50]	;
 	char    exeFile[50]				;
 	char    outputDataFileFormat[50];
+	char 	BkgCorrMethod[10]    	;
 	double 	dr 						;
 	double 	dzr						;
 	int 	nChMax 					;
@@ -108,7 +109,6 @@ struct strcGlobalParameters
 	int 	nEvents 				;
 	int 	nEventsAVG 				;
 	int		numEventsToAvg			;
-	int 	rOffset			 		;
 	int 	*indxOffset				; // [MAX_CH_LICEL]
 	char	fileName[200] 			;
 	char	infoFile[100] 			;
@@ -127,7 +127,8 @@ struct strcGlobalParameters
 	char	StartDate[20]			;
 	char	StartTime[20]			;
 	char	StopDate[20]			;
-	char	StopTime[20]			;	
+	char	StopTime[20]			;
+	float	Time_Zone				;	
 	int 	year 					;
 	int 	month 					;
 	int 	day 					;
@@ -136,6 +137,7 @@ struct strcGlobalParameters
 	int 	sec 					;
 	int 	run 					;
 	bool	is_Noise_Data_Loaded =false ;
+	bool	is_Ovlp_Data_Loaded  =false ;
 
 	double 	drFit					;
 	int 	dNFit					;
@@ -161,10 +163,10 @@ struct strcMolecularData
 
 struct strcLidarDataFile
 {
-	int 	**db_ADC 	 	; // [event_Number/channel_number][bin_Number]
-	double 	**db_mV  	 	; // [event_Number/channel_number][bin_Number]
-	double 	**db_mV_TEST 	; // [event_Number/channel_number][bin_Number]
-	double 	**db_CountsMHz  ; // [event_Number/channel_number][bin_Number]
+	int 	**db_ADC 	 	; // [channel_number][bin_Number]
+	double 	**db_mV  	 	; // [channel_number][bin_Number]
+	double 	**db_mV_TEST 	; // [channel_number][bin_Number]
+	double 	**db_CountsMHz  ; // [channel_number][bin_Number]
 } ;
 
 struct strcLidarSignalSet

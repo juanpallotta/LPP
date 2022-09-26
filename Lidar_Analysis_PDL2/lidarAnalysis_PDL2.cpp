@@ -212,33 +212,29 @@ int main( int argc, char *argv[] )
     {
         data_Noise = (double**) new double*[glbParam.nCh] ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
             data_Noise[c] = (double*) new double[glbParam.nBins] ;
-            for(int b =0 ; b <glbParam.nBins ; b++)
-                data_Noise[c][b] = (double)0.0 ;
-        }
 
-        size_t start_noise[2], count_noise[2];
-        start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam.nCh; 
-        start_noise[1] = 0;   count_noise[1] = glbParam.nBins;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
-            start_noise[0] =c ;
-            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
-                ERR(retval);    
-        }
-        glbParam.is_Noise_Data_Loaded = true ;
+        oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
     }
+
+    double  **ovlp ;
+    int id_var_ovlp ;
+    if ( ( nc_inq_varid ( (int)ncid, "Overlap", (int*)&id_var_ovlp ) ) == NC_NOERR )
+    {
+        ovlp = (double**) new double*[glbParam.nCh] ;
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+            ovlp[c] = (double*) new double[glbParam.nBins] ;
+
+        oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
+    }
+
+    oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
     int id_var_nmol ;
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)"Molecular_Density", (int*)&id_var_nmol ) ) )
         ERR(retval);
-
-    size_t start_mol[1], count_mol[1];
-    start_mol[0] = 0;   count_mol[0] = glbParam.nBins ; // BINS
-    if ( (retval = nc_get_vara_double( (int)ncid_L1_Data, (int)id_var_nmol, start_mol, count_mol, (double*)&oDL2->nMol[0] ) ) )
-        ERR(retval) ;
+    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Molecular_Density" , (double*)&oDL2->nMol[0] ) ;
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
 
@@ -252,11 +248,16 @@ int main( int argc, char *argv[] )
         glbParam.evSel = e ;
 
         oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
-
         for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
             evSig.pr[b]  = (double)dataFile_AVG[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
         for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
             evSig.pr[b] = (double)dataFile_AVG[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+
+        if( glbParam.is_Ovlp_Data_Loaded ==true )
+        {
+            for (int i =0; i <glbParam.nBins ; i++)
+                evSig.pr[i] = evSig.pr[i] /ovlp[indxWL_PDL2[0]][i] ;
+        }
 
         if ( glbParam.is_Noise_Data_Loaded == true )
         {

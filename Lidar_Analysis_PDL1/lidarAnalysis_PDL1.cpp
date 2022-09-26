@@ -161,39 +161,27 @@ int main( int argc, char *argv[] )
     if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
         data_Noise = (double**) new double*[glbParam.nCh] ;
-        double buff ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
             data_Noise[c] = (double*) new double[glbParam.nBins] ;
-            for(int b =0 ; b <glbParam.nBins ; b++)
-                data_Noise[c][b] = (double)0.0 ;
-        }
-        size_t start_noise[2], count_noise[2];
-        start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam.nCh; 
-        start_noise[1] = 0;   count_noise[1] = glbParam.nBins;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
-            start_noise[0] =c ;
-            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
-                ERR(retval);    
-            
-            for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
-            {
-                buff = (double)data_Noise[c][b +glbParam.indxOffset[c]] ;
-                data_Noise[c][b] = (double)buff ;
-            }
-            for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
-            {
-                buff = (double)data_Noise[c][glbParam.nBins -glbParam.indxOffset[c]] ;
-                data_Noise[c][b] = buff ; 
-            }
-        }
-        glbParam.is_Noise_Data_Loaded = true ;
+
+        oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
     }
+
+    double  **ovlp ;
+    int id_var_ovlp ;
+    if ( ( nc_inq_varid ( (int)ncid, "Overlap", (int*)&id_var_ovlp ) ) == NC_NOERR )
+    {
+        ovlp = (double**) new double*[glbParam.nCh] ;
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+            ovlp[c] = (double*) new double[glbParam.nBins] ;
+
+        oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
+    }
+
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//! /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     strcLidarSignal 	evSig ;
     GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*) &glbParam );
@@ -214,6 +202,12 @@ int main( int argc, char *argv[] )
 
             for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
                 pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]] ;
+
+            // if( glbParam.is_Ovlp_Data_Loaded ==true )
+            // {
+            //     for (int i =0; i <glbParam.nBins ; i++)
+            //         pr_corr[e][c][i] = pr_corr[e][c][i] /ovlp[c][i] ;
+            // }
         }
     }
 
@@ -260,9 +254,16 @@ int main( int argc, char *argv[] )
             else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
                 oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
-            for ( int i=0 ; i <glbParam.nBins ; i++ )
-                pr_corr[t][c][i] = (double)evSig.pr_noBias[i] ; // NOW, pr_corr HAS NO BIAS AND SMOOTHED
-
+            if( glbParam.is_Ovlp_Data_Loaded ==true )
+            {
+                for (int i =0; i <glbParam.nBins ; i++)
+                    pr_corr[t][c][i] = (double)evSig.pr_noBias[i] /ovlp[c][i] ;
+            }
+            else
+            {
+                for ( int i=0 ; i <glbParam.nBins ; i++ )
+                    pr_corr[t][c][i] = (double)evSig.pr_noBias[i] ; // NOW, pr_corr HAS NO BIAS AND SMOOTHED
+            }
             if ( c == indxWL_PDL1 )
             {
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
@@ -274,7 +275,7 @@ int main( int argc, char *argv[] )
                     printf("\t Cloud profiles are not computed. \t") ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
-                    printf(" %d clouds detected at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
+                    printf(" %d clouds detected with a cloud base height at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
                     printf(" NO clouds detected at %lf zenithal angle ", glbParam.aZenithAVG[t]  ) ;
 

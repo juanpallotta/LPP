@@ -13,24 +13,27 @@ public:
 
     strcFitParam    fitParam            ;
     double          *dummy   ;
-    // double       *noiseFit, **data_Noise        ;
 
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
     void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
     void    Find_Max_Range    ( double*, double*, strcGlobalParameters*, int*                                   ) ;
-    void    bkgSubstraction_Auto( double*, strcMolecularData*, strcGlobalParameters*, int, double*, double*       ) ;
-    void 	bkgSubstraction_Mean( double*, strcMolecularData*, strcGlobalParameters*, double*                   ) ;
-    void 	bkgSubstraction_MolFit(strcMolecularData*, const double*, strcGlobalParameters*, double*            ) ;
+    void    Bias_Substraction_Auto( double*, strcMolecularData*, strcGlobalParameters*, double*, double*          ) ;
+    void 	Bias_Substraction_Mean( double*, strcMolecularData*, strcGlobalParameters*, double*                   ) ;
+    void 	Bias_Substraction_MolFit(strcMolecularData*, const double*, strcGlobalParameters*, double*            ) ;
     // void 	bkgSubstraction_BkgFile( const double*, strcFitParam*, double**, strcGlobalParameters*, double*     ) ;
 
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
 
 private:
     double  *pr_NObkg_i, *pr2_i ;
-    double  *errRMS_Bias        ;
+    double  *errRMS_mol, *errRMS_k, *rate, *k_ones ;
+    int 	nBiasRes_Auto ; 
+    int 	nLoopFindBias =3 ;
 
+	double 	*errRMS_Bias, *coeff ;
+	double  *b_i                 ;
 };
 
 #endif

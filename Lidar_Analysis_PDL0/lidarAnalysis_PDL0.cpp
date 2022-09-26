@@ -18,11 +18,6 @@
 #include <assert.h> 
 #include <netcdf.h>
 
-/* Handle errors by printing an error message and exiting with a
- * non-zero status. */
-#define ERRCODE 2
-#define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
-
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
@@ -59,14 +54,8 @@ int main( int argc, char *argv[] )
     struct stat pathFileInput_stat ;
     stat( Path_In.c_str(), &pathFileInput_stat ) ;
 
-    // if ( S_ISREG(pathFileInput_stat.st_mode) )
-    // { // A *FILE* WAS PASSED AS AN ARGUMENT
-    //     inputFilesInTime    = (char**) new char* [1] ;
-    //     inputFilesInTime[0] = (char*)  new char [200] ;
-    //     sprintf(inputFilesInTime[0], "%s", Path_In.c_str() ) ;
-    //     printf("\n File to analyze: %s \n", inputFilesInTime[0]) ;
-    // }
-    // else
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"float", (float*)&glbParam.Time_Zone ) ;
+
     if ( S_ISDIR(pathFileInput_stat.st_mode) )
     { // A *FOLDER* WAS PASSED AS AN ARGUMENT --> analyze all the files within the time bin set in analysisParameter.dat
         int     nFilesInInputFolder =0 ;
@@ -97,7 +86,11 @@ int main( int argc, char *argv[] )
         cout << endl << "A folder must be passed as first argument (check dirFile.sh file)" << endl ;
         return -1 ;
     }
-    assert( glbParam.nEvents !=0 ); // SI SE CUMPLE, SIGUE DE LARGO.
+    if ( glbParam.nEvents ==0 )
+    {
+        printf("\nNO files in the time range selected... EXIT\n") ;
+        return 0 ;
+    }
 
     glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY --> ERASE
 
@@ -134,12 +127,11 @@ int main( int argc, char *argv[] )
         }
     }
 
-    float  Time_Zone ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"float", (float*)&Time_Zone ) ;
-    struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;    tmFile_start->tm_gmtoff = round(Time_Zone *60*60) ;
-    struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;    tmFile_stop->tm_gmtoff  = round(Time_Zone *60*60) ;    
-    time_t     *Raw_Data_Start_Time = (time_t*) new time_t [glbParam.nEvents] ; // int     *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
-    time_t     *Raw_Data_Stop_Time  = (time_t*) new time_t [glbParam.nEvents] ; // int     *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
+    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"float", (float*)&glbParam.Time_Zone ) ;
+    struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;    tmFile_start->tm_gmtoff = round(glbParam.Time_Zone *60*60) ;
+    struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;    tmFile_stop->tm_gmtoff  = round(glbParam.Time_Zone *60*60) ;    
+    time_t     *Raw_Data_Start_Time = (time_t*) new time_t [glbParam.nEvents] ;
+    time_t     *Raw_Data_Stop_Time  = (time_t*) new time_t [glbParam.nEvents] ;
     string      Raw_Data_Start_Time_str[glbParam.nEvents], Raw_Data_Stop_Time_str[glbParam.nEvents] ;
     char	dumpChar = '\0' ;
 
@@ -160,13 +152,13 @@ int main( int argc, char *argv[] )
         tmFile_start->tm_year = tmFile_start->tm_year -1900 ;   // TRANSLATE TO struct tm CONVENTION.
         tmFile_stop->tm_year  = tmFile_stop->tm_year  -1900 ;   // TRANSLATE TO struct tm CONVENTION.
 
-                sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
-                Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Start_Time[fC] = (time_t)timegm( (tm*)tmFile_start ) + (int)round(Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
+            sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
+            Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;
+                Raw_Data_Start_Time[fC] = (time_t)timegm( (tm*)tmFile_start ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
-                sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
-                Raw_Data_Stop_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Stop_Time[fC] = (time_t)timegm( (tm*)tmFile_stop ) + (int)round(Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
+            sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
+            Raw_Data_Stop_Time_str[fC].assign(strTimeMerged) ;
+                Raw_Data_Stop_Time[fC] = (time_t)timegm( (tm*)tmFile_stop ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
                 mkdir  ( Path_Out.c_str(), 0777 ) ;
                 sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_start->tm_year +1900, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
@@ -176,7 +168,6 @@ int main( int argc, char *argv[] )
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
 
                 // cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
-                // cout << endl << "t_dump: " << t_dump ;
                 // cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
                 // cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
                 // cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
@@ -204,23 +195,22 @@ int main( int argc, char *argv[] )
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time ) ;
 
-        if (  strstr( argv[4], "bkg" ) != 0 )
+        if (  strcmp( argv[4], "-" ) != 0 )
         {
-            printf("\n Adding noise file (%s) to NetCDF file \n", argv[4] ) ;
-            
-            // double *data_Bkg = (double*) new double [glbParam.nBins] ;
-            // Read_Bkg_Data_Files( (char*)"/mnt/Disk-1_8TB/Brazil/SPU/20200914/dark_current/", (double*)data_Bkg ) ;
-            
-            ReadLicelData ( (char*)argv[4], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[0] ) ;
+            printf("\n Adding noise files (%s) to NetCDF file \n", argv[4] ) ;
 
-            double **data_Noise = (double**) new double*[glbParam.nCh];
+            double **data_Bkg = (double**) new double*[glbParam.nCh];
             for ( int c=0 ; c <glbParam.nCh ; c++ )
             {
-                data_Noise[c] = (double*) new double[glbParam.nBinsRaw] ;
+                data_Bkg[c] = (double*) new double[glbParam.nBinsRaw] ;
                 for(int b =0; b <glbParam.nBinsRaw; b++)
-                    data_Noise[c][b] = (double) dataFile[0].db_ADC[c][b] ;
+                    data_Bkg[c][b] = (double) 0;
             }
-            oNCL->Add_Noise_LALINET_NCDF_PDL0( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)data_Noise ) ;
+
+            if( Read_Bkg_Data_Files( (char*)argv[4], (strcGlobalParameters*)&glbParam,(double**)data_Bkg ) >=0 )
+                oNCL->Add_Noise_LALINET_NCDF_PDL0( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)data_Bkg ) ;
+            else
+                printf( "\nNo background files were added to the L0 NetCDF file\n" ) ;
         }
         else
         {
@@ -229,7 +219,7 @@ int main( int argc, char *argv[] )
 
         if (  strcmp( argv[5], "-" ) != 0 )
         {
-            printf("\n Adding overlap file (%s) to NetCDF file \n", argv[5] ) ;
+            printf("\nAdding overlap file (%s) to NetCDF file \n", argv[5] ) ;
             
             double **ovlp = (double**)new double*[ glbParam.nCh ] ;
             for (int c =0; c <glbParam.nCh; c++)

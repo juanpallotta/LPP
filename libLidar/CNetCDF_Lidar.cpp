@@ -117,6 +117,83 @@ void CNetCDF_Lidar::ReadVar( int ncid, const char *strNameVars, void *dataRead )
     }
 }
 
+void CNetCDF_Lidar::Read_Bkg_Noise( int ncid, strcGlobalParameters *glbParam, int id_var_noise, double **data_Noise )
+{
+    double buff ;
+
+    size_t start_noise[2], count_noise[2];
+    start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam->nCh; 
+    start_noise[1] = 0;   count_noise[1] = glbParam->nBins;
+    for ( int c=0 ; c <glbParam->nCh ; c++ )
+    {
+        start_noise[0] =c ;
+        if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
+            ERR(retval);    
+
+        for(int b =0; b <(glbParam->nBins -glbParam->indxOffset[c]); b++)
+        {
+            buff = (double)data_Noise[c][b +glbParam->indxOffset[c]] ;
+            data_Noise[c][b] = (double)buff ;
+        }
+        for ( int b=(glbParam->nBins -glbParam->indxOffset[c]) ; b <glbParam->nBins ; b++ )
+        {
+            buff = (double)data_Noise[c][glbParam->nBins -glbParam->indxOffset[c]] ;
+            data_Noise[c][b] = buff ; 
+        }
+    }
+    glbParam->is_Noise_Data_Loaded = true ;
+}
+
+void CNetCDF_Lidar::Read_Overlap( int ncid, strcGlobalParameters *glbParam, int id_var_ovlp, double **ovlp )
+{
+    size_t start_ovlp[2], count_ovlp[2];
+    start_ovlp[0] = 0;   count_ovlp[0] = 1 ; // glbParam->nCh; 
+    start_ovlp[1] = 0;   count_ovlp[1] = glbParam->nBins;
+    for ( int c=0 ; c <glbParam->nCh ; c++ )
+    {
+        start_ovlp[0] =c ;
+        if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_ovlp, start_ovlp, count_ovlp, (double*)&ovlp[c][0] ) ) )
+            ERR(retval);    
+    }
+    glbParam->is_Ovlp_Data_Loaded = true ;
+}
+
+void CNetCDF_Lidar::Read_LayerMask( int ncid_L1, strcGlobalParameters *glbParam, int **lm )
+{
+    int id_var_lm ;
+    if ( ( retval = nc_inq_varid( (int)ncid_L1, (const char*)"Cloud_Mask", (int*)&id_var_lm ) ) )
+        ERR(retval) ;
+    int num_dim_var ;
+    if ( ( retval = nc_inq_varndims( (int)ncid_L1, (int)id_var_lm, (int*)&num_dim_var ) ) )
+        ERR(retval);
+
+    int id_dim[num_dim_var] ;
+    if ( ( retval = nc_inq_vardimid( (int)ncid_L1, (int)id_var_lm, (int*)id_dim ) ) )
+        ERR(retval);
+
+    int size_dim[num_dim_var] ; // [0]= TIME    [1]= BINS
+        for ( int d=0 ; d <num_dim_var ; d++ ) size_dim[d] =(int)1 ;
+    for( int d=0 ; d <num_dim_var ; d++ )
+    {
+        if ( ( retval = nc_inq_dimlen( (int)ncid_L1, (int)id_dim[d], (size_t*)&size_dim[d] ) ) )
+            ERR(retval);
+    }
+
+    lm = (int**) new int*[size_dim[0]] ; // TIME DIMENSION
+    for ( int t=0 ; t <size_dim[0] ; t++ )
+        lm[t] = (int*) new int[size_dim[1]] ; // POINTS DIMESIONS
+
+    size_t start_lm[2], count_lm[2] ;
+    start_lm[0] = 0;    count_lm[0] = 1 ;
+    start_lm[1] = 0;    count_lm[1] = size_dim[1] ;
+    for ( int t=0 ; t <size_dim[0] ; t++ )
+    {
+        start_lm[0] =t ;
+        if ( (retval = nc_get_vara_int((int)ncid_L1, (int)id_var_lm, start_lm, count_lm, (int*)&lm[t][0] ) ) )
+            ERR(retval) ;
+    }
+}
+
 void CNetCDF_Lidar::Putt_Bulk_Att_Text( int ncid, int id_var, int size_list, string *strAttListName, string *strAttList )
 {
     for ( int c=0 ; c <size_list ; c++ )

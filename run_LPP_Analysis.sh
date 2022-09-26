@@ -65,7 +65,7 @@ do
     echo -e "Running PDL0: \n ./lidarAnalysis_PDL0 "$paths_In" "$PATH_FILE_OUT_L0" "$FILE_CONF
     cd $PATH_TO_L0
 
-    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF $PATH_DARK_FILE $OVERLAP_FILE
+    ./lidarAnalysis_PDL0 $paths_In $PATH_FILE_OUT_L0 $FILE_CONF $PATH_DARK_FILES $OVERLAP_FILE
 
         fi
 
@@ -112,6 +112,9 @@ do
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L2 ]]
             then
+
+#!  AERONET DOWNLOADER HERE.
+
     echo -e "Running PDL2 \n ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF
     cd $PATH_TO_L2
     ./lidarAnalysis_PDL2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF
@@ -122,7 +125,7 @@ do
     #   PLOTTING
             echo -e "\n\nGenerating plots for L2..."
             PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"/LPP_Plots_L2.py"
-            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 2
+            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 0
         fi
 
 		echo ""

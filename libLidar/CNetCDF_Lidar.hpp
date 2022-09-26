@@ -1,5 +1,5 @@
 
-#pragma once
+// #pragma once
 
 #ifndef CNETCDF_LIDAR_H
 #define CNETCDF_LIDAR_H
@@ -55,6 +55,9 @@ class CNetCDF_Lidar
 		void Set_LALINET_Units_L1( int, int* ) ;
 		void Set_LALINET_Units_L2( int, int* ) ;
 		void ReadVar( int, const char*, void* ) ;
+		void Read_Bkg_Noise( int, strcGlobalParameters*, int, double** ) ;
+		void Read_Overlap( int, strcGlobalParameters*, int, double** ) ;
+		void Read_LayerMask( int, strcGlobalParameters*, int** ) ;
 
 		void Save_SCC_NCDF_Format	 		( string, strcGlobalParameters*, double***, long*, string*, long*, string* ) ;
 		void Save_LALINET_NCDF_PDL0			( string, strcGlobalParameters*, double***, long*, long* ) ;

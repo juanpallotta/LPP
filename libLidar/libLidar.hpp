@@ -1,6 +1,6 @@
 
 /* GENERAL LIDAR LIBRARY */
-#pragma once
+// #pragma once
 
 #ifndef LIBLIDAR_H
 #define LIBLIDAR_H
@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <assert.h> 
 #include <bits/stdc++.h>
+#include <sys/stat.h>
 
 #include "lidarDataTypes.hpp" // LIDAR DATA TYPE DEFINITIONS
 #include "lidarMathFunc.hpp"
@@ -50,7 +51,7 @@ long 	FileSearch					( FILE*, const char*, long, const int ) ;
 
 void 	ReadLicelGobalParameters    ( char*, strcGlobalParameters* ) ;
 void 	ReadLicelData				( char*, strcGlobalParameters*, strcLidarDataFile* ) ;
-int     Read_Bkg_Data_Files         ( char*, strcGlobalParameters *, double* ) ;
+int     Read_Bkg_Data_Files         ( char*, strcGlobalParameters *, double** ) ;
 void    ReadLicelTime_and_Coord     ( FILE*, strcGlobalParameters* ) ;
 void    ReadLicel_AzZth             ( FILE*, strcGlobalParameters* ) ;
 void    fill_up_line                (char*, int, char) ;
@@ -85,7 +86,7 @@ void 	checkUnderShoot				( double*, strcGlobalParameters*, strcMolecularData*, i
 int 	GetIndxEvntToAvg_DiscScan   ( strcGlobalParameters*, strcIndxLimToAvg* ) ;
 void 	GetIndxEvntToAvg_ContScan   ( strcGlobalParameters*, strcIndxLimToAvg* ) ;
 int 	AverageLidarSignal		    ( strcLidarDataFile*, strcGlobalParameters*, int*, strcIndxLimToAvg*, strcLidarDataFile* ) ;
-int 	selectChannel				( strcGlobalParameters*, const char* ) ;
+// int 	selectChannel				( strcGlobalParameters*, const char* ) ;
 int 	ReadChannelSelected			( strcGlobalParameters*              ) ;
 void	bkgSubstractionMolFit		( strcMolecularData*, const double*, strcFitParam*, double* ) ;
 void 	bkgSubstractionMolFit_unCorr( strcMolecularData*, double*, strcFitParam*, double* ) ;

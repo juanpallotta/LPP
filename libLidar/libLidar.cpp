@@ -18,23 +18,25 @@ int pstrcmp( const void* a, const void* b )
 
 int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, strcGlobalParameters *glbParam ) 
 {
-    // int     nFilesInInputFolder =0 ;
 	int 	nFilesInTime = 0 ;
 
-    // GET THE NUMBERS minTime_num AND maxTime_num, WICH REPRESENT minTime AND maxTime STORED IN analysisParameters.dat
+    // GET THE NUMBERS minTime_num AND maxTime_num, WICH REPRESENT minTime AND maxTime STORED IN THE CONFIGURATION FILE
         char 	sMinTime[30], sMaxTime[30] ;
         ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"minTime", (const char*)"string", (char*)sMinTime ) ;
         ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"maxTime", (const char*)"string", (char*)sMaxTime ) ;
         struct tm		tmMin, tmMax ;
         sscanf(sMinTime, "%4d/%2d/%2d-%2d:%2d:%2d", &tmMin.tm_year, &tmMin.tm_mon, &tmMin.tm_mday, &tmMin.tm_hour, &tmMin.tm_min, &tmMin.tm_sec ) ;
         sscanf(sMaxTime, "%4d/%2d/%2d-%2d:%2d:%2d", &tmMax.tm_year, &tmMax.tm_mon, &tmMax.tm_mday, &tmMax.tm_hour, &tmMax.tm_min, &tmMax.tm_sec ) ;
-        tmMin.tm_year = tmMin.tm_year -1900 ;   tmMin.tm_isdst = 0 ;
-        tmMax.tm_year = tmMax.tm_year -1900 ;   tmMax.tm_isdst = 0 ;
+        tmMin.tm_year = tmMin.tm_year -1900 ;   tmMin.tm_isdst = 0 ;	tmMin.tm_mon = tmMin.tm_mon -1 ;
+        tmMax.tm_year = tmMax.tm_year -1900 ;   tmMax.tm_isdst = 0 ;	tmMax.tm_mon = tmMax.tm_mon -1 ;
 
-        time_t	minTime_num = mktime( (tm*)&tmMin ) ; // time_t = long --> NUMBER OF SECONDS SINCE January 1,1970 (?)
-        time_t	maxTime_num = mktime( (tm*)&tmMax ) ; // time_t = long --> NUMBER OF SECONDS SINCE January 1,1970 (?)
-            printf("\n minTime (%ld): %04d/%02d/%02d-%02d:%02d:%02d"  , minTime_num, (tmMin.tm_year +1900), tmMin.tm_mon, tmMin.tm_mday, tmMin.tm_hour, tmMin.tm_min, tmMin.tm_sec ) ;
-            printf("\n maxTime (%ld): %04d/%02d/%02d-%02d:%02d:%02d\n", maxTime_num, (tmMax.tm_year +1900), tmMax.tm_mon, tmMax.tm_mday, tmMax.tm_hour, tmMax.tm_min, tmMax.tm_sec ) ;
+//    						  (time_t)timegm( (tm*)tmFile_start ) + (int)round(glbParam->Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
+        time_t	minTime_num = (time_t)timegm( (tm*)&tmMin ) ; // minTime IS IN UTC
+        time_t	maxTime_num = (time_t)timegm( (tm*)&tmMax ) ; // maxTime IS IN UTC
+        // time_t	minTime_num = (time_t)mktime( (tm*)&tmMin ) ; // time_t = long --> NUMBER OF SECONDS SINCE January 1,1970
+        // time_t	maxTime_num = (time_t)mktime( (tm*)&tmMax ) ; // time_t = long --> NUMBER OF SECONDS SINCE January 1,1970
+            printf("\n minTime (UTC) (%ld): %04d/%02d/%02d-%02d:%02d:%02d"  , minTime_num, (tmMin.tm_year +1900), tmMin.tm_mon+1, tmMin.tm_mday, tmMin.tm_hour, tmMin.tm_min, tmMin.tm_sec ) ;
+            printf("\n maxTime (UTC) (%ld): %04d/%02d/%02d-%02d:%02d:%02d\n", maxTime_num, (tmMax.tm_year +1900), tmMax.tm_mon+1, tmMax.tm_mday, tmMax.tm_hour, tmMax.tm_min, tmMax.tm_sec ) ;
 
     // LOAD inputFilesInTime (STRING MATRIX) WITH THE INPUT FILES BETWEEN minTime AND maxTime RECORDED IN analysisParameters.dat
 		DIR *d;
@@ -48,7 +50,7 @@ int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, s
                 {
                     if ( ( strcmp( sMinTime, sMaxTime ) == 0 ) || ( isFileInTimeRange( (char*)dir->d_name, (time_t)minTime_num, (time_t)maxTime_num, (strcGlobalParameters*)glbParam ) == true ) )
                     {
-						// printf("\n nFilesInTime: %d \t PathFile_IN_FULL: %s  dir->d_name: %s \n", nFilesInTime, PathFile_IN_FULL, dir->d_name ) ;
+						// printf("\n nFilesInTime: %d \t PathFile_IN_FULL: %s%s", nFilesInTime, PathFile_IN_FULL, dir->d_name ) ;
                         sprintf(inputFilesInTime[nFilesInTime], "%s%s", PathFile_IN_FULL, dir->d_name ) ;
                         nFilesInTime = nFilesInTime +1 ;
                     }
@@ -70,7 +72,9 @@ bool isFileInTimeRange ( char *fileName, time_t minTime_num, time_t maxTime_num,
 	if ( strcmp(glbParam->inputDataFileFormat, "LICEL_FILE") ==0 )
 		sscanf( fileName, "%c%2d%1x%2d%2d.%2d%2d%2d", &dumpChar1, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min, &tmFile.tm_sec, &dumpInt ) ;
 	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
+	{
 		sscanf( fileName, "%c%c%2d%1x%2d%2d.%2d", &dumpChar1, &dumpChar2, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min ) ;
+	}
 	else
 		printf("\n Wrong 'inputDataFileFormat' parameter in mergingParameters.conf file \n") ;
 
@@ -79,9 +83,10 @@ bool isFileInTimeRange ( char *fileName, time_t minTime_num, time_t maxTime_num,
 	else
 		tmFile.tm_year = 2000 + tmFile.tm_year -1900 ; // tmFile.tm_year: SHOULD BE STORED THE NUMBER OF YEARS SINCE 1900.
 
+	tmFile.tm_mon = tmFile.tm_mon -1 ;
+
 	tmFile.tm_isdst = 0 ;
-	time_t	fileTime_num = (time_t) mktime( (tm*)&tmFile ) ;
-	// printf("\n file time (%ld): %c%02d%1d%02d%02d.%02d%02d%02d (%s)", fileTime_num, dumpChar, (tmFile.tm_year +1900), tmFile.tm_mon, tmFile.tm_mday, tmFile.tm_hour, tmFile.tm_min, tmFile.tm_sec, dumpInt, fileName ) ;
+	time_t	fileTime_num = (time_t) timegm( (tm*)&tmFile ) - (int)round(glbParam->Time_Zone *60*60)  ;
 
 // DEFINE IF THE FILE TIME IS IN THE RANGE [minTime-maxTime]
 	if ( (minTime_num <= fileTime_num) && (fileTime_num <= maxTime_num ) )
@@ -381,23 +386,6 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 	glbParam->nBins		= glbParam->nBinsRaw ;
 	glbParam->nBins_in_File = glbParam->nBinsRaw ;
 	strcpy( glbParam->fileName, lidarHeaderData.Name ) ;
-
-	// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig", (const char*)"double" , (double*)&glbParam->rInitSig ) ;
-	// glbParam->indxInitSig = (int)round( glbParam->rInitSig /glbParam->dr) ;
-	// glbParam->indxInitInversion = glbParam->indxInitSig ;
-	// glbParam->indxInitErr 		= glbParam->indxInitSig ;
-
-	// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"rEndSig" , (const char*)"double" , (double*)&glbParam->rEndSig ) ;
-	// glbParam->indxEndSig = (int)round( glbParam->rEndSig /glbParam->dr ) ;
-	// 	if( glbParam->indxEndSig > (glbParam->nBins-1) )
-	// 		glbParam->indxEndSig = glbParam->nBins -1 ;
-
-	// glbParam->r	= (double*) new double[glbParam->nBins] ;
-	// for( int i=0 ; i < glbParam->nBins ; i++ )
-	// 		glbParam->r[i] = (i+1) * glbParam->dr ;
-
-	// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg" , (const char*)"int" , (double*)&glbParam->nBinsBkg ) ;
-	// glbParam->nBinsBkg = (int)round( glbParam->nBinsBkg ) ;
 }
 
 void ReadLicelData( char *lidarFile, strcGlobalParameters *glbParam, strcLidarDataFile *dataFile )
@@ -503,33 +491,73 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
 }
 
-int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam , double *data_Bkg )
+int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam , double **data_Bkg )
 {
-	char    **inputFilesInTime ;
-//   if ( S_ISDIR(path_to_bkg_files) )
-//     { // A *FOLDER* WAS PASSED AS AN ARGUMENT --> analyze all the files within the time bin set in analysisParameter.dat
-	int     nFilesInInputFolder =0 ;
-	DIR *d;
-	struct dirent *dir;
-	// GET THE NUMBER OF FILES IN THE INPUT FOLDER
-	d = opendir( path_to_bkg_files ) ;
-	while ( (dir = readdir(d)) != NULL )
-	{ // GET THE NUMBER OF FILES INSIDE THE FOLDER
-		if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) && ( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
-			nFilesInInputFolder++;
-	}
-	printf("\n nFilesInInputFolder: %d \n", nFilesInInputFolder) ;
-	if ( nFilesInInputFolder ==0 )
+    struct stat path_to_bkg_files_stat ;
+    stat( path_to_bkg_files, &path_to_bkg_files_stat ) ;
+
+  	if ( S_ISDIR(path_to_bkg_files_stat.st_mode) )
+	{ // A *FOLDER* WAS PASSED AS AN ARGUMENT
+		int     nFilesInInputFolder =0 ;
+		DIR *d;
+		struct dirent *dir;
+		// GET THE NUMBER OF FILES IN THE INPUT FOLDER
+		d = opendir( path_to_bkg_files ) ;
+		while ( (dir = readdir(d)) != NULL )
+		{ // GET THE NUMBER OF FILES INSIDE THE FOLDER
+			if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) && ( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
+				nFilesInInputFolder++;
+		}
+
+		if ( nFilesInInputFolder ==0 )
+		{
+			printf("\n There are not Licel files in the folder (see dirFile.sh) \nBye...") ;
+			return -1 ;
+		}
+		rewinddir(d) ;
+		
+		string *bkg_files = (string*) new string[nFilesInInputFolder] ;
+
+		int f=0 ;
+		printf("\nNumber of background files: %d\n", nFilesInInputFolder) ;
+		while ( (dir = readdir(d)) != NULL )
+		{ // GET THE BACKGROUND FILES NAMES
+			if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) &&
+				( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
+			{
+				bkg_files[f].assign(path_to_bkg_files) ;
+				bkg_files[f].append(dir->d_name) ;
+				// printf( "\nbkg_files[%d]= %s", f, bkg_files[f].c_str() ) ;
+				f++ ;
+			}
+		}
+
+		strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam->nEvents ] ;
+		GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)glbParam ) ;
+		
+		for ( f=0 ; f <nFilesInInputFolder ; f++ )
+		{
+			glbParam->evSel = f;
+			ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+
+			for ( int c =0; c <glbParam->nCh ; c++)
+			{
+				for (int i =0; i <glbParam->nBins; i++)
+					data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
+			}
+		}
+
+		for ( int c =0; c <glbParam->nCh ; c++)
+		{
+			for (int i =0; i <glbParam->nBins; i++)
+				data_Bkg[c][i] = data_Bkg[c][i] /nFilesInInputFolder ;
+		}
+    }
+	else
 	{
-		printf("\n There are not Licel files in the folder (see dirFile.sh) \nBye...") ;
+		printf("\nDark-Current files: A folder must be passed as argument containing the dark-current files.\n...") ;
 		return -1 ;
 	}
-	rewinddir(d) ;
-	inputFilesInTime  = (char**) new char* [nFilesInInputFolder] ;
-	for( int f=0 ; f<nFilesInInputFolder ; f++ )
-		inputFilesInTime[f] = (char*) new char [200] ;
-
-    // }
 	return 0 ;
 }
 
@@ -1250,20 +1278,20 @@ int AverageLidarSignal( strcLidarDataFile *dataFile, strcGlobalParameters *glbPa
 	return 0 ;    
 }
 
-int selectChannel ( strcGlobalParameters *glbParam, const char *tel_range ) // tel_range = used_channel = long_range_2 - long_range_1 - nothing
-{
-	char 	strSearch[20], strInfo[20] ;
+// int selectChannel ( strcGlobalParameters *glbParam, const char *tel_range ) // tel_range = used_channel = long_range_2 - long_range_1 - nothing
+// {
+// 	char 	strSearch[20], strInfo[20] ;
 
-	for ( int i=0 ; i<glbParam->nChMax ; i++ )
-	{
-		sprintf( strSearch, "%s.%d.ch%d", glbParam->site, glbParam->year, i ) ;
+// 	for ( int i=0 ; i<glbParam->nChMax ; i++ )
+// 	{
+// 		sprintf( strSearch, "%s.%d.ch%d", glbParam->site, glbParam->year, i ) ;
 
-			ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "string" , (char*)strInfo ) ;
-		if ( strcmp( strInfo, tel_range ) == 0 )
-			return i ;
-	}
-    return -1 ;
-}
+// 			ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "string" , (char*)strInfo ) ;
+// 		if ( strcmp( strInfo, tel_range ) == 0 )
+// 			return i ;
+// 	}
+//     return -1 ;
+// }
 
 int ReadChannelSelected ( strcGlobalParameters *glbParam ) // tel_range = used_channel = long_range_2 - long_range_1 - nothing
 {
