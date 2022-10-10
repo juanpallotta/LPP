@@ -76,7 +76,7 @@ bool isFileInTimeRange ( char *fileName, time_t minTime_num, time_t maxTime_num,
 		sscanf( fileName, "%c%c%2d%1x%2d%2d.%2d", &dumpChar1, &dumpChar2, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min ) ;
 	}
 	else
-		printf("\n Wrong 'inputDataFileFormat' parameter in mergingParameters.conf file \n") ;
+		printf("\n Wrong 'inputDataFileFormat' parameter in %s file \n", glbParam->FILE_PARAMETERS ) ;
 
 	if (tmFile.tm_year >=90)
 		tmFile.tm_year = 1900 + tmFile.tm_year -1900 ;
@@ -422,6 +422,11 @@ void ReadLicelData( char *lidarFile, strcGlobalParameters *glbParam, strcLidarDa
 		printf("\n Failed to close the lidar file.\n\n") ;
 } // FIN DEL ReadLidarData()
 
+void check_Lidar_Files_Consistency( strcGlobalParameters *glbParam, char **inputFilesInTime )
+{
+
+}
+
 void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 {
 	assert( fid !=NULL ) ;
@@ -519,7 +524,7 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 		string *bkg_files = (string*) new string[nFilesInInputFolder] ;
 
 		int f=0 ;
-		printf("\nNumber of background files: %d\n", nFilesInInputFolder) ;
+		// printf("\nNumber of background files: %d\n", nFilesInInputFolder) ;
 		while ( (dir = readdir(d)) != NULL )
 		{ // GET THE BACKGROUND FILES NAMES
 			if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) &&
@@ -532,25 +537,47 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 			}
 		}
 
-		strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam->nEvents ] ;
-		GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)glbParam ) ;
-		
-		for ( f=0 ; f <nFilesInInputFolder ; f++ )
-		{
-			glbParam->evSel = f;
-			ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+		strcGlobalParameters glbParam_bkg ;
+		sprintf( glbParam_bkg.inputDataFileFormat, "%s", glbParam->inputDataFileFormat ) ;
+		sprintf( glbParam_bkg.site				 , "%s", glbParam->site ) ;
+		glbParam_bkg.nEvents	= (int)glbParam->nEvents    ;
+		glbParam_bkg.nEventsAVG = (int)glbParam->nEventsAVG ;
+			ReadLicelGobalParameters( (char*)bkg_files[0].c_str(), (strcGlobalParameters*)&glbParam_bkg ) ;
 
+		if ( (glbParam_bkg.nCh == glbParam->nCh) && ( glbParam_bkg.nBins >= glbParam->nBins )  )
+		{
+			strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam->nEvents ] ;
+			GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)glbParam ) ;
+			
+			for ( f=0 ; f <nFilesInInputFolder ; f++ )
+			{
+				glbParam->evSel = f;
+				ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+
+				for ( int c =0; c <glbParam->nCh ; c++)
+				{
+					for (int i =0; i <glbParam->nBins; i++)
+						data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
+				}
+			}
 			for ( int c =0; c <glbParam->nCh ; c++)
 			{
 				for (int i =0; i <glbParam->nBins; i++)
-					data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
+					data_Bkg[c][i] = data_Bkg[c][i] /nFilesInInputFolder ;
+			}
+			if ( glbParam_bkg.nBins > glbParam->nBins )
+			{
+				printf("\n Background files contain %d bins \n Lidar files containg %d \n Background signals are truncated to %d bins.\n\n", glbParam_bkg.nBins, glbParam->nBins, glbParam->nBins ) ;
 			}
 		}
-
-		for ( int c =0; c <glbParam->nCh ; c++)
+		else
 		{
-			for (int i =0; i <glbParam->nBins; i++)
-				data_Bkg[c][i] = data_Bkg[c][i] /nFilesInInputFolder ;
+			printf("\n *** Background files with different number of channels and/or bins. Not saved in the NetCDF file ***\n") ;
+			printf(" *** Number of channels in the background files: %d ***\n", glbParam_bkg.nCh 	) ;
+			printf(" *** Number of channels in the lidar files: %d ***\n", glbParam->nCh 			) ;
+			printf(" *** Number of bins in the background files: %d ***\n", glbParam_bkg.nBins		) ;
+			printf(" *** Number of bins in the lidar files: %d ***\n", glbParam->nBins				) ;
+			return -10 ;
 		}
     }
 	else

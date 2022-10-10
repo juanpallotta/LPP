@@ -149,14 +149,14 @@ An example of how to run this module using the sample signals included in this r
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/ 
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
     /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
-    [Background_Noise_File] [Overlap_File]
+    [Background_Noise_Folder] [Overlap_File]
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file path contains subfolders, it will be generated automatically (in this example `/LPP_OUT/`).
 - `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
-- `[Background_Noise_File]`: This fourth argument is optional, and is the absolute path to the background noise file. This file is obtained by performing a regular measurement with the telescope fully covered. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. If this file is not provided, a "-" character must be used as fourth argument.
+- `[Background_Noise_Folder]`: This fourth argument is optional, and is the absolute path to the background noise file folder. These files must be obtained by performing a regular measurement with the telescope fully covered. LPP will average all the files included in the folder passed as argument and produce a single profile for each channel, produced by averaging all the files. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. <u>**Important Note:</u> If this file is not provided, a "-" character must be used as fourth argument.**
 - `[Overlap_File]`: This fifth argument is optional, and is the absolute path to the overlap file. This file must be a text comma-sepparated file (.cvs), having one overlap file for each channel. The first line must contain the labels of each columns, and the first column must contain the range array whith the same resolution of the lidar siganls. <u>**Important Note:</u> No extra line/s must contain at the end of the file.**
 In the followings lines, and example of the first row and column whith its overlap values are shown:
 
@@ -456,9 +456,13 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Accumulated_Pulses (channels)`: Number of laser pulses accumulated in for channel.
 * `ADC_Bits (channels)`: Number of electronic ADC's bits.
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
+* `Bkg_Noise (channels, points)`: Background noise file (optional, only if its path is passed as argument as fifth argument). It must have the same data file format of the lidar signals (Licel or Raymetrics).
 * `DAQ_Range (channels)`: Maximun DAQ range set in the Licel, in mV.
+* `DAQ_Type (channels)`: Aquisition type following Licel data file convention: 0=Analog, 1=Digital .
+* `File_Names (time)`: File names of the data included in the NetCDF file. Since this variable is an string array, the best way to see it properly using Panoply, is by importing it as "Labeled Text". This option appears by doing a right-click over the variable. It will create a text file with all the information.
 * `Laser_Source (channels)`: Number of laser source set for each channel.
 * `Number_Of_Bins (channels)`: Number of bins saved for each channel.
+* `Overlap (channels, points)`: Overlap profile provided in a file as 5th argument (optional).
 * `PMT_Voltage (channels)`: Photomuliplier voltage used in each channel.
 * `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel/Raymetric files: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
 * `Raw_Data_Start_Time (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).

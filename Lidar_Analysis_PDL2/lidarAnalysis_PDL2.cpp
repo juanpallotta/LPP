@@ -228,6 +228,7 @@ int main( int argc, char *argv[] )
         oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
     }
 
+    // SAVE THE LAYER-MASK MATRIX IN oDL2->layer_mask
     oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
@@ -246,6 +247,10 @@ int main( int argc, char *argv[] )
     {
         printf("Applying corrections to the lidar signal number %d \r", e) ;
         glbParam.evSel = e ;
+
+// DESATURATION OF THE PHOTON COUNTING CHANNELS
+        // double pho_rateMHz = (double)lp.countData[b] /(glbParam->nShots[glbParam->chSel] * glbParam->tBin_us) ;
+        // dataFile[glbParam->chSel].db_CountsMHz[e][b] = (double)( pho_rateMHz /( 1.0 - pho_rateMHz / PHO_MAX_COUNT_MHz ) ) ;
 
         oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
         for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)

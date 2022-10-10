@@ -27,7 +27,7 @@ class CDataLevel_2
 		double  LRM, LR[100]						;
 		double  **AOD_LR 							;
 		int		nLRs 								;
-		int 	indxInitSig, indxEndSig, indxRef	;
+		int 	indxInitSig, indxEndSig, *indxRef_Fernald ;
 		double  R_ref    							;
 		double  f[7]={1.0, 1.01, 1.03, 1.05, 1.07, 1.1, 1.13} ;
 

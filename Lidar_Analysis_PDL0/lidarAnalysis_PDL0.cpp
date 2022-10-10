@@ -27,8 +27,9 @@ int main( int argc, char *argv[] )
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS, "%s", argv[3] ) ;
     
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"inputDataFileFormat" , (const char*)"string", (char*)glbParam.inputDataFileFormat  ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"outputDataFileFormat", (const char*)"string", (char*)glbParam.outputDataFileFormat ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"inputDataFileFormat"      , (const char*)"string", (char*)glbParam.inputDataFileFormat  ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"outputDataFileFormat"     , (const char*)"string", (char*)glbParam.outputDataFileFormat ) ;
+    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Path_To_Global_Parameters", (const char*)"string", (char*)glbParam.Measurement_Att_File ) ;
 
 	string	Path_In ;
 	string	Path_Out, File_Out, Path_File_Out ;
@@ -94,6 +95,8 @@ int main( int argc, char *argv[] )
 
     glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY --> ERASE
 
+    //! check_Lidar_Files_Consistency( (strcGlobalParameters*)&glbParam, (char**)inputFilesInTime ) ;
+
     if ( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
     {
         cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << endl ;
@@ -136,13 +139,13 @@ int main( int argc, char *argv[] )
     char	dumpChar = '\0' ;
 
 // MAIN LOOP ACROSS THE CLUSTER FILES ////////////////////////////////////////////////////////////////////////////
-    for ( int fC=0 ; fC <glbParam.nEvents ; fC++ )
+    for ( int f=0 ; f <glbParam.nEvents ; f++ )
     {
-        glbParam.evSel = fC;
-        // printf("\n File Nº %d: %s \n", fC, inputFilesInTime[fC] ) ;
+        glbParam.evSel = f;
+        // printf("\n File Nº %d: %s \n", f, inputFilesInTime[f] ) ;
         // avgTime_num =0 ;
             if( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
-                ReadLicelData ( (char*)inputFilesInTime[fC], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[fC] ) ;
+                ReadLicelData ( (char*)inputFilesInTime[f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
             sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year  ) ;
             sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;
             sscanf( glbParam.StopDate , "%2d%2d%4d", &tmFile_stop->tm_mday , &tmFile_stop->tm_mon , &tmFile_stop->tm_year   ) ;
@@ -153,32 +156,32 @@ int main( int argc, char *argv[] )
         tmFile_stop->tm_year  = tmFile_stop->tm_year  -1900 ;   // TRANSLATE TO struct tm CONVENTION.
 
             sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
-            Raw_Data_Start_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Start_Time[fC] = (time_t)timegm( (tm*)tmFile_start ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
+            Raw_Data_Start_Time_str[f].assign(strTimeMerged) ;
+                Raw_Data_Start_Time[f] = (time_t)timegm( (tm*)tmFile_start ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
             sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
-            Raw_Data_Stop_Time_str[fC].assign(strTimeMerged) ;
-                Raw_Data_Stop_Time[fC] = (time_t)timegm( (tm*)tmFile_stop ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
+            Raw_Data_Stop_Time_str[f].assign(strTimeMerged) ;
+                Raw_Data_Stop_Time[f] = (time_t)timegm( (tm*)tmFile_stop ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
                 mkdir  ( Path_Out.c_str(), 0777 ) ;
                 sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_start->tm_year +1900, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
                 sprintf( glbParam.fileName, "%s", Path_File_Out.c_str() ) ;
                 sprintf( strTimeMerged, "%04d%02d%02d%02d%02d%02d", tmFile_start->tm_year +1900, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;
-                timeVec_str[fC].assign(strTimeMerged) ;
+                timeVec_str[f].assign(strTimeMerged) ;
                 sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
 
-                // cout << endl << "Raw_Data_Start_Time[fC]: " << Raw_Data_Start_Time[fC] ;
-                // cout << endl << "Raw_Data_Stop_Time[fC]: "  << Raw_Data_Stop_Time[fC] << endl ;
-                // cout << endl << "Raw_Data_Start_Time_str[fC]: " << Raw_Data_Start_Time_str[fC] ;
-                // cout << endl << "Raw_Data_Stop_Time_str[fC]: "  << Raw_Data_Stop_Time_str[fC] << endl ;
+                // cout << endl << "Raw_Data_Start_Time[f]: " << Raw_Data_Start_Time[f] ;
+                // cout << endl << "Raw_Data_Stop_Time[f]: "  << Raw_Data_Stop_Time[f] << endl ;
+                // cout << endl << "Raw_Data_Start_Time_str[f]: " << Raw_Data_Start_Time_str[f] ;
+                // cout << endl << "Raw_Data_Stop_Time_str[f]: "  << Raw_Data_Stop_Time_str[f] << endl ;
                     for ( int c=0 ; c <glbParam.nCh ; c++ )
                     {
                         for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
                         {
-                                dataToSave[fC][c][b] = (double) dataFile[fC].db_ADC[c][b] ;
+                                dataToSave[f][c][b] = (double) dataFile[f].db_ADC[c][b] ;
                         }
                     }
-    } // for ( int fC=0 ; fC <glbParam.nEventsAVG ; fC++ )
+    } // for ( int f=0 ; f <glbParam.nEventsAVG ; f++ )
 
 // NETCDF FILE STUFF
     CNetCDF_Lidar   *oNCL = (CNetCDF_Lidar*) new CNetCDF_Lidar() ;
@@ -193,7 +196,7 @@ int main( int argc, char *argv[] )
     {
         cout << endl << "\tOutput datafile: LALINET_NETCDF" << endl ;
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
-                                       (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time ) ;
+                                       (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time, (char**)inputFilesInTime ) ;
 
         if (  strcmp( argv[4], "-" ) != 0 )
         {

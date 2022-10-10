@@ -125,7 +125,7 @@ do
     #   PLOTTING
             echo -e "\n\nGenerating plots for L2..."
             PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"/LPP_Plots_L2.py"
-            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 0
+            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 4
         fi
 
 		echo ""
