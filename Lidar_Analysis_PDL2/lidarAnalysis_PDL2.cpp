@@ -50,161 +50,54 @@ int main( int argc, char *argv[] )
     system(cmdCopy) ;
 
 // NETCDF FILE STUFF
-    int  ncid   ;
+    int  ncid, ncid_L1_Data ;
     int  retval ;
-    
-    CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
 
     if ( (retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid)) )
         ERR(retval);
-
-// ASK IF L2_Data ALREADY EXIST. IF IT EXIST, RUN THE REANALYSIS BETWEEN minTime AND maxTime
-// CDataLevel_2 *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
-    // int ncid_L2_Data ;
-    // if ( ( retval = nc_inq_grp_ncid( (int)ncid, (const char*)"L2_Data", (int*)&ncid_L2_Data ) ) != NC_NOERR )
-    // EXISTE L2_Data, REANALISIS -->  oDL2->Reanalysis( (int*)&ncid, (strcGlobalParameters*)&glbParam )
-    // else
-    // NO EXISTE L2_Data, ANALISIS (LO QUE YA ESTA HECHO) --> oDL2->Analysis( (int*)&ncid, (strcGlobalParameters*)&glbParam )
-
-    // READ VARIABLES FROM DE NETCDF INPUT FILE
-    int id_var_pr ;
-    if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var_pr ) ) )
-        ERR(retval) ;
-    int num_dim_var ;
-    if ( ( retval = nc_inq_varndims( (int)ncid, (int)id_var_pr, (int*)&num_dim_var ) ) )
-        ERR(retval);
-    // cout << endl << "num_dim_var: " << num_dim_var << "     id_var_pr: " << id_var_pr << endl ;
-    assert( num_dim_var ==3 ) ; // SI SE CUMPLE, SIGUE.
-
-    int id_dim[num_dim_var] ;
-    if ( ( retval = nc_inq_vardimid( (int)ncid, (int)id_var_pr, (int*)id_dim ) ) )
-        ERR(retval);
-
-    int size_dim[num_dim_var] ;
-        for ( int d=0 ; d <num_dim_var ; d++ ) size_dim[d] =(int)1 ;
-    for( int d=0 ; d <num_dim_var ; d++ )
-    {
-        if ( ( retval = nc_inq_dimlen( (int)ncid, (int)id_dim[d], (size_t*)&size_dim[d] ) ) )
-            ERR(retval);
-        // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
-    }
-    glbParam.nEvents = size_dim[0] ; glbParam.nEventsAVG = glbParam.nEvents ; // 'time' DIMENSION
-    glbParam.nCh     = size_dim[1] ; glbParam.nLambda    = glbParam.nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
-    glbParam.nBins   = size_dim[2] ; // 'points' DIMENSION
-
-    double  ***dataFile     = (double***) new double**[glbParam.nEvents];
-    for ( int e=0 ; e <glbParam.nEvents ; e++ )
-    {
-        dataFile[e] = (double**) new double*[glbParam.nCh] ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
-            dataFile[e][c] = (double*) new double[glbParam.nBins] ;
-            for(int b =0 ; b <glbParam.nBins ; b++)
-                dataFile[e][c][b] = (double)0;
-        }
-    }
-
-    size_t startDF[3], countDF[3];
-    startDF[0] = 0;   countDF[0] = 1 ; // glbParam.nEvents ; 
-    startDF[1] = 0;   countDF[1] = 1 ; // glbParam.nCh; 
-    startDF[2] = 0;   countDF[2] = glbParam.nBins;
-    for( int e=0 ; e <glbParam.nEvents ; e++ )
-    {
-        startDF[0] =e ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
-            startDF[1] =c ;
-            if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_pr, startDF, countDF, (double*)&dataFile[e][c][0] ) ) )
-                ERR(retval);    
-        }
-    }
-
-    int *Raw_Data_Start_Time = (int*) new int [glbParam.nEvents] ;
-    int *Raw_Data_Stop_Time  = (int*) new int [glbParam.nEvents] ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)Raw_Data_Start_Time ) ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)Raw_Data_Stop_Time  ) ;
-
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
-    glbParam.numEventsToAvg = (glbParam.numEventsToAvg <0) ? glbParam.nEvents : glbParam.numEventsToAvg ;
-
-    glbParam.nEventsAVG = (int)round( glbParam.nEvents /glbParam.numEventsToAvg ) ;
-
-    glbParam.aZenith     = (double*) new double [glbParam.nEvents]    ;
-    glbParam.aAzimuth    = (double*) new double [glbParam.nEvents]    ;
-    glbParam.aZenithAVG  = (double*) new double [glbParam.nEventsAVG] ;     memset( (double*)glbParam.aZenithAVG , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    glbParam.aAzimuthAVG = (double*) new double [glbParam.nEventsAVG] ;     memset( (double*)glbParam.aAzimuthAVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Zenith"  , (int*)glbParam.aZenith  ) ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Azimuth" , (int*)glbParam.aAzimuth ) ;
-
-    glbParam.temp_Celsius     = (double*) new double [glbParam.nEvents]     ;
-    glbParam.pres_hPa         = (double*) new double [glbParam.nEvents]     ;
-    glbParam.temp_CelsiusAVG  = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.temp_CelsiusAVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    glbParam.pres_hPaAVG      = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.pres_hPaAVG    , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station", (const char*)"double", (int*)&glbParam.temp_Celsius[0] ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station"   , (const char*)"double", (int*)&glbParam.pres_hPa[0]     ) ;
-    for (  int i =1 ; i < glbParam.nEvents ; i++ )
-    {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
-        glbParam.temp_Celsius[i] = glbParam.temp_Celsius[0]  ;
-        glbParam.pres_hPa[i]     = glbParam.pres_hPa[0]      ;
-    }
-
-    double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;
-    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-    {
-        dataFile_AVG[e] = (double**) new double*[glbParam.nCh] ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
-            dataFile_AVG[e][c] = (double*) new double[glbParam.nBins] ;
-            for(int b =0 ; b <glbParam.nBins ; b++)
-                dataFile_AVG[e][c][b] = (double)0.0 ;
-        }
-    }
-
-    CDataLevel_2 *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
-
-    int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
-    int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Stop_Time_AVG , 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
-    oDL2->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)dataFile, (double***)dataFile_AVG, 
-                                    (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
-                                    (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
-                                    ) ;
-
-    // READ VARIABLES FROM DE NETCDF FILE INSIDE THE GROUP "L1_Data": MOLECULAR INFORMATION
-    int ncid_L1_Data ;
     if ( ( retval = nc_inq_grp_ncid( (int)ncid, (const char*)"L1_Data", (int*)&ncid_L1_Data ) ) )
         ERR(retval);
 
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
-        ERR(retval);
+    CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
+    CDataLevel_2    *oDL2 ;
 
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL) ) )
-        ERR(retval);
+    int numEventsToAvg_PDL1 ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&numEventsToAvg_PDL1 ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
 
-    glbParam.indxOffset = (int*) new int [ glbParam.nCh ] ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)&glbParam.nBinsBkg      ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)glbParam.indxOffset     ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam.rInitSig   ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"rEndSig"    , (const char*)"double", (double*)&glbParam.rEndSig    ) ;
-    glbParam.indxInitSig = (int)round( glbParam.rInitSig /glbParam.dr ) ;
-    glbParam.indxEndSig  = (int)round( glbParam.rEndSig  /glbParam.dr ) ;
-    glbParam.iLambda = (int*) new int [glbParam.nCh] ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (double*)glbParam.iLambda ) ;
-
-    glbParam.indxEndSig_ev = (int*)    new int    [ glbParam.nEventsAVG ] ;
-    glbParam.rEndSig_ev    = (double*) new double [ glbParam.nEventsAVG ] ;
+    oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
+    oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     int indxWL_PDL2[glbParam.nCh], nCh_to_invert ;
     for (int i = 0 ; i <glbParam.nCh; i++)  indxWL_PDL2[i] = -10 ;
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
     glbParam.chSel  = indxWL_PDL2[0] ;
 
+    if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
+    {
+        oNCL.Read_L0_into_L2 ( (int)ncid, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
+
+        oDL2->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)oDL2->data_File_L0, (double***)oDL2->data_File_AVG_L2, 
+                                                    (int*)oDL2->Start_Time_L0    , (int*)oDL2->Stop_Time_L0, 
+                                                    (int*)oDL2->Start_Time_AVG_L2, (int*)oDL2->Stop_Time_AVG_L2
+                                                  ) ;
+
+        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+        { // BIN OFFSET CORRECTION
+            for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
+                oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+            for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
+                oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+        }
+    }
+    else
+    {   // LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED
+        oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
+    }
+
 //! ------------------------ CORRECTIONS OF THE LIDAR SIGNAL: LASER OFFSET AND BIAS
     oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
     oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
-
-    glbParam.r = (double*) new double[glbParam.nBins] ;
-    for( int i=1 ; i <=glbParam.nBins ; i++ )
-        glbParam.r[i-1] = i*glbParam.dr ;
 
     double  **data_Noise ;
     int id_var_noise ;
@@ -228,7 +121,8 @@ int main( int argc, char *argv[] )
         oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
     }
 
-    oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
+    // // SAVE THE LAYER-MASK MATRIX IN oDL2->layer_mask
+    // oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
     int id_var_nmol ;
@@ -247,11 +141,14 @@ int main( int argc, char *argv[] )
         printf("Applying corrections to the lidar signal number %d \r", e) ;
         glbParam.evSel = e ;
 
+// DESATURATION OF THE PHOTON COUNTING CHANNELS
+        // double pho_rateMHz = (double)lp.countData[b] /(glbParam->nShots[glbParam->chSel] * glbParam->tBin_us) ;
+        // dataFile[glbParam->chSel].db_CountsMHz[e][b] = (double)( pho_rateMHz /( 1.0 - pho_rateMHz / PHO_MAX_COUNT_MHz ) ) ;
+
         oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
-        for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
-            evSig.pr[b]  = (double)dataFile_AVG[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-        for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
-            evSig.pr[b] = (double)dataFile_AVG[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+
+        for(int b =0 ; b <glbParam.nBins ; b++)
+            evSig.pr[b]  = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] ;
 
         if( glbParam.is_Ovlp_Data_Loaded ==true )
         {
@@ -300,7 +197,7 @@ int main( int argc, char *argv[] )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;
 
-    oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CDataLevel_2*)oDL2 ) ;
+    oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
 
     printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
 	return 0 ;

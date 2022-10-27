@@ -60,6 +60,10 @@ int main( int argc, char *argv[] )
     if ( (retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid)) )
         ERR(retval);
 
+//! IMPLEMENT THE OVERLOADED METHOD oNCL.Read_L0_Data ( (int)ncid, (strcGlobalParameters*)&glbParam, (CDataLevel_1*)oDL1 ) ;
+    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
+    // oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
+
     // READ VARIABLES FROM DE NETCDF INPUT FILE
     int id_var ;
     if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var ) ) )
@@ -202,12 +206,6 @@ int main( int argc, char *argv[] )
 
             for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
                 pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]] ;
-
-            // if( glbParam.is_Ovlp_Data_Loaded ==true )
-            // {
-            //     for (int i =0; i <glbParam.nBins ; i++)
-            //         pr_corr[e][c][i] = pr_corr[e][c][i] /ovlp[c][i] ;
-            // }
         }
     }
 

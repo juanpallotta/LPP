@@ -53,6 +53,7 @@ void 	ReadLicelGobalParameters    ( char*, strcGlobalParameters* ) ;
 void 	ReadLicelData				( char*, strcGlobalParameters*, strcLidarDataFile* ) ;
 int     Read_Bkg_Data_Files         ( char*, strcGlobalParameters *, double** ) ;
 void    ReadLicelTime_and_Coord     ( FILE*, strcGlobalParameters* ) ;
+void    check_Lidar_Files_Consistency( strcGlobalParameters*, char** ) ;
 void    ReadLicel_AzZth             ( FILE*, strcGlobalParameters* ) ;
 void    fill_up_line                (char*, int, char) ;
 

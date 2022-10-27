@@ -76,7 +76,7 @@ bool isFileInTimeRange ( char *fileName, time_t minTime_num, time_t maxTime_num,
 		sscanf( fileName, "%c%c%2d%1x%2d%2d.%2d", &dumpChar1, &dumpChar2, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min ) ;
 	}
 	else
-		printf("\n Wrong 'inputDataFileFormat' parameter in mergingParameters.conf file \n") ;
+		printf("\n Wrong 'inputDataFileFormat' parameter in %s file. (inputDataFileFormat=%s) \n", glbParam->FILE_PARAMETERS, glbParam->inputDataFileFormat ) ;
 
 	if (tmFile.tm_year >=90)
 		tmFile.tm_year = 1900 + tmFile.tm_year -1900 ;
@@ -164,13 +164,20 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 				else if ( strcmp( varType, "string" ) == 0 )
 				{
 					ss >> var_name >> eq >> (char*)var ;
-					// printf("\n var: %s \n", (char*)var) ;
+					// printf("\n ReadAnalisysParameter() --> var: %s \n", (char*)var) ;
 					// string var_string ;
 					// ss >> var_name >> eq ;
 					// for ( int e =0 ; e <nElemVec ; e++ )
 					// {
 					// 	ss >> var_string >> dump ;
 					// 	memcpy( (char*)var +e, (char*)var_string.c_str(), var_string.size() ) ;
+					// }
+					// printf("\n ReadAnalisysParameter() tokenize string variable \n") ;
+					// string token ;
+					// while( getline( ss, token, '=') )
+					// {
+    				// 	printf("\n\t --> %s \n", token.c_str()) ;
+					// 	// std::cout << token << '\n';
 					// }
 				}
 			}
@@ -184,6 +191,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 	}
     if ( found == false)
     {
+		printf("\n\n ** ReadAnalisysParameter() --> variable %s not found or commented in configuration file %s** \n\n", varToFind, fileName ) ;
         if ( strcmp( varType, "string" ) == 0 )
             strcpy( ((char*)var), "NOT_FOUND") ;
         else if ( strcmp( varType, "int" ) == 0 )
@@ -333,25 +341,29 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 		}
 		else
 		{
-			fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
-			glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
+			strcpy( glbParam->site, strDump ) ;
+			fscanf( fid, "%10s %08s %10s %08s %lf %lf %lf %lf ", 
+			lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
 			&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
+			// fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
+			// glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
+			// &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
 		}
-		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
-		//  		glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT ) ;
+// printf("\n lidarHeaderData.Name: %s	glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
+		// lidarHeaderData.Name, glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT ) ;
 	}
 	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
 	{
 		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
 		glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
 		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_Celsius[0], &glbParam->pres_hPa[0] ) ;
-		// printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_Celsius: %lf \t glbParam->pres_hPa: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_Celsius, glbParam->pres_hPa) ;
+// printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_Celsius: %lf \t glbParam->pres_hPa: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_Celsius, glbParam->pres_hPa) ;
 	}
 // LINE 3:
 	fscanf( fid, "%07d %04d %07d %04d %02d ", 
 	&glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], &glbParam->Accum_Pulses[1], &glbParam->Laser_Frec[1], &glbParam->nCh ) ;
-	// printf("\n glbParam->Accum_Pulses[0]: %d	glbParam->Laser_Frec[0]: %d		glbParam->Accum_Pulses[1]: %d	glbParam->Laser_Frec[1]: %d		glbParam->nCh: %d \n",
-	// 		glbParam->Accum_Pulses[0], glbParam->Laser_Frec[0], glbParam->Accum_Pulses[1], glbParam->Laser_Frec[1], glbParam->nCh ) ;
+// printf("\n glbParam->Accum_Pulses[0]: %d	glbParam->Laser_Frec[0]: %d		glbParam->Accum_Pulses[1]: %d	glbParam->Laser_Frec[1]: %d		glbParam->nCh: %d \n",
+// 		glbParam->Accum_Pulses[0], glbParam->Laser_Frec[0], glbParam->Accum_Pulses[1], glbParam->Laser_Frec[1], glbParam->nCh ) ;
 
 	glbParam->iAnPhot     = (int*)    new int [ glbParam->nCh ] ;
 	glbParam->Laser_Src   = (int*)    new int [ glbParam->nCh ] ;
@@ -421,6 +433,11 @@ void ReadLicelData( char *lidarFile, strcGlobalParameters *glbParam, strcLidarDa
 	if ( fclose(fid) != 0 )
 		printf("\n Failed to close the lidar file.\n\n") ;
 } // FIN DEL ReadLidarData()
+
+void check_Lidar_Files_Consistency( strcGlobalParameters *glbParam, char **inputFilesInTime )
+{
+
+}
 
 void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 {
@@ -519,7 +536,7 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 		string *bkg_files = (string*) new string[nFilesInInputFolder] ;
 
 		int f=0 ;
-		printf("\nNumber of background files: %d\n", nFilesInInputFolder) ;
+		// printf("\nNumber of background files: %d\n", nFilesInInputFolder) ;
 		while ( (dir = readdir(d)) != NULL )
 		{ // GET THE BACKGROUND FILES NAMES
 			if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) &&
@@ -532,30 +549,53 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 			}
 		}
 
-		strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam->nEvents ] ;
-		GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)glbParam ) ;
-		
-		for ( f=0 ; f <nFilesInInputFolder ; f++ )
-		{
-			glbParam->evSel = f;
-			ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+		strcGlobalParameters glbParam_bkg ;
+		sprintf( glbParam_bkg.inputDataFileFormat, "%s", glbParam->inputDataFileFormat ) ;
+		sprintf( glbParam_bkg.site				 , "%s", glbParam->site ) ;
+		glbParam_bkg.nEvents	= (int)glbParam->nEvents    ;
+		glbParam_bkg.nEventsAVG = (int)glbParam->nEventsAVG ;
+			ReadLicelGobalParameters( (char*)bkg_files[0].c_str(), (strcGlobalParameters*)&glbParam_bkg ) ;
 
+		if ( (glbParam_bkg.nCh == glbParam->nCh) && ( glbParam_bkg.nBins >= glbParam->nBins )  )
+		{
+			strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam->nEvents ] ;
+			GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)glbParam ) ;
+			
+			for ( f=0 ; f <nFilesInInputFolder ; f++ )
+			{
+				glbParam->evSel = f;
+				ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+
+				for ( int c =0; c <glbParam->nCh ; c++)
+				{
+					for (int i =0; i <glbParam->nBins; i++)
+						data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
+				}
+			}
 			for ( int c =0; c <glbParam->nCh ; c++)
 			{
 				for (int i =0; i <glbParam->nBins; i++)
-					data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
+					data_Bkg[c][i] = data_Bkg[c][i] /nFilesInInputFolder ;
+			}
+			if ( glbParam_bkg.nBins > glbParam->nBins )
+			{
+				printf("\n Background files contain %d bins \n Lidar files containg %d \n Background signals are truncated to %d bins.\n\n", glbParam_bkg.nBins, glbParam->nBins, glbParam->nBins ) ;
 			}
 		}
-
-		for ( int c =0; c <glbParam->nCh ; c++)
+		else
 		{
-			for (int i =0; i <glbParam->nBins; i++)
-				data_Bkg[c][i] = data_Bkg[c][i] /nFilesInInputFolder ;
+			printf("\n *** Background files with different number of channels and/or bins. Not saved in the NetCDF file ***\n") ;
+			printf(" *** Number of channels in the background files: %d ***\n", glbParam_bkg.nCh 	) ;
+			printf(" *** Number of channels in the lidar files: %d ***\n", glbParam->nCh 			) ;
+			printf(" *** Number of bins in the background files: %d ***\n", glbParam_bkg.nBins		) ;
+			printf(" *** Number of bins in the lidar files: %d ***\n", glbParam->nBins				) ;
+			return -10 ;
 		}
     }
 	else
 	{
-		printf("\nDark-Current files: A folder must be passed as argument containing the dark-current files.\n...") ;
+		printf("\nDark-Current files: A folder must be set containing the dark-current files in the configuration file.\n") ;
+		printf("%s\n", path_to_bkg_files) ;
 		return -1 ;
 	}
 	return 0 ;

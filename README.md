@@ -94,11 +94,12 @@ At the moment, the compiler output will show some warnings. All of them will be 
 ## Configuring and running LPP modules
 The behavior of each module is based on the parameters written in its configuration file, passed as the [third argument](#runing-a-lpp-module). They are stored in the `/Lidar_Configuration_Files` folder of this repository. These are text-based files and have the variables needed for the module, having to follow only 4 main rules:
 1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable for you. The configuration files included in this repository have many comments to explain each variable.
-2. Variables definition must follow the convention typo `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variables data type can be integer, float, double, or string. Also, in some cases, a variable can be an array of values, in this case, a comment in the line before warning about this.
+2. Variables definition must follow the convention typo `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variables data type can be integer, float, double, or string, depending on the variable. Also, in some cases, a variable can be an array of values, in those cases.
 3. Some variables have to be set as vectors. Each element must be separated by the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3` <u>**and a minimum of 1 space character has to be placed before and after the "`:`" character**</u>. The number of elements depends on the variable, and how LPP make use of it. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
-4. The configuration file could be the same for all the modules, or use one file for all of them, as long as it contains the variables needed for the run. These variables are described in this document.
+4. The configuration file <u>**must**</u> be the same for all the modules, containing all the variables needed for the run. All these variables are described in this document.
 
-The next piece of code shows the general variables contained in the configuration files. These variables are used for more than one module and are set the same for all of them:
+It is worth mentioning that there is no rule for the order of the variables set in this file.
+The next piece of code shows some general variables/paths contained in the configuration files:
 
 ```bash
 ##########################################################################################
@@ -125,6 +126,7 @@ rEndSig = 30000
 ```
 
 Where:
+
 - `maxZthAngle`: Maximum zenithal angle (in degrees) to be used in the analysis.
 - `indxOffset`: The number of bins to remove from the beginning of the lidar track recorded due to the laser offset. This parameter should be an array with one element for each channel acquired.
 - `nBinsBkg`: Number of bins used for background correction. This quantity is taken from the tail of the lidar signal. From the exsample number in the previous line: last 2000 bins will be used.
@@ -137,7 +139,7 @@ Where:
 * `rInitSig`: Initial range of the analysis (in meters from the lidar line of sight). It is preferable to set this value to the first point where the full overlap is achieved.
 * `rEndSig`: End range of analysis (in meters from the lidar line of sight). It is preferable to set this value to the last processable point in the acquired signal.
 
-The following sections describe each module, how to configure it, and how to run it. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
+The following sections describe each module and the variables that must to be configured for a correct run. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
 
 # <u>Product Data Level 0 Module:</u> Converting raw lidar files in a single NetCDF file
 
@@ -149,40 +151,29 @@ An example of how to run this module using the sample signals included in this r
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/ 
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
     /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
-    [Background_Noise_File] [Overlap_File]
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file path contains subfolders, it will be generated automatically (in this example `/LPP_OUT/`).
 - `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
-- `[Background_Noise_File]`: This fourth argument is optional, and is the absolute path to the background noise file. This file is obtained by performing a regular measurement with the telescope fully covered. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. If this file is not provided, a "-" character must be used as fourth argument.
-- `[Overlap_File]`: This fifth argument is optional, and is the absolute path to the overlap file. This file must be a text comma-sepparated file (.cvs), having one overlap file for each channel. The first line must contain the labels of each columns, and the first column must contain the range array whith the same resolution of the lidar siganls. <u>**Important Note:</u> No extra line/s must contain at the end of the file.**
-In the followings lines, and example of the first row and column whith its overlap values are shown:
 
-```bash
-r,1064,1064,532,532,530,530,355,355,387,387,408,408
-7.5,0.1039686755945483,0.1039686755945483,...
-15,0.1131477684070227,0.1131477684070227,...
-22.5,0.1335490472139786,0.1335490472139786,...
-30,0.166872373584308,0.166872373584308,0.166872373584308,...
-...
-...
-29992.5,1.00270381563113,1.00270381563113,1.00270381563113,...
-30000,1.002703815715551,1.002703815715551,1.002703815715551,...
-```
-
-If this file is provided, the data will be added to the NetCDF file generated by this module under the variable `Overlap`. If this file is not provided, a "-" character must be used as fifth argument.
-
-It is highly recommentable to use absolute paths to avoid errors in the execution.
 The level 0 variables contained in the configuration file are listed in the next code:
 
-
 ```bash
-#############################################################
-# CONFIGURATION FILE FOR LIDAR CONVERSION TOOL 
-# RAW LIDAR DATA FILES TO NETCDF FILE - DATA LEVEL 0 (L0)
-#############################################################
+##########################################################################################
+# PARAMETERS FOR lidarAnalysis_PDL0
+##########################################################################################
+
+# NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
+# ! IF THERE IS NO NOISE FILE: COMMENT THE PATH_DARK_FILE VARIABLE WHIT '#' 
+# ! IF THERE IS    NOISE FILE: PATH_DARK_FILE MUST CONTAIN THE STRING 'bkg' IN SOME PART OF ITS NAME!!!
+PATH_DARK_FILES = /mnt/Disk-1_8TB/Brazil/SPU/20200914/dark_current_2/
+
+# OVERLAP FILE.
+# ! IF THERE IS NO OVERLAP FILE: COMMENT THE OVERLAP_FILE VARIABLE WHIT '#'
+# ! IF THERE IS    OVERLAP FILE: OVERLAP_FILE MUST BE SET WITH THE FULL PATH
+OVERLAP_FILE = /mnt/Disk-1_8TB/Brazil/SPU/Overlap_Files/overlap_SPU.csv
 
 # DATE-TIME RANGE TO ANALYZE INSIDE THE FOLDER PASSED AS ARGUMENT TO lidarAnalysis_PDL0
 # IF minTime = maxTime --> ALL FILES INSIDE THE FOLDER
@@ -200,17 +191,34 @@ Time_Zone = 0.0
 outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
 ```
-
 L0 data levels configuration file only need a few of basic inputs:
+
+* `PATH_DARK_FILES`: Absolute path to the background files folder. These files must be obtained by performing a regular measurement with the telescope fully covered. LPP will average all the files included in this folder and produce a single profile for each channel by averaging all the files. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. <u>**Important Note:</u> This information is not mandatory, and if is not provided, it must be commented writing a `"#"` at the beginning of the line.**
+- `[Overlap_File]`: Absolute path to the overlap file. This file must be a text comma-sepparated file (.cvs), having one overlap profile for each channel. The first line must contain the labels of each columns, and the first column must contain the range array whith the same resolution of the lidar siganls. <u>**Important Note:</u> No extra line/s must contain at the end of the file.**
+In the followings lines, and example of the first row and column whith its overlap values are shown:
+
+```bash
+r,1064,1064,532,532,530,530,355,355,387,387,408,408
+7.5,0.1039686755945483,0.1039686755945483,...
+15,0.1131477684070227,0.1131477684070227,...
+22.5,0.1335490472139786,0.1335490472139786,...
+30,0.166872373584308,0.166872373584308,0.166872373584308,...
+...
+...
+29992.5,1.00270381563113,1.00270381563113,1.00270381563113,...
+30000,1.002703815715551,1.002703815715551,1.002703815715551,...
+```
+<u>**Important Note:</u> This information is not mandatory, and if is not provided, it must be commented writing a `"#"` at the beginning of the line.**
+It is highly recommentable to use absolute paths to avoid errors in the execution.
+
 * `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) or Raymetric (`RAYMETRIC_FILE` option) data type file are accepted. There is planned to accept more input data types formats in the future. 
-* `Time_Zone`: Hours difference related to UTC time. If the time in lidar signals are in UTC time, it variable must be zero. If the time is set in local time, and you are in Argentina, it must be set -3. 
- IF THE FILES CONTAIN LOCAL TIME, SET HERE THE DIFFERENCE RELATED TO UTC
+* `Time_Zone`: Difference hours referenced to UTC time. If the time in lidar files are in UTC time, this variable must be set to zero. If the time of the files is set in local time, and for instance, the lidar if from Argentina, it must be set -3. 
 * `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different names conventions of the variables inside the file. A detailed description of LALINET data type can be seen in later sections of this document ([LALINET data type format](#lalinet-netcdf-file-format)).
-* `minTime` and `maxTime`: Minimum and maximum time to analyze inside the folder passed as the first argument. The format must be like the example show above: **YYYY/MM/DD-HH:MM:SS**.
+* `minTime` and `maxTime`: Minimum and maximum time to analyze inside the folder passed as the first argument. The format must be like the example show above: **YYYY/MM/DD-HH:MM:SS**. If `minTime` and `maxTime` are equal, all the files inside the folder passed as argument will be analyzed.
 
 If `SCC_NETCDF` is selected, the output file generated can be used as an input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described in the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). 
 
-In order to proceed without making mistakes, we highly suggest to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
+In order to proceed in a safest way, we highly reccomend to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
 
 # <u>Product Data Level 1 Module:</u> Lidar signals corrections and cloud-mask
 
@@ -365,11 +373,11 @@ A description of each of these parameters is described below:
 
 # Automatizing LPP
 
-In order to run all the LPP modules automatically, this repository contains a Linux script to do this task. The name of this script is `run_LPP_Analysis.sh`, and you can find it in the root folder of this repository. It uses a general configuration file located in the configuration folder `/LPP/Lidar_Configuration_Files/LPP_Settings.sh` and contain the basics instructions for the automatic run.
+In order to run LPP modules automatically, there is a Linux script to do this task. Its name is `run_LPP_Analysis.sh`, and you can find it in the root folder of this repository. It uses a simple general configuration file located in the configuration folder: `/LPP/Lidar_Configuration_Files/LPP_Settings.sh`. 
 
 Using `run_LPP_Analysis.sh`, all the outputs and input paths and files names needed as argument for every module are automatically generated. In this section, the rules used for automatic folder and filename generation are explained.
 
-In the configuration file (`/LPP/Lidar_Configuration_Files/LPP_Settings.sh`), the outputs data set levels and the input and output paths are set. An example of this file can be seen below:
+An example of this file is shown in the next lines:
 
 ```bash
 # DATA LEVEL TO PRODUCE IN THE RUN. 
@@ -380,20 +388,16 @@ L2="yes"
 # ABSOLUTE INPUT PATH
 PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 
-# NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
-# ! IF THERE IS NO NOISE FILE: THE FILENAME MUST BE SET AS: "-"
-# ! IF THERE IS    NOISE FILE: THE FILENAME MUST CONTAIN THE STRING 'bkg' IN SOME PART OF ITS NAME!!!
-# PATH_DARK_FILE="-"
-PATH_DARK_FILE="/mnt/Disk-1_8TB/Argentina/SPU/20210730/bkg_20210730"
-
+# CONFIGURATION FILES
 FILE_CONF="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf"
 ```
-
 As can be seen, a few variables are needed to run LPP automatically. These are:
-* `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"` at these variables, the control of the run of each module can be controled.
-* `PATH_IN`: Path of the raw lidar data, in wich only lidar data files (Licel or Raymetric data file format) must be stored. Subfolders containing lidar data files will be also analyzed. A folder named `/LPP_OUT/` will be created automatically in the last subfolder found with raw lidar files. The `/LPP_OUT/` folder will be used to store the NetCDF output files produced by each LPP module.
-Because there are different ways to store the data files and their folder structures, two examples will be shown and how the folder/files are generated automatically. 
-* `PATH_DARK_FILE`: Absolute path to the background file, which must contain the string `bkg` in some part of its name. This information is not mandatory, and if is not used, must be defined as `"-"`. This variable is passed as fourth argument to `lidarAnalysis_PDL0`.
+* `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"`, the run of each module can be controled. These variables are strings, and must be between inverted commas `"` and can be capitalized or not.<u>**Since this file is also a Linux script, do not let spaces before and after the `=` sign.**</u>
+* `PATH_IN`: Input path containing the input information for the lowest data level set. This mean that, if the lowest data level set is 0 (`L0="yes"`), `PATH_IN` must point to a folder containing the raw lidar files in Licel or Raymetric data file format. The subfolders will also be analized, and will skipped if contains LPP's processed data.
+The output NetCDF file will be stored in a folder named `/LPP_OUT/` created automatically in the same directory of its raw lidar files.
+If `L0="no"`, and `L1="yes"`, `PATH_IN` variable must be pointing to a <u>**NetCDF file**</u> containing the information generated in the module 0, which is the input for the data level 1.
+
+Because there are different ways to store the data files and their folder structures, two examples will be shown in the next section to demostrate how the folder/files are generated automatically. 
 * `FILE_CONF`: Absolute path to the configuration file containing the variables of each module.
 
 In order to explain how paths are generated automatically, two typical examples are shown. The first one is used in Sao Paulo and Argentinean lidars, where the lidar files produced in a day are stored in a single folder with the full date in its name, as can be seen in the next figure:
@@ -456,9 +460,13 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Accumulated_Pulses (channels)`: Number of laser pulses accumulated in for channel.
 * `ADC_Bits (channels)`: Number of electronic ADC's bits.
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
+* `Bkg_Noise (channels, points)`: Background noise file (optional, only if its path is passed as argument as fifth argument). It must have the same data file format of the lidar signals (Licel or Raymetrics).
 * `DAQ_Range (channels)`: Maximun DAQ range set in the Licel, in mV.
+* `DAQ_Type (channels)`: Aquisition type following Licel data file convention: 0=Analog, 1=Digital .
+* `File_Names (time)`: File names of the data included in the NetCDF file. Since this variable is an string array, the best way to see it properly using Panoply, is by importing it as "Labeled Text". This option appears by doing a right-click over the variable. It will create a text file with all the information.
 * `Laser_Source (channels)`: Number of laser source set for each channel.
 * `Number_Of_Bins (channels)`: Number of bins saved for each channel.
+* `Overlap (channels, points)`: Overlap profile provided in a file as 5th argument (optional).
 * `PMT_Voltage (channels)`: Photomuliplier voltage used in each channel.
 * `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel/Raymetric files: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
 * `Raw_Data_Start_Time (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970).
