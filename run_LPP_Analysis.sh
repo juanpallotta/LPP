@@ -130,7 +130,7 @@ then
             ./lidarAnalysis_PDL0 $PATH_IN_L0 $PATH_FILE_OUT_L0 $FILE_CONF 
         fi
 
-        if [[ "${L1,,}" == "yes" ]] 
+        if [[ "${L1,,}" == "yes" ]]
         then
             # DELETE PREVIOUS VERSION OF THE L1 FILE (IF EXIST)
             if test -f "$PATH_FILE_OUT_L1"
@@ -141,7 +141,7 @@ then
             fi
 
             # CHECK IF THE INPUT FILE EXIST
-            if [[ -f $PATH_FILE_IN_L1 ]] 
+            if [[ -f $PATH_FILE_IN_L1 ]]
             then
                 echo -e "\n\nRunning PDL1 \n ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF
                 cd $PATH_TO_L1
@@ -157,16 +157,16 @@ then
             # rm $PATH_FILE_IN_L1 
         fi # if [[ "${L1,,}" == "yes" ]]
 
-        if [[ "${L2,,}" == "yes" ]] 
+        if [[ "${L2,,}" == "yes" ]]
         then
-            if test -f "$PATH_FILE_OUT_L2" 
+            if test -f "$PATH_FILE_OUT_L2"
             then
                 echo "Deleting previous version of data Level 2 --> ${PATH_FILE_OUT_L2}" 
                 rm $PATH_FILE_OUT_L2 
                 sleep 1
-            fi
-            #             # CHECK IF THE INPUT FILE EXIST
-            if [[ -f $PATH_FILE_IN_L2 ]] 
+            fi # if test -f "$PATH_FILE_OUT_L2"
+            # CHECK IF THE INPUT FILE EXIST
+            if [[ -f $PATH_FILE_IN_L2 ]]
             then
                 #!  AERONET DOWNLOADER HERE.
 
@@ -183,22 +183,7 @@ then
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
             # rm $PATH_FILE_IN_L2
-<<<<<<< HEAD
         fi # if [[ "${L2,,}" == "yes" ]]
-=======
-    #   PLOTTING
-            echo -e "\n\nGenerating plots for L2..."
-            PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"/LPP_Plots_L2.py"
-            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 4
-        fi
-
-		echo ""
-		echo ------------------------------------------------------------ next file...
-		echo ""
-		echo ""
-	fi
-done
->>>>>>> 895ab933491001b152166bb21f7e3a422b8969c0
 
 echo ""
 echo ------------------------------------------------------------ next file...
