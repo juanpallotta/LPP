@@ -121,8 +121,13 @@ int main( int argc, char *argv[] )
         oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
     }
 
+<<<<<<< HEAD
     // // SAVE THE LAYER-MASK MATRIX IN oDL2->layer_mask
     // oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
+=======
+    // SAVE THE LAYER-MASK MATRIX IN oDL2->layer_mask
+    oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
+>>>>>>> 895ab933491001b152166bb21f7e3a422b8969c0
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
     int id_var_nmol ;

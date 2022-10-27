@@ -1003,9 +1003,13 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     PutVar( (int)nc_id_group_L2, (int)var_ids[7] , (const char*)"double", (double*)glbParam->rEndSig_ev ) ;
     PutVar( (int)nc_id_group_L2, (int)var_ids[10], (const char*)"double", (double*)Ref_Range  ) ;
+<<<<<<< HEAD
 
     PutVar( (int)nc_id_group_L2, (int)var_ids[3], (const char*)"int", (int*)oDL2->Start_Time_AVG_L2 ) ;
     PutVar( (int)nc_id_group_L2, (int)var_ids[4], (const char*)"int", (int*)oDL2->Stop_Time_AVG_L2 ) ;
+=======
+>>>>>>> 895ab933491001b152166bb21f7e3a422b8969c0
+
 
 
             if ( (retval = nc_close(nc_id) ) )

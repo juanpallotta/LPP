@@ -183,7 +183,22 @@ then
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
             # rm $PATH_FILE_IN_L2
+<<<<<<< HEAD
         fi # if [[ "${L2,,}" == "yes" ]]
+=======
+    #   PLOTTING
+            echo -e "\n\nGenerating plots for L2..."
+            PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"/LPP_Plots_L2.py"
+            python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 4
+        fi
+
+		echo ""
+		echo ------------------------------------------------------------ next file...
+		echo ""
+		echo ""
+	fi
+done
+>>>>>>> 895ab933491001b152166bb21f7e3a422b8969c0
 
 echo ""
 echo ------------------------------------------------------------ next file...
