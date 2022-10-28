@@ -703,6 +703,114 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
         ERR(retval);
 }
 
+void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, long *Raw_Data_Start_Time_sec, long *Raw_Data_Stop_Time_sec )
+{
+    int  ncid ;
+    int  retval ;
+
+    if ( (retval = nc_create( Path_File_Out.c_str(), NC_NETCDF4, &ncid)) )
+        ERR(retval);
+
+    // DIMENSIONS INFO FOR pr VARIABLE
+    string      dimsName [NDIMS_LALINET_L0] ;
+    int         dimsSize[NDIMS_LALINET_L0] ;
+    dimsName[0] = "time" ;                  dimsSize[0] = glbParam->nEventsAVG   ;
+    dimsName[1] = "channels" ;              dimsSize[1] = glbParam->nCh          ;
+    dimsName[2] = "points" ;                dimsSize[2] = glbParam->nBinsRaw     ;
+
+    // int  dim_ids_StartEnd_time[2];
+    int  dim_ids[NDIMS_LALINET_L0];
+    int  var_ids[NVARS_LALINET_L0] ;
+    string  strNameVars[NVARS_LALINET_L0] ;
+    strNameVars[0]  = "Raw_Lidar_Data" ;
+    strNameVars[1]  = "Raw_Data_Start_Time" ;
+    strNameVars[2]  = "Raw_Data_Stop_Time" ;
+    strNameVars[3]  = "Wavelengths" ;
+    strNameVars[4]  = "Polarization" ;
+    strNameVars[5]  = "DAQ_Range" ;
+    strNameVars[6]  = "DAQ_type" ;
+    strNameVars[7]  = "PMT_Voltage" ;
+    strNameVars[8]  = "Accumulated_Pulses" ;
+    strNameVars[9]  = "Zenith" ;
+    strNameVars[10] = "Azimuth" ;
+    strNameVars[11] = "Temperature" ;
+    strNameVars[12] = "Pressure" ;
+    strNameVars[13] = "ADC_Bits" ;
+    strNameVars[14] = "Laser_Source" ;
+    strNameVars[15] = "Number_Of_Bins" ;
+
+    // DEFINE Raw_Lidar_Data VARIABLE
+    DefineVarDims( (int)ncid, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dim_ids, (char*)strNameVars[0].c_str(), (const char*)"double", (int*)&var_ids[0] ) ; // Raw_Lidar_Data
+
+    DefineVariable( (int)ncid, (char*)strNameVars[1].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[1]  ) ; // Raw_Data_Start_Time
+    DefineVariable( (int)ncid, (char*)strNameVars[2].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[0], (int*)&var_ids[2]  ) ; // Raw_Data_Stop_Time
+    DefineVariable( (int)ncid, (char*)strNameVars[3].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[3]  ) ; // Wavelengths
+    DefineVariable( (int)ncid, (char*)strNameVars[4].c_str() , (const char*)"char"  , (int)1, (int*)&dim_ids[1], (int*)&var_ids[4]  ) ; // Polarization
+    DefineVariable( (int)ncid, (char*)strNameVars[5].c_str() , (const char*)"double", (int)1, (int*)&dim_ids[1], (int*)&var_ids[5]  ) ; // DAQ_Range
+    DefineVariable( (int)ncid, (char*)strNameVars[6].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[6]  ) ; // DAQ_type
+    DefineVariable( (int)ncid, (char*)strNameVars[7].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[7]  ) ; // PMT_Voltage
+    DefineVariable( (int)ncid, (char*)strNameVars[8].c_str() , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[8]  ) ; // Accumulated_Pulses
+    DefineVariable( (int)ncid, (char*)strNameVars[9].c_str() , (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[9]  ) ; // Zenith
+    DefineVariable( (int)ncid, (char*)strNameVars[10].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[10] ) ; // Azimuth
+    DefineVariable( (int)ncid, (char*)strNameVars[13].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[13] ) ; // ADC_Bits
+    DefineVariable( (int)ncid, (char*)strNameVars[14].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[14] ) ; // Laser_Source
+    DefineVariable( (int)ncid, (char*)strNameVars[15].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[15] ) ; // Number_Of_Bins
+
+    // TEXT GLOBAL ATTRIBUTES
+    string strAttListName[10], strAttList ;
+    strAttListName[0] = "Site_Name"             ;   strcpy ( (char*)strAttList.c_str(), glbParam->site )  ;
+        Putt_Bulk_Att_Text( (int)ncid, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)&strAttList ) ;
+
+    // DOUBLE GLOBAL ATTRIBUTES
+    double dblAttList[6] ;
+    strAttListName[0] = "Altitude_meter_asl"     ;   dblAttList[0] = (double)glbParam->siteASL       ;
+    strAttListName[1] = "Latitude_degrees_north" ;   dblAttList[1] = (double)glbParam->siteLat       ;
+    strAttListName[2] = "Longitude_degrees_east" ;   dblAttList[2] = (double)glbParam->siteLong      ;
+    strAttListName[3] = "Range_Resolution"       ;   dblAttList[3] = (double)glbParam->dr            ;
+    strAttListName[4] = "Laser_Frec_1"           ;   dblAttList[4] = (double)glbParam->Laser_Frec[0] ;
+    strAttListName[5] = "Laser_Frec_2"           ;   dblAttList[5] = (double)glbParam->Laser_Frec[1] ;
+        Putt_Bulk_Att_Double( (int)ncid, (int)NC_GLOBAL, (int)6, (string*)strAttListName, (double*)dblAttList ) ;
+
+    // UNITS OF THE VARIABLES
+        Set_LALINET_Units_L0( (int)ncid, (int*)var_ids ) ;
+
+    if ( (retval = nc_enddef(ncid)) )
+        ERR(retval);
+
+    // PUTTING VARIABLES
+    size_t start[3], count[3];
+    start[0] = 0;   count[0] = 1 ; // glbParam.nEventsAVG; 
+    start[1] = 0;   count[1] = 1 ; // glbParam.nCh; 
+    start[2] = 0;   count[2] = glbParam->nBinsRaw ;
+    for( int e=0 ; e <glbParam->nEventsAVG ; e++ )
+    {
+        start[0] =e ;
+        for ( int c=0 ; c <glbParam->nCh ; c++ )
+        {
+            start[1] =c ;
+            if ( (retval = nc_put_vara_double((int)ncid, (int)var_ids[0], start, count, (double*)&dataToSave[e][c][0] ) ) )
+                ERR(retval);
+        }
+    }
+
+    PutVar( (int)ncid, (int)var_ids[1] , (const char*)"long"  , (long*)Raw_Data_Start_Time_sec       ) ; 
+    PutVar( (int)ncid, (int)var_ids[2] , (const char*)"long"  , (long*)Raw_Data_Stop_Time_sec        ) ;
+    PutVar( (int)ncid, (int)var_ids[3] , (const char*)"int"   , (int*)glbParam->iLambda             ) ;
+    PutVar( (int)ncid, (int)var_ids[4] , (const char*)"char"  , (char*)glbParam->sPol               ) ;
+    PutVar( (int)ncid, (int)var_ids[5] , (const char*)"double", (double*)glbParam->iMax_mVLic       ) ;
+    PutVar( (int)ncid, (int)var_ids[6] , (const char*)"int"   , (int*)glbParam->iAnPhot             ) ;
+    PutVar( (int)ncid, (int)var_ids[7] , (const char*)"int"   , (int*)glbParam->PMT_Voltage         ) ;
+    PutVar( (int)ncid, (int)var_ids[8] , (const char*)"int"   , (int*)glbParam->nShots              ) ;
+    PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenith          ) ;
+    PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuth         ) ;
+    PutVar( (int)ncid, (int)var_ids[13], (const char*)"int"   , (int*)glbParam->iADCbits            ) ;
+    PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)glbParam->Laser_Src           ) ;
+    PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBinsRaw_Ch         ) ;
+
+    if ( (retval = nc_close(ncid)) )
+        ERR(retval);
+}
+
 void CNetCDF_Lidar::Add_Noise_LALINET_NCDF_PDL0( string *Path_File_Out, strcGlobalParameters *glbParam, double **data_Noise )
 {
     int retval, nc_id ;
@@ -1003,14 +1111,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     PutVar( (int)nc_id_group_L2, (int)var_ids[7] , (const char*)"double", (double*)glbParam->rEndSig_ev ) ;
     PutVar( (int)nc_id_group_L2, (int)var_ids[10], (const char*)"double", (double*)Ref_Range  ) ;
-<<<<<<< HEAD
 
     PutVar( (int)nc_id_group_L2, (int)var_ids[3], (const char*)"int", (int*)oDL2->Start_Time_AVG_L2 ) ;
     PutVar( (int)nc_id_group_L2, (int)var_ids[4], (const char*)"int", (int*)oDL2->Stop_Time_AVG_L2 ) ;
-=======
->>>>>>> 895ab933491001b152166bb21f7e3a422b8969c0
-
-
 
             if ( (retval = nc_close(nc_id) ) )
                 ERR(retval);

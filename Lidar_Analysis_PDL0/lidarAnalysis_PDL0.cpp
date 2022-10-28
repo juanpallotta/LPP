@@ -1,3 +1,4 @@
+
 /**
  * @file mergeLidarFiles.cpp
  * @author Juan V. Pallotta (juanpallotta@gmail.com)

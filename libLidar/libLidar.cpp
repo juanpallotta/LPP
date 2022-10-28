@@ -76,11 +76,7 @@ bool isFileInTimeRange ( char *fileName, time_t minTime_num, time_t maxTime_num,
 		sscanf( fileName, "%c%c%2d%1x%2d%2d.%2d", &dumpChar1, &dumpChar2, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min ) ;
 	}
 	else
-<<<<<<< HEAD
 		printf("\n Wrong 'inputDataFileFormat' parameter in %s file. (inputDataFileFormat=%s) \n", glbParam->FILE_PARAMETERS, glbParam->inputDataFileFormat ) ;
-=======
-		printf("\n Wrong 'inputDataFileFormat' parameter in %s file \n", glbParam->FILE_PARAMETERS ) ;
->>>>>>> 895ab933491001b152166bb21f7e3a422b8969c0
 
 	if (tmFile.tm_year >=90)
 		tmFile.tm_year = 1900 + tmFile.tm_year -1900 ;
@@ -583,7 +579,7 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 			}
 			if ( glbParam_bkg.nBins > glbParam->nBins )
 			{
-				printf("\n Background files contain %d bins \n Lidar files containg %d \n Background signals are truncated to %d bins.\n\n", glbParam_bkg.nBins, glbParam->nBins, glbParam->nBins ) ;
+				printf("\n Background files contain %d bins \n Lidar files contain %d \n Background signals are truncated to %d bins.\n\n", glbParam_bkg.nBins, glbParam->nBins, glbParam->nBins ) ;
 			}
 		}
 		else
