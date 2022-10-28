@@ -3,7 +3,7 @@
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no", LOWERCASE
 L0="yes"
-L1="no"
+L1="yes"
 L2="yes"
 
 #* ABSOLUTE PATHS!!!

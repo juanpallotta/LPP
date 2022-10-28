@@ -14,43 +14,6 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "ifODcut"			  	 , "string", (char*)ifODcut 				) ;
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "nScanMax"			 , "int"   , (int*)&nScanMax 			    ) ;
 
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam->numEventsToAvg ) ;
-	glbParam->nEventsAVG = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
-
-    glbParam->aZenith     = (double*) new double [glbParam->nEvents]    ;
-    glbParam->aAzimuth    = (double*) new double [glbParam->nEvents]    ;
-    glbParam->aZenithAVG  = (double*) new double [glbParam->nEventsAVG] ;     memset( (double*)glbParam->aZenithAVG , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-    glbParam->aAzimuthAVG = (double*) new double [glbParam->nEventsAVG] ;     memset( (double*)glbParam->aAzimuthAVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-
-    glbParam->temp_Celsius     = (double*) new double [glbParam->nEvents]     ;
-    glbParam->pres_hPa         = (double*) new double [glbParam->nEvents]     ;
-    glbParam->temp_CelsiusAVG  = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->temp_CelsiusAVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-    glbParam->pres_hPaAVG      = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->pres_hPaAVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station", (const char*)"double", (int*)&glbParam->temp_CelsiusAVG[0] ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station"   , (const char*)"double", (int*)&glbParam->pres_hPaAVG[0]     ) ;
-    for (  int i =1 ; i < glbParam->nEvents ; i++ )
-    {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
-        glbParam->temp_Celsius[i] = glbParam->temp_Celsius[0]  ;
-        glbParam->pres_hPa[i]     = glbParam->pres_hPa[0]      ;
-    }
-
-    glbParam->r = (double*) new double[glbParam->nBins] ;
-    for( int i=0 ; i <glbParam->nBins ; i++ )
-		glbParam->r[i] = (i+1)*glbParam->dr ;
-
-	glbParam->iLambda = (int*) new int [glbParam->nCh] ;
-
-    glbParam->indxOffset = (int*) new int [ glbParam->nCh ] ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)&glbParam->nBinsBkg    ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)glbParam->indxOffset   ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam->rInitSig ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rEndSig"    , (const char*)"double", (double*)&glbParam->rEndSig  ) ;
-    glbParam->indxInitSig = (int)round( glbParam->rInitSig /glbParam->dr ) ;
-    glbParam->indxEndSig  = (int)round( glbParam->rEndSig  /glbParam->dr );
-
-    glbParam->indxEndSig_ev = (int*)    new int    [ glbParam->nEventsAVG ] ;
-    glbParam->rEndSig_ev    = (double*) new double [ glbParam->nEventsAVG ] ;
-
 	scanNumExit = nScanMax ;
 
 	prFit  = (double*) new double [glbParam->nBins] ;

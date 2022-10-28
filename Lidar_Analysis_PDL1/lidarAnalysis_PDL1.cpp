@@ -43,7 +43,7 @@ int main( int argc, char *argv[] )
 	Path_File_In.assign  ( argv[1] ) ;
 	Path_File_Out.assign ( argv[2] ) ;
 
-    printf("\n Path_File_In --> %s " , Path_File_In.c_str()  ) ;
+    printf("\n Path_File_In --> %s ", Path_File_In.c_str()  ) ;
     printf("\n Path_File_Out --> %s", Path_File_Out.c_str() ) ;
     printf("\n Settings File --> %s", glbParam.FILE_PARAMETERS ) ;
 
@@ -55,14 +55,12 @@ int main( int argc, char *argv[] )
     int  ncid   ;
     int  retval ;
     
-    CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
-
     if ( (retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid)) )
         ERR(retval);
 
-//! IMPLEMENT THE OVERLOADED METHOD oNCL.Read_L0_Data ( (int)ncid, (strcGlobalParameters*)&glbParam, (CDataLevel_1*)oDL1 ) ;
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
-    // oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
+    CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
+    oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
     // READ VARIABLES FROM DE NETCDF INPUT FILE
     int id_var ;
@@ -86,16 +84,6 @@ int main( int argc, char *argv[] )
             ERR(retval);
         // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
     }
-
-    if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam.dr) ) )
-        ERR(retval);
-
-    if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL ) ) )
-        ERR(retval);
-
-    glbParam.nEvents = size_dim[0] ; glbParam.nEventsAVG = glbParam.nEvents ; // 'time' DIMENSION
-    glbParam.nCh     = size_dim[1] ; glbParam.nLambda    = glbParam.nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
-    glbParam.nBins   = size_dim[2] ; // 'points' DIMENSION
 
     CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
 
@@ -131,9 +119,6 @@ int main( int argc, char *argv[] )
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)Raw_Data_Start_Time ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)Raw_Data_Stop_Time  ) ;
 
-    oNCL.ReadVar( (int)ncid, (const char*)"Zenith"  , (int*)glbParam.aZenith  ) ;
-    oNCL.ReadVar( (int)ncid, (const char*)"Azimuth" , (int*)glbParam.aAzimuth ) ;
-
     double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
     {
@@ -157,8 +142,6 @@ int main( int argc, char *argv[] )
     int indxWL_PDL1 ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
     assert( indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
-
-    oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (int*)glbParam.iLambda ) ;
 
     double  **data_Noise ;
     int id_var_noise ;

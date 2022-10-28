@@ -9,7 +9,6 @@
 CMolecularData::CMolecularData( strcGlobalParameters *glbParam )
 {
 	GetMem_dataMol( (int)glbParam->nBins ) ; // MEMORY ALLOCATION FOR dataMol STRUCTURE.
-	// Read_range_Temp_Pres_From_File( (strcGlobalParameters*)glbParam ) ;
 }
 
 CMolecularData::~CMolecularData()

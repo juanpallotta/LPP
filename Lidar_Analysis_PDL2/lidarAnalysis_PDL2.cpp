@@ -43,7 +43,7 @@ int main( int argc, char *argv[] )
 	Path_File_In.assign  ( argv[1] ) ;
 	Path_File_Out.assign ( argv[2] ) ;
 
-    printf("\n Path_File_In --> %s " , Path_File_In.c_str()  ) ;
+    printf("\n Path_File_In --> %s ", Path_File_In.c_str()  ) ;
     printf("\n Path_File_Out --> %s", Path_File_Out.c_str() ) ;
     printf("\n Settings File --> %s", glbParam.FILE_PARAMETERS ) ;
 
@@ -55,7 +55,7 @@ int main( int argc, char *argv[] )
     int  ncid, ncid_L1_Data ;
     int  retval ;
 
-    if ( (retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid)) )
+    if ( ( retval = nc_open(Path_File_In.c_str(), NC_NOWRITE, &ncid) ) )
         ERR(retval);
     if ( ( retval = nc_inq_grp_ncid( (int)ncid, (const char*)"L1_Data", (int*)&ncid_L1_Data ) ) )
         ERR(retval);
@@ -68,6 +68,7 @@ int main( int argc, char *argv[] )
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
 
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
+
     oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     int indxWL_PDL2[glbParam.nCh], nCh_to_invert ;
