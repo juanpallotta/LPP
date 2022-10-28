@@ -33,6 +33,7 @@ int main( int argc, char *argv[] )
     printf("\n\n---- lidarAnalisys_PDL2 (START) -----------------------------------------------------------------------------\n\n") ;
  
     strcGlobalParameters    glbParam  ;
+
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
     sprintf( glbParam.exeFile         , "%s", argv[0] ) ;
 
@@ -42,8 +43,9 @@ int main( int argc, char *argv[] )
 	Path_File_In.assign  ( argv[1] ) ;
 	Path_File_Out.assign ( argv[2] ) ;
 
-    printf("\n Path_File_In:\t %s " , Path_File_In.c_str()  ) ;
-    printf("\n Path_File_Out:\t %s\n\n", Path_File_Out.c_str() ) ;
+    printf("\n Path_File_In --> %s " , Path_File_In.c_str()  ) ;
+    printf("\n Path_File_Out --> %s", Path_File_Out.c_str() ) ;
+    printf("\n Settings File --> %s", glbParam.FILE_PARAMETERS ) ;
 
     char cmdCopy[500] ;
     sprintf( cmdCopy, "cp %s %s", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
@@ -90,12 +92,11 @@ int main( int argc, char *argv[] )
                 oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
         }
     }
-    else
+    else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2
     {   // LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED
         oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
     }
 
-//! ------------------------ CORRECTIONS OF THE LIDAR SIGNAL: LASER OFFSET AND BIAS
     oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
     oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
 
@@ -121,8 +122,8 @@ int main( int argc, char *argv[] )
         oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
     }
 
-    // // SAVE THE LAYER-MASK MATRIX IN oDL2->layer_mask
-    // oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
+    // SAVE THE LAYER-MASK MATRIX IN oDL2->layer_mask
+    // DELETED --> oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
     int id_var_nmol ;
@@ -187,6 +188,11 @@ int main( int argc, char *argv[] )
         glbParam.evSel = t ;
 
         oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
+
+        // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
+        // {
+        // scancloudmask
+        // }
 
         oDL2->dzr = (glbParam.r[2] - glbParam.r[1]) ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 

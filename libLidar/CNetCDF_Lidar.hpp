@@ -57,7 +57,7 @@ class CNetCDF_Lidar
 		void ReadVar( int, const char*, void* ) ;
 		void Read_Bkg_Noise( int, strcGlobalParameters*, int, double** ) ;
 		void Read_Overlap( int, strcGlobalParameters*, int, double** ) ;
-		void Read_LayerMask( int, strcGlobalParameters*, int** ) ;
+		// void Read_LayerMask( int, strcGlobalParameters*, int** ) ;
 
 		void Read_GlbParameters( int, strcGlobalParameters* ) ;
 		void Read_L0_into_L2   ( int, strcGlobalParameters*, CDataLevel_2* ) ;
