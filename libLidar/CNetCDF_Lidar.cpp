@@ -218,7 +218,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->nCh     = size_dim[1] ; glbParam->nLambda    = glbParam->nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
     glbParam->nBins   = size_dim[2] ; // 'points' DIMENSION
 
-    glbParam->numEventsToAvg = (glbParam->numEventsToAvg <0) ? glbParam->nEvents : glbParam->numEventsToAvg ;
+    // glbParam->numEventsToAvg = (glbParam->numEventsToAvg <0) ? glbParam->nEvents : glbParam->numEventsToAvg ;
     glbParam->nEventsAVG     = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
 
     glbParam->aZenith     = (double*) new double [glbParam->nEvents]    ;
@@ -942,9 +942,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalPar
     int avg_Points_Cloud_Mask ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
     strAttListName[0] = "indxChannel_for_Cloud_Mask"; intAttList[0] = (int)indxWL_PDL1              ;
-    strAttListName[1] = "num_Points_Bkg"            ; intAttList[2] = (int)glbParam->nBinsBkg       ;
-    strAttListName[2] = "Averaged_Profiles_L1"      ; intAttList[3] = (int)glbParam->numEventsToAvg ;
-    strAttListName[3] = "avg_Points_Cloud_Mask"     ; intAttList[4] = (int)avg_Points_Cloud_Mask    ;
+    strAttListName[1] = "num_Points_Bkg"            ; intAttList[1] = (int)glbParam->nBinsBkg       ;
+    strAttListName[2] = "Averaged_Profiles_L1"      ; intAttList[2] = (int)glbParam->numEventsToAvg ;
+    strAttListName[3] = "avg_Points_Cloud_Mask"     ; intAttList[3] = (int)avg_Points_Cloud_Mask    ;
         Putt_Bulk_Att_Int( (int)nc_id_group_L1, (int)NC_GLOBAL, (int)4, (string*)strAttListName, (int*)intAttList ) ;
 
     Set_LALINET_Units_L1( (int)nc_id_group_L1, (int*)var_ids ) ;
