@@ -85,12 +85,26 @@ int main( int argc, char *argv[] )
                                                     (int*)oDL2->Start_Time_AVG_L2, (int*)oDL2->Stop_Time_AVG_L2
                                                   ) ;
 
-        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-        { // BIN OFFSET CORRECTION
-            for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
-                oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-            for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
-                oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+        if ( glbParam.indxOffset[indxWL_PDL2[0]] >=0 )  // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam.indxOffset[c] BINS
+        {           
+            for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+            { // BIN OFFSET CORRECTION
+                for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
+                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+
+                for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
+                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+            }
+        }
+        else // glbParam.indxOffset[glbParam.chSel] <0 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE TO MOVE *FORWARD* glbParam.indxOffset[c] BINS
+        {
+            for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+            { // BIN OFFSET CORRECTION
+                for ( int b= glbParam.indxOffset[indxWL_PDL2[0]] ; b <glbParam.nBins ; b++ )
+                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+                for( int b =0 ; b <glbParam.indxOffset[indxWL_PDL2[0]] ; b++ )
+                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)0.0 ;
+            }
         }
     }
     else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2

@@ -119,23 +119,37 @@ void CNetCDF_Lidar::Read_Bkg_Noise( int ncid, strcGlobalParameters *glbParam, in
 
     size_t start_noise[2], count_noise[2];
     start_noise[0] = 0;   count_noise[0] = 1 ; // glbParam->nCh; 
-    start_noise[1] = 0;   count_noise[1] = glbParam->nBins;
+    start_noise[1] = 0;   count_noise[1] = glbParam->nBins ;
+
     for ( int c=0 ; c <glbParam->nCh ; c++ )
     {
         start_noise[0] =c ;
         if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
             ERR(retval);    
 
-        for(int b =0; b <(glbParam->nBins -glbParam->indxOffset[c]); b++)
-        {
-            buff = (double)data_Noise[c][b +glbParam->indxOffset[c]] ;
-            data_Noise[c][b] = (double)buff ;
-        }
-        for ( int b=(glbParam->nBins -glbParam->indxOffset[c]) ; b <glbParam->nBins ; b++ )
-        {
-            buff = (double)data_Noise[c][glbParam->nBins -glbParam->indxOffset[c]] ;
-            data_Noise[c][b] = buff ; 
-        }
+            if ( glbParam->indxOffset[c] >=0 ) // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam.indxOffset[c] BINS
+            {
+                for(int b =0; b <(glbParam->nBins -glbParam->indxOffset[c]); b++)
+                {
+                    buff = (double)data_Noise[c][b +glbParam->indxOffset[c]] ;
+                    data_Noise[c][b] = (double)buff ;
+                }
+                for ( int b=(glbParam->nBins -glbParam->indxOffset[c]) ; b <glbParam->nBins ; b++ )
+                {
+                    buff = (double)data_Noise[c][glbParam->nBins -glbParam->indxOffset[c]] ;
+                    data_Noise[c][b] = buff ; 
+                }
+            }
+            else // glbParam.indxOffset[c] <0 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE TO MOVE *FORWARD* glbParam.indxOffset[c] BINS
+            {
+                for ( int b=glbParam->indxOffset[c] ; b <glbParam->nBins ; b++ )
+                {
+                    buff = (double)data_Noise[c][b -glbParam->indxOffset[c]] ;
+                    data_Noise[c][b] = buff ; 
+                }
+                for(int b =0 ; b <glbParam->indxOffset[c] ; b++)
+                    data_Noise[c][b] = (double)0.0 ;
+            }
     }
     glbParam->is_Noise_Data_Loaded = true ;
 }
@@ -218,7 +232,6 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->nCh     = size_dim[1] ; glbParam->nLambda    = glbParam->nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
     glbParam->nBins   = size_dim[2] ; // 'points' DIMENSION
 
-    // glbParam->numEventsToAvg = (glbParam->numEventsToAvg <0) ? glbParam->nEvents : glbParam->numEventsToAvg ;
     glbParam->nEventsAVG     = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
 
     glbParam->aZenith     = (double*) new double [glbParam->nEvents]    ;
@@ -261,7 +274,6 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->r = (double*) new double[glbParam->nBins] ;
     for( int i=1 ; i <=glbParam->nBins ; i++ )
         glbParam->r[i-1] = i*glbParam->dr ;
-
 }
 
 void CNetCDF_Lidar::Read_L0_into_L2( int ncid, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )

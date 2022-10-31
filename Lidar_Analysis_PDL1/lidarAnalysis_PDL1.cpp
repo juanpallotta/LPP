@@ -211,11 +211,22 @@ int main( int argc, char *argv[] )
             pr2[e][c]     = (double*) new double[glbParam.nBins] ;
             pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
 
-            for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ;
+            if ( glbParam.indxOffset[c] >=0 ) // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam.indxOffset[c] BINS
+            {           
+                for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
+                    pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ;
 
-            for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
-                pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]] ;
+                for ( int b=(glbParam.nBins -glbParam.indxOffset[c]) ; b <glbParam.nBins ; b++ )
+                    pr_corr[e][c][b] = (double)dataFile_AVG[e][c][glbParam.nBins -glbParam.indxOffset[c]] ;
+            }
+            else // glbParam.indxOffset[c] <0 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE TO MOVE FORWARD glbParam.indxOffset[c]
+            {
+                for( int b =glbParam.indxOffset[c] ; b <glbParam.nBins ; b++ )
+                    pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b -glbParam.indxOffset[c]] ;
+
+                for ( int b=0 ; b< glbParam.indxOffset[c] ; b++ )
+                    pr_corr[e][c][b] = (double)0.0 ;
+            }
         }
     }
 
@@ -302,8 +313,6 @@ int main( int argc, char *argv[] )
     oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ; // oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (int)indxWL_PDL1 ) ;
     // oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_In, (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
     //                              (double***)pr_corr, (double***)pr2, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
-    // printf("\n\n\t PDL1 --> glbParam.numEventsToAvg= %i  \n", glbParam.numEventsToAvg ) ;
-    // printf("\n\n\t PDL1 --> glbParam->nBinsBkg= %i  \n"     , glbParam.nBinsBkg ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 

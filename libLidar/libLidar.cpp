@@ -312,7 +312,6 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 	glbParam->nAnCh   = 0 ;
 	glbParam->nPhotCh = 0 ;
 
-	// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "indxOffset" , "int" , (double*)&glbParam->indxOffset ) ;
 	char strDump[20] ;
 
 	glbParam->aAzimuth 	   = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aAzimuth    , 0, (sizeof(double)*glbParam->nEvents) ) ;

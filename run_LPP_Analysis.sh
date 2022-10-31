@@ -154,7 +154,7 @@ then
             else # if [[ -f $PATH_FILE_IN_L1 ]]
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L1 ]]
-            # rm $PATH_FILE_IN_L1 
+            rm $PATH_FILE_IN_L1 
         fi # if [[ "${L1,,}" == "yes" ]]
 
         if [[ "${L2,,}" == "yes" ]]
@@ -182,7 +182,7 @@ then
             else # if [[ -f $PATH_FILE_IN_L2 ]]
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
-            # rm $PATH_FILE_IN_L2
+            rm $PATH_FILE_IN_L2
         fi # if [[ "${L2,,}" == "yes" ]]
 
 echo ""
