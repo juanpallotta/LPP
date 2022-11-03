@@ -88,7 +88,7 @@ struct strcGlobalParameters
 	int 	indxInitErr				;
 	int 	indxInitInversion   	;
 	double 	tBin_us					;
-	int 	nShots[MAX_CH_LICEL] 	;
+	int 	*nShots				 	;
 	int		lambda					;
 	int		*iLambda			  	; //	int		iLambda[MAX_CH_LICEL]  	;
 	int 	nLambda					;

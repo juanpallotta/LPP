@@ -2,17 +2,19 @@
 
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no", LOWERCASE
-L0="yes"
+L0="no"
 L1="yes"
-L2="yes"
+L2="no"
 
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/multiangulo/20151105/ramVert/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/20221002/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20180920/data/"
-PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/8/29/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20221101/data/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/8/30/"
+
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
+PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0.nc"
 
 # CONFIGURATION FILES
 # ! HOLGER SIMULATION

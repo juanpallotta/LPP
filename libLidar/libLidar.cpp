@@ -136,9 +136,19 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 					int var_int ;
 					ss >> var_name >> eq ;
 					for ( int e =0 ; e <nElemVec ; e++ )
-					{// ss >> *((int*)var) ;
-						ss >> var_int >> dump ;
-						memcpy( (int*)var +e, (int*)&var_int, sizeof(int) ) ;
+					{
+						// if ( var_name.compare("indxCh_Low_indxCh_High") ==0 )
+						// {
+						// 	printf("\n\t indxCh_Low_indxCh_High FOUND\n") ;
+						// 	// int token ;
+						// 	// std::getline(ss, token, ':') ;
+
+						// }
+						// else
+						// {
+							ss >> var_int >> dump ;
+							memcpy( (int*)var +e, (int*)&var_int, sizeof(int) ) ;
+						// }
 					}
 				}
 				else if ( strcmp( varType, "float" ) == 0 )
@@ -370,6 +380,7 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 	glbParam->PMT_Voltage = (int*)    new int [ glbParam->nCh ] ;
 	glbParam->iLambda     = (int*)    new int [ glbParam->nCh ] ;
 	glbParam->iADCbits    = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->nShots	  = (int*) 	  new int [ glbParam->nCh ] ;
 	glbParam->sPol        = (char*)   new char[ glbParam->nCh ] ;
 	glbParam->iMax_mVLic  = (double*) new double [ glbParam->nCh ] ;
 
@@ -413,7 +424,7 @@ void ReadLicelData( char *lidarFile, strcGlobalParameters *glbParam, strcLidarDa
 	for ( int c=0 ; c<glbParam->nCh ; c++ )
 	{
 		fseek( fid, 80*(3+glbParam->nCh)+2 + c*(glbParam->nBinsRaw_Ch[c] * sizeof(int)+2), SEEK_SET ) ;
-		fread ( dataFile->db_ADC[c], sizeof(int), glbParam->nBinsRaw, fid ) ;
+		fread ( (int*)&dataFile->db_ADC[c][0], sizeof(int), glbParam->nBinsRaw, fid ) ;
 		// if ( glbParam->iAnPhot[c] ==0 ) // ANALOG
 		// {
 		// 	glbParam->ScaleFactor_Analog = ( glbParam->iMax_mVLic[c] / pow(2, glbParam->iADCbits[c]) ) ;
@@ -527,7 +538,7 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 
 		if ( nFilesInInputFolder ==0 )
 		{
-			printf("\n There are not Licel files in the folder (see dirFile.sh) \nBye...") ;
+			printf("\n There are not Licel files in the folder (see %s) \nBye...", glbParam->FILE_PARAMETERS ) ;
 			return -1 ;
 		}
 		rewinddir(d) ;
@@ -535,7 +546,7 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 		string *bkg_files = (string*) new string[nFilesInInputFolder] ;
 
 		int f=0 ;
-		// printf("\nNumber of background files: %d\n", nFilesInInputFolder) ;
+		printf("\n\tNumber of background files to average: %d\n", nFilesInInputFolder) ;
 		while ( (dir = readdir(d)) != NULL )
 		{ // GET THE BACKGROUND FILES NAMES
 			if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) &&
@@ -543,7 +554,7 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 			{
 				bkg_files[f].assign(path_to_bkg_files) ;
 				bkg_files[f].append(dir->d_name) ;
-				// printf( "\nbkg_files[%d]= %s", f, bkg_files[f].c_str() ) ;
+				// printf( "\n\tbkg_files[%d]= %s", f, bkg_files[f].c_str() ) ;
 				f++ ;
 			}
 		}
@@ -551,29 +562,32 @@ int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam
 		strcGlobalParameters glbParam_bkg ;
 		sprintf( glbParam_bkg.inputDataFileFormat, "%s", glbParam->inputDataFileFormat ) ;
 		sprintf( glbParam_bkg.site				 , "%s", glbParam->site ) ;
-		glbParam_bkg.nEvents	= (int)glbParam->nEvents    ;
-		glbParam_bkg.nEventsAVG = (int)glbParam->nEventsAVG ;
+		glbParam_bkg.nEvents	= (int)nFilesInInputFolder ; // glbParam->nEvents    ;
+		glbParam_bkg.nEventsAVG = (int)1 ; // glbParam->nEventsAVG ;
 			ReadLicelGobalParameters( (char*)bkg_files[0].c_str(), (strcGlobalParameters*)&glbParam_bkg ) ;
 
-		if ( (glbParam_bkg.nCh == glbParam->nCh) && ( glbParam_bkg.nBins >= glbParam->nBins )  )
+		f=0 ;
+		if ( ( glbParam_bkg.nCh == glbParam->nCh) && ( glbParam_bkg.nBins >= glbParam->nBins )  )
 		{
-			strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam->nEvents ] ;
-			GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)glbParam ) ;
+			strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam_bkg.nEvents ] ;
+			GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)&glbParam_bkg ) ;
 			
 			for ( f=0 ; f <nFilesInInputFolder ; f++ )
 			{
+				// printf("\nbkg_files[%d].c_str() = %s", f, bkg_files[f].c_str() ) ;
 				glbParam->evSel = f;
-				ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+				ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)&glbParam_bkg, (strcLidarDataFile*)&dataFile[f] ) ;
 
-				for ( int c =0; c <glbParam->nCh ; c++)
+				for (int c=0 ; c <glbParam_bkg.nCh ; c++)
 				{
-					for (int i =0; i <glbParam->nBins; i++)
+					for (int i=0 ; i <glbParam->nBins; i++) // IT MUST BE glbParam, NOT glbParam_bkg
 						data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
 				}
 			}
-			for ( int c =0; c <glbParam->nCh ; c++)
+
+			for ( int c =0; c <glbParam_bkg.nCh ; c++)
 			{
-				for (int i =0; i <glbParam->nBins; i++)
+				for (int i =0; i <glbParam->nBins; i++) // IT MUST BE glbParam, NOT glbParam_bkg
 					data_Bkg[c][i] = data_Bkg[c][i] /nFilesInInputFolder ;
 			}
 			if ( glbParam_bkg.nBins > glbParam->nBins )

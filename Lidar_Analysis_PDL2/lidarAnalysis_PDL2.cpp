@@ -45,7 +45,7 @@ int main( int argc, char *argv[] )
 
     printf("\n Path_File_In --> %s ", Path_File_In.c_str()  ) ;
     printf("\n Path_File_Out --> %s", Path_File_Out.c_str() ) ;
-    printf("\n Settings File --> %s", glbParam.FILE_PARAMETERS ) ;
+    printf("\n Settings File --> %s\n", glbParam.FILE_PARAMETERS ) ;
 
     char cmdCopy[500] ;
     sprintf( cmdCopy, "cp %s %s", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
@@ -61,15 +61,14 @@ int main( int argc, char *argv[] )
         ERR(retval);
 
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
-    CDataLevel_2    *oDL2 ;
 
     int numEventsToAvg_PDL1 ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&numEventsToAvg_PDL1 ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&numEventsToAvg_PDL1     ) ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
 
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
-    oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
+    CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     int indxWL_PDL2[glbParam.nCh], nCh_to_invert ;
     for (int i = 0 ; i <glbParam.nCh; i++)  indxWL_PDL2[i] = -10 ;
@@ -100,9 +99,10 @@ int main( int argc, char *argv[] )
         {
             for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
             { // BIN OFFSET CORRECTION
-                for ( int b= glbParam.indxOffset[indxWL_PDL2[0]] ; b <glbParam.nBins ; b++ )
-                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-                for( int b =0 ; b <glbParam.indxOffset[indxWL_PDL2[0]] ; b++ )
+                for ( int b=(glbParam.nBins-1) ; b >=(-1*glbParam.indxOffset[indxWL_PDL2[0]]) ; b-- )
+                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+
+                for(int b =0 ; b <(-1*glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
                     oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)0.0 ;
             }
         }
@@ -123,13 +123,20 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
             data_Noise[c] = (double*) new double[glbParam.nBins] ;
 
+            // ACA EN ADELANTE *SI* ANDA
         oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
     }
+
+    // glbParam.iAnPhot    = (int*)    new int    [glbParam.nCh] ;
+    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)glbParam.iAnPhot ) ;
+    // glbParam.iMax_mVLic = (double*) new double [glbParam.nCh] ;
+    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)glbParam.iMax_mVLic ) ;
 
     double  **ovlp ;
     int id_var_ovlp ;
     if ( ( nc_inq_varid ( (int)ncid, "Overlap", (int*)&id_var_ovlp ) ) == NC_NOERR )
     {
+
         ovlp = (double**) new double*[glbParam.nCh] ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
             ovlp[c] = (double*) new double[glbParam.nBins] ;
@@ -156,10 +163,6 @@ int main( int argc, char *argv[] )
     {
         printf("Applying corrections to the lidar signal number %d \r", e) ;
         glbParam.evSel = e ;
-
-// DESATURATION OF THE PHOTON COUNTING CHANNELS
-        // double pho_rateMHz = (double)lp.countData[b] /(glbParam->nShots[glbParam->chSel] * glbParam->tBin_us) ;
-        // dataFile[glbParam->chSel].db_CountsMHz[e][b] = (double)( pho_rateMHz /( 1.0 - pho_rateMHz / PHO_MAX_COUNT_MHz ) ) ;
 
         oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
 
@@ -223,4 +226,3 @@ int main( int argc, char *argv[] )
     printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
 	return 0 ;
 }
- 

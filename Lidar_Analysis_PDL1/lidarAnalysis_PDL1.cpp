@@ -1,3 +1,4 @@
+
 /**
  * @file lidarAnalysisPDL1.cpp
  * @author Juan V. Pallotta (juanpallotta@gmail.com)
@@ -45,7 +46,7 @@ int main( int argc, char *argv[] )
 
     printf("\n Path_File_In --> %s ", Path_File_In.c_str()  ) ;
     printf("\n Path_File_Out --> %s", Path_File_Out.c_str() ) ;
-    printf("\n Settings File --> %s", glbParam.FILE_PARAMETERS ) ;
+    printf("\n Settings File --> %s\n", glbParam.FILE_PARAMETERS ) ;
 
     char cmdCopy[500] ;
     sprintf( cmdCopy, "cp %s %s", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
@@ -55,7 +56,7 @@ int main( int argc, char *argv[] )
     int  ncid   ;
     int  retval ;
     
-    if ( (retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid)) )
+    if ( ( retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid ) ) )
         ERR(retval);
 
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
@@ -66,6 +67,7 @@ int main( int argc, char *argv[] )
     int id_var ;
     if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var ) ) )
         ERR(retval) ;
+
     int num_dim_var ;
     if ( ( retval = nc_inq_varndims( (int)ncid, (int)id_var, (int*)&num_dim_var ) ) )
         ERR(retval);
@@ -192,6 +194,9 @@ int main( int argc, char *argv[] )
         oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
     }
 
+    // glbParam.iAnPhot    = (int*) new int[glbParam.nCh] ;
+    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)glbParam.iAnPhot ) ;
+
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval);
 
@@ -206,6 +211,7 @@ int main( int argc, char *argv[] )
     {
         pr_corr[e] = (double**) new double*[glbParam.nCh] ;
         pr2[e]     = (double**) new double*[glbParam.nCh] ;
+
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             pr2[e][c]     = (double*) new double[glbParam.nBins] ;
@@ -221,11 +227,25 @@ int main( int argc, char *argv[] )
             }
             else // glbParam.indxOffset[c] <0 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE TO MOVE FORWARD glbParam.indxOffset[c]
             {
-                for( int b =glbParam.indxOffset[c] ; b <glbParam.nBins ; b++ )
-                    pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b -glbParam.indxOffset[c]] ;
-
-                for ( int b=0 ; b< glbParam.indxOffset[c] ; b++ )
+                for ( int b=(glbParam.nBins-1) ; b >=(-1*glbParam.indxOffset[c]) ; b-- )
+                    pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ;
+                for(int b =0 ; b <(-1*glbParam.indxOffset[c]) ; b++)
                     pr_corr[e][c][b] = (double)0.0 ;
+            }
+
+            // DESATURATION OF THE PHOTON COUNTING CHANNELS
+            if ( glbParam.iAnPhot[c] == 1 )
+            {
+                // string gluing_indx ;
+                // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxCh_Low_indxCh_High", (const char*)"string", (char*)gluing_indx.c_str() ) ;
+                // double pho_rateMHz = (double)lp.countData[b] /(glbParam->nShots[glbParam->chSel] * glbParam->tBin_us) ;
+
+                for (int b =0; b <glbParam.nBins ; b++)
+                {
+                    pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam.nShots[c] * glbParam.tBin_us) ) ; // [MHz]
+                    pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / PHO_MAX_COUNT_MHz ) ) ;
+            //         // dataFile[glbParam->chSel].db_CountsMHz[e][b] = (double)( pho_rateMHz /( 1.0 - pho_rateMHz / PHO_MAX_COUNT_MHz ) ) ;
+                }
             }
         }
     }
@@ -316,14 +336,14 @@ int main( int argc, char *argv[] )
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
-    for ( int e=0; e <glbParam.nEventsAVG ; e++  )
-        delete [] Cloud_Profiles[e] ;
-    delete [] Cloud_Profiles ;
+    // for ( int e=0; e <glbParam.nEventsAVG ; e++  )
+    //     delete [] Cloud_Profiles[e] ;
+    // delete [] Cloud_Profiles ;
 
-    delete Raw_Data_Start_Time      ;
-    delete Raw_Data_Stop_Time       ;
-    delete Raw_Data_Start_Time_AVG  ;
-    delete Raw_Data_Stop_Time_AVG   ;
+    // delete Raw_Data_Start_Time      ;
+    // delete Raw_Data_Stop_Time       ;
+    // delete Raw_Data_Start_Time_AVG  ;
+    // delete Raw_Data_Stop_Time_AVG   ;
 
     cout << endl << endl << "\tLidar Analisys PDL1 Done" << endl << endl ;
     printf("\n\n---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\n\n") ;

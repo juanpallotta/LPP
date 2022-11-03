@@ -1,6 +1,6 @@
 #!/bin/bash
 
-clear
+# clear
 
 echo ""
 echo ""
@@ -60,10 +60,12 @@ fi
 echo ""
 echo "Entering the loop..."
 echo ""
+
 PROCES_SENTRY=1
-for paths_In in $PATH_IN_LIST 
+for paths_In in $PATH_IN_LIST
 do
 PROCES_SENTRY=1
+    echo -e "\n Analyzing: "$paths_In" \n"
 	if [[ "${L0,,}" == "yes" ]]
     then
         if [[ "$paths_In" != *"/LPP_OUT"* ]] # DISCARD ANY FOLDER WITH 'LPP_OUT' IN ITS NAME
@@ -154,7 +156,7 @@ then
             else # if [[ -f $PATH_FILE_IN_L1 ]]
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L1 ]]
-            rm $PATH_FILE_IN_L1 
+            # rm $PATH_FILE_IN_L1 
         fi # if [[ "${L1,,}" == "yes" ]]
 
         if [[ "${L2,,}" == "yes" ]]
@@ -182,7 +184,7 @@ then
             else # if [[ -f $PATH_FILE_IN_L2 ]]
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
-            rm $PATH_FILE_IN_L2
+            # rm $PATH_FILE_IN_L2
         fi # if [[ "${L2,,}" == "yes" ]]
 
 echo ""

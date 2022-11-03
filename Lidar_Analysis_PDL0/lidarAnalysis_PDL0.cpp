@@ -25,6 +25,8 @@
 
 int main( int argc, char *argv[] )
 {
+    printf("\n\n---- lidarAnalisys_PDL0 (START) -----------------------------------------------------------------------------\n\n") ;
+
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS, "%s", argv[3] ) ;
     
@@ -216,9 +218,10 @@ int main( int argc, char *argv[] )
                 for(int b =0; b <glbParam.nBinsRaw; b++)
                     data_Bkg[c][b] = (double) 0;
             }
-
             if( Read_Bkg_Data_Files( (char*)path_dark_files, (strcGlobalParameters*)&glbParam,(double**)data_Bkg ) >=0 )
+            {
                 oNCL->Add_Noise_LALINET_NCDF_PDL0( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)data_Bkg ) ;
+            }
             else
                 printf( "\nNo background files were added to the L0 NetCDF file due to inconsistencies in its parameters\n" ) ;
         }
@@ -254,6 +257,8 @@ int main( int argc, char *argv[] )
 
     }
     printf("\n\n\t\t SUCCESS writing %s file!\n", Path_File_Out.c_str() ) ;
-
+    cout << endl << endl << "\tLidar Analisys PDL0 Done" << endl ;
+    printf("\n\n---- lidarAnalisys_PDL0 (END) -----------------------------------------------------------------------------\n\n") ;
+ 
 	return 0 ;
 }
