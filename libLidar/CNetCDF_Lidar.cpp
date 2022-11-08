@@ -265,10 +265,10 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->iLambda = (int*) new int [glbParam->nCh] ;
     ReadVar( (int)ncid, (const char*)"Wavelengths", (double*)&glbParam->iLambda[0] ) ;
  
-    // glbParam->iAnPhot = (int*) new int [glbParam->nCh] ;
-    // ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)&glbParam->iAnPhot[0] ) ;
-    // glbParam->nShots = (int*) new int [glbParam->nCh] ;
-    // ReadVar( (int)ncid, (const char*)"Accumulated_Pulses", (int*)&glbParam->nShots[0] ) ;
+    glbParam->iAnPhot = (int*) new int [glbParam->nCh] ;
+    ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)&glbParam->iAnPhot[0] ) ;
+    glbParam->nShots = (int*) new int [glbParam->nCh] ;
+    ReadVar( (int)ncid, (const char*)"Accumulated_Pulses", (int*)&glbParam->nShots[0] ) ;
 
     // glbParam->iMax_mVLic = (double*) new double [glbParam->nCh] ;
     // ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)&glbParam->iMax_mVLic[0] ) ;
@@ -407,7 +407,7 @@ void CNetCDF_Lidar::Putt_Bulk_Att_Int( int ncid, int id_var, int size_list, stri
 
 void CNetCDF_Lidar::Set_LALINET_Units_L0( int ncid, int *var_ids )
 {
-    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[0], (const char*)"units", (size_t)strlen("Averaged ADC Counts"), (const char*)"Averaged ADC Counts") ) )
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[0], (const char*)"units", (size_t)strlen("Averaged ADC Counts / MHz"), (const char*)"Averaged ADC Counts / MHz") ) )
        ERR(retval);
     if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[1], (const char*)"units", (size_t)strlen("seconds since 01/Jan/1970"), (const char*)"seconds since 01/Jan/1970") ) )
        ERR(retval);
@@ -431,7 +431,7 @@ void CNetCDF_Lidar::Set_LALINET_Units_L0( int ncid, int *var_ids )
 
 void CNetCDF_Lidar::Set_LALINET_Units_L1( int ncid, int *var_ids )
 {
-    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[0], (const char*)"units", (size_t)strlen("Averaged ADC Counts"), (const char*)"Averaged ADC Counts") ) )
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[0], (const char*)"units", (size_t)strlen("Averaged ADC Counts / MHz"), (const char*)"Averaged ADC Counts / MHz") ) )
        ERR(retval);
     if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[1], (const char*)"units", (size_t)strlen("seconds since 01/Jan/1970"), (const char*)"seconds since 01/Jan/1970") ) )
        ERR(retval);

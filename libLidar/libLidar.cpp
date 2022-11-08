@@ -137,7 +137,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 					ss >> var_name >> eq ;
 					for ( int e =0 ; e <nElemVec ; e++ )
 					{
-						// if ( var_name.compare("indxCh_Low_indxCh_High") ==0 )
+						// if ( var_name.compare("indxChLow_indxChHigh") ==0 )
 						// {
 						// 	printf("\n\t indxCh_Low_indxCh_High FOUND\n") ;
 						// 	// int token ;
@@ -201,7 +201,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 	}
     if ( found == false)
     {
-		printf("\n\n ** ReadAnalisysParameter() --> variable %s not found or commented in configuration file %s** \n\n", varToFind, fileName ) ;
+		printf("\n\n ReadAnalisysParameter() --> variable %s not found or commented in setting file %s** \n\n", varToFind, fileName ) ;
         if ( strcmp( varType, "string" ) == 0 )
             strcpy( ((char*)var), "NOT_FOUND") ;
         else if ( strcmp( varType, "int" ) == 0 )

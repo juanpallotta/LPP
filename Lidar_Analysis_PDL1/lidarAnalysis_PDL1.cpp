@@ -194,9 +194,6 @@ int main( int argc, char *argv[] )
         oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
     }
 
-    // glbParam.iAnPhot    = (int*) new int[glbParam.nCh] ;
-    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)glbParam.iAnPhot ) ;
-
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval);
 
@@ -236,19 +233,26 @@ int main( int argc, char *argv[] )
             // DESATURATION OF THE PHOTON COUNTING CHANNELS
             if ( glbParam.iAnPhot[c] == 1 )
             {
-                // string gluing_indx ;
-                // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxCh_Low_indxCh_High", (const char*)"string", (char*)gluing_indx.c_str() ) ;
-                // double pho_rateMHz = (double)lp.countData[b] /(glbParam->nShots[glbParam->chSel] * glbParam->tBin_us) ;
-
                 for (int b =0; b <glbParam.nBins ; b++)
                 {
                     pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam.nShots[c] * glbParam.tBin_us) ) ; // [MHz]
                     pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / PHO_MAX_COUNT_MHz ) ) ;
-            //         // dataFile[glbParam->chSel].db_CountsMHz[e][b] = (double)( pho_rateMHz /( 1.0 - pho_rateMHz / PHO_MAX_COUNT_MHz ) ) ;
                 }
+
             }
         }
     }
+
+    glbParam.gluing_indx = (int*) new int[ glbParam.nCh ] ;
+    int indxsToGlue = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxChLow_indxChHigh", (const char*)"int", (int*)glbParam.gluing_indx ) ;
+    if ( indxsToGlue >0 )
+    {
+        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MIN_TOGGLE_RATE_MHZ ) ;
+        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MAX_TOGGLE_RATE_MHZ ) ;
+    }
+    else
+        printf("\n No gluing data provided in the setting file: %s \n", glbParam.FILE_PARAMETERS ) ;
+
 
     int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )

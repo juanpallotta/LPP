@@ -72,6 +72,9 @@ struct strcGlobalParameters
 	double 	dzr						;
 	int 	nChMax 					;
 	int 	nCh 					;
+	int 	*gluing_indx			;
+	double  MIN_TOGGLE_RATE_MHZ		;
+	double  MAX_TOGGLE_RATE_MHZ 	;
     int     chSel               	;
 	int 	*nBinsRaw_Ch			; // int 	nBinsRaw_Ch[MAX_CH_LICEL]	;
 	int 	nBinsRaw				;
