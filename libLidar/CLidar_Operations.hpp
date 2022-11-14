@@ -25,6 +25,7 @@ public:
     // void 	bkgSubstraction_BkgFile( const double*, strcFitParam*, double**, strcGlobalParameters*, double*     ) ;
 
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
+    void    GluingLidarSignals( strcGlobalParameters*, double*** ) ;
 
 private:
     double  *pr_NObkg_i, *pr2_i ;

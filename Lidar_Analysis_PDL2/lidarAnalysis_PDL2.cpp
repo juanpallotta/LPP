@@ -1,3 +1,4 @@
+
 /**
  * @file lidarAnalysisPDL1.cpp
  * @author Juan V. Pallotta (juanpallotta@gmail.com)
@@ -127,8 +128,8 @@ int main( int argc, char *argv[] )
         oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
     }
 
-    // glbParam.iAnPhot    = (int*)    new int    [glbParam.nCh] ;
-    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)glbParam.iAnPhot ) ;
+    // glbParam.DAQ_Type    = (int*)    new int    [glbParam.nCh] ;
+    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)glbParam.DAQ_Type ) ;
     // glbParam.iMax_mVLic = (double*) new double [glbParam.nCh] ;
     // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)glbParam.iMax_mVLic ) ;
 

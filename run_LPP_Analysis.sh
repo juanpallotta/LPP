@@ -38,7 +38,7 @@ else # if [[ -d $PATH_IN ]] --> PATH_IN is a file --> L0 must be unchecked and e
 
     if [[ "${L0,,}" == "yes" ]] 
     then
-        echo -e "\n*WRONG CONFIGURATION*\nPATH_IN: $PATH_IN --> is a FILE, so L0 must be set as 'no' in LPP_Settings.sh \n"
+        echo -e "\n*WRONG CONFIGURATION*\nIf PATH_IN is a FILE --> L0 must be set as 'no' in LPP_Settings.sh.PATH_IN: $PATH_IN\n"
         exit 0
     fi
     
@@ -92,6 +92,7 @@ PROCES_SENTRY=1
         then    # L0=no L1=yes L2=?
             PATH_FILE_IN_L1=$paths_In # paths_In IS A FILE
             PATH_FILE_OUT_L1=${paths_In%.*}"_L1.nc"
+            PATH_FILE_OUT_L1_CLOUD_DATA=${PATH_FILE_OUT_L1%.*}"_CLOUD_DATA.dat"
             echo ""
             echo PATH_FILE_IN_L1: $PATH_FILE_IN_L1
             echo PATH_FILE_OUT_L1: $PATH_FILE_OUT_L1
@@ -148,6 +149,9 @@ then
                 echo -e "\n\nRunning PDL1 \n ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF
                 cd $PATH_TO_L1
                 ./lidarAnalysis_PDL1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF
+
+                echo -e "\n\nRunning make_CloudDB_LPP \n ./make_CloudDB "$PATH_FILE_OUT_L1" "$PATH_FILE_OUT_L1_CLOUD_DATA" "$FILE_CONF
+                ./make_CloudDB_LPP $PATH_FILE_OUT_L1 $PATH_FILE_OUT_L1_CLOUD_DATA $FILE_CONF
 
                 #   PLOTTING
                 PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"LPP_Plots_L1.py"

@@ -94,7 +94,7 @@ void CNetCDF_Lidar::ReadVar( int ncid, const char *strNameVars, void *dataRead )
     if ( ( retval = nc_inq_vartype( (int)ncid, (int)var_id, (nc_type*)&var_type ) ) )
             ERR(retval);
 
-    if ( var_type == NC_INT  )
+    if ( var_type == NC_INT )
     {
         // cout << endl << strNameVars << "  --> DATA TYPE: INT" << endl;
         if ( (retval = nc_get_var_int( (int)ncid, (int)var_id, (int*)dataRead ) ) )
@@ -265,8 +265,8 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->iLambda = (int*) new int [glbParam->nCh] ;
     ReadVar( (int)ncid, (const char*)"Wavelengths", (double*)&glbParam->iLambda[0] ) ;
  
-    glbParam->iAnPhot = (int*) new int [glbParam->nCh] ;
-    ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)&glbParam->iAnPhot[0] ) ;
+    glbParam->DAQ_Type = (int*) new int [glbParam->nCh] ;
+    ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)&glbParam->DAQ_Type[0] ) ;
     glbParam->nShots = (int*) new int [glbParam->nCh] ;
     ReadVar( (int)ncid, (const char*)"Accumulated_Pulses", (int*)&glbParam->nShots[0] ) ;
 
@@ -712,7 +712,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     PutVar( (int)ncid, (int)var_ids[3] , (const char*)"int"   , (int*)glbParam->iLambda             ) ;
     PutVar( (int)ncid, (int)var_ids[4] , (const char*)"char"  , (char*)glbParam->sPol               ) ;
     PutVar( (int)ncid, (int)var_ids[5] , (const char*)"double", (double*)glbParam->iMax_mVLic       ) ;
-    PutVar( (int)ncid, (int)var_ids[6] , (const char*)"int"   , (int*)glbParam->iAnPhot             ) ;
+    PutVar( (int)ncid, (int)var_ids[6] , (const char*)"int"   , (int*)glbParam->DAQ_Type             ) ;
     PutVar( (int)ncid, (int)var_ids[7] , (const char*)"int"   , (int*)glbParam->PMT_Voltage         ) ;
     PutVar( (int)ncid, (int)var_ids[8] , (const char*)"int"   , (int*)glbParam->nShots              ) ;
     PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenith          ) ;
@@ -821,7 +821,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     PutVar( (int)ncid, (int)var_ids[3] , (const char*)"int"   , (int*)glbParam->iLambda             ) ;
     PutVar( (int)ncid, (int)var_ids[4] , (const char*)"char"  , (char*)glbParam->sPol               ) ;
     PutVar( (int)ncid, (int)var_ids[5] , (const char*)"double", (double*)glbParam->iMax_mVLic       ) ;
-    PutVar( (int)ncid, (int)var_ids[6] , (const char*)"int"   , (int*)glbParam->iAnPhot             ) ;
+    PutVar( (int)ncid, (int)var_ids[6] , (const char*)"int"   , (int*)glbParam->DAQ_Type             ) ;
     PutVar( (int)ncid, (int)var_ids[7] , (const char*)"int"   , (int*)glbParam->PMT_Voltage         ) ;
     PutVar( (int)ncid, (int)var_ids[8] , (const char*)"int"   , (int*)glbParam->nShots              ) ;
     PutVar( (int)ncid, (int)var_ids[9] , (const char*)"double", (double*)glbParam->aZenith          ) ;

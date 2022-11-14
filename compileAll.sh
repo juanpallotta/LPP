@@ -37,6 +37,16 @@ echo ""
 echo ""
 echo ""
 echo ""
+echo "Building make_cloudDB_LPP..."
+echo ""
+make -f makefile_make_CloudDB_LPP $1
+
+sleep 1
+
+echo ""
+echo ""
+echo ""
+echo ""
 echo "Building lidarAnalysisPDL2..."
 echo ""
 cd ../Lidar_Analysis_PDL2

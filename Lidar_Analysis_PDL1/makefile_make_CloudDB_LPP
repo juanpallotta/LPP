@@ -1,0 +1,32 @@
+
+OBJS = make_CloudDB_LPP.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o CMolecularData.o CDataLevel_1.o CLidar_Operations.o
+NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include -L/usr/lib/x86_64-linux-gnu -lnetcdf_c++4 
+
+make_CloudDB_LPP: $(OBJS)
+	g++ -Wall -o make_CloudDB_LPP $(OBJS) $(NETCDF_LIB)
+
+
+make_CloudDB_LPP.o: make_CloudDB_LPP.cpp
+	g++ -Wall -c make_CloudDB_LPP.cpp
+
+libLidar.o: ../libLidar/libLidar.cpp
+	g++ -Wall -c ../libLidar/libLidar.cpp
+
+CNetCDF_Lidar.o: ../libLidar/CNetCDF_Lidar.cpp
+	g++ -Wall -c ../libLidar/CNetCDF_Lidar.cpp
+
+CMolecularData.o: ../libLidar/CMolecularData.cpp
+	g++ -Wall -c ../libLidar/CMolecularData.cpp
+
+CDataLevel_1.o: ../libLidar/CDataLevel_1.cpp
+	g++ -Wall -c ../libLidar/CDataLevel_1.cpp
+
+lidarMathFunc.o: ../libLidar/lidarMathFunc.cpp
+	g++ -Wall -c ../libLidar/lidarMathFunc.cpp
+
+CLidar_Operations.o: ../libLidar/CLidar_Operations.cpp
+	g++ -Wall -c ../libLidar/CLidar_Operations.cpp
+
+
+clean:
+	rm -f core *.o *.gch *.hpp.gch make_CloudDB_LPP

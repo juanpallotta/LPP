@@ -35,4 +35,4 @@ CDataLevel_2.o: ../libLidar/CDataLevel_2.cpp
 # g++ -Wall -c ../libLidar/CDataLevel_2.hpp ../libLidar/CDataLevel_2.cpp
 
 clean:
-	rm -f core *.o *.gch *.hpp.gch
+	rm -f core *.o *.gch *.hpp.gch lidarAnalysis_PDL2

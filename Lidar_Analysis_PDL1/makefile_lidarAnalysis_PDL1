@@ -32,4 +32,4 @@ CLidar_Operations.o: ../libLidar/CLidar_Operations.cpp
 	g++ -Wall -c ../libLidar/CLidar_Operations.cpp
 
 clean:
-	rm -f core *.o *.gch *.hpp.gch
+	rm -f core *.o *.gch *.hpp.gch lidarAnalysis_PDL1

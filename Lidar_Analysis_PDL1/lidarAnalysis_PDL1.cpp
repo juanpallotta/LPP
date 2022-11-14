@@ -88,7 +88,7 @@ int main( int argc, char *argv[] )
     }
 
     CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
-
+ 
     // ONLY USED IF glbParam.numEventsToAvg !=1
     double  ***dataFile      ;
     int *Raw_Data_Start_Time ;
@@ -128,7 +128,7 @@ int main( int argc, char *argv[] )
             }
         }
     }
-    else // PDL0 --> PDL1   AVERAGING EACH glbParam.numEventsToAvg PROFILES
+    else // PDL0 --> PDL1   CLUSTERING glbParam.numEventsToAvg PROFILES
     {
         dataFile = (double***) new double**[glbParam.nEvents] ;
         for ( int e=0 ; e <glbParam.nEvents ; e++ )
@@ -202,19 +202,37 @@ int main( int argc, char *argv[] )
     strcLidarSignal 	evSig ;
     GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*) &glbParam );
 
+    // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
+    CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
+    oMolData->Read_range_Temp_Pres_From_File( (strcGlobalParameters*)&glbParam ) ;
+
     double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
     double  ***pr2     = (double***) new double**[glbParam.nEventsAVG];
+
+    // LIDAR SIGNAL CORRECTIONS:
+    // - OFFSET
+    // - PHOTON COUNTING DESATURATION
+    // - BACKGROUND NOISE
+    // - BIAS 
+    // - OVERLAP
+    printf("\n") ;
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
     {
+        glbParam.evSel = e ;
+
         pr_corr[e] = (double**) new double*[glbParam.nCh] ;
         pr2[e]     = (double**) new double*[glbParam.nCh] ;
-
+printf("\n\nApplying corrections to the lidar event number: %d \t", e ) ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
+            glbParam.chSel = c ;
+printf("\n Channel: %d\t", c) ;
             pr2[e][c]     = (double*) new double[glbParam.nBins] ;
             pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
-
-            if ( glbParam.indxOffset[c] >=0 ) // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam.indxOffset[c] BINS
+            // OFFSET CORRECTIONS /*------------------------------------------------------------------------*/
+            // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam.indxOffset[c] BINS
+printf("| Offset |\t") ;
+            if ( glbParam.indxOffset[c] >=0 ) 
             {           
                 for(int b =0; b <(glbParam.nBins -glbParam.indxOffset[c]); b++)
                     pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ;
@@ -228,31 +246,99 @@ int main( int argc, char *argv[] )
                     pr_corr[e][c][b] = (double)dataFile_AVG[e][c][b +glbParam.indxOffset[c]] ;
                 for(int b =0 ; b <(-1*glbParam.indxOffset[c]) ; b++)
                     pr_corr[e][c][b] = (double)0.0 ;
-            }
-
-            // DESATURATION OF THE PHOTON COUNTING CHANNELS
-            if ( glbParam.iAnPhot[c] == 1 )
+            } /*--------------------------------------------------------------------------------------------*/
+            // DESATURATION OF THE PHOTON COUNTING CHANNELS /*----------------------------------------------*/
+            if ( glbParam.DAQ_Type[c] == 1 )
             {
+printf("| Desaturation  |\t") ;
+                if ( e==0 )
+                {
+                    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MAX_TOGGLE_RATE_MHZ ) ;
+	                ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MIN_TOGGLE_RATE_MHZ ) ;
+                }
+
                 for (int b =0; b <glbParam.nBins ; b++)
                 {
                     pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam.nShots[c] * glbParam.tBin_us) ) ; // [MHz]
                     pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / PHO_MAX_COUNT_MHz ) ) ;
                 }
+            } /*--------------------------------------------------------------------------------------------*/
 
+            // BACKGROUND & BIAS CORRECTION /*--------------------------------------------------------------*/
+            oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ;
+            for ( int i=0 ; i <glbParam.nBins ; i++ )
+                evSig.pr[i] = (double)pr_corr[e][c][i] ;
+
+            if ( glbParam.is_Noise_Data_Loaded == true )
+            {
+                printf("| Background and bias |\t") ;
+                oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
+            }
+            else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
+            {
+                printf("| Bias |\t") ;
+                oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+            }
+            // OVERLAP CORRECTION
+            if( glbParam.is_Ovlp_Data_Loaded ==true )
+            {
+                printf("| Overlap |\t") ;
+                for (int i =0; i <glbParam.nBins ; i++)
+                    pr_corr[e][c][i] = (double)evSig.pr_noBias[i] /ovlp[c][i] ; // NOW, pr_corr HAS NO BIAS AND OVERLAP CORRECTED
+            }
+            else
+            {
+                for ( int i=0 ; i <glbParam.nBins ; i++ )
+                    pr_corr[e][c][i] = (double)evSig.pr_noBias[i] ; // NOW, pr_corr HAS NO BIAS AND SMOOTHED
+            } /*--------------------------------------------------------------------------------------------*/
+        } // for ( int c=0 ; c <glbParam.nCh ; c++ )
+    } // for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+printf("\n\n") ;
+// START GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
+	glbParam.indx_gluing_High_PHO   = (int*) new int[ glbParam.nCh ] ;
+
+    int nIndxsToGlue_Low_AN   = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_Low_AN"  , (const char*)"int", (int*)glbParam.indx_gluing_Low_AN   ) ;
+    int nIndxsToGlue_High_PHO = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_High_PHO", (const char*)"int", (int*)glbParam.indx_gluing_High_PHO ) ;
+
+    // CHECK IF THE GLUING INFORMATION IS CORRECTLY SET
+    if ( (nIndxsToGlue_Low_AN == nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
+    {
+        printf("Gluing procedure:") ;
+        for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
+        {
+            if ( ( glbParam.iLambda[glbParam.indx_gluing_Low_AN[c]]     == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
+                 ( glbParam.DAQ_Type[glbParam.indx_gluing_Low_AN[c]]    == 0 )                                                  &&
+                 ( glbParam.DAQ_Type[glbParam.indx_gluing_High_PHO[c]]  == 1 )     )
+            {
+                glbParam.nPair_Ch_to_Glue = nIndxsToGlue_Low_AN ;
+                for ( int e =0; e <glbParam.nEventsAVG; e++)
+                {
+                    glbParam.evSel = e ;
+                    oDL1->oLOp->GluingLidarSignals( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
+                }
+            }
+            else
+            {
+                printf( "\nGLUING: indexes %d of the gluing data do not correspond to the same wavelength and/or acquitition type.\n", c) ;
+                printf( "\t indx_Gluing_Low_AN[%d]   --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_Low_AN  [c] ] ) ;
+                printf( "\t indx_Gluing_High_PHO[%d] --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_High_PHO[c] ] ) ;
             }
         }
     }
-
-    glbParam.gluing_indx = (int*) new int[ glbParam.nCh ] ;
-    int indxsToGlue = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxChLow_indxChHigh", (const char*)"int", (int*)glbParam.gluing_indx ) ;
-    if ( indxsToGlue >0 )
-    {
-        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MIN_TOGGLE_RATE_MHZ ) ;
-        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MAX_TOGGLE_RATE_MHZ ) ;
-    }
     else
-        printf("\n No gluing data provided in the setting file: %s \n", glbParam.FILE_PARAMETERS ) ;
+    {
+        printf("\n Gluing setting error in file file %s", glbParam.FILE_PARAMETERS ) ;
+        if ( nIndxsToGlue_Low_AN <0 )
+            printf("\n\t Variable indx_Gluing_Low_AN is commented in setting file." ) ;
+        if ( nIndxsToGlue_High_PHO <0 )
+            printf("\n\t Variable indx_Gluing_High_PHO is commented in setting file." ) ;
+        if ( (nIndxsToGlue_Low_AN != nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
+            printf("\n\t Different numbers of elements in the arrarys indx_Gluing_Low_AN and indx_Gluing_High_PHO" ) ;
+        printf("\n\t NO gluing is applied for this analysis." ) ;
+    }
 
+// END GLUING ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
@@ -262,10 +348,6 @@ int main( int argc, char *argv[] )
         RMSE_lay[e] = (double*) new double[glbParam.nBins] ;
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
-
-    // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
-    CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
-    oMolData->Read_range_Temp_Pres_From_File( (strcGlobalParameters*)&glbParam ) ;
 
     string  strCompCM ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
@@ -282,31 +364,6 @@ int main( int argc, char *argv[] )
 
             oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ;
 
-            for ( int i=0 ; i <glbParam.nBins ; i++ )
-                evSig.pr[i] = (double)pr_corr[t][c][i] ;
-
-            if ( glbParam.is_Noise_Data_Loaded == true )
-            {
-                if ( oDL1->avg_Points_Cloud_Mask >0 )
-                {
-                    smooth( (double*)&evSig.pr[0]     , (int)0, (int)(glbParam.nBins-1),  (int)oDL1->avg_Points_Cloud_Mask, (double*)&pr_corr[t][c][0] ) ;
-                    smooth( (double*)&data_Noise[c][0], (int)0, (int)(glbParam.nBins-1),  (int)oDL1->avg_Points_Cloud_Mask, (double*)&data_Noise[c][0] ) ;
-                }
-                oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
-            }
-            else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
-                oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-
-            if( glbParam.is_Ovlp_Data_Loaded ==true )
-            {
-                for (int i =0; i <glbParam.nBins ; i++)
-                    pr_corr[t][c][i] = (double)evSig.pr_noBias[i] /ovlp[c][i] ;
-            }
-            else
-            {
-                for ( int i=0 ; i <glbParam.nBins ; i++ )
-                    pr_corr[t][c][i] = (double)evSig.pr_noBias[i] ; // NOW, pr_corr HAS NO BIAS AND SMOOTHED
-            }
             if ( c == indxWL_PDL1 )
             {
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )

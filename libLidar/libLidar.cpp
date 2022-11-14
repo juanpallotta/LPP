@@ -137,18 +137,8 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 					ss >> var_name >> eq ;
 					for ( int e =0 ; e <nElemVec ; e++ )
 					{
-						// if ( var_name.compare("indxChLow_indxChHigh") ==0 )
-						// {
-						// 	printf("\n\t indxCh_Low_indxCh_High FOUND\n") ;
-						// 	// int token ;
-						// 	// std::getline(ss, token, ':') ;
-
-						// }
-						// else
-						// {
-							ss >> var_int >> dump ;
-							memcpy( (int*)var +e, (int*)&var_int, sizeof(int) ) ;
-						// }
+						ss >> var_int >> dump ;
+						memcpy( (int*)var +e, (int*)&var_int, sizeof(int) ) ;
 					}
 				}
 				else if ( strcmp( varType, "float" ) == 0 )
@@ -211,7 +201,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
         else if ( strcmp( varType, "double" ) == 0 )
             *((int*)var) = -2000 ;
 		
-		return 0 ;
+		return -2000 ;
     }
 	return nElemVec ;
 }
@@ -374,7 +364,7 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 // printf("\n glbParam->Accum_Pulses[0]: %d	glbParam->Laser_Frec[0]: %d		glbParam->Accum_Pulses[1]: %d	glbParam->Laser_Frec[1]: %d		glbParam->nCh: %d \n",
 // 		glbParam->Accum_Pulses[0], glbParam->Laser_Frec[0], glbParam->Accum_Pulses[1], glbParam->Laser_Frec[1], glbParam->nCh ) ;
 
-	glbParam->iAnPhot     = (int*)    new int [ glbParam->nCh ] ;
+	glbParam->DAQ_Type     = (int*)    new int [ glbParam->nCh ] ;
 	glbParam->Laser_Src   = (int*)    new int [ glbParam->nCh ] ;
 	glbParam->nBinsRaw_Ch = (int*)    new int [ glbParam->nCh ] ;
 	glbParam->PMT_Voltage = (int*)    new int [ glbParam->nCh ] ;
@@ -387,18 +377,18 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 // DATASETS
 	for ( int i=0 ; i<glbParam->nCh ; i++ )
 	{
-		fscanf(fid,"%s %d %d %05d 1 %d %lf %05d.%s 0 0 00 000 %d %06d %lf %s", lidarHeaderData.sAct[i], &glbParam->iAnPhot[i], &glbParam->Laser_Src[i],
+		fscanf(fid,"%s %d %d %05d 1 %d %lf %05d.%s 0 0 00 000 %d %06d %lf %s", lidarHeaderData.sAct[i], &glbParam->DAQ_Type[i], &glbParam->Laser_Src[i],
 		&glbParam->nBinsRaw_Ch[i], &glbParam->PMT_Voltage[i], &glbParam->dr, &glbParam->iLambda[i], lidarHeaderData.sPol[i], &glbParam->iADCbits[i], 
 		&glbParam->nShots[i], &glbParam->iMax_mVLic[i], lidarHeaderData.sDescrp[i] ) ;
 
 		glbParam->sPol[i]     = lidarHeaderData.sPol[i][0] ;
-		// glbParam->iAnPhot[i] --> 0: ANALOG	1:PHOTONCOUNTING
-		if ( glbParam->iAnPhot[i] ==0 )
+		// glbParam->DAQ_Type[i] --> 0: ANALOG	1:PHOTONCOUNTING
+		if ( glbParam->DAQ_Type[i] ==0 )
 		{
 			glbParam->nAnCh++   ; // CONTADOR DE CANALES ANALOGICOS
 			glbParam->iMax_mVLic[i] = glbParam->iMax_mVLic[i] *1000 ;
 		}
-		else if ( glbParam->iAnPhot[i] ==1 ) 	glbParam->nPhotCh++ ; // CONTADOR DE CANALES DE FOTOCONTEO
+		else if ( glbParam->DAQ_Type[i] ==1 ) 	glbParam->nPhotCh++ ; // CONTADOR DE CANALES DE FOTOCONTEO
 	}
 	if ( fclose(fid) != 0 )
 		printf("\n Failed to close the lidar file.\n\n") ;
@@ -425,14 +415,14 @@ void ReadLicelData( char *lidarFile, strcGlobalParameters *glbParam, strcLidarDa
 	{
 		fseek( fid, 80*(3+glbParam->nCh)+2 + c*(glbParam->nBinsRaw_Ch[c] * sizeof(int)+2), SEEK_SET ) ;
 		fread ( (int*)&dataFile->db_ADC[c][0], sizeof(int), glbParam->nBinsRaw, fid ) ;
-		// if ( glbParam->iAnPhot[c] ==0 ) // ANALOG
+		// if ( glbParam->DAQ_Type[c] ==0 ) // ANALOG
 		// {
 		// 	glbParam->ScaleFactor_Analog = ( glbParam->iMax_mVLic[c] / pow(2, glbParam->iADCbits[c]) ) ;
 		// 	for( int b=0 ; b<glbParam->nBinsRaw ; b++ )
 		// 		dataFile->db_mV[cAn][b] = (double) ( dataFile->db_ADC[c][b] * glbParam->ScaleFactor_Analog ) ;
 		// 	cAn++ ;
 		// }
-		// else if ( glbParam->iAnPhot[c] ==1 ) // PHOTONCOUNTING
+		// else if ( glbParam->DAQ_Type[c] ==1 ) // PHOTONCOUNTING
 		// {
 		// 	glbParam->ScaleFactor_Dig = (double) 1 ;
 		// 	for( int b=0 ; b<glbParam->nBinsRaw ; b++ )

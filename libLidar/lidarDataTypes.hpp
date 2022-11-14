@@ -72,7 +72,9 @@ struct strcGlobalParameters
 	double 	dzr						;
 	int 	nChMax 					;
 	int 	nCh 					;
-	int 	*gluing_indx			;
+	int 	*indx_gluing_Low_AN		;
+	int 	*indx_gluing_High_PHO	;
+	int 	nPair_Ch_to_Glue		;
 	double  MIN_TOGGLE_RATE_MHZ		;
 	double  MAX_TOGGLE_RATE_MHZ 	;
     int     chSel               	;
@@ -84,9 +86,9 @@ struct strcGlobalParameters
 	double 	*r	 					;
 	double 	rInitSig				;
 	double 	rEndSig					;
-	double 	*rEndSig_ev				;
 	int 	indxInitSig				;
 	int 	indxEndSig				;
+	double 	*rEndSig_ev				;
 	int 	*indxEndSig_ev			;
 	int 	indxInitErr				;
 	int 	indxInitInversion   	;
@@ -96,7 +98,7 @@ struct strcGlobalParameters
 	int		*iLambda			  	; //	int		iLambda[MAX_CH_LICEL]  	;
 	int 	nLambda					;
 	char	*sPol			    	; // char	sPol[MAX_CH_LICEL]    	;
-	int 	*iAnPhot				; // int 	iAnPhot[MAX_CH_LICEL]   ;
+	int 	*DAQ_Type				; // int 	DAQ_Type[MAX_CH_LICEL]   ;
 	double 	*iMax_mVLic				; // double 	iMax_mVLic[MAX_CH_LICEL];
 	int 	*iADCbits 				; // int 	iADCbits[MAX_CH_LICEL] 	;
 	int 	*PMT_Voltage   			;  // int 	PMT_Voltage[MAX_CH_LICEL];
@@ -387,7 +389,7 @@ struct strcLicelDataFile
 	int  nCh		 ;	// Number of channels
 
 	char 	sAct[MAX_CH_LICEL][2]	 ;
-	int 	iAnPhot[MAX_CH_LICEL]    ;
+	int 	DAQ_Type[MAX_CH_LICEL]    ;
 	char 	sLasSrc[MAX_CH_LICEL][2] ;
 	int 	nBins ;
 	int 	iPMTv[MAX_CH_LICEL];

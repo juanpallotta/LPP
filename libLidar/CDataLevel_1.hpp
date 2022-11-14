@@ -13,16 +13,17 @@ class CDataLevel_1
 		~CDataLevel_1();
 
 		void ScanCloud_RayleightFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
-		// void GetCloudLimits( strcGlobalParameters*, strcMolecularData*) ;
-		void GetCloudLimits_v1( strcGlobalParameters*) ;
+		void GetCloudLimits( strcGlobalParameters*) ;
+		void fill_CloudInfoDB( strcCloudProfiles*, strcGlobalParameters*, strcCloudInfoDB* ) ;
 
 		CLidar_Operations 	*oLOp ;		
 
-	    strcCloudProfiles 	*cloudProfiles 		;
-		strcIndexMol      	*indxMol  	 		;
-		double 				**SE_lay     		;
-		double				*prS, errRefBkg		;
-		int					avg_Points_Cloud_Mask ;
+	    strcCloudProfiles 	*cloudProfiles 			;
+		strcIndexMol      	*indxMol  	 			;
+		double 				**SE_lay     			;
+		double				*prS, errRefBkg			;
+		int					avg_Points_Cloud_Mask 	;
+		double 				*dco					;
 
 	private:
 		void	GetMem_indxMol( strcGlobalParameters*) ;

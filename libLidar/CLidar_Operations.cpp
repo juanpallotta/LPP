@@ -300,62 +300,51 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 	}
 }
 
+void CLidar_Operations::GluingLidarSignals( strcGlobalParameters *glbParam, double ***pr_corr )
+{
+	double 	MHz_Max, MHz_Min, a ;
+	int 	indx_MHz_Max, indx_MHz_Min ;
+	int		indxs_fit[3] ;
 
+	for ( int c =0 ; c <glbParam->nPair_Ch_to_Glue ; c++ )
+	{
+		findIndxMin( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 0, (glbParam->nBins-1), (int*)&indx_MHz_Min, (double*)&MHz_Min ) ;
+		findIndxMax( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 0, (glbParam->nBins-1), (int*)&indx_MHz_Max, (double*)&MHz_Max ) ;
 
-// void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, int nBiasRes_Auto, double *pr_noBkg, double *Bias_Pr )
-// {
-// 	int 	indxMaxRange ;
-// 	Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
-// 	// printf("\n CLidar_Operations::nBiasRes_Auto() ---> After Find_Max_Range() --> indxMaxRange= %d \n", indxMaxRange) ;
+		if ( (MHz_Min <= glbParam->MIN_TOGGLE_RATE_MHZ) && (MHz_Max >= glbParam->MAX_TOGGLE_RATE_MHZ) )
+		{
+			printf("\nEvent= %d --> Gluing channels %d and %d (%d nm)", glbParam->evSel, glbParam->indx_gluing_Low_AN[c],
+																	   glbParam->indx_gluing_High_PHO[c], glbParam->iLambda[glbParam->indx_gluing_High_PHO[c]] ) ;
 
-// 	if ( indxMaxRange <= (glbParam->nBins-1) )
-// 	{
-// 		double 	b_ref_max = 0.0 ;
-// 		double 	b_ref_min = 0.0 ;
+			// CORRECTED PHOTON COUNTING VALUES HIGHER THAN MAX_TOGGLE_RATE_MHZ
+			memset( dummy, 0, ( sizeof(double) * glbParam->nBins ) ) ;
+			for ( int b =0 ; b <glbParam->nBins ; b++ )
+				dummy[b] = fabs(pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][b] - glbParam->MAX_TOGGLE_RATE_MHZ) ;
+			findIndxMin( (double*)&dummy[0], 0, indx_MHz_Max, (int*)&indxs_fit[0], (double*)&a ) ;
+			findIndxMin( (double*)&dummy[0], indx_MHz_Max, (glbParam->nBins-1), (int*)&indxs_fit[1], (double*)&a ) ;
 
-// 	// BIAS OBTAINED BY APPLYING A LINEAR FIT FROM rEndSig SET IN THE CONFIGURATION FILE PASSED AS ARGUMENT
-// 		fitParam.indxEndFit  = indxMaxRange ; // glbParam->indxEndSig ; // 
-// 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
-// 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-// 		RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-// 		b_ref_max = 1.5* fitParam.b ;
-// 		b_ref_min = 0.5* fitParam.b ;
+			// CORRECTED PHOTON COUNTING VALUES LOWER THAN MIN_TOGGLE_RATE_MHZ
+			memset( dummy, 0, ( sizeof(double) * glbParam->nBins ) ) ;
+			for ( int b =0 ; b <glbParam->nBins ; b++ )
+				dummy[b] = fabs(pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][b] - glbParam->MIN_TOGGLE_RATE_MHZ) ;
+			findIndxMin( (double*)&dummy[0], indx_MHz_Max, (glbParam->nBins-1), (int*)&indxs_fit[2], (double*)&a ) ;
 
-// 		double b_step 		= (b_ref_max - b_ref_min) /nBiasRes_Auto ;
-// 		double *b_i   		= (double*) new double [ nBiasRes_Auto +2 ] ;
-// 		errRMS_Bias = (double*) new double [ nBiasRes_Auto +2 ] ;
-// 		b_i[0] = (double)0.0 ; // IN CASE OF NO BACKGROUND NEEDED TO BE SUBSTRACTED.
-// 		b_i[1] = (double)0.0 ; // MEAN VALUE OF THE glbParam->nBinsBkg BINS TAKEN FROM THE TAIL OF THE LIDAR SIGNAL.
-// 		for( int j=(glbParam->nBins-glbParam->nBinsBkg) ; j<glbParam->nBins ; j++ ) b_i[1] = (double)(b_i[1] + pr[j]) ;
-// 			b_i[1] = (double)(b_i[1] /glbParam->nBinsBkg) ;
-// 		// PRODUCE THE ARRAY OF BIAS TO TEST b_i[.]
-// 		for ( int s =2; s <(nBiasRes_Auto+2); s++ )
-// 			b_i[s] = (double) b_ref_min + (s-2) *b_step ;
+			memset( dummy, 0, ( sizeof(double) * glbParam->nBins ) ) ;
+			fitParam.indxInicFit = indxs_fit[1] ;
+			fitParam.indxEndFit  = indxs_fit[2] ;
+			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
+RayleighFit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 
+			 (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_Low_AN  [c]][0], glbParam->nBins, "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
 
-// 		for (int s =0; s <(nBiasRes_Auto +2); s++)
-// 		{
-// 			for ( int i =0 ; i <glbParam->nBins ; i++ )
-// 			{
-// 				pr_NObkg_i[i]  = pr[i] - b_i[s] ;
-// 				pr2_i[i]       = pr_NObkg_i[i] * pow(glbParam->r[i], 2) ;
-// 			}
-// 			RayleighFit( (double*)pr2_i, (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-// 			errRMS_Bias[s] = fitParam.sumsq_m ;
-// 		}
+			for ( int b =0 ; b <indxs_fit[1] ; b++ )
+				pr_corr[glbParam->evSel][glbParam->indx_gluing_Low_AN[c]][b] = (double)dummy[b] ;
 
-// 		int 	indxMinErr ;
-// 		double	minErr ;
-// 		findIndxMin( errRMS_Bias, 0, (nBiasRes_Auto +2-1), &indxMinErr, &minErr ) ;
-// 		*Bias_Pr = (double) b_i[indxMinErr] ;
+			for ( int b =indxs_fit[1] ; b <glbParam->nBins ; b++ )
+				pr_corr[glbParam->evSel][glbParam->indx_gluing_Low_AN[c]][b] = (double)pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][b] ;
 
-// 		for ( int i =0; i <glbParam->nBins ; i++)
-// 		pr_noBkg[i] = (pr[i] - *Bias_Pr);
-
-// 		delete b_i			;
-// 	}
-// 	else
-// 	{
-// 		printf("\n(ev= %d)Background substraction metod set is %s, but MEAN method is applied (nBins= %d \t indxMaxRange= %d).\n", glbParam->evSel, glbParam->BkgCorrMethod, glbParam->nBins, indxMaxRange ) ;
-// 		Bias_Substraction_Mean( (double*)pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)pr_noBkg) ;
-// 	}
-// }
+		} // if ( (MHz_Min <= glbParam->MIN_TOGGLE_RATE_MHZ) && (MHz_Max >= glbParam->MAX_TOGGLE_RATE_MHZ) )
+		else
+			printf("\nThere is no need to glue the channels %d and %d\n", glbParam->indx_gluing_Low_AN[c], glbParam->indx_gluing_High_PHO[c]) ;
+	} // for ( int c =0 ; c <glbParam->nPair_Ch_to_Glue ; c++ )
+	printf("\n") ;
+}

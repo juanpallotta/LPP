@@ -71,7 +71,7 @@ int main( int argc, char *argv[] )
             if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) && ( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
                 nFilesInInputFolder++;
         }
-        printf("\n nFilesInInputFolder: %d \n", nFilesInInputFolder) ;
+        // printf("\n nFilesInInputFolder: %d \n", nFilesInInputFolder) ;
         if ( nFilesInInputFolder ==0 )
         {
             printf("\n There are not Licel files in the folder (see dirFile.sh) \nBye...") ;
@@ -101,17 +101,17 @@ int main( int argc, char *argv[] )
 
     if ( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
     {
-        cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << endl ;
+        cout << "\n\tInput data file: " << glbParam.inputDataFileFormat ;
         ReadLicelGobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
     }
     else if( (strcmp( glbParam.inputDataFileFormat, "LALINET_NETCDF" ) ==0) )
-        cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" << endl ;
+        cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
     else if( (strcmp( glbParam.inputDataFileFormat, "SCC_NETCDF" ) ==0) )
-        cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" << endl ;
+        cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
     else if( (strcmp( glbParam.inputDataFileFormat, "CSV" ) ==0) )
-        cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" << endl ;
+        cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
     else
-        cout << "\n\t Input data file: wrong value. Please, check mergingParameters.dat" << endl ;
+        cout << "\n\t Input data file: wrong value. Please, check mergingParameters.dat" ;
 
     // printf( "\n Total Events: %d \n", glbParam.nEvents ) ;
 
@@ -190,19 +190,19 @@ int main( int argc, char *argv[] )
 
     if ( strcmp(glbParam.outputDataFileFormat, "SCC_NETCDF") ==0 )
     {
-        cout << endl << "\tOutput datafile: SCC_NETCDF" << endl ;
+        cout << endl << "\tOutput datafile: SCC_NETCDF" ;
         oNCL->Save_SCC_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave, 
                                    (long*)Raw_Data_Start_Time, (string*)Raw_Data_Start_Time_str, (long*)Raw_Data_Stop_Time, (string*)Raw_Data_Stop_Time_str ) ;
     }
     else if ( strcmp(glbParam.outputDataFileFormat, "LALINET_NETCDF") ==0 )
     {
-        cout << endl << "\tOutput datafile: LALINET_NETCDF" << endl ;
+        cout << endl << "\tOutput datafile: LALINET_NETCDF" ;
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time, (char**)inputFilesInTime ) ;
 
         char *path_dark_files = (char*) new char[100] ;
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"PATH_DARK_FILES", (const char*)"string", (char*)path_dark_files ) ;
-        printf("\n Path to dark files: %s \n", path_dark_files) ;
+        printf("\n Path to dark files: %s", path_dark_files) ;
 
         if ( strcmp(path_dark_files, "NOT_FOUND") ==0 )
         {
@@ -228,7 +228,7 @@ int main( int argc, char *argv[] )
 
         char *overlap_file = (char*) new char[100] ;
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"OVERLAP_FILE", (const char*)"string", (char*)overlap_file ) ;
-        printf("\n Path to overlap file: %s \n", overlap_file ) ;
+        printf("\n Path to overlap file: %s", overlap_file ) ;
 
         if ( strcmp(overlap_file, "NOT_FOUND") ==0 )
         {
