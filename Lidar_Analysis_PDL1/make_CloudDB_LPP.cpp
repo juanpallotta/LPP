@@ -24,7 +24,7 @@ int main( int argc, char *argv[] )
 	Path_File_Out.assign ( argv[2] ) ;
 	sprintf( (char*)glbParam.FILE_PARAMETERS , "%s"	, argv[3] ) ;
 
-    printf("\n\n---- MAKE AUGER CLOUD DB (START) -----------------------------------------------------------------------------\n\n") ;
+    printf("\n\n---- CLOUD DB (START) -----------------------------------------------------------------------------\n\n") ;
     printf("\n\n Path_File_In: %s \n Path_File_Out: %s\n\n", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
 
     // printf( "\n filename: %s \n", Path_File_In.substr( Path_File_In.find_last_of("/\\") + 1 ).c_str() ) ;
@@ -145,13 +145,12 @@ int main( int argc, char *argv[] )
     CMolecularData       *oMolData = (CMolecularData*) new CMolecularData ( (strcGlobalParameters*)&glbParam ) ;
     oMolData->Read_range_Temp_Pres_From_File( (strcGlobalParameters*)&glbParam ) ;
 
-    strcCloudInfoDB cloudInfoDB ;
-	cloudInfoDB.cloudCoverage	      = (double)0.0 ;
-	cloudInfoDB.lowestCloudHeight_ASL = (double)DBL_MAX ;
-	cloudInfoDB.lowestCloudThickness  = (double)DBL_MAX ;
-	cloudInfoDB.highestCloud_VOD      = (double)0 ;
-	cloudInfoDB.lowestCloud_GPSstart  = (long)glbParam.event_gps_sec[0] ; // 0 ;
-	cloudInfoDB.lowestCloud_GPSend    = (long)glbParam.event_gps_sec[0] ; // 0 ;
+    strcCloudInfoDB_LPP cloudInfoDB ;
+	cloudInfoDB.lowestCloudHeight_ASL = (double*) new double [ glbParam.nEventsAVG ] ;
+	cloudInfoDB.lowestCloudThickness  = (double*) new double [ glbParam.nEventsAVG ] ;
+	cloudInfoDB.lowestCloud_VOD       = (double*) new double [ glbParam.nEventsAVG ] ;
+	cloudInfoDB.cloudTime             = (int*   ) new int    [ glbParam.nEventsAVG ] ;
+	cloudInfoDB.nClouds               = (int*   ) new int    [ glbParam.nEventsAVG ] ;
 
     glbParam.rEndSig_ev    = (double*) new double [ glbParam.nEventsAVG ] ;
     glbParam.indxEndSig_ev = (int*)    new int    [ glbParam.nEventsAVG ] ;
@@ -175,7 +174,6 @@ int main( int argc, char *argv[] )
 
         oDL1.GetCloudLimits( (strcGlobalParameters*)&glbParam ) ;
 
-        // cout<<endl<<"oDL1.cloudProfiles[t].nClouds : " << oDL1.cloudProfiles[t].nClouds  << endl ;
         if ( oDL1.cloudProfiles[t].nClouds >=1 )
         {   // FIRST CLOUD OD CALCULATION. JUST IF ITS HIGHER THAN 2000 MTS ASL
             start_pr[0] =t ;
@@ -188,16 +186,28 @@ int main( int argc, char *argv[] )
             // oDL1.cloudProfiles[t].VOD_cloud[0] = 0.0 ;
             // printf("\n(%d) nClouds: %d \t nMolRanges: %d \t OD: %lf", t, oDL1.cloudProfiles[t].nClouds, oDL1.indxMol[t].nMolRanges, oDL1.cloudProfiles[t].VOD_cloud[0]) ;
             // printf("\n(Event: %d) CLOUDS DETECTED \t Base index: %d \t Top index: %d \n", t, oDL1.cloudProfiles[t].indxInitClouds[0], oDL1.cloudProfiles[t].indxEndClouds[0] ) ;
+        printf("\n") ;
         }
         else
             printf( "\n(%d) NO CLOUDS DETECTED", t ) ;
 
-        oDL1.fill_CloudInfoDB( (strcCloudProfiles*)&oDL1.cloudProfiles[t], (strcGlobalParameters*)&glbParam, (strcCloudInfoDB*)&cloudInfoDB ) ;
-    }
+        cloudInfoDB.lowestCloudHeight_ASL[glbParam.evSel] =  oDL1.cloudProfiles[t].indxInitClouds[0] *glbParam.dr ;
+        cloudInfoDB.lowestCloudThickness [glbParam.evSel] = (oDL1.cloudProfiles[t].indxEndClouds[0] - oDL1.cloudProfiles[t].indxInitClouds[0]) *glbParam.dr ;
+        cloudInfoDB.lowestCloud_VOD      [glbParam.evSel] =  oDL1.cloudProfiles[t].VOD_cloud[0] ;
+        cloudInfoDB.nClouds              [glbParam.evSel] =  oDL1.cloudProfiles[t].nClouds ;
+        cloudInfoDB.cloudTime            [glbParam.evSel] =  Raw_Data_Start_Time_AVG[t] ;
 
-    // saveCloudsInfoDB_v1( (strcGlobalParameters*)&glbParam, (strcCloudInfoDB*)&cloudInfoDB, (char*)Path_File_Out.c_str() ) ;
+        // printf("\n\n\t main() " ) ;
+        // printf("\n\t cloudInfoDB.lowestCloudHeight_ASL[%d]: %lf " , glbParam.evSel, cloudInfoDB.lowestCloudHeight_ASL[t] ) ;
+        // printf("\n\t cloudInfoDB.lowestCloudThickness[%d] : %lf " , glbParam.evSel, cloudInfoDB.lowestCloudThickness[t]  ) ;
+        // printf("\n\t cloudInfoDB.lowestCloud_VOD[%d]      : %lf " , glbParam.evSel, cloudInfoDB.lowestCloud_VOD[t]       ) ;
+        // printf("\n\t cloudInfoDB.nClouds[%d]              : %d "  , glbParam.evSel, cloudInfoDB.nClouds[t]	            ) ;
+        // printf("\n\t cloudInfoDB.cloudTime[%d]            : %d "  , glbParam.evSel, cloudInfoDB.cloudTime[t]	            ) ;
+    } // for ( int t =0; t <glbParam.nEventsAVG ; t++ )
+
+    oDL1.saveCloudsInfoDB( (char*)Path_File_Out.c_str(), (strcGlobalParameters*)&glbParam, (strcCloudInfoDB_LPP*)&cloudInfoDB ) ;
   
-    printf("\n\n---- MAKE AUGER CLOUD DB (END) -----------------------------------------------------------------------------\n\n\n\n") ;
+    printf("\n\n---- CLOUD DB (END) -----------------------------------------------------------------------------\n\n\n\n") ;
 
     return 0;
 }

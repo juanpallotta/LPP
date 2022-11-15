@@ -14,7 +14,7 @@ class CDataLevel_1
 
 		void ScanCloud_RayleightFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
 		void GetCloudLimits( strcGlobalParameters*) ;
-		void fill_CloudInfoDB( strcCloudProfiles*, strcGlobalParameters*, strcCloudInfoDB* ) ;
+		void saveCloudsInfoDB( char*, strcGlobalParameters*, strcCloudInfoDB_LPP* ) ;
 
 		CLidar_Operations 	*oLOp ;		
 
@@ -23,7 +23,7 @@ class CDataLevel_1
 		double 				**SE_lay     			;
 		double				*prS, errRefBkg			;
 		int					avg_Points_Cloud_Mask 	;
-		double 				*dco					;
+		int 				*dco					;
 
 	private:
 		void	GetMem_indxMol( strcGlobalParameters*) ;

@@ -63,8 +63,6 @@ void 	RadLowToHighRes 			( int, double*, double*, int, double*, double* ) ;
 
 void 	RayleighFit 				( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
 
-// void 	GetCloudLimits				( strcGlobalParameters*, strcMolecularData*, strcCloudProfiles*, strcIndexMol* ) ;
-
 void 	TransmissionMethod_pr		( double*, strcGlobalParameters*, strcMolecularData*, int, int, double* ) ;
 void 	ODcut						( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int* ) ;
 

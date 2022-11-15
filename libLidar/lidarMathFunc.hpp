@@ -13,6 +13,7 @@
 #include <cmath>
 #include <limits.h>
 #include <cfloat>
+#include <string.h>
 
 #include <stdbool.h>
 
@@ -26,6 +27,8 @@ void diffPr				( const double*, int, double*			 		) ;
 void findIndxMin		( double*, int, int, int*, double* 				) ;
 void findIndxFirstNeg   ( double*, int, int, int*, double* 				) ;
 void findIndxMax		( double*, int, int, int*, double* 				) ;
+void findIndxMax_void	( void*, const char *, int, int, int*, void*    ) ;
+void findIndxMin_void	( void*, const char *, int, int, int*, void*    ) ;
 void smooth	    		( double*, int, int, int, double* 				) ;
 int  polyfitCoeff   	(const double* const, const double* const, unsigned int, unsigned int, double*);
 

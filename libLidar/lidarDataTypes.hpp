@@ -268,6 +268,15 @@ struct strcCloudInfoDB
 	long 	lowestCloud_GPSend    	;
 } ;
 
+struct strcCloudInfoDB_LPP
+{
+	int 	*nClouds			  	;
+	double	*lowestCloudHeight_ASL 	;
+	double 	*lowestCloudThickness  	;
+	double 	*lowestCloud_VOD       	;
+	int 	*cloudTime			  	;
+} ;
+
 struct strcCLFdata
 {
 	double 	*VAODht    	  [4] ;

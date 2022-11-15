@@ -13,6 +13,7 @@ L2="no"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20221101/data/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/9/21/"
 
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
 PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0.nc"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0_L1.nc"

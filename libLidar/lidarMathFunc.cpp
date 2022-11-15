@@ -82,6 +82,64 @@ void findIndxMax( double *vec, int indxInic, int indxEnd, int *indxMax, double *
 	}
 }
 
+void findIndxMin_void( void *vec, const char *varType, int indxInic, int indxEnd, int *indxMin, void *min )
+{ // ALL INDEXES ARE REFERENCED TO [0-nBins] OF vec
+
+    if ( strcmp( varType, "int" ) == 0 )
+    {
+    	(*(int*)min) = INT_MAX ;
+        for( int i=indxInic ; i<=indxEnd ; i++ )
+        {
+            if ( ((int*)vec)[i] < (*(int*)min) )
+            {
+                (*(int*)min) = ((int*)vec)[i] ;
+                *indxMin = (int)i  ; // REFERENCED TO [0-nBins] OF vec
+            }
+        }
+    }
+    if ( strcmp( varType, "double" ) == 0 )
+    {
+    	(*(double*)min) = DBL_MAX ;
+        for( int i=indxInic ; i<=indxEnd ; i++ )
+        {
+            if ( ((double*)vec)[i] < (*(double*)min) )
+            {
+                (*(double*)min) = ((double*)vec)[i] ;
+                *indxMin = (int)i  ; // REFERENCED TO [0-nBins] OF vec
+            }
+        }
+    }
+}
+
+void findIndxMax_void( void *vec, const char *varType, int indxInic, int indxEnd, int *indxMax, void *max )
+{ // ALL INDEXES ARE REFERENCED TO [0-nBins] OF vec
+
+    if ( strcmp( varType, "int" ) == 0 )
+    {
+    	(*(int*)max) = INT_MIN ;
+        for( int i=indxInic ; i<=indxEnd ; i++ )
+        {
+            if ( ((int*)vec)[i] > (*(int*)max) )
+            {
+                (*(int*)max) = ((int*)vec)[i] ;
+                *indxMax = (int)i  ; // REFERENCED TO [0-nBins] OF vec
+            }
+        }
+    }
+    if ( strcmp( varType, "double" ) == 0 )
+    {
+    	(*(double*)max) = DBL_MIN ;
+        for( int i=indxInic ; i<=indxEnd ; i++ )
+        {
+            if ( ((double*)vec)[i] > (*(double*)max) )
+            {
+                (*(double*)max) = ((double*)vec)[i] ;
+                *indxMax = (int)i  ; // REFERENCED TO [0-nBins] OF vec
+            }
+        }
+    }
+}
+
 void smooth( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAvg )
 {
 	double  m 	= 0 ;

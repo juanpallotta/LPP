@@ -222,7 +222,7 @@ int main( int argc, char *argv[] )
 
         pr_corr[e] = (double**) new double*[glbParam.nCh] ;
         pr2[e]     = (double**) new double*[glbParam.nCh] ;
-printf("\n\nApplying corrections to the lidar event number: %d \t", e ) ;
+printf("\n\nApplying corrections to the lidar event number: %d/%d \t", e, glbParam.nEventsAVG ) ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;
