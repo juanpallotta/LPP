@@ -183,10 +183,9 @@ int main( int argc, char *argv[] )
             // smooth( (double*)pr_VOD, (int)0, (int)(glbParam.nBins-1), (int)oDL1.avg_Points_Cloud_Mask, (double*)pr_VOD ) ;
                 TransmissionMethod_pr( (double*)pr_VOD, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, 
                                     (int)oDL1.cloudProfiles[t].indxInitClouds[0], (int)oDL1.cloudProfiles[t].indxEndClouds[0], (double*)&oDL1.cloudProfiles[t].VOD_cloud[0] ) ;
-            // oDL1.cloudProfiles[t].VOD_cloud[0] = 0.0 ;
             // printf("\n(%d) nClouds: %d \t nMolRanges: %d \t OD: %lf", t, oDL1.cloudProfiles[t].nClouds, oDL1.indxMol[t].nMolRanges, oDL1.cloudProfiles[t].VOD_cloud[0]) ;
             // printf("\n(Event: %d) CLOUDS DETECTED \t Base index: %d \t Top index: %d \n", t, oDL1.cloudProfiles[t].indxInitClouds[0], oDL1.cloudProfiles[t].indxEndClouds[0] ) ;
-        printf("\n") ;
+            printf("\n") ;
         }
         else
             printf( "\n(%d) NO CLOUDS DETECTED", t ) ;
@@ -194,8 +193,8 @@ int main( int argc, char *argv[] )
         cloudInfoDB.lowestCloudHeight_ASL[glbParam.evSel] =  oDL1.cloudProfiles[t].indxInitClouds[0] *glbParam.dr ;
         cloudInfoDB.lowestCloudThickness [glbParam.evSel] = (oDL1.cloudProfiles[t].indxEndClouds[0] - oDL1.cloudProfiles[t].indxInitClouds[0]) *glbParam.dr ;
         cloudInfoDB.lowestCloud_VOD      [glbParam.evSel] =  oDL1.cloudProfiles[t].VOD_cloud[0] ;
-        cloudInfoDB.nClouds              [glbParam.evSel] =  oDL1.cloudProfiles[t].nClouds ;
-        cloudInfoDB.cloudTime            [glbParam.evSel] =  Raw_Data_Start_Time_AVG[t] ;
+        cloudInfoDB.nClouds              [glbParam.evSel] =  oDL1.cloudProfiles[t].nClouds      ;
+        cloudInfoDB.cloudTime            [glbParam.evSel] =  Raw_Data_Start_Time_AVG[t]         ;
 
         // printf("\n\n\t main() " ) ;
         // printf("\n\t cloudInfoDB.lowestCloudHeight_ASL[%d]: %lf " , glbParam.evSel, cloudInfoDB.lowestCloudHeight_ASL[t] ) ;
