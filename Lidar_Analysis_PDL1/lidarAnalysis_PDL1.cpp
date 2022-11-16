@@ -328,11 +328,11 @@ printf("\n\n") ;
     }
     else
     {
-        printf("\n Gluing setting error in file file %s", glbParam.FILE_PARAMETERS ) ;
+        printf("\n Gluing is not performed due to its configuration variables in: %s", glbParam.FILE_PARAMETERS ) ;
         if ( nIndxsToGlue_Low_AN <0 )
-            printf("\n\t Variable indx_Gluing_Low_AN is commented in setting file." ) ;
+            printf("\n\t Variable indx_Gluing_Low_AN is commented or not set in setting file." ) ;
         if ( nIndxsToGlue_High_PHO <0 )
-            printf("\n\t Variable indx_Gluing_High_PHO is commented in setting file." ) ;
+            printf("\n\t Variable indx_Gluing_High_PHO is commented or not set in setting file." ) ;
         if ( (nIndxsToGlue_Low_AN != nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
             printf("\n\t Different numbers of elements in the arrarys indx_Gluing_Low_AN and indx_Gluing_High_PHO" ) ;
         printf("\n\t NO gluing is applied for this analysis." ) ;

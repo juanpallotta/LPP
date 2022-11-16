@@ -6,6 +6,7 @@ echo ""
 echo ""
 echo ""
 
+# LPP_Settings.sh CAN BE PASSED AS ARGUMENT TO THIS SCRIPT.
 if [ $# -eq 0 ]
     then # NO LPP_Settings.sh FILE PASSED AS ARGUMENTS.
         source ./Lidar_Configuration_Files/LPP_Settings.sh
