@@ -368,7 +368,7 @@ printf("\n\n") ;
             {
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
                 {
-                    printf("\t --> Getting cloud profile...");
+                    printf("   --> Getting cloud profile...");
                     oDL1->ScanCloud_RayleightFit( (const double*)&pr_corr[t][c][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 }
                 else

@@ -183,9 +183,9 @@ int main( int argc, char *argv[] )
             // smooth( (double*)pr_VOD, (int)0, (int)(glbParam.nBins-1), (int)oDL1.avg_Points_Cloud_Mask, (double*)pr_VOD ) ;
                 TransmissionMethod_pr( (double*)pr_VOD, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, 
                                     (int)oDL1.cloudProfiles[t].indxInitClouds[0], (int)oDL1.cloudProfiles[t].indxEndClouds[0], (double*)&oDL1.cloudProfiles[t].VOD_cloud[0] ) ;
-            // printf("\n(%d) nClouds: %d \t nMolRanges: %d \t OD: %lf", t, oDL1.cloudProfiles[t].nClouds, oDL1.indxMol[t].nMolRanges, oDL1.cloudProfiles[t].VOD_cloud[0]) ;
-            // printf("\n(Event: %d) CLOUDS DETECTED \t Base index: %d \t Top index: %d \n", t, oDL1.cloudProfiles[t].indxInitClouds[0], oDL1.cloudProfiles[t].indxEndClouds[0] ) ;
-            printf("\n") ;
+
+    printf("\n(%d) CLOUDS DETECTED \t Base heigh: %lf \t Top heigh: %lf \n", t, oDL1.cloudProfiles[t].indxInitClouds[0] *glbParam.dzr + glbParam.siteASL
+                                                                           ,    oDL1.cloudProfiles[t].indxEndClouds[0]  *glbParam.dzr + glbParam.siteASL ) ;
         }
         else
             printf( "\n(%d) NO CLOUDS DETECTED", t ) ;
