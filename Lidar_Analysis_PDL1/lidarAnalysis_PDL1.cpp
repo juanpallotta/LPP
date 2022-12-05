@@ -273,6 +273,7 @@ printf("| Desaturation  |\t") ;
             {
                 printf("| Background and bias |\t") ;
                 oDL1->oLOp->BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
+                // oDL1->oLOp->Bias_Residual_Correction( (const double*)&evSig.pr_noBias[0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, (double*)&evSig.pr_noBkg[0] ) ;
             }
             else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
             {

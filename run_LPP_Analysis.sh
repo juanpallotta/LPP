@@ -94,6 +94,7 @@ PROCES_SENTRY=1
             PATH_FILE_IN_L1=$paths_In # paths_In IS A FILE
             PATH_FILE_OUT_L1=${paths_In%.*}"_L1.nc"
             PATH_FILE_OUT_L1_CLOUD_DATA=${PATH_FILE_OUT_L1%.*}"_CLOUD_DATA.dat"
+            echo -e "\n-----> " PATH_FILE_OUT_L1_CLOUD_DATA: $PATH_FILE_OUT_L1_CLOUD_DATA
             echo ""
             echo PATH_FILE_IN_L1: $PATH_FILE_IN_L1
             echo PATH_FILE_OUT_L1: $PATH_FILE_OUT_L1

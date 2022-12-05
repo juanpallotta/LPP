@@ -22,6 +22,7 @@
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
+// #include "../libLidar/CLicel_DataFile_Handling.h"
 
 int main( int argc, char *argv[] )
 {
@@ -98,11 +99,13 @@ int main( int argc, char *argv[] )
     glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY --> ERASE
 
     //! check_Lidar_Files_Consistency( (strcGlobalParameters*)&glbParam, (char**)inputFilesInTime ) ;
+    // CLicel_DataFile_Handling oLDH ;
 
     if ( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
     {
         cout << "\n\tInput data file: " << glbParam.inputDataFileFormat ;
         ReadLicelGobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
+        // oLDH.ReadLicelGobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
     }
     else if( (strcmp( glbParam.inputDataFileFormat, "LALINET_NETCDF" ) ==0) )
         cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
@@ -148,6 +151,7 @@ int main( int argc, char *argv[] )
         // avgTime_num =0 ;
             if( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
                 ReadLicelData ( (char*)inputFilesInTime[f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+                // oLDH.ReadLicelData ( (char*)inputFilesInTime[f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
             sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year  ) ;
             sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;
             sscanf( glbParam.StopDate , "%2d%2d%4d", &tmFile_stop->tm_mday , &tmFile_stop->tm_mon , &tmFile_stop->tm_year   ) ;

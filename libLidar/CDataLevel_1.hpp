@@ -15,6 +15,7 @@ class CDataLevel_1
 		void ScanCloud_RayleightFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
 		void GetCloudLimits( strcGlobalParameters*) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, strcCloudInfoDB_LPP* ) ;
+		void saveCloudsInfoDB( char*, strcGlobalParameters*, int* ) ;
 
 		CLidar_Operations 	*oLOp ;		
 

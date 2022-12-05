@@ -1,5 +1,7 @@
 
-OBJS = lidarAnalysis_PDL0.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o
+
+# CLicel_DataFile_Handling.o
+OBJS = lidarAnalysis_PDL0.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o 
 NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include
 
 
@@ -18,6 +20,9 @@ lidarMathFunc.o: ../libLidar/lidarMathFunc.cpp
 
 CNetCDF_Lidar.o: ../libLidar/CNetCDF_Lidar.cpp
 	g++ -Wall -c ../libLidar/CNetCDF_Lidar.hpp ../libLidar/CNetCDF_Lidar.cpp
+
+# CLicel_DataFile_Handling.o: ../libLidar/CLicel_DataFile_Handling.cpp
+# 	g++ -Wall -c ../libLidar/CLicel_DataFile_Handling.h ../libLidar/CLicel_DataFile_Handling.cpp
 
 
 clean:

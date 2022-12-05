@@ -300,6 +300,29 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 	}
 }
 
+// void CLidar_Operations::Bias_Residual_Correction( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, double *pr_res_corr )
+// {
+// 	fitParam.indxInicFit = 300 ;
+// 	fitParam.indxEndFit  = 900 ;
+// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
+// 	RayleighFit( (double*)&pr[0], (double*)&dataMol->prMol[0], glbParam->nBins, "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
+
+// 	for (int i =0; i <glbParam->nBins; i++)
+// 		pr_res_corr[i] = pr[i] - dummy[i] ;
+	
+// 	double *coeff = (double*) new double[2] ;
+// 	polyfitCoeff( (const double* const) &sigMol[fitParam->indxInicFit], // X DATA
+// 				  (const double* const) &sig[fitParam->indxInicFit], // Y DATA
+// 				  (unsigned int       ) fitParam->nFit,
+// 				  (unsigned int		  ) 1,
+// 				  (double*			  ) coeff	 ) ;
+// 	fitParam.m = (double)coeff[1] ;
+// 	fitParam.b = (double)coeff[0] ;
+// 	delete coeff ;
+
+
+// }
+
 void CLidar_Operations::GluingLidarSignals( strcGlobalParameters *glbParam, double ***pr_corr )
 {
 	double 	MHz_Max, MHz_Min, a ;

@@ -304,13 +304,6 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 		}
 		if ( nInicCloud == nEndCloud ) // IN CASE OF CLOUDY PROFILE --> GET THEIR LIMITS
 		{
-			// memset( cloudProfiles[glbParam->evSel].indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-			// memset( cloudProfiles[glbParam->evSel].indxEndClouds , 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
-			// memset( indxMol[glbParam->evSel].indxInicMol, 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-			// memset( indxMol[glbParam->evSel].indxEndMol , 0, ( sizeof(int) * MAX_MOL_RANGES  ) ) ;
-			// cloudProfiles[glbParam->evSel].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-			// indxMol[glbParam->evSel].nMolRanges 	= 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
-
 			// CLOUDS DETECTION
 			for( int i=0 ; i <=(glbParam->indxEndSig_ev[glbParam->evSel]) ; i++ )
 			{
@@ -329,43 +322,23 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 				}
 			}
 			indxMol[glbParam->evSel].nMolRanges = cloudProfiles[glbParam->evSel].nClouds +1 ;
-
-			// MOLECULAR RANGES
-			// if ( indxMol[glbParam->evSel].nMolRanges ==1 )
-			// {
-			// 	int 	heightRef_Inversion_ASL ;
-			// 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "int" , (int*)&heightRef_Inversion_ASL ) ;
-			// 	indxMol[glbParam->evSel].indxRef = (int)round(heightRef_Inversion_ASL /glbParam->dzr) ;
-			// 		if ( indxMol[glbParam->evSel].indxRef > (glbParam->nBins-1) )
-			// 			indxMol[glbParam->evSel].indxRef = glbParam->nBins -10 ;
-
-			// 	for (int i =0; i < NMAXCLOUDS ; i++)
-			// 	{
-			// 		cloudProfiles[glbParam->evSel].indxInitClouds[i] = 0 ;
-			// 		cloudProfiles[glbParam->evSel].indxEndClouds [i] = 0 ;
-			// 		indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
-			// 		indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig_ev[glbParam->evSel] ;
-			// 	}
-			// }
-			// else
-			// {
-				for( int i=0 ; i <indxMol[glbParam->evSel].nMolRanges ; i++ )
+			// CLOUDS DETECTED --> MOLECULAR RANGES SETTINGS
+			for( int i=0 ; i <indxMol[glbParam->evSel].nMolRanges ; i++ )
+			{
+				if (i==0)
 				{
-					if (i==0)
-					{
-						indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
-						indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1  ;
-					}
-					else
-					{
-						indxMol[glbParam->evSel].indxInicMol[i] = cloudProfiles[glbParam->evSel].indxEndClouds[i-1] +1 ;
-						if ( i == (indxMol[glbParam->evSel].nMolRanges-1) )
-							indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig_ev[glbParam->evSel] ;
-						else
-							indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1 ;
-					}
+					indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
+					indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1  ;
 				}
-			// }
+				else
+				{
+					indxMol[glbParam->evSel].indxInicMol[i] = cloudProfiles[glbParam->evSel].indxEndClouds[i-1] +1 ;
+					if ( i == (indxMol[glbParam->evSel].nMolRanges-1) )
+						indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig_ev[glbParam->evSel] ;
+					else
+						indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1 ;
+				}
+			}
 		} // if ( nInicCloud == nEndCloud )
 		else
 			printf("\nGetCloudLim(...) --> error\n") ;
@@ -375,7 +348,7 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 		cloudProfiles[glbParam->evSel].nClouds = 0 ;
 		indxMol[glbParam->evSel].nMolRanges    = cloudProfiles[glbParam->evSel].nClouds +1 ;
 
-		// MOLECULAR RANGES DETECTION
+		// MOLECULAR RANGES SETTINGS
 		if ( indxMol[glbParam->evSel].nMolRanges ==1 )
 		{
 			int 	heightRef_Inversion_ASL ;
@@ -392,25 +365,6 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 				indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig_ev[glbParam->evSel] ;
 			}
 		}
-		// else
-		// {
-		// 	for( int i=0 ; i <indxMol[glbParam->evSel].nMolRanges ; i++ )
-		// 	{
-		// 		if (i==0)
-		// 		{
-		// 			indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
-		// 			indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1  ;
-		// 		}
-		// 		else
-		// 		{
-		// 			indxMol[glbParam->evSel].indxInicMol[i] = cloudProfiles[glbParam->evSel].indxEndClouds[i-1] +1 ;
-		// 			if ( i == (indxMol[glbParam->evSel].nMolRanges-1) )
-		// 				indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig_ev[glbParam->evSel] ;
-		// 			else
-		// 				indxMol[glbParam->evSel].indxEndMol[i]  = cloudProfiles[glbParam->evSel].indxInitClouds[i] -1 ;
-		// 		}
-		// 	}
-		// }
 	}
 
 	// printf("\n\t CDataLevel_1::GetCloudLimits() " ) ;
@@ -426,12 +380,30 @@ void CDataLevel_1::saveCloudsInfoDB( char *Path_File_Out, strcGlobalParameters *
 
 	for (int t =0 ; t <glbParam->nEventsAVG ; t++)
 	{
-		fprintf(fpDB, "%d %lf %lf %lf \n", cloudInfoDB->cloudTime[t], cloudInfoDB->lowestCloudHeight_ASL[t], cloudInfoDB->lowestCloudThickness[t], 
-											cloudInfoDB->lowestCloud_VOD[t] ) ;
+		fprintf( fpDB, "%d %d %lf %lf \n", cloudInfoDB->cloudTime[t], cloudInfoDB->nClouds[t], cloudInfoDB->lowestCloudHeight_ASL[t], cloudInfoDB->lowestCloudThickness[t] ) ;
 
-		// printf("\n%d %lf %lf %lf", cloudInfoDB->cloudTime[t], cloudInfoDB->lowestCloudHeight_ASL[t], cloudInfoDB->lowestCloudThickness[t], 
-		// 							cloudInfoDB->lowestCloud_VOD[t] ) ;
+		// fprintf(fpDB, "%d %lf %lf %lf \n", cloudInfoDB->cloudTime[t], cloudInfoDB->lowestCloudHeight_ASL[t], cloudInfoDB->lowestCloudThickness[t], 
+		// 									cloudInfoDB->lowestCloud_VOD[t] ) ;
 	}
 	fclose(fpDB) ;
 	printf( "\n\nDone with the cloud data base file: %s \n", Path_File_Out ) ;
 }
+
+void CDataLevel_1::saveCloudsInfoDB( char *Path_File_Out, strcGlobalParameters *glbParam, int *Raw_Data_Start_Time_AVG )
+{
+	FILE 	*fpDB = fopen( Path_File_Out, "w+t" ) ;
+
+	for (int t =0 ; t <glbParam->nEventsAVG ; t++)
+	{
+		fprintf( fpDB, "%d %d ", Raw_Data_Start_Time_AVG[t], cloudProfiles[t].nClouds ) ;
+
+		for ( int n =0; n <cloudProfiles[t].nClouds ; n++)
+			fprintf( fpDB, "%5.3lf %5.3lf ", cloudProfiles[t].indxInitClouds[0] *glbParam->dr,
+				   (cloudProfiles[t].indxEndClouds[n] - cloudProfiles[t].indxInitClouds[n]) *glbParam->dr ) ;
+
+		fprintf( fpDB, "\n" ) ;
+	}
+	fclose(fpDB) ;
+	printf( "\n\nDone with the cloud data base file: %s \n", Path_File_Out ) ;
+}
+

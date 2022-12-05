@@ -95,7 +95,7 @@ At the moment, the compiler output will show some warnings. All of them will be 
 The behavior of each module is based on the parameters written in its configuration file, passed as the [third argument](#runing-a-lpp-module). They are stored in the `/Lidar_Configuration_Files` folder of this repository. These are text-based files and have the variables needed for the module, having to follow only 4 main rules:
 1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable for you. The configuration files included in this repository have many comments to explain each variable.
 2. Variables definition must follow the convention typo `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variables data type can be integer, float, double, or string, depending on the variable. Also, in some cases, a variable can be an array of values, in those cases.
-3. Some variables have to be set as vectors. Each element must be separated by the character "`:`", for instance: `VAR_NAME = VALUE1 : VALUE2 : VALUE3` <u>**and a minimum of 1 space character has to be placed before and after the "`:`" character**</u>. The number of elements depends on the variable, and how LPP make use of it. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
+3. Some variables have to be set as vectors. Each element must be separated by the character "`:`", for instance: `VAR_NAME = VALUE1 , VALUE2 , VALUE3`, <u>**and a minimum of 1 space character has to be placed before and after the "`,`" (comma) character**</u>. The number of elements depends on the variable, and how LPP make use of it. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
 4. The configuration file <u>**must**</u> be the same for all the modules, containing all the variables needed for the run. All these variables are described in this document.
 
 It is worth mentioning that there is no rule for the order of the variables set in this file.
@@ -111,7 +111,7 @@ maxZthAngle = 90
 
 # LASER-BIN-OFFSET (OR TRIGGER-DELAY OR ZERO-BIN)
 # ARRAY: ONE PER CHANNEL
-indxOffset = 2 : 3 : 7 : 5 : 8 : 2 : 9 : 2 : 2 : 2 : 2 : 2 
+indxOffset = 2 , 3 , 7 , 5 , 8 , 2 , 9 , 2 , 2 , 2 , 2 , 2 
 
 # BACKGROUND CORRECTION METHOD = AUTO/FIT/MEAN/NO_BKG
 BkgCorrMethod = AUTO
@@ -346,7 +346,7 @@ avg_Points_Fernald = 51
 
 # FERNALD INVERSION PARAMETER
 # LR: COULD BE AN ARRAY OR A SINGLE VALUE
-LR = 50 : 60 : 70 : 80
+LR = 50 , 60 , 70 , 80
 # INDEX OF THE CHANNEL TO BE INVERTED (INDEXED FROM 0)
 indxWL_PDL2 = 0
 

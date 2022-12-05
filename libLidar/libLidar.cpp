@@ -128,7 +128,8 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 				found = true ;
 				ss << line ;
 				// CHECK IF THE VARIABLE ITS A VECTOR
-				nElemVec = count( line.begin(), line.end(), ':' ) ;
+				nElemVec = count( line.begin(), line.end(), ',' ) ;
+				// nElemVec = count( line.begin(), line.end(), ':' ) ;
 				nElemVec++ ;
 
 				if ( strcmp( varType, "int" ) == 0 )

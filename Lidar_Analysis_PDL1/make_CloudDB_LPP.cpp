@@ -181,8 +181,8 @@ int main( int argc, char *argv[] )
                 ERR(retval) ;
 
             // smooth( (double*)pr_VOD, (int)0, (int)(glbParam.nBins-1), (int)oDL1.avg_Points_Cloud_Mask, (double*)pr_VOD ) ;
-                TransmissionMethod_pr( (double*)pr_VOD, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, 
-                                    (int)oDL1.cloudProfiles[t].indxInitClouds[0], (int)oDL1.cloudProfiles[t].indxEndClouds[0], (double*)&oDL1.cloudProfiles[t].VOD_cloud[0] ) ;
+                // TransmissionMethod_pr( (double*)pr_VOD, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, 
+                //                     (int)oDL1.cloudProfiles[t].indxInitClouds[0], (int)oDL1.cloudProfiles[t].indxEndClouds[0], (double*)&oDL1.cloudProfiles[t].VOD_cloud[0] ) ;
 
     printf("\n(%d) CLOUDS DETECTED \t Base heigh: %lf \t Top heigh: %lf \n", t, oDL1.cloudProfiles[t].indxInitClouds[0] *glbParam.dzr + glbParam.siteASL
                                                                            ,    oDL1.cloudProfiles[t].indxEndClouds[0]  *glbParam.dzr + glbParam.siteASL ) ;
@@ -204,7 +204,8 @@ int main( int argc, char *argv[] )
         // printf("\n\t cloudInfoDB.cloudTime[%d]            : %d "  , glbParam.evSel, cloudInfoDB.cloudTime[t]	            ) ;
     } // for ( int t =0; t <glbParam.nEventsAVG ; t++ )
 
-    oDL1.saveCloudsInfoDB( (char*)Path_File_Out.c_str(), (strcGlobalParameters*)&glbParam, (strcCloudInfoDB_LPP*)&cloudInfoDB ) ;
+    // oDL1.saveCloudsInfoDB( (char*)Path_File_Out.c_str(), (strcGlobalParameters*)&glbParam, (strcCloudInfoDB_LPP*)&cloudInfoDB ) ;
+    oDL1.saveCloudsInfoDB( (char*)Path_File_Out.c_str(), (strcGlobalParameters*)&glbParam, (int*)Raw_Data_Start_Time_AVG ) ;
   
     printf("\n\n---- CLOUD DB (END) -----------------------------------------------------------------------------\n\n\n\n") ;
 
