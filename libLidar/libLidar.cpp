@@ -206,96 +206,52 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
     }
 	return nElemVec ;
 }
+// FROM ChatGPT
 
-// template <typename T>
-// int ReadAnalisysParameter_template( const char *fileName, const char *varToFind, const char *varType, T &var )
-// {
-//     ifstream    myfile (fileName) ;
-//     bool        found =false ;
-// 	int			nElemVec;
+// #include <iostream>
+// #include <fstream>
+// #include <sstream>
+// #include <string>
+// #include <vector>
 
-//     if (myfile.is_open())
-//     {
-// 		string  line, var_name, dump, eq ;
-// 		stringstream ss ;
+// int main() {
+//   // Open the file
+//   std::ifstream file("data.csv");
 
-// 		while ( !myfile.eof() )
-// 		{
-// 			getline (myfile, line) ;
-// 			if ( ( (line.find(varToFind, 0)) != string::npos ) && (line[0] != '#') )
-// 			{
-// 				found = true ;
-// 				ss << line ;
-// 				// CHECK IF THE VARIABLE ITS A VECTOR
-// 				nElemVec = count( line.begin(), line.end(), ':' ) ;
-// 				nElemVec++ ;
+//   // Check if the file is open
+//   if (!file.is_open()) {
+//     std::cerr << "Error opening file" << std::endl;
+//     return 1;
+//   }
 
-// 				if ( strcmp( varType, "int" ) == 0 )
-// 				{
-// 					int var_int ;
-// 					ss >> var_name >> eq ;
-// 					for ( int e =0 ; e <nElemVec ; e++ )
-// 					{// ss >> *((int*)var) ;
-// 						ss >> var_int >> dump ;
-// 						memcpy( (T*)var +e, (int*)&var_int, sizeof(int) ) ;
-// 					}
-// 				}
-// 				else if ( strcmp( varType, "float" ) == 0 )
-// 				{
-// 					float var_float ;
-// 					ss >> var_name >> eq ;
-// 					for ( int e =0 ; e <nElemVec ; e++ )
-// 					{	// ss >> *((float*)var) ;
-// 						ss >> var_float >> dump ;
-// 						memcpy( (T*)var +e, (float*)&var_float, sizeof(float) ) ;
-// 					}
-// 				}
-// 				else if ( strcmp( varType, "double" ) == 0 )
-// 				{
-// 					double var_double ;
-// 					ss >> var_name >> eq  ;
-// 					for ( int e =0 ; e <nElemVec ; e++ )
-// 					{//	ss >> *((double*)var) ;
-// 						ss >> var_double >> dump ;
-// 						memcpy( (T*)var +e, (double*)&var_double, sizeof(double) ) ;
-// 					}
-// 				}
-// 				else if ( strcmp( varType, "string" ) == 0 )
-// 				{
-// 					ss >> var_name >> eq >> (T*)var ;
-// 					// printf("\n var: %s \n", (char*)var) ;
-// 					// string var_string ;
-// 					// ss >> var_name >> eq ;
-// 					// for ( int e =0 ; e <nElemVec ; e++ )
-// 					// {
-// 					// 	ss >> var_string >> dump ;
-// 					// 	memcpy( (char*)var +e, (char*)var_string.c_str(), var_string.size() ) ;
-// 					// }
-// 				}
-// 			}
-// 		} // while ( !myfile.eof() )
-// 		myfile.close();
+//   // Read the file line by line
+//   std::string line;
+//   while (std::getline(file, line)) {
+//     // Create a string stream from the line
+//     std::stringstream lineStream(line);
+
+//     // Declare a vector to store the values
+//     std::vector<std::string> values;
+
+//     // Read the values, separated by commas
+//     std::string value;
+//     while (std::getline(lineStream, value, ',')) {
+//       values.push_back(value);
 //     }
-//     else 
-// 	{
-// 		cout << endl << "ReadAnalisysParameter() --> Unable to open file " << fileName << endl ; 
-// 		return 0 ;
-// 	}
-//     if ( found == false)
-//     {
-//         if ( strcmp( varType, "string" ) == 0 )
-//             strcpy( ((T*)var), "NOT_FOUND") ;
-//         else if ( strcmp( varType, "int" ) == 0 )
-//             *((T*)var) = -2000 ;
-//         else if ( strcmp( varType, "float" ) == 0 )
-//             *((T*)var) = -2000 ;
-//         else if ( strcmp( varType, "double" ) == 0 )
-//             *((T*)var) = -2000 ;
-		
-// 		return 0 ;
+
+//     // Print the values
+//     for (const auto& val : values) {
+//       std::cout << val << " ";
 //     }
-// 	return nElemVec ;
+//     std::cout << std::endl;
+//   }
+
+//   // Close the file
+//   file.close();
+
+//   return 0;
 // }
+
 
 /**
  * @brief 
