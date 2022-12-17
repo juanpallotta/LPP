@@ -30,6 +30,7 @@ class CMolecularData
 
 	private:
 		void RadLowToHighRes() ;
+		void Molecular_Profile_Resampled_Zenithal( strcGlobalParameters* ) ;
 };
 
 #endif

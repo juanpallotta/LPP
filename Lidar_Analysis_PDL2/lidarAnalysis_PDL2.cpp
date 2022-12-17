@@ -151,7 +151,10 @@ int main( int argc, char *argv[] )
     // LOAD MOLECULAR PROFILES FROM THE FILE
     int id_var_nmol ;
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)"Molecular_Density", (int*)&id_var_nmol ) ) )
+    {
+        printf("\n*ERROR* No molecular data saved in L1 data group.\n") ;
         ERR(retval);
+    }
     oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Molecular_Density" , (double*)&oDL2->nMol[0] ) ;
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
@@ -200,7 +203,7 @@ int main( int argc, char *argv[] )
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval) ;
 
-//! RE-ANALYSIS: SWIPE ACROSS THE EVENTS SELECTED BETWEEN minTime and maxTime
+//! TO-DO: RE-ANALYSIS: SWIPE ACROSS THE EVENTS SELECTED BETWEEN minTime and maxTime
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         cout << endl ;

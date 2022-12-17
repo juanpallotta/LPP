@@ -375,7 +375,6 @@ void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glb
         if ( (retval = nc_get_vara_int((int)ncid_L1_Data, (int)id_var_lm, start_lm, count_lm, (int*)&oDL2->layer_mask[t][0] ) ) )
             ERR(retval) ;
     }
-
 }
 
 void CNetCDF_Lidar::Putt_Bulk_Att_Text( int ncid, int id_var, int size_list, string *strAttListName, string *strAttList )

@@ -89,17 +89,6 @@ void CMolecularData::Read_range_Temp_Pres_From_File( strcGlobalParameters *glbPa
 			diffMin = diff 	;
 			indxMin = i 	;
 		}
-		// diff = fabs( float(dataMol.zr[dataMol.nBins-1]) - zLR[i] ) ;
-		// if ( i==0 )
-		// {	
-		// 	diffMax	= diff 	;
-		// 	indxMax = i		;
-		// }
-		// else if ( diff < diffMax )
-		// {	
-		// 	diffMax = diff 	;
-		// 	indxMax = i 	;
-		// }
 	}
 	RadSondeData.nBinsLR = lines - indxMin ;
 	RadSondeData.zLR = (double*) new double [RadSondeData.nBinsLR] ;
@@ -142,16 +131,15 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam )
 	for ( i=0 ; i < glbParam->nBins ; i++ )
 		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
-
 	glbParam->dzr = dataMol.dzr ;
-	RadLowToHighRes() ;
+
+	RadLowToHighRes() ; // RESAMPLED TO HIGH RESOLUTION AND IN THE SLANT PATH AT THE ZENITHAL ANGLE.
 	for ( i =0 ; i <glbParam->nBins ; i++ )
 		dataMol.nMol[i] = RadSondeData.nHR[i] ;
 		// double N2_shift = 2331e2 ;
 		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
-// printf("\nFill_dataMol (0)\n") ;
+
 	Alpha_Beta_Mol_from_N_Mol( (strcGlobalParameters*)glbParam ) ;
-// printf("\nFill_dataMol (1)\n") ;
 }
 
 void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, double *nMol )
@@ -178,20 +166,20 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, double *nMol 
 		dataMol.nMol[i] = (double)nMol[i] ;
 		// // double N2_shift = 2331e2 ;
 		// // double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
+	Molecular_Profile_Resampled_Zenithal( (strcGlobalParameters*)glbParam ) ; // RE-SAMPLE THE nMol PROFILE TO THE ZENITHAL ANGLE
 
 	Alpha_Beta_Mol_from_N_Mol( (strcGlobalParameters*)glbParam ) ;
 }
 
 void CMolecularData::Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters *glbParam )
 {
+	// ! THIS MUST BE ALREADY IN SLANT WAY.
  	for( int i=0 ; i < glbParam->nBins ; i++ )
 	{
 		dataMol.betaMol[i]  = (double)(dataMol.nMol[i] * ( 5.45 * pow(10, -32) * pow((550.0/glbParam->iLambda[glbParam->chSel] ), 4) ) ) ; // r [1/m*sr]
 		dataMol.alphaMol[i] = (double)(dataMol.betaMol[i] * 8.0 * 3.1415/3.0) ; // r [1/m]
 	}
-// printf("\nAlpha_Beta_Mol_from_N_Mol (0)\n") ;
 	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
-// printf("\nAlpha_Beta_Mol_from_N_Mol (1)\n") ;
 }
 
 void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
@@ -208,7 +196,7 @@ void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
 	delete MOD ;
 }
 
-void CMolecularData::RadLowToHighRes( )
+void CMolecularData::RadLowToHighRes()
 {
 	double *coeff = (double*) new double[3 +1] ;
 
@@ -222,6 +210,23 @@ void CMolecularData::RadLowToHighRes( )
 	{
 		RadSondeData.nHR[i] = (double)( pow(dataMol.zr[i], 3) *coeff[3] + pow(dataMol.zr[i], 2) *coeff[2] + dataMol.zr[i]*coeff[1] + coeff[0] ) ;
 		// RadSondeData.nHR[i] = (double)( pow(dataMol[0].zr[i], 3) *coeff[3] + pow(dataMol[0].zr[i], 2) *coeff[2] + dataMol[0].zr[i]*coeff[1] + coeff[0] ) ;
+	}
+	delete coeff ;
+}
+
+void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters *glbParam )
+{
+	double *coeff = (double*) new double[3 +1] ;
+
+	polyfitCoeff( (const double* const) glbParam->r,   // X DATA
+			      (const double* const) dataMol.nMol, // Y DATA
+			      (unsigned int       ) dataMol.nBins,
+			      (unsigned int		  ) 3,
+			      (double*			  ) coeff	 ) ;
+
+	for (int i =0 ; i <dataMol.nBins ; i++ )
+	{
+		dataMol.nMol[i] = (double)( pow(dataMol.zr[i], 3) *coeff[3] + pow(dataMol.zr[i], 2) *coeff[2] + dataMol.zr[i]*coeff[1] + coeff[0] ) ;
 	}
 	delete coeff ;
 }
