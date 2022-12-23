@@ -160,6 +160,7 @@ struct strcMolecularData
 	double  *prMol	  =NULL ;
 	double  *pr2Mol	  =NULL ;
 	double 	*zr		  =NULL	;
+	double 	*r_asl    =NULL	;
 	double 	*MOD	  =NULL	;
 	int 	nBins   	 	;
 	double 	zenith			;

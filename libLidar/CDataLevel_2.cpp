@@ -92,6 +92,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 	if ( heightRef_Inversion_ASL >0 )
 		indxRef_Fernald[glbParam->evSel] = (int)round( (heightRef_Inversion_ASL - glbParam->siteASL) /dzr ) ;
 	else
+		// get_ref_height
 		indxRef_Fernald[glbParam->evSel] = (int)(glbParam->indxEndSig_ev[glbParam->evSel] - 2*avg_Half_Points_Fernald_Ref) ;
 
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )

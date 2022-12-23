@@ -509,7 +509,7 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
 * `Cloud_Mask (time, points)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
 * `Laser_Zero_Bin_Offset (channels)`: Number of points removed from each channel due to the laser offset.
-* `Molecular_Density (points)`: Molecular density profile to be used in the inversion module.
+* `Molecular_Density (points)`: Molecular density profile to be used in the inversion module. This array its already referenced to the site's above sea level, being its first bin correlated to the first bin of the lidar signals.
 * `Pressure_Ground_Level (time)`: Atmospheric pressure at site level (to be used in future versions of LPP).
 <!-- * `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding configuration file passed as third argument. -->
 * `Raw_Lidar_Data_L1 (time, channels, points)`: Raw lidar data used in level 1. These signals has the all the corrections need for produce the cloud mask, like zero-bin and bias correction as the time and spatial averaging set for this data level.
