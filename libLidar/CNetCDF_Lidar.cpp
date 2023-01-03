@@ -127,6 +127,7 @@ void CNetCDF_Lidar::Read_Bkg_Noise( int ncid, strcGlobalParameters *glbParam, in
         if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_noise, start_noise, count_noise, (double*)&data_Noise[c][0] ) ) )
             ERR(retval);    
 
+            // OFFSET CORRECTION FOR THE BACKGROUND SIGNALS
             if ( glbParam->indxOffset[c] >=0 ) // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam.indxOffset[c] BINS
             {
                 for(int b =0; b <(glbParam->nBins -glbParam->indxOffset[c]); b++)
@@ -164,42 +165,6 @@ void CNetCDF_Lidar::Read_Overlap( int ncid, strcGlobalParameters *glbParam, int 
     }
     glbParam->is_Ovlp_Data_Loaded = true ;
 }
-
-// void CNetCDF_Lidar::Read_LayerMask( int ncid_L1, strcGlobalParameters *glbParam, int **lm )
-// {
-//     int id_var_lm ;
-//     if ( ( retval = nc_inq_varid( (int)ncid_L1, (const char*)"Cloud_Mask", (int*)&id_var_lm ) ) )
-//         ERR(retval) ;
-//     int num_dim_var ;
-//     if ( ( retval = nc_inq_varndims( (int)ncid_L1, (int)id_var_lm, (int*)&num_dim_var ) ) )
-//         ERR(retval);
-
-//     int id_dim[num_dim_var] ;
-//     if ( ( retval = nc_inq_vardimid( (int)ncid_L1, (int)id_var_lm, (int*)id_dim ) ) )
-//         ERR(retval);
-
-//     int size_dim[num_dim_var] ; // [0]= TIME    [1]= BINS
-//         for ( int d=0 ; d <num_dim_var ; d++ ) size_dim[d] =(int)1 ;
-//     for( int d=0 ; d <num_dim_var ; d++ )
-//     {
-//         if ( ( retval = nc_inq_dimlen( (int)ncid_L1, (int)id_dim[d], (size_t*)&size_dim[d] ) ) )
-//             ERR(retval);
-//     }
-
-//     lm = (int**) new int*[size_dim[0]] ; // TIME DIMENSION
-//     for ( int t=0 ; t <size_dim[0] ; t++ )
-//         lm[t] = (int*) new int[size_dim[1]] ; // POINTS DIMESIONS
-
-//     size_t start_lm[2], count_lm[2] ;
-//     start_lm[0] = 0;    count_lm[0] = 1 ;
-//     start_lm[1] = 0;    count_lm[1] = size_dim[1] ;
-//     for ( int t=0 ; t <size_dim[0] ; t++ )
-//     {
-//         start_lm[0] =t ;
-//         if ( (retval = nc_get_vara_int((int)ncid_L1, (int)id_var_lm, start_lm, count_lm, (int*)&lm[t][0] ) ) )
-//             ERR(retval) ;
-//     }
-// }
 
 void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam )
 {
@@ -267,15 +232,10 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
  
     glbParam->DAQ_Type = (int*) new int [glbParam->nCh] ;
     ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)&glbParam->DAQ_Type[0] ) ;
+    glbParam->iMax_mVLic = (double*) new double [glbParam->nCh] ;
+    ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)glbParam->iMax_mVLic ) ;
     glbParam->nShots = (int*) new int [glbParam->nCh] ;
     ReadVar( (int)ncid, (const char*)"Accumulated_Pulses", (int*)&glbParam->nShots[0] ) ;
-
-    // glbParam->iMax_mVLic = (double*) new double [glbParam->nCh] ;
-    // ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)&glbParam->iMax_mVLic[0] ) ;
-    // glbParam->iADCbits  = (int*)  new int    [glbParam->nCh] ;
-    // ReadVar( (int)ncid, (const char*)"ADC_Bits", (double*)glbParam->iADCbits ) ;
-    // glbParam->Laser_Src  = (int*)  new int    [glbParam->nCh] ;
-    // ReadVar( (int)ncid, (const char*)"Laser_Source", (double*)glbParam->Laser_Src ) ;
 
     glbParam->indxEndSig_ev = (int*)    new int    [ glbParam->nEventsAVG ] ;
     glbParam->rEndSig_ev    = (double*) new double [ glbParam->nEventsAVG ] ;
@@ -289,7 +249,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 
 void CNetCDF_Lidar::Read_L0_into_L2( int ncid, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )
 {
-    // READ VARIABLES FROM DE NETCDF INPUT FILE
+    // READ VARIABLES FROM THE L0 DATA GROUP INTO L2 OBJECT TO BE AVERAGED LATER
     int id_var_pr ;
     if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var_pr ) ) )
         ERR(retval) ;
@@ -325,6 +285,9 @@ void CNetCDF_Lidar::Read_L0_into_L2( int ncid, strcGlobalParameters *glbParam, C
     oDL2->Stop_Time_L0  = (int*) new int[ glbParam->nEvents ] ;
     ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)oDL2->Start_Time_L0 ) ;
     ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)oDL2->Stop_Time_L0  ) ;
+
+    ReadVar( (int)ncid, (const char*)"Azimuth", (double*)glbParam->aAzimuth ) ;
+    ReadVar( (int)ncid, (const char*)"Zenith" , (double*)glbParam->aZenith  ) ;
 }
 
 void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )
@@ -343,17 +306,21 @@ void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glb
         for ( int c=0 ; c <glbParam->nCh ; c++ )
         {
             startDF[1] =c ;
-            if ( (retval = nc_get_vara_double((int)ncid_L1_Data, (int)id_var_pr_L1, startDF, countDF, (double*)&oDL2->data_File_AVG_L2[e][c][0] ) ) )
+            if ( (retval = nc_get_vara_double((int)ncid_L1_Data, (int)id_var_pr_L1, startDF, countDF, (double*)&oDL2->data_File_L2[e][c][0] ) ) )
                 ERR(retval);    
         }
     }
     ReadVar( (int)ncid_L1_Data, (const char*)"Start_Time_AVG_L1", (int*)oDL2->Start_Time_AVG_L2 ) ;
     ReadVar( (int)ncid_L1_Data, (const char*)"Stop_Time_AVG_L1" , (int*)oDL2->Stop_Time_AVG_L2  ) ;
 
+    ReadVar( (int)ncid_L1_Data, (const char*)"Azimuth_AVG_L1", (double*)glbParam->aAzimuthAVG ) ;
+    ReadVar( (int)ncid_L1_Data, (const char*)"Zenith_AVG_L1" , (double*)glbParam->aZenithAVG  ) ;
+
+    ReadVar( (int)ncid_L1_Data, (const char*)"MaxRangeAnalysis", (double*)glbParam->rEndSig_ev ) ;
+
     for ( int e =0; e <glbParam->nEventsAVG; e++ )
     {
-        glbParam->aAzimuthAVG[e] 	 = (double)glbParam->aAzimuth[e]     ;
-        glbParam->aZenithAVG[e]  	 = (double)glbParam->aZenith[e]      ;
+        glbParam->indxEndSig_ev[e]   = (int)round(glbParam->rEndSig_ev[e] /glbParam->dr) ;
         glbParam->temp_CelsiusAVG[e] = (double)glbParam->temp_Celsius[e] ;
         glbParam->pres_hPaAVG[e]     = (double)glbParam->pres_hPa[e]     ;
     }
@@ -442,7 +409,7 @@ void CNetCDF_Lidar::Set_LALINET_Units_L1( int ncid, int *var_ids )
        ERR(retval);
     if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[5], (const char*)"units", (size_t)strlen("Bins"), (const char*)"Bins") ) )
        ERR(retval);
-    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[6], (const char*)"units", (size_t)strlen("meters"), (const char*)"meters") ) )
+    if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[6], (const char*)"units", (size_t)strlen("m"), (const char*)"m") ) )
        ERR(retval);
     if ( ( retval = nc_put_att_text ( (int)ncid, (int)var_ids[7], (const char*)"units", (size_t)strlen("1/m^3"), (const char*)"1/m^3") ) )
        ERR(retval);
@@ -1004,7 +971,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalPar
             ERR(retval);
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[4], start_CM, count_CM, (double*)&glbParam->aZenithAVG[e] ) ) )
             ERR(retval);
-        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[3], start_CM, count_CM, (double*)&glbParam->aAzimuth[e]   ) ) )
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[3], start_CM, count_CM, (double*)&glbParam->aAzimuthAVG[e]   ) ) )
             ERR(retval);
     }
 

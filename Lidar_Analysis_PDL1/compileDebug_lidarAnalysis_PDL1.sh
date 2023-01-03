@@ -11,9 +11,8 @@ make -f makefile_lidarAnalysis_PDL1_Debug
 gdb lidarAnalysis_PDL1
 
 # set disable-randomization off
-# b lidarAnalysis_PDL0.cpp:427
-# r "/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc" "/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc" "../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
-# r "../signalsTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc" "../signalsTest/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc" "../Lidar_Configuration_Files/analysisParameters_PDL1_2_Brazil.conf"
+# b lidarAnalysis_PDL0.cpp:233
+# r "/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0.nc" "/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0_L1.nc" "../Lidar_Configuration_Files/analysisParameters_SPU.conf"
 
 # Auger
 # r "/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/Auger_Data_Conversion_Tool/signalsTest/Auger/CO/2007/07/20/LPP_OUT/lidar-ch-20070720-044305-R16418.root_L0.nc" "/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/Auger_Data_Conversion_Tool/signalsTest/Auger/CO/2007/07/20/LPP_OUT/lidar-ch-20070720-044305-R16418.root_L0_L1.nc" "/home/juan/MEGAsync/procesamiento/LidarAnalysisCode/Auger_Data_Conversion_Tool/Lidar_Configuration_Files/analysisParameters_Auger_CO_L1_L2.conf"

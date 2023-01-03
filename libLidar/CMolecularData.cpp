@@ -256,12 +256,17 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam, double *nMol 
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
-	for ( i =0 ; i <glbParam->nBins ; i++ )
-		dataMol.nMol[i] = (double)nMol[i] ;
-		// // double N2_shift = 2331e2 ;
-	Molecular_Profile_Resampled_Zenithal( (strcGlobalParameters*)glbParam ) ; // RE-SAMPLE THE nMol PROFILE TO THE ZENITHAL ANGLE
-		// // double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
+	if ( nMol != dataMol.nMol )
+	{
+		for ( i =0 ; i <glbParam->nBins ; i++ )
+			dataMol.nMol[i] = (double)nMol[i] ;
+	}
 
+	if ( dataMol.zenith != 0 )
+		Molecular_Profile_Resampled_Zenithal( (strcGlobalParameters*)glbParam ) ; // RE-SAMPLE THE nMol PROFILE TO THE ZENITHAL ANGLE
+
+	// double N2_shift = 2331e2 ;
+	// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
 	Alpha_Beta_Mol_from_N_Mol( (strcGlobalParameters*)glbParam ) ;
 }
 

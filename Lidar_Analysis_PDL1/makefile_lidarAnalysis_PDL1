@@ -11,22 +11,18 @@ lidarAnalysis_PDL1.o: lidarAnalysis_PDL1.cpp
 
 libLidar.o: ../libLidar/libLidar.cpp
 	g++ -Wall -c ../libLidar/libLidar.cpp
-# g++ -Wall -c ../libLidar/libLidar.hpp ../libLidar/libLidar.cpp
 
 lidarMathFunc.o: ../libLidar/lidarMathFunc.cpp
 	g++ -Wall -c ../libLidar/lidarMathFunc.cpp
-# g++ -Wall -c ../libLidar/lidarMathFunc.hpp ../libLidar/lidarMathFunc.cpp
 
 CNetCDF_Lidar.o: ../libLidar/CNetCDF_Lidar.cpp
 	g++ -Wall -c ../libLidar/CNetCDF_Lidar.cpp
-# g++ -Wall -c ../libLidar/CNetCDF_Lidar.hpp ../libLidar/CNetCDF_Lidar.cpp
 
 CMolecularData.o: ../libLidar/CMolecularData.cpp
 	g++ -Wall -c ../libLidar/CMolecularData.cpp
 
 CDataLevel_1.o: ../libLidar/CDataLevel_1.cpp
 	g++ -Wall -c ../libLidar/CDataLevel_1.cpp
-# g++ -Wall -c ../libLidar/CDataLevel_1.hpp ../libLidar/CDataLevel_1.cpp
 
 CLidar_Operations.o: ../libLidar/CLidar_Operations.cpp
 	g++ -Wall -c ../libLidar/CLidar_Operations.cpp

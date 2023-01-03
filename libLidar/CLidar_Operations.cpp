@@ -37,11 +37,71 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBias[i] * pow(glbParam->r[i], 2) ;
 }
 
+void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
+{
+	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)glbParam->BkgCorrMethod ) ;
+
+	if ( (strcmp( glbParam->BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "no_bkg" ) ==0) )
+	{
+		for (int i =0; i <glbParam->nBins ; i++)
+			evSig->pr_noBias[i] = evSig->pr[i] ;
+	}
+	else if ( (strcmp( glbParam->BkgCorrMethod, "MEAN" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
+	{
+		Bias_Substraction_Mean( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
+	{
+		Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if ( (strcmp( glbParam->BkgCorrMethod, "AUTO" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "auto" ) ==0) )
+	{
+		double 	Bias_Pr ;
+		Bias_Substraction_Auto( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
+	}
+	else
+	{
+		printf( "\n BkgCorrMethod = %s but there is no noise information... extracting bias using the mean of the last %d bins.' \n", glbParam->BkgCorrMethod, glbParam->nBinsBkg ) ;
+		Bias_Substraction_Mean( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+}
+
+// IF data_noise IS PASSED AS ARGUMENT, IT IS USED
+void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParameters *glbParam, double **data_Noise, strcMolecularData *dataMol )
+{
+	if ( glbParam->DAQ_Type[glbParam->chSel] ==0 )
+	{
+		for (int i =0; i <glbParam->nBins; i++)
+			evSig->pr_noBkg[i] = (double)( evSig->pr[i] - data_Noise[glbParam->chSel][i] ) ;
+	}
+	else
+	{
+		for (int i =0; i <glbParam->nBins; i++)
+			evSig->pr_noBkg[i] = (double)evSig->pr[i] ;
+	}
+
+	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)glbParam->BkgCorrMethod ) ;
+
+	if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
+	{
+		Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr_noBkg, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if ( (strcmp( glbParam->BkgCorrMethod, "MEAN" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
+	{
+		Bias_Substraction_Mean( (double*)evSig->pr_noBkg, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+	}
+	else if  ( (strcmp( glbParam->BkgCorrMethod, "AUTO" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
+	{
+		double 	Bias_Pr ;
+		Bias_Substraction_Auto( (double*)evSig->pr_noBkg, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
+	}
+}
+
 void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBias, double *Bias_Pr )
 {
 	int 	indxMaxRange ;
 	Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
-	// printf("\n CLidar_Operations::Bias_Substraction_Auto() ---> After Find_Max_Range() --> indxMaxRange= %d \n", indxMaxRange) ;
+	// printf("\n CLidar_Operations::Bias_Substraction_Auto() ---> After Find_Max_Range() --> glbParam->indxEndSig_ev[glbParam->evSel]= %d \n", glbParam->indxEndSig_ev[glbParam->evSel] ) ;
 
 	if ( indxMaxRange <= (glbParam->nBins-1) )
 	{
@@ -157,6 +217,7 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		glbParam->rEndSig_ev[glbParam->evSel] 	 = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
 	}
 	// printf( "\n ev: %d \t glbParam->indxInitSig= %d \n indxMin_Pr= %d \n Max. Range: %lf \n indxMaxRange= %d", glbParam->evSel, glbParam->indxInitSig, indxMin_Pr, glbParam->rEndSig_ev[glbParam->evSel], *indxMaxRange ) ;
+	// printf( "\nCLidar_Operations::Find_Max_Range() --> ev: %d \t Max. Range: %lf \n glbParam->indxEndSig_ev[glbParam->evSel]= %d", glbParam->evSel, glbParam->rEndSig_ev[glbParam->evSel], glbParam->indxEndSig_ev[glbParam->evSel] ) ;
 	// printf( "\n CLidar_Operations::Find_Max_Range() --> ev: %d \t indxMaxRange= %d", glbParam->evSel, *indxMaxRange ) ;
 }
 
@@ -214,7 +275,6 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
     for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
     {
         printf("Averaging in time Cluster Nº %d \n", fC ) ;
-
 		for ( int c=0 ; c <glbParam->nCh ; c++ )
 		{
 			for ( int b=0 ; b <glbParam->nBins ; b++ )
@@ -228,100 +288,123 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 							Raw_Data_Start_Time_AVG[fC]	  = (long)Raw_Data_Start_Time[ fC *glbParam->numEventsToAvg ] ;
 						if ( t ==(glbParam->numEventsToAvg -1) )
 							Raw_Data_Stop_Time_AVG[fC] 	  = (long)Raw_Data_Stop_Time[ fC *glbParam->numEventsToAvg +t ] ;
-
-						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
-						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
-						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
-						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
+						// glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
+						// glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
+						// glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
+						// glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
 					}
 				}
 					dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
-					if( (b==0) && (c==0) )
-					{
-						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
-						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
-						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
-						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     /glbParam->numEventsToAvg ;
-					}
+					// if( (b==0) && (c==0) )
+					// {
+					// 	glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
+					// 	glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
+					// 	glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
+					// 	glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     /glbParam->numEventsToAvg ;
+					// }
 			}
+		} // for ( int c=0 ; c <glbParam->nCh ; c++ )
+
+		for ( int t=0 ; t <glbParam->numEventsToAvg ; t++ )
+		{
+			glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
+			glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
+			glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
+			glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
 		}
-	}
+			glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
+			glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
+			glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
+			glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     /glbParam->numEventsToAvg ;
+// printf("\n CLidar_Operations::Average_in_Time_Lidar_Profiles() --> glbParam->aZenithAVG[%d]= %lf\n", fC, glbParam->aZenithAVG[fC] ) ;
+	} // for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
 }
 
-void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
+void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbParam, CMolecularData *oMolData, double **ovlp, double **data_Noise, double ***data_File_Lx, double ***pr_corr, double ***pr2 )
 {
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)glbParam->BkgCorrMethod ) ;
+    strcLidarSignal 	evSig ;
+    GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*)glbParam );
 
-	if ( (strcmp( glbParam->BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "no_bkg" ) ==0) )
-	{
-		for (int i =0; i <glbParam->nBins ; i++)
-			evSig->pr_noBias[i] = evSig->pr[i] ;
-	}
-	else if ( (strcmp( glbParam->BkgCorrMethod, "MEAN" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
-	{
-		Bias_Substraction_Mean( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
-	}
-	else if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
-	{
-		Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
-	}
-	else if ( (strcmp( glbParam->BkgCorrMethod, "AUTO" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "auto" ) ==0) )
-	{
-		double 	Bias_Pr ;
-		Bias_Substraction_Auto( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
-	}
-	else
-	{
-		printf( "\n BkgCorrMethod = %s but there is no noise information... extracting bias using the mean of the last %d bins.' \n", glbParam->BkgCorrMethod, glbParam->nBinsBkg ) ;
-		Bias_Substraction_Mean( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
-	}
+    for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
+    {
+        glbParam->evSel = e ;
+printf("\n\nApplying corrections to the lidar event number: %d/%d \t", e, (glbParam->nEventsAVG -1) ) ;
+        for ( int c=0 ; c <glbParam->nCh ; c++ )
+        {
+            glbParam->chSel = c ;
+printf( "\n Channel: %d\t", c ) ;
+            // OFFSET CORRECTIONS /*------------------------------------------------------------------------*/
+            // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam->indxOffset[c] BINS
+printf("| Offset |\t") ;
+            if ( glbParam->indxOffset[c] >=0 ) 
+            {
+                for(int b =0; b <(glbParam->nBins -glbParam->indxOffset[c]); b++)
+				{	pr_corr[e][c][b] = (double)data_File_Lx[e][c][b +glbParam->indxOffset[c]] ; 				}
+                for ( int b=(glbParam->nBins -glbParam->indxOffset[c]) ; b <glbParam->nBins ; b++ )
+				{	pr_corr[e][c][b] = (double)data_File_Lx[e][c][glbParam->nBins -glbParam->indxOffset[c]] ; 	}
+            }
+            else // glbParam->indxOffset[c] <0 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE TO MOVE FORWARD glbParam->indxOffset[c]
+            {
+                for ( int b=(glbParam->nBins-1) ; b >=(-1*glbParam->indxOffset[c]) ; b-- )
+				{	pr_corr[e][c][b] = (double)data_File_Lx[e][c][b +glbParam->indxOffset[c]] ;	}
+                for(int b =0 ; b <(-1*glbParam->indxOffset[c]) ; b++)
+				{	pr_corr[e][c][b] = (double)0.0 ;											}
+            } /*--------------------------------------------------------------------------------------------*/
+            // DESATURATION OF THE PHOTON COUNTING CHANNELS /*----------------------------------------------*/
+            if ( glbParam->DAQ_Type[c] == 1 )
+            {
+printf("| Desaturation  |\t") ;
+                if ( e==0 )
+                {
+                    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam->MAX_TOGGLE_RATE_MHZ ) ;
+	                ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam->MIN_TOGGLE_RATE_MHZ ) ;
+                }
+
+                for (int b =0; b <glbParam->nBins ; b++)
+                {
+                    pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam->nShots[c] * glbParam->tBin_us) ) ; // [MHz]
+                    pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / PHO_MAX_COUNT_MHz ) ) ;
+                }
+            } /*--------------------------------------------------------------------------------------------*/
+
+            // OVERLAP CORRECTION //--------------------------------------------------------------
+            if( glbParam->is_Ovlp_Data_Loaded ==true )
+            {
+                printf("| Overlap |\t") ;
+				for ( int i=0 ; i <glbParam->nBins ; i++ )
+				{	evSig.pr[i] = (double)pr_corr[e][c][i] /ovlp[c][i] ;	}
+			}
+			else
+			{
+				for ( int i=0 ; i <glbParam->nBins ; i++ )
+				{	evSig.pr[i] = (double)pr_corr[e][c][i] ;	}
+			}
+
+            // BACKGROUND & BIAS CORRECTION //--------------------------------------------------------------
+			if ( strcmp(glbParam->exeFile, "./lidarAnalysis_PDL1" ) ==0 )
+            	oMolData->Fill_dataMol( (strcGlobalParameters*)glbParam ) ;
+			else if ( strcmp(glbParam->exeFile, "./lidarAnalysis_PDL2" ) ==0 )
+            	oMolData->Fill_dataMol( (strcGlobalParameters*)glbParam, (double*)&oMolData->dataMol.nMol[0] ) ;
+
+            if ( glbParam->is_Noise_Data_Loaded == true )
+            {
+                printf("| Background, bias and range corrected |\t") ;
+				MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
+            }
+            else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
+            {
+                printf("| Bias and range corrected |\t") ;
+				MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+            }
+
+			for ( int i =0 ; i <glbParam->nBins ; i++ )
+			{
+				pr_corr[e][c][i] = (double)evSig.pr_noBias[i] ;
+				pr2[e][c][i] 	 = (double)evSig.pr2[i]		  ;
+			}
+        } // for ( int c=0 ; c <glbParam->nCh ; c++ )
+    } // for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
 }
-
-// IF data_noise IS PASSED AS ARGUMENT, IT IS USED
-void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParameters *glbParam, double **data_Noise, strcMolecularData *dataMol )
-{
-	for (int i =0; i <glbParam->nBins; i++)
-		evSig->pr_noBkg[i] = (double)( evSig->pr[i] - data_Noise[glbParam->chSel][i] ) ;
-
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)glbParam->BkgCorrMethod ) ;
-
-	if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
-	{
-		Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr_noBkg, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
-	}
-	else if ( (strcmp( glbParam->BkgCorrMethod, "MEAN" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
-	{
-		Bias_Substraction_Mean( (double*)evSig->pr_noBkg, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
-	}
-	else if  ( (strcmp( glbParam->BkgCorrMethod, "AUTO" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
-	{
-		double 	Bias_Pr ;
-		Bias_Substraction_Auto( (double*)evSig->pr_noBkg, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
-	}
-}
-
-// void CLidar_Operations::Bias_Residual_Correction( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, double *pr_res_corr )
-// {
-// 	fitParam.indxInicFit = 300 ;
-// 	fitParam.indxEndFit  = 900 ;
-// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
-// 	RayleighFit( (double*)&pr[0], (double*)&dataMol->prMol[0], glbParam->nBins, "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
-
-// 	for (int i =0; i <glbParam->nBins; i++)
-// 		pr_res_corr[i] = pr[i] - dummy[i] ;
-	
-// 	double *coeff = (double*) new double[2] ;
-// 	polyfitCoeff( (const double* const) &sigMol[fitParam->indxInicFit], // X DATA
-// 				  (const double* const) &sig[fitParam->indxInicFit], // Y DATA
-// 				  (unsigned int       ) fitParam->nFit,
-// 				  (unsigned int		  ) 1,
-// 				  (double*			  ) coeff	 ) ;
-// 	fitParam.m = (double)coeff[1] ;
-// 	fitParam.b = (double)coeff[0] ;
-// 	delete coeff ;
-
-
-// }
 
 void CLidar_Operations::GluingLidarSignals( strcGlobalParameters *glbParam, double ***pr_corr )
 {
@@ -367,7 +450,28 @@ RayleighFit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c
 
 		} // if ( (MHz_Min <= glbParam->MIN_TOGGLE_RATE_MHZ) && (MHz_Max >= glbParam->MAX_TOGGLE_RATE_MHZ) )
 		else
-			printf("\nThere is no need to glue the channels %d and %d\n", glbParam->indx_gluing_Low_AN[c], glbParam->indx_gluing_High_PHO[c]) ;
+			printf("\nEvent= %d --> There is no need to glue the channels %d and %d\n", glbParam->evSel, glbParam->indx_gluing_Low_AN[c], glbParam->indx_gluing_High_PHO[c]) ;
 	} // for ( int c =0 ; c <glbParam->nPair_Ch_to_Glue ; c++ )
 	printf("\n") ;
 }
+
+// void CLidar_Operations::Bias_Residual_Correction( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, double *pr_res_corr )
+// {
+// 	fitParam.indxInicFit = 300 ;
+// 	fitParam.indxEndFit  = 900 ;
+// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
+// 	RayleighFit( (double*)&pr[0], (double*)&dataMol->prMol[0], glbParam->nBins, "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
+
+// 	for (int i =0; i <glbParam->nBins; i++)
+// 		pr_res_corr[i] = pr[i] - dummy[i] ;
+	
+// 	double *coeff = (double*) new double[2] ;
+// 	polyfitCoeff( (const double* const) &sigMol[fitParam->indxInicFit], // X DATA
+// 				  (const double* const) &sig[fitParam->indxInicFit], // Y DATA
+// 				  (unsigned int       ) fitParam->nFit,
+// 				  (unsigned int		  ) 1,
+// 				  (double*			  ) coeff	 ) ;
+// 	fitParam.m = (double)coeff[1] ;
+// 	fitParam.b = (double)coeff[0] ;
+// 	delete coeff ;
+// }

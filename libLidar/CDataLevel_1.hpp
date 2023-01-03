@@ -4,7 +4,8 @@
 #define CDATALEVEL_1_H
 
 #include "libLidar.hpp" // LIDAR DATA TYPE DEFINITIONS
-#include "CLidar_Operations.hpp" // LIDAR DATA TYPE DEFINITIONS
+#include "CLidar_Operations.hpp"
+#include "CMolecularData.hpp"
 
 class CDataLevel_1  
 {
@@ -13,7 +14,7 @@ class CDataLevel_1
 		~CDataLevel_1();
 
 		void ScanCloud_RayleightFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
-		void GetCloudLimits( strcGlobalParameters*) ;
+		void GetCloudLimits( strcGlobalParameters* ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, strcCloudInfoDB_LPP* ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, int* ) ;
 

@@ -406,4 +406,3 @@ void CDataLevel_1::saveCloudsInfoDB( char *Path_File_Out, strcGlobalParameters *
 	fclose(fpDB) ;
 	printf( "\n\nDone with the cloud data base file: %s \n", Path_File_Out ) ;
 }
-

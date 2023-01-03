@@ -21,7 +21,7 @@ class CDataLevel_2
 	    double  ***beta_Aer 						;
 		double  *nMol 								;
 		double  ***pr2, **pr, *pr2n, phi, p, ip, CalTerm, beta_Tot ;
-		double  ***data_File_L0, ***data_File_AVG_L2    ;
+		double  ***data_File_L0, ***data_File_L2    ;
 		int		*Start_Time_AVG_L2, *Stop_Time_AVG_L2 ;
 		int		*Start_Time_L0, *Stop_Time_L0 ;
 		int 	**layer_mask ;

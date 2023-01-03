@@ -4,6 +4,7 @@
 #define CLIDAR_OPERATIONS_H
 
 #include "libLidar.hpp" // LIDAR DATA TYPE DEFINITIONS
+#include "CMolecularData.hpp"
 
 class CLidar_Operations
 {
@@ -23,7 +24,8 @@ public:
     void    Bias_Substraction_Auto( double*, strcMolecularData*, strcGlobalParameters*, double*, double*        ) ;
     void 	Bias_Substraction_Mean( double*, strcMolecularData*, strcGlobalParameters*, double*                 ) ;
     void 	Bias_Substraction_MolFit(strcMolecularData*, const double*, strcGlobalParameters*, double*          ) ;
-    // void 	bkgSubstraction_BkgFile( const double*, strcFitParam*, double**, strcGlobalParameters*, double*     ) ;
+
+    void    Lidar_Signals_Corrections( strcGlobalParameters*, CMolecularData*, double**, double**, double***, double***, double*** ) ;
 
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
     void    GluingLidarSignals( strcGlobalParameters*, double*** ) ;

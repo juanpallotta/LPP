@@ -25,6 +25,7 @@ using namespace netCDF::exceptions;
 
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
+#include "../libLidar/CDataLevel_1.hpp"
 #include "../libLidar/CDataLevel_2.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
 #include "../libLidar/CMolecularData.hpp"
@@ -69,6 +70,7 @@ int main( int argc, char *argv[] )
 
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
+    CDataLevel_1    *oDL1 ;
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     int indxWL_PDL2[glbParam.nCh], nCh_to_invert ;
@@ -76,77 +78,26 @@ int main( int argc, char *argv[] )
     nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
     glbParam.chSel  = indxWL_PDL2[0] ;
 
-    if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
+// LOADING LIDAR DATA  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  ) // READ DATA FROM L0 DATA LEVEL AND AVERAGE TO L2 DATA LEVEL
     {
         oNCL.Read_L0_into_L2 ( (int)ncid, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
 
-        oDL2->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)oDL2->data_File_L0, (double***)oDL2->data_File_AVG_L2, 
+        oDL2->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)oDL2->data_File_L0, (double***)oDL2->data_File_L2, 
                                                     (int*)oDL2->Start_Time_L0    , (int*)oDL2->Stop_Time_L0, 
                                                     (int*)oDL2->Start_Time_AVG_L2, (int*)oDL2->Stop_Time_AVG_L2
                                                   ) ;
 
-        if ( glbParam.indxOffset[indxWL_PDL2[0]] >=0 )  // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD* glbParam.indxOffset[c] BINS
-        {           
-            for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-            { // BIN OFFSET CORRECTION
-                for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
-                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-
-                for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
-                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-            }
-        }
-        else // glbParam.indxOffset[glbParam.chSel] <0 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE TO MOVE *FORWARD* glbParam.indxOffset[c] BINS
-        {
-            for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-            { // BIN OFFSET CORRECTION
-                for ( int b=(glbParam.nBins-1) ; b >=(-1*glbParam.indxOffset[indxWL_PDL2[0]]) ; b-- )
-                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
-
-                for(int b =0 ; b <(-1*glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
-                    oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] = (double)0.0 ;
-            }
-        }
+       oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
     }
     else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2
-    {   // LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED
+    {   // LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED --> COPY TO L2 OBJECT
         oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
     }
+// LIDAR DATA LOADED IN oDL2->data_File_L2 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
     oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
-
-    double  **data_Noise ;
-    int id_var_noise ;
-    if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
-    {
-        data_Noise = (double**) new double*[glbParam.nCh] ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-            data_Noise[c] = (double*) new double[glbParam.nBins] ;
-
-            // ACA EN ADELANTE *SI* ANDA
-        oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
-    }
-
-    // glbParam.DAQ_Type    = (int*)    new int    [glbParam.nCh] ;
-    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_type", (int*)glbParam.DAQ_Type ) ;
-    // glbParam.iMax_mVLic = (double*) new double [glbParam.nCh] ;
-    // oNCL.ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)glbParam.iMax_mVLic ) ;
-
-    double  **ovlp ;
-    int id_var_ovlp ;
-    if ( ( nc_inq_varid ( (int)ncid, "Overlap", (int*)&id_var_ovlp ) ) == NC_NOERR )
-    {
-
-        ovlp = (double**) new double*[glbParam.nCh] ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-            ovlp[c] = (double*) new double[glbParam.nBins] ;
-
-        oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
-    }
-
-    // SAVE THE LAYER-MASK MATRIX IN oDL2->layer_mask
-    // DELETED --> oNCL.Read_LayerMask( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (int**)oDL2->layer_mask ) ;
 
     // LOAD MOLECULAR PROFILES FROM THE FILE
     int id_var_nmol ;
@@ -158,65 +109,100 @@ int main( int argc, char *argv[] )
     oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Molecular_Density" , (double*)&oDL2->nMol[0] ) ;
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
-
-    strcLidarSignal evSig ;
-    GetMem_evSig( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam );
+    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Molecular_Density" , (double*)&oMolData->dataMol.nMol[0] ) ;
 
     printf("\n\n") ;
-    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+
+    if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  ) // DATA WAS READ FROM L0
     {
-        printf("Applying corrections to the lidar signal number %d \r", e) ;
-        glbParam.evSel = e ;
-
-        oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
-
-        for(int b =0 ; b <glbParam.nBins ; b++)
-            evSig.pr[b]  = (double)oDL2->data_File_AVG_L2[e][indxWL_PDL2[0]][b] ;
-
-        if( glbParam.is_Ovlp_Data_Loaded ==true )
+        double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
+        double  ***pr2     = (double***) new double**[glbParam.nEventsAVG];
+        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
         {
-            for (int i =0; i <glbParam.nBins ; i++)
-                evSig.pr[i] = evSig.pr[i] /ovlp[indxWL_PDL2[0]][i] ;
+            pr_corr[e] = (double**) new double*[glbParam.nCh] ;
+            pr2[e]     = (double**) new double*[glbParam.nCh] ;
+
+                for ( int c=0 ; c <glbParam.nCh ; c++ )
+                {
+                    pr2[e][c]     = (double*) new double[glbParam.nBins] ;
+                    pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
+                }        
         }
 
-        if ( glbParam.is_Noise_Data_Loaded == true )
+        double  **ovlp ;
+        int id_var_ovlp ;
+        if ( ( nc_inq_varid ( (int)ncid, "Overlap", (int*)&id_var_ovlp ) ) == NC_NOERR )
         {
-            for(int b =0 ; b <(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b++)
-                data_Noise[indxWL_PDL2[0]][b] = (double)data_Noise[indxWL_PDL2[0]][ b +glbParam.indxOffset[indxWL_PDL2[0]] ] ; // BIN OFFSET CORRECTION;
+            // IF THE OVERLAP IS SAVED IN L1 DATA GROUP...
+            ovlp = (double**) new double*[glbParam.nCh] ;
+            for ( int c=0 ; c <glbParam.nCh ; c++ )
+                ovlp[c] = (double*) new double[glbParam.nBins] ;
 
-            for ( int b=(glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]) ; b <glbParam.nBins ; b++ )
-                data_Noise[indxWL_PDL2[0]][b] = (double)data_Noise[indxWL_PDL2[0]][glbParam.nBins -glbParam.indxOffset[indxWL_PDL2[0]]] ; // BIN OFFSET CORRECTION;
-
-            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
+            oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
         }
-        else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN THE SETTING FILE PASSED AS THIRD ARGUMENT TO lidarAnalysis_PDL2
-            oDL2->oLOp->MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-
-        for ( int i=0 ; i<glbParam.nBins ; i++ )
+        double  **data_Noise ;
+        int id_var_noise ;
+        if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
         {
-            oDL2->pr2[e][indxWL_PDL2[0]][i] = (double)(evSig.pr2[i]) ;
-            oDL2->pr[e][i]                  = (double)(evSig.pr_noBias[i]) ;
+            data_Noise = (double**) new double*[glbParam.nCh] ;
+            for ( int c=0 ; c <glbParam.nCh ; c++ )
+                data_Noise[c] = (double*) new double[glbParam.nBins] ;
+
+            oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
+        }
+
+        printf("\n** L2: Due to numEventsToAvg_PDL1 != numEventsToAvg_PDL2 --> Corrections MUST be applied again to data from L0 group **\n") ;
+oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)oDL2->data_File_L2, (double***)pr_corr, (double***)pr2 ) ;
+
+        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+        {
+            for ( int c=0 ; c <glbParam.nCh ; c++ )
+            {
+                for ( int i=0 ; i<glbParam.nBins ; i++ )
+                    oDL2->pr2[e][c][i] = (double)pr2[e][c][i] ;
+            }
+            for ( int i=0 ; i<glbParam.nBins ; i++ )
+                oDL2->pr[e][i] = (double)pr_corr[e][indxWL_PDL2[0]][i]  ;
+        }
+    } // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
+    else // DATA WAS READ FROM L1 (ALREADY CORRECTED)
+    {
+        printf("\n** L2: Due to numEventsToAvg_PDL1 = numEventsToAvg_PDL2 --> Data is taken from L1 group (already corrected) **.\n") ;
+        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+        {
+            for ( int c=0 ; c <glbParam.nCh ; c++ )
+            {
+                for ( int i=0 ; i<glbParam.nBins ; i++ )
+                    oDL2->pr2[e][c][i] = (double)oDL2->data_File_L2[e][c][i] * pow(glbParam.r[i], 2) ;
+            }
+            for ( int i=0 ; i<glbParam.nBins ; i++ )
+                oDL2->pr[e][i] = (double)oDL2->data_File_L2[e][indxWL_PDL2[0]][i]  ;
         }
     }
+
     printf("\nDone\n") ;
 
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval) ;
 
-//! TO-DO: RE-ANALYSIS: SWIPE ACROSS THE EVENTS SELECTED BETWEEN minTime and maxTime
+//! TO-DO RE-ANALYSIS: SWIPE ACROSS THE SELECTED EVENTS BETWEEN minTime and maxTime
+    glbParam.chSel = indxWL_PDL2[0] ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
-        cout << endl ;
+        printf("\n") ;
         glbParam.evSel = t ;
 
         oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
 
         // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
         // {
-        // scancloudmask
+            //  printf("   --> Getting cloud profile...");
+            // oDL1->ScanCloud_RayleightFit( (const double*)&oDL2->pr[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+        //     for (int b = 0; b <glbParam.nBins ; b++)
+        //         oDL2->layer_mask[t][b] = oDL1->cloudProfiles[t].clouds_ON[b] ;
         // }
 
-        oDL2->dzr = (glbParam.r[2] - glbParam.r[1]) ;
+        oDL2->dzr = oMolData->dataMol.dzr ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
             cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << indxWL_PDL2[c] << "\t Wavelenght: " << glbParam.iLambda[indxWL_PDL2[c]] ;

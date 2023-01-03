@@ -738,7 +738,7 @@ int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double *
 
 	if ( (nRows_ovlpFile !=glbParam->nBins ) || ( nCols_ovlpFile !=glbParam->nCh ) )
 	{
-		printf( "\n\n*** Read_Overlap_File() --> Overlap file (%s) contain %d lines and %d channels saved, and its inconsistent with the number of bins (%d) and channels (%d) of the signals***\n\n", ovlp_File, nRows_ovlpFile, nCols_ovlpFile, glbParam->nBins, glbParam->nCh ) ;
+		printf( "\n\n*** Read_Overlap_File() --> Overlap file (%s) contain %d lines and %d channels saved, and is inconsistent with the number of bins (%d) and/or channels (%d) of the signals***\n\n", ovlp_File, nRows_ovlpFile, nCols_ovlpFile, glbParam->nBins, glbParam->nCh ) ;
 		return -1 ;
 	}
 
