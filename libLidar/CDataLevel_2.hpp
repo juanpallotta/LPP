@@ -14,7 +14,7 @@ class CDataLevel_2
 		~CDataLevel_2()  					  ;
 		// void 	Fernald_1983( strcGlobalParameters*, int, int ) ;
 		void 	Fernald_1983( strcGlobalParameters*, int, int, strcMolecularData* ) ;
-		int 	Find_Ref_Range(strcGlobalParameters*, strcMolecularData*) ;
+		// int 	Find_Ref_Range(strcGlobalParameters*, strcMolecularData*) ;
 
 		CLidar_Operations 	*oLOp ;
 	    double  ***alpha_Aer					    ;

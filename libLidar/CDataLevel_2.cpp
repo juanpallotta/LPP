@@ -90,8 +90,8 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 	if ( heightRef_Inversion_ASL >0 )
 	{	indxRef_Fernald[glbParam->evSel] = (int)round( (heightRef_Inversion_ASL - glbParam->siteASL) /dzr ) ;	}
 	else
-	{	// get_ref_height automatically
-		// Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol ) ;
+	{
+		// indxRef_Fernald[glbParam->evSel] = Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 		indxRef_Fernald[glbParam->evSel] = (int)(glbParam->indxEndSig_ev[glbParam->evSel] - 2*avg_Half_Points_Fernald_Ref) ;
 	}
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
@@ -170,37 +170,11 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 	} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 }
 
-int CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
-{
-	printf("\n pr[%d][100]= %e \n"  , glbParam->evSel, pr[glbParam->evSel][100] ) ;
-	printf(" pr_Mol[%d][100]= %e \n", glbParam->evSel, dataMol->prMol[100] ) ;
-
-	int avg_Half_Points_Fernald_Ref ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Half_Points_Fernald_Ref", "int", (int*)&avg_Half_Points_Fernald_Ref ) ;
-	strcFitParam fitParam ;
-    fitParam.indxInicFit = indxInitSig ; // round( 3000/7.5 ); // 
-	fitParam.indxEndFit  = fitParam.indxInicFit + 2*avg_Half_Points_Fernald_Ref -1;
-	fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-
-	double	corrCoeff ;
-    while ( fitParam.indxEndFit <(glbParam->nBins-1) )
-	{
-		RayleighFit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-		corrCoeff = (double) correlationCoefficient_dbl( (double*)&pr[glbParam->evSel][fitParam.indxInicFit], (double*)&dummy[fitParam.indxInicFit], (int)fitParam.nFit ) ;
-		if ( corrCoeff > 0.999 )
-		{	
-			printf("\n Break: %lf \t fitParam.m= %e \t glbParam->evSel: %d \t fitParam.indxInitFit: %d", corrCoeff, fitParam.m, glbParam->evSel, fitParam.indxInicFit+avg_Half_Points_Fernald_Ref) ;
-			break ;
-		}
-
-		fitParam.indxInicFit = fitParam.indxInicFit +100 ;
-		fitParam.indxEndFit  = fitParam.indxInicFit + 2*avg_Half_Points_Fernald_Ref -1;
-		fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-  	} 
-	return (fitParam.indxInicFit+avg_Half_Points_Fernald_Ref) ;
-}
-
 // int CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
+// {
+
+// }
+
 // {
 // 	printf("\n pr[%d][100]= %e \n"  , glbParam->evSel, pr[glbParam->evSel][100] ) ;
 // 	printf(" pr_Mol[%d][100]= %e \n", glbParam->evSel, dataMol->prMol[100] ) ;
@@ -229,4 +203,3 @@ int CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularD
 //   	} 
 // 	return (fitParam.indxInicFit+avg_Half_Points_Fernald_Ref) ;
 // }
-
