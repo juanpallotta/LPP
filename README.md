@@ -78,7 +78,7 @@ Download or clone the repository from GitHub [https://www.github.com/juanpallott
 - `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (Licel data type files) and Brazil: Sao Paulo (folder `Brazil/SPU/`, Licel data type files) and Manaus (folder `Brazil/Manaus`, Raymetric data type files).
 - `install_Lidar_Dependencies.sh`: Linux shell-script to install the basic software/libraries needed to use LPP.
 - `/compile_All.sh`: Linux shell script to compile all the modules.
-- `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. The main settings for automatic run are configured the setting file `/Lidar_Configuration_Files/LPP_Settings.sh`. More about the automatization of all modules in [Automatizing LPP](#automatizing-lpp) section of this README file.
+- `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. The main settings for automatic run are configured the setting file `/Lidar_Configuration_Files/LPP_Run_Settings.sh`. More about the automatization of all modules in [Automatizing LPP](#automatizing-lpp) section of this README file.
 - `README.md`: This file.
 
 # Setting up the code
@@ -375,7 +375,7 @@ A description of each of these parameters is described below:
 
 # Automatizing LPP
 
-In order to run LPP modules automatically, there is a Linux script to do this task. Its name is `run_LPP_Analysis.sh`, and you can find it in the root folder of this repository. It uses a simple general configuration file located in the configuration folder: `/LPP/Lidar_Configuration_Files/LPP_Settings.sh`. 
+In order to run LPP modules automatically, there is a Linux script to do this task. Its name is `run_LPP_Analysis.sh`, and you can find it in the root folder of this repository. It uses a simple general configuration file located in the configuration folder: `/LPP/Lidar_Configuration_Files/LPP_Run_Settings.sh`. 
 
 Using `run_LPP_Analysis.sh`, all the outputs and input paths and files names needed as argument for every module are automatically generated. In this section, the rules used for automatic folder and filename generation are explained.
 
@@ -444,7 +444,7 @@ time
 channels
 points
 ```
-The length of the `time` dimension is equal to the number of raw lidar signals stored in the variable `Raw_Lidar_Data`. The lenght of this dimmensions is not necessarily the same of the number of files of the input folder (variable name `PATH_IN` in `LPP_Settings.sh` or the first argument passed to `lidarAnalysis_PDL0`). This is because it is possible to set the time range of analysis in the configuration file of this module (variables `minTime`, `maxTime`).
+The length of the `time` dimension is equal to the number of raw lidar signals stored in the variable `Raw_Lidar_Data`. The lenght of this dimmensions is not necessarily the same of the number of files of the input folder (variable name `PATH_IN` in `LPP_Run_Settings.sh` or the first argument passed to `lidarAnalysis_PDL0`). This is because it is possible to set the time range of analysis in the configuration file of this module (variables `minTime`, `maxTime`).
 
 
 `channels` store the number of channels saved in the file. The length of this dimension is the number of channels contained in the raw lidar files inputs. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` considers that all the files contained in the input folder passed as first argument have the same hardware features. If some changes in the hardware are made during a measurement, please, save them in another folder and analyze them in another run.

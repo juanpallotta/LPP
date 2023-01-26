@@ -6,10 +6,10 @@ echo ""
 echo ""
 echo ""
 
-# LPP_Settings.sh CAN BE PASSED AS ARGUMENT TO THIS SCRIPT.
+# LPP_Run_Settings.sh CAN BE PASSED AS ARGUMENT TO THIS SCRIPT.
 if [ $# -eq 0 ]
-    then # NO LPP_Settings.sh FILE PASSED AS ARGUMENTS.
-        source ./Lidar_Configuration_Files/LPP_Settings.sh
+    then # NO LPP_Run_Settings.sh FILE PASSED AS ARGUMENTS.
+        source ./Lidar_Configuration_Files/LPP_Run_Settings.sh
     else # A SETTINGS FILE WAS PASSED AS ARGUMENTS.
         source $1
 fi
@@ -25,7 +25,7 @@ if [[ -d $PATH_IN ]]
 then # PATH_IN is a directory, so L0=yes must be set
     if [[ "${L0,,}" == "no" ]]
     then
-        echo -e "\nPATH_IN: $PATH_IN  --> is a DIRECTORY, so L0 must be set as 'yes' in LPP_Settings.sh"
+        echo -e "\nPATH_IN: $PATH_IN  --> is a DIRECTORY, so L0 must be set as 'yes' in LPP_Run_Settings.sh"
         exit 0
     else # L0="yes" and PATH_IN is a directory
         PATH_IN_LIST=`find $PATH_IN -type d -links 2`  # SEARCH FOR THE LAST SUB-FOLDERS INSIDE THE INPUT PATH
@@ -39,7 +39,7 @@ else # if [[ -d $PATH_IN ]] --> PATH_IN is a file --> L0 must be unchecked and e
 
     if [[ "${L0,,}" == "yes" ]] 
     then
-        echo -e "\n*WRONG CONFIGURATION*\nIf PATH_IN is a FILE --> L0 must be set as 'no' in LPP_Settings.sh.PATH_IN: $PATH_IN\n"
+        echo -e "\n*WRONG CONFIGURATION*\nIf PATH_IN is a FILE --> L0 must be set as 'no' in LPP_Run_Settings.sh.PATH_IN: $PATH_IN\n"
         exit 0
     fi
     
@@ -162,7 +162,7 @@ then
                 echo -e "\n\nGenerating plots for L1...\npython3 "$PATH_FILE_TO_PLOT" "$PATH_FILE_OUT_L1
                 python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L1
             else # if [[ -f $PATH_FILE_IN_L1 ]]
-                echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_settings.sh file"
+                echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L1 ]]
             # rm $PATH_FILE_IN_L1 
         fi # if [[ "${L1,,}" == "yes" ]]
@@ -190,7 +190,7 @@ then
                 python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 0
 
             else # if [[ -f $PATH_FILE_IN_L2 ]]
-                echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_settings.sh file"
+                echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
             # rm $PATH_FILE_IN_L2
         fi # if [[ "${L2,,}" == "yes" ]]
