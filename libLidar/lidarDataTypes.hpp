@@ -134,7 +134,9 @@ struct strcGlobalParameters
 	char	StartTime[20]			;
 	char	StopDate[20]			;
 	char	StopTime[20]			;
-	float	Time_Zone				;	
+	float	Time_Zone				;
+	time_t	start_time_secs			;
+	time_t	stop_time_secs			;
 	int 	year 					;
 	int 	month 					;
 	int 	day 					;
