@@ -17,7 +17,7 @@
 #define BIN_CLOUD			1
 #define VAOD_ERR			0
 #define VAOD_OK				0X0F
-#define PHO_MAX_COUNT_MHz	250    // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
+// #define PHO_MAX_COUNT_MHz	250    // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
 #define MAX_MOL_RANGES		51
 #define NMAXCLOUDS 			50 		// MAX NUMBER OF CLOUDS TO BE DETECTED.
 
@@ -77,6 +77,7 @@ struct strcGlobalParameters
 	int 	nPair_Ch_to_Glue		;
 	double  MIN_TOGGLE_RATE_MHZ		;
 	double  MAX_TOGGLE_RATE_MHZ 	;
+	double  PHO_MAX_COUNT_MHz = 250	; // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
     int     chSel               	;
 	int 	*nBinsRaw_Ch			; // int 	nBinsRaw_Ch[MAX_CH_LICEL]	;
 	int 	nBinsRaw				;
@@ -106,7 +107,6 @@ struct strcGlobalParameters
 	int 	nPhotCh 				;
 	double 	ScaleFactor_Analog 		;
 	double 	ScaleFactor_Dig 		;
-    long    *event_gps_sec  		;
     int     evSel  		 			;
 	double 	*aZenith 				;
 	double 	*aZenithAVG 			;
@@ -135,8 +135,9 @@ struct strcGlobalParameters
 	char	StopDate[20]			;
 	char	StopTime[20]			;
 	float	Time_Zone				;
-	time_t	start_time_secs			;
-	time_t	stop_time_secs			;
+    long    *event_gps_sec  		; // GPS TIME
+	time_t	start_time_secs			; // UNIX TIME
+	time_t	stop_time_secs			; // UNIX TIME
 	int 	year 					;
 	int 	month 					;
 	int 	day 					;

@@ -86,9 +86,11 @@ int main( int argc, char *argv[] )
             ERR(retval);
         // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
     }
-
+// cout<<endl<<"(3) glbParam.nEvents: "<< glbParam.nEvents << endl;
+// cout<<endl<<"(3) glbParam.nEventsAVG: "<< glbParam.nEventsAVG << endl;
+// cout<<endl<<"(3) glbParam.nCh: "<< glbParam.nCh << endl;
+// cout<<endl<<"(3) glbParam.nBins: "<< glbParam.nBins << endl;
     CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
- 
     // ONLY USED IF glbParam.numEventsToAvg !=1
     double  ***data_File_L0      ;
     int *Raw_Data_Start_Time ;
@@ -235,11 +237,17 @@ printf("\n\n") ;
 	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
 	glbParam.indx_gluing_High_PHO   = (int*) new int[ glbParam.nCh ] ;
 
+	ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MAX_TOGGLE_RATE_MHZ ) ;
+	ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MIN_TOGGLE_RATE_MHZ ) ;
+
     int nIndxsToGlue_Low_AN   = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_Low_AN"  , (const char*)"int", (int*)glbParam.indx_gluing_Low_AN   ) ;
     int nIndxsToGlue_High_PHO = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_High_PHO", (const char*)"int", (int*)glbParam.indx_gluing_High_PHO ) ;
 
     // CHECK IF THE GLUING INFORMATION IS CORRECTLY SET
-    if ( (nIndxsToGlue_Low_AN == nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
+    if  ( ( (nIndxsToGlue_Low_AN == nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
+            &&
+          ( (glbParam.MAX_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ < glbParam.MAX_TOGGLE_RATE_MHZ) )
+        )
     {
         printf("Gluing procedure:") ;
         for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
@@ -265,14 +273,14 @@ printf("\n\n") ;
     }
     else
     {
-        printf("\n Gluing was *NOT* performed due to its configuration variables in: %s", glbParam.FILE_PARAMETERS ) ;
+        printf("\nGluing was *NOT* performed due to its configuration variables in: %s", glbParam.FILE_PARAMETERS ) ;
         if ( nIndxsToGlue_Low_AN <0 )
             printf("\n\t Variable indx_Gluing_Low_AN is commented or not set in setting file." ) ;
         if ( nIndxsToGlue_High_PHO <0 )
             printf("\n\t Variable indx_Gluing_High_PHO is commented or not set in setting file." ) ;
         if ( (nIndxsToGlue_Low_AN != nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
             printf("\n\t Different numbers of elements in the arrarys indx_Gluing_Low_AN and indx_Gluing_High_PHO" ) ;
-        printf("\n\t NO gluing is applied for this analysis." ) ;
+        printf("\n\t NO gluing is applied for this analysis.\n\n" ) ;
     }
 
 // END GLUING ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,9 +299,8 @@ printf("\n\n") ;
 
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
-        printf("\n\n\t%s", Path_File_In.c_str()) ;
-
         glbParam.evSel = t ;
+
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;

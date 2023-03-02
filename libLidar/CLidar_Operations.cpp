@@ -44,7 +44,12 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 	if ( (strcmp( glbParam->BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "no_bkg" ) ==0) )
 	{
 		for (int i =0; i <glbParam->nBins ; i++)
+		{
 			evSig->pr_noBias[i] = evSig->pr[i] ;
+			evSig->pr_noBkg[i]  = evSig->pr[i] ;
+		}
+		int 	indxMaxRange ;
+		Find_Max_Range( (double*)evSig->pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
 	}
 	else if ( (strcmp( glbParam->BkgCorrMethod, "MEAN" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
 	{
@@ -82,7 +87,17 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)glbParam->BkgCorrMethod ) ;
 
-	if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
+	if ( (strcmp( glbParam->BkgCorrMethod, "NO_BKG" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "no_bkg" ) ==0) )
+	{
+		for (int i =0; i <glbParam->nBins ; i++)
+		{
+			evSig->pr_noBias[i] = evSig->pr[i] ;
+			evSig->pr_noBkg[i]  = evSig->pr[i] ;
+		}
+		int 	indxMaxRange ;
+		Find_Max_Range( (double*)evSig->pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	}
+	else if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
 	{
 		Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr_noBkg, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
 	}
@@ -325,6 +340,8 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
     strcLidarSignal 	evSig ;
     GetMem_evSig( (strcLidarSignal*) &evSig, (strcGlobalParameters*)glbParam );
 
+	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"PHO_MAX_COUNT_MHz", (const char*)"double", (double*)&glbParam->PHO_MAX_COUNT_MHz ) ;
+
     for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
     {
         glbParam->evSel = e ;
@@ -353,19 +370,18 @@ printf("| Offset |\t") ;
             // DESATURATION OF THE PHOTON COUNTING CHANNELS /*----------------------------------------------*/
             if ( glbParam->DAQ_Type[c] == 1 )
             {
+				if ( glbParam->PHO_MAX_COUNT_MHz <0 )
+printf("| Desaturation *NOT* applied |\t") ;
+				else
+				{
 printf("| Desaturation  |\t") ;
-                if ( e==0 )
-                {
-                    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam->MAX_TOGGLE_RATE_MHZ ) ;
-	                ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam->MIN_TOGGLE_RATE_MHZ ) ;
-                }
-
-                for (int b =0; b <glbParam->nBins ; b++)
-                {
-                    pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam->nShots[c] * glbParam->tBin_us) ) ; // [MHz]
-                    pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / PHO_MAX_COUNT_MHz ) ) ;
-                }
-            } /*--------------------------------------------------------------------------------------------*/
+					for (int b =0; b <glbParam->nBins ; b++)
+					{
+						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam->nShots[c] * glbParam->tBin_us) ) ; // [MHz]
+						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / glbParam->PHO_MAX_COUNT_MHz ) ) ;
+					}
+				}            
+			} /*--------------------------------------------------------------------------------------------*/
 
             // OVERLAP CORRECTION //--------------------------------------------------------------
             if( glbParam->is_Ovlp_Data_Loaded ==true )

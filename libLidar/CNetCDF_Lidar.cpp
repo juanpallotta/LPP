@@ -245,6 +245,12 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
         glbParam->r[i-1] = i*glbParam->dr ;
     
     glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ;
+
+// cout<<endl;
+// cout<<endl<<"(0) glbParam->nEvents: "<< glbParam->nEvents << endl;
+// cout<<endl<<"(0) glbParam->nEventsAVG: "<< glbParam->nEventsAVG << endl;
+// cout<<endl<<"(0) glbParam->nCh: "<< glbParam->nCh << endl;
+// cout<<endl<<"(0) glbParam->nBins: "<< glbParam->nBins << endl;
 }
 
 void CNetCDF_Lidar::Read_L0_into_L2( int ncid, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )

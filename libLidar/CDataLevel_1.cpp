@@ -103,7 +103,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	errRefBkg = sqrt ( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
 	// printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.sumsq_m: %lf", fitParam.m, biasRef, errRefBkg, fitParam.sumsq_m) ;
 	// printf("\nindex fit=%d-%d\n", fitParam.indxInicFit, fitParam.indxEndFit ) ;
- 
+
 	for ( int i=0 ; i<nScanMax ; i++ )
 	{ 	// RESET SE_lay
 		for (int k =0; k <glbParam->nBins ; k++)
@@ -121,6 +121,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 				cloudProfiles[glbParam->evSel].clouds_ON[b] =(int)    0.0 ;
 				prFit[b] 									  	 	 =(double) 0.0 ;
 			}
+
 			sppm = (double)0.0 ;	spm = (double)0.0 ;		spmpm = (double)0.0 ;	 m = (double)0.0 ;
 			fitParam.nFit = fitParam.indxEndFit - fitParam.indxInicFit ;
 			sum( (double*)prprm    		, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&sppm ) ;
@@ -193,8 +194,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 				cloudProfiles[glbParam->evSel].test_1[b] = (double)sqrt( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop )   ; // test1: RMSE_lay
 			// cloudProfiles[glbParam->evSel].test_1[b]    = (double)    ( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop ) ;
 		}
-// printf("\n\n ScanCloud \n") ;
-// printf("\n nMaxLoop: %d \n\n", nMaxLoop) ;
+
 		for( int b=0 ; b <glbParam->nBins ; b++ )
 		{
 			if ( cloudProfiles[glbParam->evSel].test_1[b] > (double)(errRefBkg *thresholdFactor) )
@@ -202,8 +202,8 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 			else
 				cloudProfiles[glbParam->evSel].clouds_ON[b] = (int)0 ;
 		}
-		//// CHECK CLOUDS TESTS:
-		//// REMOVE CLOUDS THINNER THAN CLOUD_MIN_THICK BINS.
+		// CHECK CLOUDS TESTS:
+		// REMOVE CLOUDS THINNER THAN CLOUD_MIN_THICK BINS.
 		for (int b =0 ; b <=(glbParam->indxEndSig -CLOUD_MIN_THICK -1) ; b++)
 		{
 			if ( (cloudProfiles[glbParam->evSel].clouds_ON[b] == (int)0) && (cloudProfiles[glbParam->evSel].clouds_ON[b+1] == (int)BIN_CLOUD) ) // IF A CLOUD START...
@@ -219,6 +219,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 				b = b +CLOUD_MIN_THICK ;
 			}
 		}
+
 		// REMOVE CLOUDS'S GAPS THINNER THAN CLOUD_MIN_THICK BINS.
 		for (int b =0 ; b <=(glbParam->indxEndSig -CLOUD_MIN_THICK -1) ; b++)
 		{
