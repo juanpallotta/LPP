@@ -219,7 +219,7 @@ int main( int argc, char *argv[] )
             {
                 pr2[e][c]     = (double*) new double[glbParam.nBins] ;
                 pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
-            }        
+            }
     }
     // LIDAR SIGNAL CORRECTIONS:
     // - OFFSET

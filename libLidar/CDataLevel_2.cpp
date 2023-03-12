@@ -110,7 +110,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 		// 	RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
 		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] ;
 			RayleighFit( (double*)&pr[t][0], (double*)dataMol->prMol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
-		pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]]* glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
+		pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
 
 		delete pr2Fit ;
 	}

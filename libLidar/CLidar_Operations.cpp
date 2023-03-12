@@ -182,12 +182,12 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
     fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
 	fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
 
-	for (int i =0; i <glbParam->nBins; i++)
+	for (int j =0; j <glbParam->nBins; j++)
 	{
-		k_ones[i] 		= (double)1.0 		;
-		errRMS_mol[i] 	= (double)DBL_MAX 	; 
-		errRMS_k[i] 	= (double)0.0 		;
-		rate[i] 		= (double)0.0 		;
+		k_ones[j] 		= (double)1.0 		;
+		errRMS_mol[j] 	= (double)DBL_MAX 	; 
+		errRMS_k[j] 	= (double)0.0 		;
+		rate[j] 		= (double)0.0 		;
 	}
 
 	do
@@ -211,7 +211,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 
 	for (i =indxMin_Pr; i>=0; i--)
 	{
-		if ( rate[i] >1.02 )
+		// if ( rate[i] >1.02 )
+		if ( rate[i] >1.1 )
 		{
 			indxMax_ = i ;
 			break;

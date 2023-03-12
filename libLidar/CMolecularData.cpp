@@ -136,10 +136,6 @@ void CMolecularData::Read_range_Temp_Pres_From_File( strcGlobalParameters *glbPa
 	fseek( fid, 0, 0 ) ; // RESET THE POINTER
 
 // READ RADIOSONDE DATA REFERENCED AT *ASL* AND LOW RESOLUTION (LR)
-	// double *zLR = (double*) new double [lines] ;
-	// double *pLR = (double*) new double [lines] ;
-	// double *tLR = (double*) new double [lines] ;
-	// double *nLR = (double*) new double [lines] ;
 	RadSondeData.nBinsLR = lines ;
 	RadSondeData.zLR = (double*) new double [RadSondeData.nBinsLR] ;
 	RadSondeData.pLR = (double*) new double [RadSondeData.nBinsLR] ;
@@ -165,46 +161,11 @@ void CMolecularData::Read_range_Temp_Pres_From_File( strcGlobalParameters *glbPa
 		// tLR[l] = (double)rad_Data_file[indx_Temp]  ;
 		// pLR[l] = (double)rad_Data_file[indx_Pres]  ; 
 	}
-// SITE INDEX ALTITUDE (indxMin)
-// FIND THE INDEX OF zLR WHERE zLR=siteASL AND WHEN zLR=glbParam->rEndSig
-	// double  diff ;
-	// double  diffMin    ; // , diffMax ;
-	// int 	indxMin =0 ; // , indxMax =0 ;
-	// for ( int i=0 ; i<lines ; i++ )
-	// {
-	// 	diff = fabs( glbParam->siteASL - zLR[i] ) ; // diff = fabs( dataMol.zr[0] - zLR[i] ) ;
-	// 	if ( i==0 )
-	// 	{	
-	// 		diffMin	= diff 	;
-	// 		indxMin = i		;
-	// 	}
-	// 	else if ( diff < diffMin )
-	// 	{	
-	// 		diffMin = diff 	;
-	// 		indxMin = i 	;
-	// 	}
-	// }
-	// RadSondeData.nBinsLR = lines - indxMin ;
-	// RadSondeData.zLR = (double*) new double [RadSondeData.nBinsLR] ;
-	// RadSondeData.pLR = (double*) new double [RadSondeData.nBinsLR] ;
-	// RadSondeData.tLR = (double*) new double [RadSondeData.nBinsLR] ;
-	// RadSondeData.nLR = (double*) new double [RadSondeData.nBinsLR] ;
 
-	// for ( int b=0 ; b<RadSondeData.nBinsLR ; b++ ) // BARRO LAS LINEAS.
-	// { // RadSondeData.xLR[0] CORRESPOND TO THE POINT OF THE SITE ALTITUDE ASL.
-	// 	RadSondeData.zLR[b] = (double) zLR[b+indxMin] ; // RadSondeData.zLR --> ASL
-	// 	RadSondeData.tLR[b] = (double) tLR[b+indxMin] ; // RadSondeData.tLR --> ASL
-	// 	RadSondeData.pLR[b] = (double) pLR[b+indxMin] ; // RadSondeData.pLR --> ASL
-	// 	RadSondeData.nLR[b] = (double) (100*RadSondeData.pLR[b]/RadSondeData.tLR[b]) /1.3800653e-23 ; // [1/m3] ¡¡¡¡ASL!!!!
-	// }
 	RadSondeData.nHR = (double*) new double [glbParam->nBins] ;
 	RadSondeData.radSoundingDataLOADED = true ;
 
 	fclose(fid) ;
-	// delete zLR ;
-	// delete pLR ;
-	// delete tLR ;
-	// delete nLR ;
 }
 
 void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam )
@@ -228,6 +189,7 @@ void CMolecularData::Fill_dataMol( strcGlobalParameters *glbParam )
 	glbParam->dzr = dataMol.dzr ;
 
 	RadLowToHighRes() ; // RESAMPLED RadSondeData.nLR TO HIGH RESOLUTION (RadSondeData.nHR) AND IN THE SLANT PATH AT THE ZENITHAL ANGLE dataMol.zenith
+
 	for ( i =0 ; i <glbParam->nBins ; i++ )
 		dataMol.nMol[i] = RadSondeData.nHR[i] ;
 		// double N2_shift = 2331e2 ;
@@ -279,27 +241,6 @@ void CMolecularData::Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters *glbParam )
 	}
 	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
 }
-
-// void CMolecularData::Nmol_Ref_ASL_Site( strcGlobalParameters *glbParam )
-// {
-// 	double  diff ;
-// 	double  diffMin    ; // , diffMax ;
-// 	int 	indxMin =0 ; // , indxMax =0 ;
-// 	for ( int i=0 ; i<lines ; i++ )
-// 	{
-// 		diff = fabs( glbParam->siteASL - zLR[i] ) ; // diff = fabs( dataMol.zr[0] - zLR[i] ) ;
-// 		if ( i==0 )
-// 		{	
-// 			diffMin	= diff 	;
-// 			indxMin = i		;
-// 		}
-// 		else if ( diff < diffMin )
-// 		{	
-// 			diffMin = diff 	;
-// 			indxMin = i 	;
-// 		}
-// 	}
-// }
 
 void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
 {
