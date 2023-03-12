@@ -241,10 +241,10 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->rEndSig_ev    = (double*) new double [ glbParam->nEventsAVG ] ;
 
     glbParam->r = (double*) new double[glbParam->nBins] ;
-    for( int i=1 ; i <=glbParam->nBins ; i++ )
-        glbParam->r[i-1] = i*glbParam->dr ; // glbParam->r[0] = 7.5 (ie)
-    // for( int i=0 ; i <glbParam->nBins ; i++ )
-    //     glbParam->r[i] = (i+1)*glbParam->dr - glbParam->dr /2 ; // glbParam->r[0] = 3.75 (ie)
+    // for( int i=1 ; i <=glbParam->nBins ; i++ )
+    //     glbParam->r[i-1] = i*glbParam->dr ; // glbParam->r[0] = 7.5 (ie)
+    for( int i=0 ; i <glbParam->nBins ; i++ )
+        glbParam->r[i] = (i+1)*glbParam->dr - glbParam->dr /2 ; // glbParam->r[0] = 3.75 (ie)
 
     glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ;
 
