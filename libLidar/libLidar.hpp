@@ -59,7 +59,7 @@ void    fill_up_line                (char*, int, char) ;
 
 void 	molDataUsStd				( strcGlobalParameters*, strcMolecularData*, strcRadioSoundingData*, int ) ;
 void 	ReadUsSTDfile				( const char*, strcRadioSoundingData*, strcMolecularData* ) ;
-void 	RadLowToHighRes 			( int, double*, double*, int, double*, double* ) ;
+void 	Mol_Low_To_High_Res 			( int, double*, double*, int, double*, double* ) ;
 
 void 	RayleighFit 				( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
 
@@ -109,7 +109,6 @@ void 	chooseEventNumber			( strcGlobalParameters *, strcTheta*, int*, double* ) 
 
 void 	FernaldInversion			  	( double*, strcMolecularData*, strcGlobalParameters*, int, double, strcFernaldInversion*, strcAerosolData* ) ;
 void 	FernaldInversion_pr			  	( double*, strcMolecularData*, strcGlobalParameters*, int, double, strcFernaldInversion*, strcAerosolData* ) ;
-
 
 void 	GetMemDataToSave				( strcDataToSave*, strcGlobalParameters* ) ;
 

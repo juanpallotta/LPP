@@ -173,9 +173,8 @@ int main( int argc, char *argv[] )
                                     ) ;
     }
 
-    int indxWL_PDL1 ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
-    assert( indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam.indxWL_PDL1 ) ;
+    assert( glbParam.indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
     double  **data_Noise ;
     int id_var_noise ;
@@ -206,7 +205,7 @@ int main( int argc, char *argv[] )
 
     // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
-    oMolData->Read_range_Temp_Pres_From_File( (strcGlobalParameters*)&glbParam ) ;
+    oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
 
     double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
     double  ***pr2     = (double***) new double**[glbParam.nEventsAVG];
@@ -306,9 +305,9 @@ printf("\n\n") ;
             glbParam.chSel = c ;
             printf("\nEvent: %d/%d \t Wavelenght: %d", t, glbParam.nEventsAVG, glbParam.iLambda[c] ) ;
 
-            oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ;
+            oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 
-            if ( c == indxWL_PDL1 )
+            if ( c == glbParam.indxWL_PDL1 )
             {
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
                 {
@@ -334,8 +333,8 @@ printf("\n\n") ;
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
     glbParam.evSel = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
-    glbParam.chSel = indxWL_PDL1 ;
-    oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ;
+    glbParam.chSel = glbParam.indxWL_PDL1 ;
+    oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;

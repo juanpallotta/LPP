@@ -273,12 +273,12 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 
 	glbParam->aAzimuth 	   = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aAzimuth    , 0, (sizeof(double)*glbParam->nEvents) ) ;
 	glbParam->aZenith      = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aZenith     , 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->temp_Celsius = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->temp_Celsius, 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->pres_hPa     = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->pres_hPa    , 0, (sizeof(double)*glbParam->nEvents) ) ;
+	glbParam->temp_K_agl = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->temp_K_agl, 0, (sizeof(double)*glbParam->nEvents) ) ;
+	glbParam->pres_Pa_agl     = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->pres_Pa_agl    , 0, (sizeof(double)*glbParam->nEvents) ) ;
 	glbParam->aAzimuthAVG  	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aAzimuthAVG	   , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;	
 	glbParam->aZenithAVG   	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aZenithAVG     , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->temp_CelsiusAVG = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_CelsiusAVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->pres_hPaAVG     = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_hPaAVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
+	glbParam->temp_K_agl_AVG = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_K_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
+	glbParam->pres_Pa_agl_AVG     = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_Pa_agl_AVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->indxEndSig_ev   = (int*) new int[glbParam->nEventsAVG] ;
 
 	strcLicelDataFile lidarHeaderData ;
@@ -312,8 +312,8 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 	{
 		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
 		glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
-		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_Celsius[0], &glbParam->pres_hPa[0] ) ;
-// printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_Celsius: %lf \t glbParam->pres_hPa: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_Celsius, glbParam->pres_hPa) ;
+		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_K_agl[0], &glbParam->pres_Pa_agl[0] ) ;
+// printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_K_agl: %lf \t glbParam->pres_Pa_agl: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_K_agl, glbParam->pres_Pa_agl) ;
 	}
 // LINE 3:
 	fscanf( fid, "%07d %04d %07d %04d %02d ", 
@@ -431,17 +431,17 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 		glbParam->aAzimuth[glbParam->evSel] 	 = (double)0 ;
 		//! IMPLEMENT THIS: IF THE FILE IS LICEL TYPE, SET THE TEMP AND PRESSURE FROM THE CONFIGURATION FILE.
 		//! SAVE THIS ARRAYS IN DATA LEVEL 0 
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station", "double", (double*)&glbParam->temp_Celsius[glbParam->evSel] ) ;
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station"   , "double", (double*)&glbParam->pres_hPa[glbParam->evSel]     ) ;
-		glbParam->temp_Celsius[glbParam->evSel] = (double)-999.0 ;
-		glbParam->pres_hPa[glbParam->evSel]     = (double)-999.0 ;
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station_K", "double", (double*)&glbParam->temp_K_agl[glbParam->evSel] ) ;
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station_Pa"   , "double", (double*)&glbParam->pres_Pa_agl[glbParam->evSel]     ) ;
+		glbParam->temp_K_agl[glbParam->evSel] = (double)-999.0 ;
+		glbParam->pres_Pa_agl[glbParam->evSel]     = (double)-999.0 ;
 	}
 	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
 	{
 		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
 		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
 		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel], 
-		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_Celsius[glbParam->evSel], &glbParam->pres_hPa[glbParam->evSel] ) ;
+		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_K_agl[glbParam->evSel], &glbParam->pres_Pa_agl[glbParam->evSel] ) ;
 	}
 		// printf("\nReadLicelTime_and_Coord()") ;
 		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
@@ -771,7 +771,7 @@ int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double *
 
 
 
-// void RadLowToHighRes( int nLR, double *xLR, double *yLR, int nHR, double *xHR, double *yHR )
+// void Mol_Low_To_High_Res( int nLR, double *xLR, double *yLR, int nHR, double *xHR, double *yHR )
 // {
 // 	double *coeff = (double*) new double[3 +1] ;
 	
@@ -1491,233 +1491,6 @@ void ProcessFernaldInversion( strcFernaldInversion *fernaldVectors, strcGlobalPa
 
 } // ProcessFernaldInversion(...)
 
-/* strcIndexMol Pre_Procesing_LidarSignal( .... )
- * BACKGROUND SUBSTRACTION
- * RANGE CORRECTED
- * FIND PURE MOLECULAR DATA. ablHeigh AND endRayleighFit
- * PRODUCE pr2Glued
- * */
-// void PreProcesingLidarSignal( strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcLidarSignal *evSig, strcIndexMol *indxMol )
-// {
-// // BACKGROUND SUPRESSION FIT LIMITS
-// 	strcFitParam	fitParam ;
-// 		MakeRangeCorrected( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (strcLidarSignal*)evSig )  ;
-//        	// LowRangeCorrection( (strcGlobalParameters*)glbParam, (double*)evSig->pr2 ) ;
-
-// 	int 	spamAvgWin ;	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", &spamAvgWin ) ;
-// 	// smoothGSL( (double*)evSig->pr2, (int)(glbParam->nBins), (int)spamAvgWin, (double*)evSig->pr2 ) ;
-// 	smooth( (double*)evSig->pr2, (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)evSig->pr2 ) ;
-
-// 	glbParam->indxInitErr = glbParam->indxInitInversion ; // glbParam->indxInitSig ;
-
-// 	char Rayleight_Fit_TYPE[10] ;
-// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "Rayleight_Fit_TYPE", "string", (char*)Rayleight_Fit_TYPE ) ;
-
-// //RAYLEIGH_FIT_ANALISYS:
-// for( int i=0 ; i<glbParam->nBins ; i++ )	evSig->pr2Glued[i] = evSig->pr2[i] ;
-
-// 	indxMol->endRayFit = glbParam->siteASL + cos(dataMol->zenith*PI/180) * glbParam->r[ indxMol->indxEndMol [0] ] ; // ASL!!!!!!!!!!!
-
-// for ( int i=0 ; i<MAX_MOL_RANGES ; i++ ) // for ( int i=0 ; i<1 ; i++ ) // 
-// { // FINAL FIT ACROSS MOLECULAR RANGES DETECTED
-// 	if ( indxMol->indxInicMol[i] != 0 ) // IF THERE ARE MOLECULAR RANGES DETECTED...
-// 	{
-// 		fitParam.indxInicFit = indxMol->indxInicMol[i] ; // r 
-// 		fitParam.indxEndFit  = indxMol->indxEndMol [i] ; // fitParam.indxInicFit +1000 ; // glbParam->indxEndSig ; // glbParam->nBins-1 ; //
-// 		fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit ;
-
-// 		if ( strcmp(Rayleight_Fit_TYPE, "FACTOR") == 0 )
-// 			RayleighFit_Factor ( (double*)evSig->pr2, (double*)dataMol->pr2Mol, 					  (strcFitParam*)&fitParam, (double*)evSig->pr2Glued ) ;
-// 		else // strcmp(Rayleight_Fit_TYPE, "RMS") == 0 ==> DEFAULT VALUE
-// 			RayleighFit( (double*)evSig->pr2, (double*)dataMol->pr2Mol, dataMol->nBins, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)evSig->pr2Glued ) ;
-
-// 	  //// RAYLEIGH FIT CHECK
-// 			// for( int j=glbParam->indxInitSig ; j<=fitParam.indxInicFit ; j++ )
-// 			// {
-// 			// 	sTest[j] = (evSig->pr2[j] - fitParam.m * dataMol->pr2Mol[j]) ;
-// 		// }
-// 			// 	sum( (double*)sTest, (int)glbParam->indxInitSig, (int)fitParam.indxInicFit, (double*)&sTestSum );
-// 			// if ( sTestSum<0 ) // ( evSig->pr2Glued[fitParam.indxInicFit] > evSig->pr2Glued[fitParam.indxInicFit -1] )
-// 			// {
-// 			// // AGAIN: evSig->pr2Glued[i] = evSig->pr2[i] ACROSS FITTED VALUES
-// 		// 	for( int g=fitParam.indxInicFit ; g<fitParam.indxEndFit ; g++ )		evSig->pr2Glued[g] = evSig->pr2[g] ;
-// 		// 	if ( (indxMol->indxInicMol[i] +10) < (indxMol->indxEndMol[i]-500) )
-// 			// 		{
-// 			// 			indxMol->indxInicMol[i] = indxMol->indxInicMol[i] +10 ;
-// 			// 			goto FIT_AGAIN ;
-// 			// 		}
-// 			// 	else
-// 			// 		goto END_FIT ;
-// 			// }
-// 		//if (indxMol->nMolRanges >= 2)
-// 		//{
-// 			//if (m[1] > m[0])
-// 			//{
-// 				//glbParam->dNFit = glbParam->dNFit +10 ;
-// 				//printf("\n Wrong fit performed before (%lf) and after (%lf) the cloud. Running the analisys again...", m[0], m[1]);
-// 				//goto RAYLEIGH_FIT_ANALISYS ;
-// 			//}
-// 		//}
-// 	}
-// 	//glbParam->indxInitErr = glbParam->indxInitErr +10 ;
-// //} while ( evSig->pr2Glued[fitParam.indxInicFit] >= evSig->pr2[fitParam.indxInicFit] ) ;
-// }
-// // END_FIT:
-// 	for( int i=0 ; i<glbParam->nBins ; i++ )
-// 	{
-// 		evSig->prGlued[i]  = evSig->pr2Glued[i] / pow(glbParam->r[i], 2) ;
-// 		evSig->pr_noBias[i] = evSig->pr2[i]      / pow(glbParam->r[i], 2) ;
-// 	}
-// }
-// void PreProcesingLidarSignal( strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcCloudProfiles *cloudProfiles, strcLidarSignal *evSig, strcIndexMol *indxMol )
-// { // NNNNNNNNNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO   REVISAR TODA
-// 	double 	*p = (double*) new double [glbParam->nBins] ;
-// 	for (int i=0 ; i <glbParam->nBins ; i++ )
-// 		p[i] = evSig->pr[i] ;
-
-// 	int 	spamAvgWin ;	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
-// 	// smoothGSL( (double*)p, (int)(glbParam->nBins), (int)spamAvgWin, (double*)evSig->pr ) ;
-// 	// smoothGSL( (double*)evSig->pr, (int)(glbParam->nBins), (int)spamAvgWin, (double*)evSig->pr ) ;
-// 	smooth( (double*)p, (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)evSig->pr ) ;
-// 	delete p ;
-
-// 	MakeRangeCorrected( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (strcLidarSignal*)evSig ) ;
-// 	LowRangeCorrection( (strcGlobalParameters*)glbParam, (double*)evSig->pr2 ) ;
-
-// //RAYLEIGH_FIT_ANALISYS:
-// for( int i=0 ; i<glbParam->nBins ; i++ )	evSig->pr2Glued[i] = evSig->pr2[i] ;
-
-// 	memset( indxMol->indxInicMol, 0, sizeof(int)*MAX_MOL_RANGES ) ;
-// 	memset( indxMol->indxEndMol , 0, sizeof(int)*MAX_MOL_RANGES ) ;
-// 	memset( indxMol->errRMS	   , 0, sizeof(double) * glbParam->nBins ) ;
-// 		FindMolecularRange_v2( (double*)evSig->pr2, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcIndexMol*)indxMol ) ;
-// 		indxMol->ablHeight = glbParam->siteASL + cos(dataMol->zenith*PI/180) * glbParam->r[ indxMol->indxInicMol[0] ] ; // ASL!!!!!!!!!!!
-// 		indxMol->endRayFit = glbParam->siteASL + cos(dataMol->zenith*PI/180) * glbParam->r[ indxMol->indxEndMol [0] ] ; // ASL!!!!!!!!!!!
-
-// //for ( int i=0 ; i<MAX_MOL_RANGES ; i++ ) m[i] = 0 ;
-// // BACKGROUND SUPRESSION FIT LIMITS
-// strcFitParam	fitParam ;
-// for ( int i=0 ; i<MAX_MOL_RANGES ; i++ ) // for ( int i=0 ; i<1 ; i++ ) // 
-// { // FINAL FIT ACROSS MOLECULAR RANGES DETECTED
-// 	if ( indxMol->indxInicMol[i] != 0 ) // IF THERE ARE MOLECULAR RANGES DETECTED...
-// 	{
-// // FIT_AGAIN:
-// 		// SET THE FITTING PARAMETERS fitParam[] WITH THE MOLECULAR INDEXES FOUND IN FindMolecularRange(...). USED LATTER FOR THE RAYLEIGH-FIT METHOD
-// 				fitParam.indxInicFit = indxMol->indxInicMol[i] ; // r 
-// 				fitParam.indxEndFit  = indxMol->indxEndMol [i] ; // fitParam.indxInicFit +1000 ; // glbParam->indxEndSig ; // glbParam->nBins-1 ; //
-// 				fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit ;
-// 			   RayleighFit( (double*)evSig->pr2, (double*)dataMol->pr2Mol, dataMol->nBins, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)evSig->pr2Glued ) ;
-// 			// RayleighFit_Factor( (double*)evSig->pr2, (double*)dataMol->pr2Mol, 						(strcFitParam*)&fitParam, (double*)evSig->pr2Glued ) ;
-// 			//m[i] = fitParam.m ;
-
-// 		  //// RAYLEIGH FIT CHECK
-// 			// for( int j=glbParam->indxInitSig ; j<=fitParam.indxInicFit ; j++ )
-// 			// {
-// 			// 	sTest[j] = (evSig->pr2[j] - fitParam.m * dataMol->pr2Mol[j]) ;
-// 			// }
-// 			// 	sum( (double*)sTest, (int)glbParam->indxInitSig, (int)fitParam.indxInicFit, (double*)&sTestSum );
-// 			// if ( sTestSum<0 ) // ( evSig->pr2Glued[fitParam.indxInicFit] > evSig->pr2Glued[fitParam.indxInicFit -1] )
-// 			// {
-// 			// // AGAIN: evSig->pr2Glued[i] = evSig->pr2[i] ACROSS FITTED VALUES
-// 			// 	for( int g=fitParam.indxInicFit ; g<fitParam.indxEndFit ; g++ )		evSig->pr2Glued[g] = evSig->pr2[g] ;
-// 			// 	if ( (indxMol->indxInicMol[i] +10) < (indxMol->indxEndMol[i]-500) )
-// 			// 		{
-// 			// 			indxMol->indxInicMol[i] = indxMol->indxInicMol[i] +10 ;
-// 			// 			goto FIT_AGAIN ;
-// 			// 		}
-// 			// 	else
-// 			// 		goto END_FIT ;
-// 			// }
-// 	//if (indxMol->nMolRanges >= 2)
-// 	//{
-// 		//if (m[1] > m[0])
-// 		//{
-// 			//glbParam->dNFit = glbParam->dNFit +10 ;
-// 			//printf("\n Wrong fit performed before (%lf) and after (%lf) the cloud. Running the analisys again...", m[0], m[1]);
-// 			//goto RAYLEIGH_FIT_ANALISYS ;
-// 		//}
-// 	//}
-// 	}
-// 	//glbParam->indxInitErr = glbParam->indxInitErr +10 ;
-// //} while ( evSig->pr2Glued[fitParam.indxInicFit] >= evSig->pr2[fitParam.indxInicFit] ) ;
-
-// // GLUE pr2 TO pr2Fit TO GENERATE THE FINAL VERSION OF THE SIGNAL TO PROCESS: pr2Glued
-// 	//RayleighFit_Gluing( (double*)evSig->pr2, (double*)evSig->pr2Fit, fitParam.indxInicFit, (glbParam->nBins-1), (double*)evSig->pr2Glued ) ;
-// 	//RayleighFit_Gluing_v2( (double*)evSig->pr2, (double*)evSig->pr2Fit, (strcFitParam)fitParam, (double*)evSig->pr2Glued ) ;
-// }
-// // END_FIT:
-// 	for( int i=0 ; i<glbParam->nBins ; i++ )
-// 	{
-// 		evSig->prGlued[i] = evSig->pr2Glued[i] / pow(glbParam->r[i], 2) ;
-// 		evSig->pr[i] 	  = evSig->pr2[i]      / pow(glbParam->r[i], 2) ;
-// 	}
-
-
-// 	if ( cloudProfiles->nClouds >=1 )
-// 		indxMol->indxRef = (int) round( ( indxMol->indxInicMol[0] + cloudProfiles->indxInitClouds[0] )/2 ) ;
-// 	else
-// 		indxMol->indxRef = (int) (indxMol->indxInicMol[0] + 100) ;
-
-// 	// return indxMol ;
-// 	// delete sTestSum ;
-// }
-
-// void MakeRangeCorrected( strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcLidarSignal *evSig )
-// {
-// 	strcFitParam	fitParam ;
-// 	char 			BkgCorrMethod[10] ;
-
-// 	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ; // glbParam->indxEndSig - glbParam->nBinsBkg ; // 
-// 	fitParam.indxEndFit  = glbParam->nBins ; // glbParam->indxEndSig ; // 
-// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-
-// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
-
-// 	if ( strcmp( BkgCorrMethod, "MEAN" ) ==0 )
-// 	{
-// 		bkgSubstractionMean( (double*)evSig->pr, fitParam.indxInicFit, fitParam.indxEndFit, dataMol->nBins, (double*)evSig->pr_noBias ) ;
-// 	}
-// 	else if ( strcmp( BkgCorrMethod, "FIT" ) ==0 )
-// 	{
-// 	// // printf("\nMakeRangeCorrected ANTES de bkgSubstractionMolFit : \t dataMol->zr[1000]: %lf \t evSig->pr_noBias[1000]: %lf", dataMol->zr[1000], evSig->pr_noBias[1000] ) ;
-// 		bkgSubstractionMolFit ( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBias ) ;
-// 	// // printf("\nMakeRangeCorrected: DESPUES de bkgSubstractionMolFit: \t dataMol->zr[1000]: %lf \t evSig->pr_noBias[1000]: %lf", dataMol->zr[1000], evSig->pr_noBias[1000] ) ;
-// 	//    	// bkgSubstractionMolFit_unCorr( (strcMolecularData*)&dataMol, (double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBias ) ;
-// 	// 		//bkgSubstractionLinearFit 	( (double*)glbParam->r, (double*)evSig->pr, (int)glbParam->nBins, (strcFitParam*)&fitParam, (double*)evSig->pr_noBias ) ;
-// 	}
-// 	else
-// 	{
-// 		printf("\n Wrong setting of 'Background Correction Method (BkgCorrMethod) in %s. Used FIT method' \n", (char*)glbParam->FILE_PARAMETERS) ;
-// 		bkgSubstractionMolFit ( (strcMolecularData*)dataMol, (double*)evSig->pr, (strcFitParam*)&fitParam, (double*)evSig->pr_noBias ) ;
-// 	}
-// // RANGE CORRECTED
-// 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBias[i] * pow(glbParam->r[i], 2) ;
-// }
-
-// void MakeRangeCorrected_array( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, double *pr2 )
-// {
-// 	strcFitParam	fitParam ;
-// 	char 			BkgCorrMethod[10] ;
-
-// 	fitParam.indxInicFit = glbParam->indxEndSig - glbParam->nBinsBkg ;
-// 	fitParam.indxEndFit  = glbParam->indxEndSig ;
-// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-
-// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "BkgCorrMethod", "string" , (char*)BkgCorrMethod ) ;
-
-// 	if ( strcmp( BkgCorrMethod, "MEAN" ) ==0 )
-// 		bkgSubstractionMean( (double*)pr, fitParam.indxInicFit, fitParam.indxEndFit, glbParam->nBins, (double*)pr ) ;
-// 	else if ( strcmp( BkgCorrMethod, "FIT" ) ==0 )
-// 		bkgSubstractionMolFit ( (strcMolecularData*)dataMol, (const double*)pr, (strcFitParam*)&fitParam, (double*)pr ) ;
-// 	else
-// 	{
-// 		printf("\n Wrong setting of 'Background Correction Method (BkgCorrMethod) in %s. Used FIT method' \n", (char*)glbParam->FILE_PARAMETERS) ;
-// 		bkgSubstractionMolFit ( (strcMolecularData*)dataMol, (double*)pr, (strcFitParam*)&fitParam, (double*)pr ) ;
-// 	}
-// // RANGE CORRECTED
-// 	for ( int i=0 ; i<glbParam->nBins ; i++ ) 	pr2[i] = pr[i] * pow(glbParam->r[i], 2) ;
-// }
-
 void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 {
     // double a = evSig->pr2[glbParam->indxInitSig] / evSig->pr2[ glbParam->indxInitSig *2 -1 ] ;
@@ -1939,8 +1712,8 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 
 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
-						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
-						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
+						glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] + glbParam->temp_K_agl[fC*glbParam->numEventsToAvg +t] ;
+						glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     + glbParam->pres_Pa_agl[fC*glbParam->numEventsToAvg +t] 	  ;
 					}
 				}
 					dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
@@ -1948,8 +1721,8 @@ void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***d
 					{
 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
-						glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
-						glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     /glbParam->numEventsToAvg ;
+						glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] /glbParam->numEventsToAvg ;
+						glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     /glbParam->numEventsToAvg ;
 					}
 			}
 		}

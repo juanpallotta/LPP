@@ -22,9 +22,9 @@ class CMolecularData_USStd
 
 	private:
 		void ReadUSSTDfile( const char*, strcGlobalParameters* ) ;
-		void Read_range_Temp_Pres_From_File( strcGlobalParameters* ) ;
+		void Get_Mol_Data_L1( strcGlobalParameters* ) ;
 
-		void RadLowToHighRes() ;
+		void Mol_Low_To_High_Res() ;
 };
 
 #endif

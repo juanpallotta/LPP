@@ -14,7 +14,7 @@ CLidar_Operations::CLidar_Operations( strcGlobalParameters *glbParam )
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBiasRes_Auto", "int" , (int*)&nBiasRes_Auto) ;
 
 	errRMS_Bias = (double*) new double [ nBiasRes_Auto ] ;
-	b_i 		= (double*) new double [ nBiasRes_Auto ] ;
+	b_i 		= (double*) new double [ nBiasRes_Auto +1 ] ;
 	coeff 		= (double*) new double[2] 				;
 }
 
@@ -135,6 +135,7 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 
 		for ( int s =0; s <nBiasRes_Auto; s++ )
 			b_i[s] = (double) b_ref_min + s *b_step ;
+		b_i[nBiasRes_Auto] = 0 ; // IN CASE OF UNBIASED LIDAR SIGNAL
 
 		for( int l=0 ; l< nLoopFindBias ; l++ )
 		{
@@ -275,6 +276,9 @@ void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, con
 
 		RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 			for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam.b) ; 
+
+printf("\n a: %lf \t bkg: %lf \n", fitParam.m, fitParam.b ) ;
+
 	}
 	else
 	{
@@ -306,8 +310,8 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 							Raw_Data_Stop_Time_AVG[fC] 	  = (long)Raw_Data_Stop_Time[ fC *glbParam->numEventsToAvg +t ] ;
 						// glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
 						// glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
-						// glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
-						// glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
+						// glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] + glbParam->temp_K_agl[fC*glbParam->numEventsToAvg +t] ;
+						// glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     + glbParam->pres_Pa_agl[fC*glbParam->numEventsToAvg +t] 	  ;
 					}
 				}
 					dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
@@ -315,8 +319,8 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 					// {
 					// 	glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
 					// 	glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
-					// 	glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
-					// 	glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     /glbParam->numEventsToAvg ;
+					// 	glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] /glbParam->numEventsToAvg ;
+					// 	glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     /glbParam->numEventsToAvg ;
 					// }
 			}
 		} // for ( int c=0 ; c <glbParam->nCh ; c++ )
@@ -325,13 +329,13 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 		{
 			glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
 			glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
-			glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] + glbParam->temp_Celsius[fC*glbParam->numEventsToAvg +t] ;
-			glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     + glbParam->pres_hPa[fC*glbParam->numEventsToAvg +t] 	  ;
+			glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] + glbParam->temp_K_agl[fC*glbParam->numEventsToAvg +t] ;
+			glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     + glbParam->pres_Pa_agl[fC*glbParam->numEventsToAvg +t] 	  ;
 		}
 			glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
 			glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
-			glbParam->temp_CelsiusAVG[fC] = glbParam->temp_CelsiusAVG[fC] /glbParam->numEventsToAvg ;
-			glbParam->pres_hPaAVG[fC]     = glbParam->pres_hPaAVG[fC]     /glbParam->numEventsToAvg ;
+			glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] /glbParam->numEventsToAvg ;
+			glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     /glbParam->numEventsToAvg ;
 // printf("\n CLidar_Operations::Average_in_Time_Lidar_Profiles() --> glbParam->aZenithAVG[%d]= %lf\n", fC, glbParam->aZenithAVG[fC] ) ;
 	} // for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
 }
@@ -399,9 +403,9 @@ printf("| Desaturation  |\t") ;
 
             // BACKGROUND & BIAS CORRECTION //--------------------------------------------------------------
 			if ( strcmp(glbParam->exeFile, "./lidarAnalysis_PDL1" ) ==0 )
-            	oMolData->Fill_dataMol( (strcGlobalParameters*)glbParam ) ;
+            	oMolData->Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
 			else if ( strcmp(glbParam->exeFile, "./lidarAnalysis_PDL2" ) ==0 )
-            	oMolData->Fill_dataMol( (strcGlobalParameters*)glbParam, (double*)&oMolData->dataMol.nMol[0] ) ;
+            	oMolData->Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
 
             if ( glbParam->is_Noise_Data_Loaded == true )
             {

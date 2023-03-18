@@ -133,7 +133,7 @@ void CMolecularData_USStd::Fill_dataMol( strcGlobalParameters *glbParam, int ind
 	dataMol[indxWL].dzr = (double)(dataMol[indxWL].zr[1] - dataMol[indxWL].zr[0]) ; // [m]
 	glbParam->dzr = dataMol[indxWL].dzr ;
 
-	RadLowToHighRes() ;
+	Mol_Low_To_High_Res() ;
 	for ( i =0 ; i <glbParam->nBins ; i++ )
 		dataMol[indxWL].nMol[i] = RadSondeData.nHR[i] ;
 		// double N2_shift = 2331e2 ;
@@ -148,7 +148,7 @@ void CMolecularData_USStd::Fill_dataMol( strcGlobalParameters *glbParam, int ind
 		Elastic_Rayleigh_Lidar_Signal_ ( (strcMolecularData*)&dataMol[indxWL], (double*)glbParam->r ) ;
 }
 
-void CMolecularData_USStd::RadLowToHighRes( )
+void CMolecularData_USStd::Mol_Low_To_High_Res( )
 {
 	double *coeff = (double*) new double[3 +1] ;
 

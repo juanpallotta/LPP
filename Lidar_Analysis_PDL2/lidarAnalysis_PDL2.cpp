@@ -73,10 +73,10 @@ int main( int argc, char *argv[] )
     CDataLevel_1    *oDL1 ;
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
-    int indxWL_PDL2[glbParam.nCh], nCh_to_invert ;
-    for (int i = 0 ; i <glbParam.nCh; i++)  indxWL_PDL2[i] = -10 ;
-    nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&indxWL_PDL2 ) ;
-    glbParam.chSel  = indxWL_PDL2[0] ;
+    int nCh_to_invert ;
+    nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
+    assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
+    glbParam.chSel  = glbParam.indxWL_PDL2 ;
 
 // LOADING LIDAR DATA  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  ) // READ DATA FROM L0 DATA LEVEL AND AVERAGE TO L2 DATA LEVEL
@@ -99,20 +99,16 @@ int main( int argc, char *argv[] )
     oDL2->indxInitSig  = (int)glbParam.indxInitSig ;
     oDL2->indxEndSig   = (int)glbParam.indxEndSig  ;
 
-    // LOAD MOLECULAR PROFILES FROM THE FILE
-    int id_var_nmol ;
-    if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)"Molecular_Density", (int*)&id_var_nmol ) ) )
-    {
-        printf("\n*ERROR* No molecular data saved in L1 data group.\n") ;
-        ERR(retval);
-    }
-    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Molecular_Density" , (double*)&oDL2->nMol[0] ) ;
-
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
-    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Molecular_Density" , (double*)&oMolData->dataMol.nMol[0] ) ;
+    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Temperature_K", (double*)&oMolData->dataMol.tK[0]  ) ;
+    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Pressure_Pa"  , (double*)&oMolData->dataMol.pPa[0] ) ;
+
+    oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam ) ;
+
+    // for (int i =0; i <glbParam.nBins; i++)
+    //     oDL2->nMol[i] = oMolData->dataMol.nMol[i] ;
 
     printf("\n\n") ;
-
     if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  ) // DATA WAS READ FROM L0
     {
         double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
@@ -162,7 +158,7 @@ oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolec
                     oDL2->pr2[e][c][i] = (double)pr2[e][c][i] ;
             }
             for ( int i=0 ; i<glbParam.nBins ; i++ )
-                oDL2->pr[e][i] = (double)pr_corr[e][indxWL_PDL2[0]][i]  ;
+                oDL2->pr[e][i] = (double)pr_corr[e][glbParam.indxWL_PDL2][i]  ;
         }
     } // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
     else // DATA WAS READ FROM L1 (ALREADY CORRECTED)
@@ -176,7 +172,7 @@ oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolec
                     oDL2->pr2[e][c][i] = (double)oDL2->data_File_L2[e][c][i] * pow(glbParam.r[i], 2) ;
             }
             for ( int i=0 ; i<glbParam.nBins ; i++ )
-                oDL2->pr[e][i] = (double)oDL2->data_File_L2[e][indxWL_PDL2[0]][i]  ;
+                oDL2->pr[e][i] = (double)oDL2->data_File_L2[e][glbParam.indxWL_PDL2][i]  ;
         }
     }
 
@@ -186,13 +182,13 @@ oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolec
                             ERR(retval) ;
 
 //! TO-DO RE-ANALYSIS: SWIPE ACROSS THE SELECTED EVENTS BETWEEN minTime and maxTime
-    glbParam.chSel = indxWL_PDL2[0] ;
+    glbParam.chSel = glbParam.indxWL_PDL2 ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         printf("\n") ;
         glbParam.evSel = t ;
 
-        oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam, (double*)&oDL2->nMol[0] ) ;
+        oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
 
         // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
         // {
@@ -205,8 +201,9 @@ oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolec
         oDL2->dzr = oMolData->dataMol.dzr ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
-            cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << indxWL_PDL2[c] << "\t Wavelenght: " << glbParam.iLambda[indxWL_PDL2[c]] ;
-            oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t, (int)indxWL_PDL2[c], (strcMolecularData*)&oMolData->dataMol ) ;
+            cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << glbParam.indxWL_PDL2 << "\t Wavelenght: " << glbParam.iLambda[glbParam.indxWL_PDL2] ;
+            oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
+            // oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;

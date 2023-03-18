@@ -136,16 +136,16 @@ int main( int argc, char *argv[] )
     oNCL.ReadVar( (int)ncid, (const char*)"Zenith"  , (int*)glbParam.aZenith  ) ;
     oNCL.ReadVar( (int)ncid, (const char*)"Azimuth" , (int*)glbParam.aAzimuth ) ;
 
-    glbParam.temp_Celsius     = (double*) new double [glbParam.nEvents]     ;
-    glbParam.pres_hPa         = (double*) new double [glbParam.nEvents]     ;
-    glbParam.temp_CelsiusAVG  = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.temp_CelsiusAVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    glbParam.pres_hPaAVG      = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.pres_hPaAVG    , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station", (const char*)"double", (int*)&glbParam.temp_Celsius[0] ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station"   , (const char*)"double", (int*)&glbParam.pres_hPa[0]     ) ;
+    glbParam.temp_K_agl     = (double*) new double [glbParam.nEvents]     ;
+    glbParam.pres_Pa_agl         = (double*) new double [glbParam.nEvents]     ;
+    glbParam.temp_K_agl_AVG  = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.temp_K_agl_AVG, 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
+    glbParam.pres_Pa_agl_AVG      = (double*) new double [glbParam.nEventsAVG]  ;   memset( (double*)glbParam.pres_Pa_agl_AVG    , 0, (sizeof(double)*glbParam.nEventsAVG) ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam.temp_K_agl[0] ) ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"   , (const char*)"double", (int*)&glbParam.pres_Pa_agl[0]     ) ;
     for (  int i =1 ; i < glbParam.nEvents ; i++ )
     {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
-        glbParam.temp_Celsius[i] = glbParam.temp_Celsius[0]  ;
-        glbParam.pres_hPa[i]     = glbParam.pres_hPa[0]      ;
+        glbParam.temp_K_agl[i] = glbParam.temp_K_agl[0]  ;
+        glbParam.pres_Pa_agl[i]     = glbParam.pres_Pa_agl[0]      ;
     }
 
     double  ***dataFile_AVG = (double***) new double**[glbParam.nEventsAVG] ;

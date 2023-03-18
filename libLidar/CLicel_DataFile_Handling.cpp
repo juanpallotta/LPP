@@ -46,17 +46,17 @@ void CLicel_DataFile_Handling::ReadLicelTime_and_Coord( FILE *fid, strcGlobalPar
 		glbParam->aAzimuth[glbParam->evSel] 	 = (double)0 ;
 		//! IMPLEMENT THIS: IF THE FILE IS LICEL TYPE, SET THE TEMP AND PRESSURE FROM THE CONFIGURATION FILE.
 		//! SAVE THIS ARRAYS IN DATA LEVEL 0 
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station", "double", (double*)&glbParam->temp_Celsius[glbParam->evSel] ) ;
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station"   , "double", (double*)&glbParam->pres_hPa[glbParam->evSel]     ) ;
-		glbParam->temp_Celsius[glbParam->evSel] = (double)-999.0 ;
-		glbParam->pres_hPa[glbParam->evSel]     = (double)-999.0 ;
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station_K", "double", (double*)&glbParam->temp_K_agl[glbParam->evSel] ) ;
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station_Pa"   , "double", (double*)&glbParam->pres_Pa_agl[glbParam->evSel]     ) ;
+		glbParam->temp_K_agl[glbParam->evSel] = (double)-999.0 ;
+		glbParam->pres_Pa_agl[glbParam->evSel]     = (double)-999.0 ;
 	}
 	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
 	{
 		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
 		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
 		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel], 
-		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_Celsius[glbParam->evSel], &glbParam->pres_hPa[glbParam->evSel] ) ;
+		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_K_agl[glbParam->evSel], &glbParam->pres_Pa_agl[glbParam->evSel] ) ;
 	}
 		// printf("\nReadLicelTime_and_Coord()") ;
 		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
@@ -95,12 +95,12 @@ void CLicel_DataFile_Handling::ReadLicelGobalParameters( char *lidarFile, strcGl
 
 	glbParam->aAzimuth 	   = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aAzimuth    , 0, (sizeof(double)*glbParam->nEvents) ) ;
 	glbParam->aZenith      = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aZenith     , 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->temp_Celsius = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->temp_Celsius, 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->pres_hPa     = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->pres_hPa    , 0, (sizeof(double)*glbParam->nEvents) ) ;
+	glbParam->temp_K_agl = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->temp_K_agl, 0, (sizeof(double)*glbParam->nEvents) ) ;
+	glbParam->pres_Pa_agl     = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->pres_Pa_agl    , 0, (sizeof(double)*glbParam->nEvents) ) ;
 	glbParam->aAzimuthAVG  	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aAzimuthAVG	   , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;	
 	glbParam->aZenithAVG   	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aZenithAVG     , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->temp_CelsiusAVG = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_CelsiusAVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->pres_hPaAVG     = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_hPaAVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
+	glbParam->temp_K_agl_AVG = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_K_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
+	glbParam->pres_Pa_agl_AVG     = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_Pa_agl_AVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->indxEndSig_ev   = (int*) new int[glbParam->nEventsAVG] ;
 
 	strcLicelDataFile lidarHeaderData ;
@@ -134,8 +134,8 @@ void CLicel_DataFile_Handling::ReadLicelGobalParameters( char *lidarFile, strcGl
 	{
 		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
 		glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
-		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_Celsius[0], &glbParam->pres_hPa[0] ) ;
-// printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_Celsius: %lf \t glbParam->pres_hPa: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_Celsius, glbParam->pres_hPa) ;
+		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_K_agl[0], &glbParam->pres_Pa_agl[0] ) ;
+// printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_K_agl: %lf \t glbParam->pres_Pa_agl: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_K_agl, glbParam->pres_Pa_agl) ;
 	}
 // LINE 3:
 	fscanf( fid, "%07d %04d %07d %04d %02d ", 
@@ -248,17 +248,17 @@ void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
 		glbParam->aAzimuth[glbParam->evSel] 	 = (double)0 ;
 		//! IMPLEMENT THIS: IF THE FILE IS LICEL TYPE, SET THE TEMP AND PRESSURE FROM THE CONFIGURATION FILE.
 		//! SAVE THIS ARRAYS IN DATA LEVEL 0 
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station", "double", (double*)&glbParam->temp_Celsius[glbParam->evSel] ) ;
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station"   , "double", (double*)&glbParam->pres_hPa[glbParam->evSel]     ) ;
-		glbParam->temp_Celsius[glbParam->evSel] = (double)-999.0 ;
-		glbParam->pres_hPa[glbParam->evSel]     = (double)-999.0 ;
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station_K", "double", (double*)&glbParam->temp_K_agl[glbParam->evSel] ) ;
+		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station_Pa"   , "double", (double*)&glbParam->pres_Pa_agl[glbParam->evSel]     ) ;
+		glbParam->temp_K_agl[glbParam->evSel] = (double)-999.0 ;
+		glbParam->pres_Pa_agl[glbParam->evSel]     = (double)-999.0 ;
 	}
 	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
 	{
 		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
 		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
 		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel], 
-		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_Celsius[glbParam->evSel], &glbParam->pres_hPa[glbParam->evSel] ) ;
+		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_K_agl[glbParam->evSel], &glbParam->pres_Pa_agl[glbParam->evSel] ) ;
 	}
 		// printf("\nReadLicelTime_and_Coord()") ;
 		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",

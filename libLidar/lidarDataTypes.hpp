@@ -68,6 +68,8 @@ struct strcGlobalParameters
 	char    exeFile[50]				;
 	char    outputDataFileFormat[50];
 	char 	BkgCorrMethod[10]    	;
+	double 	*r	 					;
+	double 	*r_avg 					;
 	double 	dr 						;
 	double 	dzr						;
 	int 	nChMax 					;
@@ -84,7 +86,6 @@ struct strcGlobalParameters
 	int 	nBins_in_File			;
 	int 	nBinsBkg 				;
 	int 	nBins					;
-	double 	*r	 					;
 	double 	rInitSig				;
 	double 	rEndSig					;
 	int 	indxInitSig				;
@@ -97,6 +98,8 @@ struct strcGlobalParameters
 	int 	*nShots				 	;
 	int		lambda					;
 	int		*iLambda			  	; //	int		iLambda[MAX_CH_LICEL]  	;
+	int		indxWL_PDL1				;
+	int		indxWL_PDL2				;
 	int 	nLambda					;
 	char	*sPol			    	; // char	sPol[MAX_CH_LICEL]    	;
 	int 	*DAQ_Type				; // int 	DAQ_Type[MAX_CH_LICEL]   ;
@@ -126,10 +129,10 @@ struct strcGlobalParameters
 	double 	siteASL 				;
 	double 	siteLat 				;
 	double 	siteLong 				;
-	double  *temp_Celsius			;
-	double  *temp_CelsiusAVG		;
-	double  *pres_hPa				;
-	double  *pres_hPaAVG			;
+	double  *temp_K_agl				;
+	double  *pres_Pa_agl			;
+	double  *temp_K_agl_AVG			;
+	double  *pres_Pa_agl_AVG		;
 	char	StartDate[20]			;
 	char	StartTime[20]			;
 	char	StopDate[20]			;
@@ -163,12 +166,15 @@ struct strcMolecularData
 	double  *prMol	  =NULL ;
 	double  *pr2Mol	  =NULL ;
 	double 	*zr		  =NULL	;
-	double 	*r_asl    =NULL	;
+	double 	*z_asl    =NULL	;
 	double 	*MOD	  =NULL	;
 	int 	nBins   	 	;
+	double  *pPa	  =NULL	; // PRESSURE [Pa] FROM THE MODEL/RADIOSOUNDING TO BE SAVED IN THE NETCDF FILE
+	double  *tK 	  =NULL	; // TEMPERATURE [K] THE MODEL/RADIOSOUNDING TO BE SAVED IN THE NETCDF FILE
 	double 	zenith			;
 	double 	dzr		  		;
 	double  MOD_REF			;
+	double  LR_mol			;
 } ;
 
 struct strcLidarDataFile
@@ -331,12 +337,14 @@ struct strcErrorSignalSet
 
 struct strcRadioSoundingData
 {
-    bool    radSoundingDataLOADED = false ;
+    // bool    radSoundingDataLOADED = false ;
 	double  *zLR 	;
 	double	*pLR 	;
 	double 	*tLR 	;
 	double 	*nLR 	;
 	double 	*nHR 	;
+	double 	*alpha_mol ;
+	double 	*beta_mol  ;
 	int 	nBinsLR ;
 } ;
 

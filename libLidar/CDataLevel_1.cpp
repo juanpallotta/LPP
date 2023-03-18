@@ -81,7 +81,10 @@ void CDataLevel_1::GetMem_indxMol( strcGlobalParameters *glbParam )
 void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
 	if ( avg_Points_Cloud_Mask !=0 )
-		smooth( (double*)pr, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)prS ) ;
+	{	
+		smooth( (double*)pr			, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)prS ) ;
+		smooth( (double*)glbParam->r, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)glbParam->r_avg ) ;
+	}
 	else
 	{
 		for( int b=0 ; b <glbParam->nBins ; b++ )

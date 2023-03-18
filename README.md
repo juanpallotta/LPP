@@ -8,9 +8,9 @@
   - [Installing dependencies](#installing-dependencies)
   - [Building the code](#building-the-code)
   - [Configuring and running LPP modules](#configuring-and-running-lpp-modules)
-- [<u>Product Data Level 0 Module:</u> Converting raw lidar files in a single NetCDF file](#uproduct-data-level-0-moduleu-converting-raw-lidar-files-in-a-single-netcdf-file)
-- [<u>Product Data Level 1 Module:</u> Lidar signals corrections and cloud-mask](#uproduct-data-level-1-moduleu-lidar-signals-corrections-and-cloud-mask)
-- [<u>Product Data Level 2 Module:</u> Aerosol optical products](#uproduct-data-level-2-moduleu-aerosol-optical-products)
+- [Product Data Level 0 Module: Converting raw lidar files in a single NetCDF file](#product-data-level-0-module-converting-raw-lidar-files-in-a-single-netcdf-file)
+- [Product Data Level 1 Module: Lidar signals corrections and layer-mask](#product-data-level-1-module-lidar-signals-corrections-and-layer-mask)
+- [Product Data Level 2 Module: Aerosol optical products](#product-data-level-2-module-aerosol-optical-products)
 - [Automatizing LPP](#automatizing-lpp)
 - [LALINET NetCDF File Format](#lalinet-netcdf-file-format)
   - [NetCDF's File Produced for Data Level 0](#netcdfs-file-produced-for-data-level-0)
@@ -29,14 +29,14 @@
 # Introduction
 
 The LPP is a collection of tools developed in C/C++ and Linux script, planned to handle all the steps of lidar analysis. In the present version of LPP, only elastic lidar signals are analyzed, but it is planned to manage depolarization and Raman signals in the near future.
-LPP is conformed by 3 main modules: `lidarAnalysis_PDL0`, `lidarAnalysis_PDL1`, and `lidarAnalysis_PDL2`, each one producing a different data level. The first module converts the raw lidar data files into a single NetCDF file, including detailed information about the instrument and acquisition setup (product data level 0 or PDL0). The produced NetCDF files are then processed by the next module which applies the necessary corrections to the raw lidars signals and computes the cloud-mask (product data level 1 or PDL1). The final step is the elastic retrieval of aerosol parameters (product data level 2 or PDL2), and for this first release of LPP, only elastic lidar signals are processed.
+LPP is conformed by 3 main modules: `lidarAnalysis_PDL0`, `lidarAnalysis_PDL1`, and `lidarAnalysis_PDL2`, each one producing a different data level. The first module converts the raw lidar data files into a single NetCDF file, including detailed information about the instrument and acquisition setup (product data level 0 or PDL0). The produced NetCDF files are then processed by the next module which applies the necessary corrections to the raw lidars signals and computes the layer-mask (product data level 1 or PDL1). The final step is the elastic retrieval of aerosol parameters (product data level 2 or PDL2), and for this first release of LPP, only elastic lidar signals are processed.
 The development of LPP is based on the existing analysis routines developed by individual LALINET groups, and hence takes advantage of previous efforts for algorithm comparison within the scope of the LALINET network. The code presented in this repository was tested on Linux Ubuntu 20.04.3 LTS and GCC 9.4.0.
 
 # Overall concept of the LPP tools
 
 The Lidar Processing Pipeline (LPP) is formed by 3 completely independent software (or modules), which communicates with each other using NetCDF files. The names of each one are represented by the output of its product data level (PDL), named from 0 to 2. Each one of these modules can be executed in a Linux command line following the basic rules described in this document. These modules are:
 - `lidarAnalysis_PDL0`: Transforms all the raw lidar data files stored in a folder (passed as an argument) into a single NetCDF file. This output NetCDF file will contain the raw lidar signals and global information about the measurement. This output is the L0 data level of LPP.
-- `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produces a new NetCDF defined as data level 1 (L1). This L1 file contains the same information as the data level L0 and adds L1 products. These new data include corrected lidar files (like laser offset, bias correction, etc.), the cloud-mask, and molecular density profiles. Also, all the parameters used to produce this output are stored. This output is called the L1 data level of LPP.
+- `lidarAnalysis_PDL1`: Receive the NetCDF file produced by `lidarAnalysis_PDL0` and produces a new NetCDF defined as data level 1 (L1). This L1 file contains the same information as the data level L0 and adds L1 products. These new data include corrected lidar files (like laser offset, bias correction, etc.), the layer-mask, and molecular density profiles. Also, all the parameters used to produce this output are stored. This output is called the L1 data level of LPP.
 - `lidarAnalysis_PDL2`: Receive the NetCDF file produced by `lidarAnalysis_PDL1` and produces a new NetCDF file defined as data level 2 (L2). This L2 file contains the same data as L0 and L1, adding the optical retrieval from one selected elastic channel. Also, all the parameters used to produce this output are stored. This output is the L2 data level of LPP.
 
 It is important to remark that the output files produced in stages 1 and 2 contain all the information of its previous stage. The new file generated in each module adds the new information of the stage under analysis in a NetCDF's sub-group called **L*x*_Data**, being ***x*** the data level number. 
@@ -222,7 +222,7 @@ If `SCC_NETCDF` is selected, the output file generated can be used as an input f
 
 In order to proceed in a safest way, we highly reccomend to uncomment the proper line in the configuration files included in this repository. Also, its worth mentioning that this inputs allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
 
-# <u>Product Data Level 1 Module:</u> Lidar signals corrections and cloud-mask
+# <u>Product Data Level 1 Module:</u> Lidar signals corrections and layer-mask
 
 This module receives the NetCDF file produced by the previous module (`lidarAnalysis_PDL0`) as it first parameter (in our example, `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`). This module will accept the input file while it is in the LALINET NetCDF format; this means, the variable `outputDataFileFormat = LALINET_NETCDF` should be set in the L0's module configuration file (`analysisParameters_PDL0_Brazil.conf` in this example).
 
@@ -265,10 +265,10 @@ Range_column_index_in_File = 0
 Temp_column_index_in_File  = 1
 Pres_column_index_in_File  = 2
 
-Temperature_at_Lidar_Station = 25.0
-Pressure_at_Lidar_Station = 940.0
+Temperature_at_Lidar_Station_K = 298.15
+Pressure_at_Lidar_Station_Pa = 94000.0
 
-# CLOUD-MASK RETRIEVAL PARAMETERS
+# layer-mask RETRIEVAL PARAMETERS
 avg_Points_Cloud_Mask = 101
 stepScanCloud = 1
 nScanMax = 5000
@@ -286,7 +286,7 @@ Below is a description of each of these parameters:
 
 * `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lidarAnalysis_PDL1` the numbers of the adjacents lidar profiles to average producing one merged profile. After this, the `time` dimension in the NetCDF file for the L1 data products will be reduced by `numEventsToAvg_PDL1` times. The averaging is applied to the L0 lidar profiles matrix.
 
-* `indxWL_PDL1`: An index (starting from 0) of the channel to use in cloud-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file for better cloud discrimination.
+* `indxWL_PDL1`: An index (starting from 0) of the channel to use in layer-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file for better cloud discrimination.
 
 * `Path_To_Molecular_File`: Path to the plain-text, comma-sepparated file containing the radiosonde/model data. This file must contain the altitude, temperature and pressure of the radiosonde/model used for the computation of the alpha and beta molecular profiles. The units of these variables are described in the comments of the setting file: altitude in meters (above sea level), temperature in Kelvin and pressure in hecto-Pascals. This repository has a sample file of US standard model (file `/LPP/Lidar_Analysis_PDL1/MolData/US-StdA_DB_CEILAP.csv`). The radiosonde/model file must be headerless, and the column order of each parameter (height, temperature and pressure) are described in the following variables (`Range_column_index_in_File`, `Temp_column_index_in_File` and `Pres_column_index_in_File`).
 * `Range_column_index_in_File`: Column index of the radiosonde/model file containing the range values. For this example, index 0 (first column).
@@ -304,10 +304,10 @@ The first lines of the `US-StdA_DB_CEILAP.csv` file contained in this repository
 1000,281.65,898.77,0,0,916.05,1.1113
 ...
 ```
-* `Temperature_at_Lidar_Station`: Temperature at ground level (in Celsius).
-* `Pressure_at_Lidar_Station`: Pressure at ground level (in hPa)
+* `Temperature_at_Lidar_Station_K`: Temperature at ground level in Kelvins (K).
+* `Pressure_at_Lidar_Station_Pa`: Pressure at ground level in Pascals (Pa)
 
-* **Cloud-mask retrieval parameters:** These parameters are required for the cloud detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
+* **layer-mask retrieval parameters:** These parameters are required for the cloud detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
 
 ```
 avg_Points_Cloud_Mask = 101
@@ -364,7 +364,7 @@ A description of each of these parameters is described below:
 
 * `numEventsToAvg_PDL2`: Time averaging for L2 data level products. This parameters tell to `lidarAnalysis_PDL2` the numbers of the adjacents lidar profiles to average and produce one merged profile. After this, the `time` dimension in the NetCDF file for the L2 data products will be reduced by `numEventsToAvg_PDL2` times. The averaging is applied to the L0 lidar profiles matrix. If this parameter is negative, all L0 profiles will be averaged producing only one profile to invert.
 * `avg_Points_Fernald`: Numbers of points used for spatial smoothing to apply to the inverted retrieved profiles (extinction and backscatter).
-* `LR`: Lidar ratio used for the inversion. It can be more than one value, in wich each elements must be sepparated by `:`, with a space before and after `:` (see the example array in the previous lines: `LR = 50 : 60 : 70 : 80`).
+* `LR`: Lidar ratio used for the inversion. The current version of LPP only accepts a constant value for the lidar ratio across the ranges. It can be more than one value, in wich each elements must be sepparated by `,`, with a space before and after `,` (see the example array in the previous lines: `LR = 50 , 60 , 70 , 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
 * `heightRef_Inversion_ASL`: Altitude above sea level (in meters) used as reference height used to normalize the lidar signal.
 * `integral_max_range_for_AOD`: Maximun range to integrate the extinction profile to obtain the aerosol optical depth.
@@ -509,7 +509,8 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
 * `Cloud_Mask (time, points)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
 * `Laser_Zero_Bin_Offset (channels)`: Number of points removed from each channel due to the laser offset.
-* `Molecular_Density (points)`: Molecular density profile to be used in the inversion module. This array its already referenced to the site's altitude above sea level, being its first bin correlated to the first bin of the lidar signals.
+* `Pressure_Pa (points)`: Pressure profile (in Pascals) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
+* `Temperature_K (points)`: Temperature profile (in Kelvins) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
 * `Pressure_Ground_Level (time)`: Atmospheric pressure at site level (to be used in future versions of LPP).
 <!-- * `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding configuration file passed as third argument. -->
 * `Raw_Lidar_Data_L1 (time, channels, points)`: Raw lidar data used in level 1. These signals has the all the corrections need for produce the cloud mask, like zero-bin and bias correction as the time and spatial averaging set for this data level.

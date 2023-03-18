@@ -143,12 +143,15 @@ void findIndxMax_void( void *vec, const char *varType, int indxInic, int indxEnd
 void smooth( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAvg )
 {
 	double  m 	= 0 ;
-    int     halfSpam = (int)floor(spam/2) ;
+
+    // if (spam%2 != 0) // IF SPAM IS ODD, MAKE IT EVEN
+    //     spam++ ;
+    // int halfSpam = (int)floor(spam/2) ;
     
 	if( (indxEnd - indxInit) >= spam )
 	{
         int     N = indxEnd - indxInit +1 ;
-        double *avgSig = (double*) new double[ N ] ;
+        double *avgSig = (double*) new double[ N ] ; // guardo en este vector los puntos a promediar del vector sig
         for( int i=0 ; i <N; i++ )
             avgSig[i] = sig[indxInit +i] ;
 
@@ -157,30 +160,36 @@ void smooth( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAv
 			for( int b=0 ; b<spam ; b++ )	m = m + sig[i+b] ;
 			m 	= (double)(m/spam) ;
 
-			avgSig[ i-indxInit +halfSpam ] = (double)m ;
+			// avgSig[ i-indxInit +halfSpam ] = (double)m ;
+			avgSig[ i-indxInit ] = (double)m ;
 			m =0 ;
 		}
+        for (int i =(indxEnd-spam); i <=indxEnd; i++) // PAD THE LAST spam BINS
+            avgSig[i] = avgSig[indxEnd-spam-1] ;
+
 		for( int i=indxInit ; i<=indxEnd ; i++ )	sigMeanAvg[i] = (double)avgSig[i -indxInit] ;
 
         delete avgSig ;
 	}
 }
-// void meanAvg( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAvg )
+
+// vector<double> smooth(vector<double> arr, int window_size) 
 // {
-// 	double m 	= 0 ;
+//     vector<double> smoothed_arr;
+//     double sum = 0;
 
-// 	if( (indxEnd - indxInit) >= spam )
-// 	{
-// 		for( int i=indxInit ; i<=(indxEnd-spam-1) ; i++ )
-// 		{
-// 			for( int b=0 ; b<spam ; b++ )	m = m + sig[i+b] ;
-// 			m 	= m/spam 	;
+//     for(int i = 0; i < window_size; i++) {
+//         sum += arr[i];
+//     }
 
-// 			for( int b=0 ; b<spam ; b++ )	sigMeanAvg[i+b] = m ;
-// 			m =0 ;
-// 		}
-// 		for( int i=(indxEnd-spam-1) ; i<=indxEnd ; i++ )	sigMeanAvg[i] = (double)sigMeanAvg[indxEnd-spam-1] ;
-// 	}
+//     smoothed_arr.push_back(sum / window_size);
+
+//     for(int i = window_size; i < arr.size(); i++) {
+//         sum += arr[i] - arr[i - window_size];
+//         smoothed_arr.push_back(sum / window_size);
+//     }
+
+//     return smoothed_arr;
 // }
 
 //----------------------------------------------------

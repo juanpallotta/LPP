@@ -17,18 +17,21 @@ class CMolecularData
 		virtual ~CMolecularData();
 
     	strcMolecularData dataMol ;
+		void Get_Mol_Data_L1( strcGlobalParameters* ) ;
+		void Get_Mol_Data_L2( strcGlobalParameters* ) ;
 	    void GetMem_dataMol( int ) ;
-		void Fill_dataMol( strcGlobalParameters* ) ;
-		void Fill_dataMol( strcGlobalParameters*, double* ) ;
-		void Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters* ) ;
+		void Fill_dataMol_L1( strcGlobalParameters* ) ;
+		void Fill_dataMol_L2( strcGlobalParameters* ) ;
+		// void Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters* ) ;
 		void Elastic_Rayleigh_Lidar_Signal ( double* ) ;
-		void Read_range_Temp_Pres_From_File( strcGlobalParameters* ) ;
+		void TemK_PresPa_to_N_Alpha_Beta_MOL ( strcGlobalParameters*, double*, double*, double, double, int, double*, double*, double*, double* ) ;
 		void Nmol_Ref_ASL_Site( strcGlobalParameters* ) ;
 
     	strcRadioSoundingData RadSondeData ;
 
 	private:
-		void RadLowToHighRes() ;
+		void Mol_Low_To_High_Res() 	;
+		void Tem_Pres_to_HR() 		;
 		void Molecular_Profile_Resampled_Zenithal( strcGlobalParameters* ) ;
 };
 

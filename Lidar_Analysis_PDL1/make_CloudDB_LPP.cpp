@@ -143,7 +143,7 @@ int main( int argc, char *argv[] )
     oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (int*)glbParam.iLambda ) ;
 
     CMolecularData       *oMolData = (CMolecularData*) new CMolecularData ( (strcGlobalParameters*)&glbParam ) ;
-    oMolData->Read_range_Temp_Pres_From_File( (strcGlobalParameters*)&glbParam ) ;
+    oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
 
     strcCloudInfoDB_LPP cloudInfoDB ;
 	cloudInfoDB.lowestCloudHeight_ASL = (double*) new double [ glbParam.nEventsAVG ] ;
@@ -167,7 +167,7 @@ int main( int argc, char *argv[] )
     for ( int t =0; t <glbParam.nEventsAVG ; t++ )
     {
         glbParam.evSel = t ;
-        oMolData->Fill_dataMol( (strcGlobalParameters*)&glbParam ) ;
+        oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 
         for ( int b =0; b <glbParam.nBins ; b++)
             oDL1.cloudProfiles[t].clouds_ON[b] = cloud_mask[t][b] ;
