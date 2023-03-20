@@ -250,6 +250,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
         glbParam->r_avg[i] = glbParam->r[i] ;
     }
     glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ;
+    glbParam->avg_Points_Fernald = (int*) new int[glbParam->nCh] ;
 
 // cout<<endl;
 // cout<<endl<<"(0) glbParam->r[0]: "<< glbParam->r[0] << endl;
@@ -1157,6 +1158,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineDims( (int)nc_id_group_L2, (char*)"time"    , (int)glbParam->nEventsAVG, (int*)&id_dims_aer[0] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"lrs"     , (int)oDL2->nLRs          , (int*)&id_dims_aer[1] ) ;
     DefineDims( (int)nc_id_group_L2, (char*)"points"  , (int)glbParam->nBins     , (int*)&id_dims_aer[2] ) ;
+    // DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh       , (int*)&id_dims_aer[3] ) ;
 
     id_dims_pr2[0] = id_dims_aer[0] ;
     DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh, (int*)&id_dims_pr2[1] ) ;
@@ -1174,6 +1176,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
     DefineVariable( (int)nc_id_group_L2, (char*)"LRs"                            , (const char*)"double", (int)1          , (int*)&id_dims_aer[1], (int*)&var_ids[8]  ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"                         , (const char*)"double", (int)2          , (int*)&id_dims_aer[0], (int*)&var_ids[9]  ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"Ref_Range_ASL_m"                , (const char*)"double", (int)1          , (int*)&id_dims_aer[0], (int*)&var_ids[10] ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Fernald_smooth_bins"            , (const char*)"int"   , (int)1          , (int*)&id_dims_pr2[1], (int*)&var_ids[11] ) ;
 
     double *Ref_Range = (double*) new double[ glbParam->nEventsAVG ]  ;
     for (int i =0; i <glbParam->nEventsAVG; i++)
@@ -1237,6 +1240,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     PutVar( (int)nc_id_group_L2, (int)var_ids[3], (const char*)"int", (int*)oDL2->Start_Time_AVG_L2 ) ;
     PutVar( (int)nc_id_group_L2, (int)var_ids[4], (const char*)"int", (int*)oDL2->Stop_Time_AVG_L2 ) ;
+
+    PutVar( (int)nc_id_group_L2, (int)var_ids[11], (const char*)"int", (int*)glbParam->avg_Points_Fernald ) ;
 
             if ( (retval = nc_close(nc_id) ) )
                 ERR(retval);

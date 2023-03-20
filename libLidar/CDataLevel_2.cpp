@@ -9,7 +9,6 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
     beta_Aer   = (double***) new double**[glbParam->nEventsAVG] ;
     AOD_LR	   = (double**)  new double *[glbParam->nEventsAVG] ;
     pr		   = (double**)  new double *[glbParam->nEventsAVG] ;
-    // nMol	   = (double*)   new double  [glbParam->nBins]      ;	memset( (double*)nMol , 0, sizeof(double)*glbParam->nBins ) ;
     dummy      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)dummy, 0, sizeof(double)*glbParam->nBins ) ;
     pr2_s      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)pr2_s, 0, sizeof(double)*glbParam->nBins ) ;
 
@@ -20,7 +19,7 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	ip	   			= (double*) new double[glbParam->nBins ] ;
 	ipN   			= (double*) new double[glbParam->nBins ] ;
 	betaT  			= (double*) new double[glbParam->nBins ] ;
-	intAlphaMol_r  	= (double*) new double[glbParam->nBins ];
+	intAlphaMol_r  	= (double*) new double[glbParam->nBins ] ;
 
 	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
 	{
@@ -82,12 +81,11 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 	LRM = (double) dataMol->LR_mol ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
 
-	int avg_Points_Fernald ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)&avg_Points_Fernald ) ;
-	if ( avg_Points_Fernald >1 )
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)&glbParam->avg_Points_Fernald ) ;
+	if ( glbParam->avg_Points_Fernald[c] >1 )
 	{
-		smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)pr2_s 			) ;
-		smooth( (double*)glbParam->r  , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)glbParam->r_avg ) ;
+		smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)pr2_s 			) ;
+		smooth( (double*)glbParam->r  , (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)glbParam->r_avg ) ;
 // printf("\nglbParam->r[0]: %lf\nglbParam->r[1]: %lf\nglbParam->r[2]: %lf\nglbParam->r[3]: %lf\n", glbParam->r[0], glbParam->r[1], glbParam->r[2], glbParam->r[3] ) ;
 // printf("\nglbParam->r_avg[0]: %lf\nglbParam->r_avg[1]: %lf\nglbParam->r_avg[2]: %lf\nglbParam->r_avg[3]: %lf\n", glbParam->r_avg[0], glbParam->r_avg[1], glbParam->r_avg[2], glbParam->r_avg[3] ) ;
 
@@ -182,15 +180,14 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
 		indx_integral_max_range_for_AOD = (int)round(integral_max_range_for_AOD /glbParam->dr) ;
 
-		smooth( (double*)&beta_Aer[t][l][0] , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)&beta_Aer[t][l][0]  ) ;
-		smooth( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)&alpha_Aer[t][l][0] ) ;
+		smooth( (double*)&beta_Aer[t][l][0] , (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&beta_Aer[t][l][0]  ) ;
+		smooth( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&alpha_Aer[t][l][0] ) ;
 		sum(    (double*)&alpha_Aer[t][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[t][l] ) ;
 		AOD_LR[t][l] = AOD_LR[t][l] * glbParam->dr ;
 		printf("\nAOD@LR = %lf --> %lf", LR[l], AOD_LR[t][l]) ;
 
 	} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 }
-
 
 void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int c, strcMolecularData *dataMol)
 { 
@@ -204,18 +201,22 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 	LRM = (double) dataMol->LR_mol ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
 
-	int avg_Points_Fernald ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)&avg_Points_Fernald ) ;
-	if ( avg_Points_Fernald >1 )
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)glbParam->avg_Points_Fernald ) ;
+	if ( glbParam->avg_Points_Fernald[c] >1 )
 	{
-		smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)pr2_s 			) ;
-		smooth( (double*)glbParam->r  , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)glbParam->r_avg ) ;
+		smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)pr2_s 			) ;
+
+		// smooth( (double*)glbParam->r  , (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)glbParam->r_avg ) ;
+		sum(glbParam->r, 0, glbParam->avg_Points_Fernald[c]-1, &glbParam->r_avg[0] ) ;
+		glbParam->r_avg[0] = glbParam->r_avg[0] /glbParam->avg_Points_Fernald[c] ;
 
 		for (int i =0; i <glbParam->nBins; i++)
 		{
 			pr2[t][c][i] 	= (double)pr2_s[i] 			 ;
-			glbParam->r[i] 	= (double)glbParam->r_avg[i] ; 
+			// glbParam->r[i] 	= (double)glbParam->r_avg[i] ; 
 		}
+		for (int i =1; i <glbParam->nBins; i++)
+			glbParam->r_avg[i] = glbParam->r_avg[0] + i*glbParam->dr ;
 	}
 
 	double 	pr2_Ref ;
@@ -238,7 +239,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 	{
 			sum( (double*)&pr[t][0], (int)(indxRef_Fernald[glbParam->evSel] -avg_Half_Points_Fernald_Ref), (int)(indxRef_Fernald[glbParam->evSel] +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
 			pr2_Ref = pr2_Ref /(avg_Half_Points_Fernald_Ref +1) ;
-			pr2_Ref = pr2_Ref * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
+			pr2_Ref = pr2_Ref * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] ;
+			// pr2_Ref = pr2_Ref * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
 	}
 	else if ( strcmp( reference_method.c_str(), "FIT" ) ==0 )
 	{
@@ -250,7 +252,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		// 	RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
 		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] ;
 			RayleighFit( (double*)&pr[t][0], (double*)dataMol->prMol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
-		pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
+		pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] ;
+		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
 		delete pr2Fit ;
 	}
 	pr2_Ref = pr2_Ref *1.0 ;
@@ -294,8 +297,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
 		indx_integral_max_range_for_AOD = (int)round(integral_max_range_for_AOD /glbParam->dr) ;
 
-		smooth( (double*)&beta_Aer[t][l][0] , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)&beta_Aer[t][l][0]  ) ;
-		smooth( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Fernald, (double*)&alpha_Aer[t][l][0] ) ;
+		smooth( (double*)&beta_Aer[t][l][0] , (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&beta_Aer[t][l][0]  ) ;
+		smooth( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&alpha_Aer[t][l][0] ) ;
 		sum(    (double*)&alpha_Aer[t][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[t][l] ) ;
 		AOD_LR[t][l] = AOD_LR[t][l] * glbParam->dr ;
 		printf("\nAOD@LR = %lf --> %lf", LR[l], AOD_LR[t][l]) ;

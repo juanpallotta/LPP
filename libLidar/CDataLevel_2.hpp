@@ -19,7 +19,6 @@ class CDataLevel_2
 		CLidar_Operations 	*oLOp ;
 	    double  ***alpha_Aer					    ;
 	    double  ***beta_Aer 						;
-		// double  *nMol 								;
 		double  ***pr2, **pr ;
 		double  ***data_File_L0, ***data_File_L2    ;
 		int		*Start_Time_AVG_L2, *Stop_Time_AVG_L2 ;

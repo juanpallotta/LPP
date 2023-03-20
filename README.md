@@ -557,6 +557,7 @@ The variables (in alphabetical order) are described below. The dimensions of eac
 <!-- * `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: Range corrected lidar signals. These signals has all the corrections, as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument. -->
 * `Start_Time_L2 (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Stop_Time_L2 (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
+* `Fernald_smooth_bins (channels)`: Number of point to average the elastic lidar signal prior to apply the Fernald inversion. One value per channel.
 
 ### Group Attributes
 

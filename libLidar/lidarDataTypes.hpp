@@ -70,6 +70,7 @@ struct strcGlobalParameters
 	char 	BkgCorrMethod[10]    	;
 	double 	*r	 					;
 	double 	*r_avg 					;
+	int		*avg_Points_Fernald		;
 	double 	dr 						;
 	double 	dzr						;
 	int 	nChMax 					;
