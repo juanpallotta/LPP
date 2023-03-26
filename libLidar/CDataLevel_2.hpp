@@ -32,6 +32,11 @@ class CDataLevel_2
 		int 	indxInitSig, indxEndSig, *indxRef_Fernald ;
 		double  R_ref    							;
 
+		double 	pr2_Ref ;
+		int 	avg_Half_Points_Fernald_Ref ;
+		double  ka  ;
+		double  KM_ ;
+
 		double 	*pr2n  ;
 		double 	*phi   ;
 		double 	*p 	   ;
@@ -43,6 +48,8 @@ class CDataLevel_2
 		double 	intAlphaMol_Ref ;
 
 	private:
+		void FernaldInversion_Test_Ref_Value( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;
+		void FernaldInversion_Core( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;
 
 } ;
 

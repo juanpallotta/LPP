@@ -79,7 +79,7 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 	}
 
 	double co2_ppmv = 400 ;
-	TemK_PresPa_to_N_Alpha_Beta_MOL ( (strcGlobalParameters*)glbParam, (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9, (double)co2_ppmv, (int)RadSondeData.nBinsLR, 
+	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9, (double)co2_ppmv, (int)RadSondeData.nBinsLR, 
   									  (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 
 	Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
@@ -97,7 +97,7 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam )
 	RadSondeData.alpha_mol 	= (double*) new double [dataMol.nBins] ;
 	RadSondeData.beta_mol  	= (double*) new double [dataMol.nBins] ;
 
-	TemK_PresPa_to_N_Alpha_Beta_MOL ( (strcGlobalParameters*)glbParam, (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->indxWL_PDL2]*1e-9, (double)co2_ppmv, (int) dataMol.nBins, 
+	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->indxWL_PDL2]*1e-9, (double)co2_ppmv, (int) dataMol.nBins, 
   									  (double*)RadSondeData.nHR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 
 	Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
@@ -283,7 +283,7 @@ void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters 
 	delete coeff_beta  	;
 }
 
-void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( strcGlobalParameters *glbParam, double *pres_PA, double *temp_K, double lambda_m, double co2_ppmv, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
+void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( double *pres_PA, double *temp_K, double lambda_m, double co2_ppmv, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
 {
 // -----------------------------------------------------------------------
 // Description:
@@ -393,11 +393,9 @@ double Na = 6.0221367e+23;  // Avogadro's number                         [# mol^
 // double Rair = Rgas/Airmwt*1e3; // Dry air gas constant               [J K^-1 kg^-1]
 
 // Standard Atmosphere Reference Values
-ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl[0] ) ;
-ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"   , (const char*)"double", (int*)&glbParam->pres_Pa_agl[0]     ) ;
 double T0   = 273.15 ; // zero deg celcius                                     [K]
-double Tstd = glbParam->temp_K_agl[0]  ; // 288.15 ; // Temperature 288.15 K = 15 C                          [K]
-double Pstd = glbParam->pres_Pa_agl[0] ; // 101325 ; // Pressure                                            [Pa]
+double Tstd = 288.15 ; // Temperature 288.15 K = 15 C                          [K]
+double Pstd = 101325 ; // Pressure                                            [Pa]
 
 // Molar volume at Pstd and T0
 // Bodhaine et al, 1999

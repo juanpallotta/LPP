@@ -137,7 +137,7 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 			b_i[s] = (double) b_ref_min + s *b_step ;
 		b_i[nBiasRes_Auto] = 0 ; // IN CASE OF UNBIASED LIDAR SIGNAL
 
-		for( int l=0 ; l< nLoopFindBias ; l++ )
+		for( int l=0 ; l< nLoopFindBias ; l++ ) // nLoopFindBias = 3
 		{
 			for (int b =0; b <nBiasRes_Auto; b++)
 			{
@@ -308,20 +308,10 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 							Raw_Data_Start_Time_AVG[fC]	  = (long)Raw_Data_Start_Time[ fC *glbParam->numEventsToAvg ] ;
 						if ( t ==(glbParam->numEventsToAvg -1) )
 							Raw_Data_Stop_Time_AVG[fC] 	  = (long)Raw_Data_Stop_Time[ fC *glbParam->numEventsToAvg +t ] ;
-						// glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
-						// glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
-						// glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] + glbParam->temp_K_agl[fC*glbParam->numEventsToAvg +t] ;
-						// glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     + glbParam->pres_Pa_agl[fC*glbParam->numEventsToAvg +t] 	  ;
 					}
 				}
-					dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
-					// if( (b==0) && (c==0) )
-					// {
-					// 	glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
-					// 	glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
-					// 	glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] /glbParam->numEventsToAvg ;
-					// 	glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     /glbParam->numEventsToAvg ;
-					// }
+					if ( glbParam->DAQ_Type[c] == 0 ) // IF IS A PHOTON-CURRENT CHANNEL, THE SIGNALS HAVE TO BE AVERAGED
+						dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
 			}
 		} // for ( int c=0 ; c <glbParam->nCh ; c++ )
 
@@ -383,7 +373,7 @@ printf("| Desaturation  |\t") ;
 					for (int b =0; b <glbParam->nBins ; b++)
 					{
 						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam->nShots[c] * glbParam->tBin_us) ) ; // [MHz]
-						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / glbParam->PHO_MAX_COUNT_MHz ) ) ;
+						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / glbParam->PHO_MAX_COUNT_MHz ) ) ; // Non-paralyzable correction 
 					}
 				}            
 			} /*--------------------------------------------------------------------------------------------*/
@@ -441,7 +431,7 @@ void CLidar_Operations::GluingLidarSignals( strcGlobalParameters *glbParam, doub
 		if ( (MHz_Min <= glbParam->MIN_TOGGLE_RATE_MHZ) && (MHz_Max >= glbParam->MAX_TOGGLE_RATE_MHZ) )
 		{
 			printf("\nEvent= %d --> Gluing channels %d and %d (%d nm)", glbParam->evSel, glbParam->indx_gluing_Low_AN[c],
-																	   glbParam->indx_gluing_High_PHO[c], glbParam->iLambda[glbParam->indx_gluing_High_PHO[c]] ) ;
+																		glbParam->indx_gluing_High_PHO[c], glbParam->iLambda[glbParam->indx_gluing_High_PHO[c]] ) ;
 
 			// CORRECTED PHOTON COUNTING VALUES HIGHER THAN MAX_TOGGLE_RATE_MHZ
 			memset( dummy, 0, ( sizeof(double) * glbParam->nBins ) ) ;
