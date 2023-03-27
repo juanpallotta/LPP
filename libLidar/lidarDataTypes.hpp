@@ -160,22 +160,25 @@ struct strcGlobalParameters
 
 struct strcMolecularData
 { // IN HIGH RESOLUTION
-	double 	*betaMol  =NULL ;
-	double 	*betaRam  =NULL ;
-	double 	*alphaMol =NULL	;
-	double  *nMol 	  =NULL	;
-	double  *prMol	  =NULL ;
-	double  *pr2Mol	  =NULL ;
-	double 	*zr		  =NULL	;
-	double 	*z_asl    =NULL	;
-	double 	*MOD	  =NULL	;
-	int 	nBins   	 	;
-	double  *pPa	  =NULL	; // PRESSURE [Pa] FROM THE MODEL/RADIOSOUNDING TO BE SAVED IN THE NETCDF FILE
-	double  *tK 	  =NULL	; // TEMPERATURE [K] THE MODEL/RADIOSOUNDING TO BE SAVED IN THE NETCDF FILE
-	double 	zenith			;
-	double 	dzr		  		;
-	double  MOD_REF			;
-	double  LR_mol			;
+	double 	*betaMol   		=NULL 	;
+	double 	*betaMol_avg  	=NULL 	;
+	double 	*betaRam   		=NULL 	;
+	double 	*alphaMol  		=NULL	;
+	double 	*alphaMol_avg 	=NULL	;
+	double  *nMol 	   		=NULL	;
+	double  *prMol	   		=NULL 	;
+	double  *prMol_avg 		=NULL 	;
+	double  *pr2Mol	   		=NULL 	;
+	double 	*zr		   		=NULL	;
+	double 	*z_asl     		=NULL	;
+	double 	*MOD	   		=NULL	;
+	int 	nBins   	 			;
+	double  *pPa	   		=NULL	; // PRESSURE [Pa] FROM THE MODEL/RADIOSOUNDING TO BE SAVED IN THE NETCDF FILE
+	double  *tK 	   		=NULL	; // TEMPERATURE [K] THE MODEL/RADIOSOUNDING TO BE SAVED IN THE NETCDF FILE
+	double 	zenith					;
+	double 	dzr		  				;
+	double  MOD_REF					;
+	double  LR_mol					;
 } ;
 
 struct strcLidarDataFile

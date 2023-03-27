@@ -191,13 +191,6 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 
 void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int c, strcMolecularData *dataMol)
 { 
-	// memset( (double*)phi		  , 0, sizeof(double)*glbParam->nBins ) ;
-	// memset( (double*)p  		  , 0, sizeof(double)*glbParam->nBins ) ;
-	// memset( (double*)ip 		  , 0, sizeof(double)*glbParam->nBins ) ;
-	// memset( (double*)ipN		  , 0, sizeof(double)*glbParam->nBins ) ;
-	// memset( (double*)betaT		  , 0, sizeof(double)*glbParam->nBins ) ;
-	// memset( (double*)intAlphaMol_r, 0, sizeof(double)*glbParam->nBins ) ;
-
 	LRM = (double) dataMol->LR_mol ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
 
@@ -205,22 +198,18 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 	if ( glbParam->avg_Points_Fernald[c] >1 )
 	{
 		smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)pr2_s 			) ;
+			for (int i =0; i <glbParam->nBins; i++)
+				pr2[t][c][i] = (double)pr2_s[i] 	;
 
-		// smooth( (double*)glbParam->r  , (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)glbParam->r_avg ) ;
+		smooth( (double*)&dataMol->alphaMol[0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->alphaMol_avg[0] ) ;
+		smooth( (double*)&dataMol->betaMol [0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->betaMol_avg [0] ) ;
+
 		sum(glbParam->r, 0, glbParam->avg_Points_Fernald[c]-1, &glbParam->r_avg[0] ) ;
 		glbParam->r_avg[0] = glbParam->r_avg[0] /glbParam->avg_Points_Fernald[c] ;
-
-		for (int i =0; i <glbParam->nBins; i++)
-		{
-			pr2[t][c][i] 	= (double)pr2_s[i] 			 ;
-			// glbParam->r[i] 	= (double)glbParam->r_avg[i] ; 
-		}
 		for (int i =1; i <glbParam->nBins; i++)
 			glbParam->r_avg[i] = glbParam->r_avg[0] + i*glbParam->dr ;
 	}
 
-	// double 	pr2_Ref ;
-	// int 	avg_Half_Points_Fernald_Ref ;
 	string 	reference_method ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "reference_method", "string", (char*)reference_method.c_str() ) ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Half_Points_Fernald_Ref", "int", (int*)&avg_Half_Points_Fernald_Ref ) ;
@@ -337,8 +326,10 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t,
 	ka  = 1/LR ;
 	KM_ = 1/dataMol->LR_mol ;
 
-	cumtrapz( glbParam->dr, dataMol->alphaMol, 0, (dataMol->nBins-1)			   , intAlphaMol_r    ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
-	trapz	( glbParam->dr, dataMol->alphaMol, 0, indxRef_Fernald[glbParam->evSel] , &intAlphaMol_Ref ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
+	cumtrapz( glbParam->dr, dataMol->alphaMol_avg, 0, (dataMol->nBins-1)			   , intAlphaMol_r    ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
+	trapz	( glbParam->dr, dataMol->alphaMol_avg, 0, indxRef_Fernald[glbParam->evSel] , &intAlphaMol_Ref ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
+	// cumtrapz( glbParam->dr, dataMol->alphaMol, 0, (dataMol->nBins-1)			   , intAlphaMol_r    ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
+	// trapz	( glbParam->dr, dataMol->alphaMol, 0, indxRef_Fernald[glbParam->evSel] , &intAlphaMol_Ref ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
 
 	for( int i=indxStart ; i <indxStop ; i++  )
 	{
@@ -353,9 +344,11 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t,
 	for ( int i=indxStart ; i <indxStop ; i++ )
 	{
 		ipN[i] 	 = ip[i] - ipNref ;
-		betaT[i] = p[i] / ( (1/dataMol->betaMol[indxRef_Fernald[glbParam->evSel]]) - (2/ka) * ipN[i] ) ;
+		betaT[i] = p[i] / ( (1/dataMol->betaMol_avg[indxRef_Fernald[glbParam->evSel]]) - (2/ka) * ipN[i] ) ;
+		// betaT[i] = p[i] / ( (1/dataMol->betaMol[indxRef_Fernald[glbParam->evSel]]) - (2/ka) * ipN[i] ) ;
 
-		beta_Aer[t][l][i]  = betaT[i] - dataMol->betaMol[i]  ; // r
+		beta_Aer[t][l][i]  = betaT[i] - dataMol->betaMol_avg[i]  ; // r
+		// beta_Aer[t][l][i]  = betaT[i] - dataMol->betaMol[i]  ; // r
 		alpha_Aer[t][l][i] = beta_Aer[t][l][i] *LR ; // r
 	}
 	for (int i =0 ; i <glbParam->indxInitSig; i++)
