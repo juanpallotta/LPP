@@ -84,6 +84,8 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	{	
 		smooth( (double*)pr			, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)prS ) ;
 		smooth( (double*)glbParam->r, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)glbParam->r_avg ) ;
+
+		smooth( (double*)dataMol->prMol, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)dataMol->prMol_avg ) ;
 	}
 	else
 	{
@@ -92,8 +94,8 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	}
 	for( int b=0 ; b <glbParam->nBins ; b++ )
 	{
-		prprm[b]  = (double)(prS[b] * dataMol->prMol[b]) ;
-		prmprm[b] = (double)(dataMol->prMol[b] * dataMol->prMol[b]) ;
+		prprm[b]  = (double)(prS[b] * dataMol->prMol_avg[b]) ;
+		prmprm[b] = (double)(dataMol->prMol_avg[b] * dataMol->prMol_avg[b]) ;
 	}
 	nMaxLoop = (int)0 ;
 
@@ -101,7 +103,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	fitParam.indxEndFit  = glbParam->nBins - 1 ; // glbParam->indxEndSig - avg_Points_Cloud_Mask ; //  
 	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-		RayleighFit( (double*)prS, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+		RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
 	errRefBkg = sqrt ( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
 	// printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.sumsq_m: %lf", fitParam.m, biasRef, errRefBkg, fitParam.sumsq_m) ;
@@ -128,12 +130,12 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 			sppm = (double)0.0 ;	spm = (double)0.0 ;		spmpm = (double)0.0 ;	 m = (double)0.0 ;
 			fitParam.nFit = fitParam.indxEndFit - fitParam.indxInicFit ;
 			sum( (double*)prprm    		, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&sppm ) ;
-			sum( (double*)dataMol->prMol, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spm  ) ;
+			sum( (double*)dataMol->prMol_avg, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spm  ) ;
 			sum( (double*)prmprm		, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spmpm) ;
 				m = (double)((sppm - biasRef * spm) /spmpm) ;
 
 			for( int b=0 ; b <=glbParam->indxEndSig ; b++ ) // for( int b=glbParam->indxInitSig ; b <=glbParam->indxEndSig ; b++ ) // for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )
-				prFit[b] = m * dataMol->prMol[b] + biasRef ;
+				prFit[b] = m * dataMol->prMol_avg[b] + biasRef ;
 
 			errFitStage = 0 ;
 			for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )
@@ -253,7 +255,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 
 			if( fitParam.indxInicFit > glbParam->indxInitSig )
 			{
-					RayleighFit( (double*)prS, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
+					RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
 				errCloud =0 ;
 				// errCloud = (double)sqrt(fitParam.sumsq_m/(fitParam.nFit -1)) ; // (errCloud/fitParam.nFit) ;
 				errCloud = (double)(fitParam.sumsq_m/(fitParam.nFit -1)) ;

@@ -123,7 +123,7 @@ struct strcGlobalParameters
 	char	fileName[200] 			;
 	char	infoFile[100] 			;
 	char 	site[20] 				;
-	int		Laser_Frec[2] 			;
+	double	Laser_Frec[2] 			;
 	int		*Laser_Src				; // int		Laser_Src[MAX_CH_LICEL]	;
 	int		Accum_Pulses[2]			;
 	char	scanType[5]				;

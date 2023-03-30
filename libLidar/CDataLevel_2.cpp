@@ -220,8 +220,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 	if ( heightRef_Inversion_ASL >0 )
 		indxRef_Fernald[glbParam->evSel] = (int)round( (heightRef_Inversion_ASL - glbParam->siteASL) /dzr ) ;
 	else
-	{
-		// indxRef_Fernald[glbParam->evSel] = Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+	{// indxRef_Fernald[glbParam->evSel] = Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 		indxRef_Fernald[glbParam->evSel] = (int)(glbParam->indxEndSig_ev[glbParam->evSel] - 2*avg_Half_Points_Fernald_Ref) ;
 	}
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
@@ -229,7 +228,6 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 			sum( (double*)&pr[t][0], (int)(indxRef_Fernald[glbParam->evSel] -avg_Half_Points_Fernald_Ref), (int)(indxRef_Fernald[glbParam->evSel] +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
 			pr2_Ref = pr2_Ref /(avg_Half_Points_Fernald_Ref +1) ;
 			pr2_Ref = pr2_Ref * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] ;
-			// pr2_Ref = pr2_Ref * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
 	}
 	else if ( strcmp( reference_method.c_str(), "FIT" ) ==0 )
 	{
@@ -245,6 +243,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
 		delete pr2Fit ;
 	}
+		pr2[t][c][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
 
 // ********************** FERNALD INVERSION **********************
 	for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs

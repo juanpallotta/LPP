@@ -365,16 +365,17 @@ printf("| Offset |\t") ;
             // DESATURATION OF THE PHOTON COUNTING CHANNELS /*----------------------------------------------*/
             if ( glbParam->DAQ_Type[c] == 1 )
             {
+				for (int b =0; b <glbParam->nBins ; b++)
+					pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( glbParam->numEventsToAvg * glbParam->nShots[c] * glbParam->tBin_us) ) ; // [MHz]
+					// pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1e-6  /glbParam->Laser_Frec[0] ) ) ; // [MHz]
+
 				if ( glbParam->PHO_MAX_COUNT_MHz <0 )
-printf("| Desaturation *NOT* applied |\t") ;
+printf("| Desaturation *NOT* applied (only conversion to MHz) |\t" ) ;
 				else
 				{
 printf("| Desaturation  |\t") ;
 					for (int b =0; b <glbParam->nBins ; b++)
-					{
-						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /(glbParam->nShots[c] * glbParam->tBin_us) ) ; // [MHz]
 						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / glbParam->PHO_MAX_COUNT_MHz ) ) ; // Non-paralyzable correction 
-					}
 				}            
 			} /*--------------------------------------------------------------------------------------------*/
 

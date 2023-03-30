@@ -204,21 +204,25 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     ReadVar( (int)ncid, (const char*)"Zenith" , (double*)glbParam->aZenith  ) ;
     ReadVar( (int)ncid, (const char*)"Azimuth", (double*)glbParam->aAzimuth ) ;
 
-    glbParam->temp_K_agl     = (double*) new double [glbParam->nEvents]     ;
-    glbParam->pres_Pa_agl         = (double*) new double [glbParam->nEvents]     ;
+    glbParam->temp_K_agl      = (double*) new double [glbParam->nEvents]     ;
+    glbParam->pres_Pa_agl     = (double*) new double [glbParam->nEvents]     ;
     glbParam->temp_K_agl_AVG  = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->temp_K_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-    glbParam->pres_Pa_agl_AVG      = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->pres_Pa_agl_AVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
+    glbParam->pres_Pa_agl_AVG = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->pres_Pa_agl_AVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl[0] ) ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"   , (const char*)"double", (int*)&glbParam->pres_Pa_agl[0]     ) ;
     for (  int i =1 ; i < glbParam->nEvents ; i++ )
     {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
-        glbParam->temp_K_agl[i] = glbParam->temp_K_agl[0]  ;
-        glbParam->pres_Pa_agl[i]     = glbParam->pres_Pa_agl[0]      ;
+        glbParam->temp_K_agl[i]  = glbParam->temp_K_agl[0]       ;
+        glbParam->pres_Pa_agl[i] = glbParam->pres_Pa_agl[0] ;
     }
 
     if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam->dr) ) )
         ERR(retval);
     if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam->siteASL) ) )
+        ERR(retval);
+    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_1", (double*)&glbParam->Laser_Frec[0]) ) )
+        ERR(retval);
+    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_2", (double*)&glbParam->Laser_Frec[1]) ) )
         ERR(retval);
 
     glbParam->indxOffset = (int*) new int [ glbParam->nCh ] ;
@@ -249,7 +253,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
         glbParam->r[i]     = (i+1)*glbParam->dr - glbParam->dr /2 ; // glbParam->r[0] = 3.75 (ie)
         glbParam->r_avg[i] = glbParam->r[i] ;
     }
-    glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ;
+    glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ; // uSec
     glbParam->avg_Points_Fernald = (int*) new int[glbParam->nCh] ;
 
 // cout<<endl;

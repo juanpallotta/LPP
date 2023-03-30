@@ -316,7 +316,7 @@ void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
 // printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_K_agl: %lf \t glbParam->pres_Pa_agl: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_K_agl, glbParam->pres_Pa_agl) ;
 	}
 // LINE 3:
-	fscanf( fid, "%07d %04d %07d %04d %02d ", 
+	fscanf( fid, "%07d %04lf %07d %04lf %02d ", 
 	&glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], &glbParam->Accum_Pulses[1], &glbParam->Laser_Frec[1], &glbParam->nCh ) ;
 // printf("\n glbParam->Accum_Pulses[0]: %d	glbParam->Laser_Frec[0]: %d		glbParam->Accum_Pulses[1]: %d	glbParam->Laser_Frec[1]: %d		glbParam->nCh: %d \n",
 // 		glbParam->Accum_Pulses[0], glbParam->Laser_Frec[0], glbParam->Accum_Pulses[1], glbParam->Laser_Frec[1], glbParam->nCh ) ;
@@ -370,7 +370,11 @@ void ReadLicelData( char *lidarFile, strcGlobalParameters *glbParam, strcLidarDa
 
 	for ( int c=0 ; c<glbParam->nCh ; c++ )
 	{
-		fseek( fid, 80*(3+glbParam->nCh)+2 + c*(glbParam->nBinsRaw_Ch[c] * sizeof(int)+2), SEEK_SET ) ;
+		if ( strcmp(glbParam->inputDataFileFormat, "LICEL_FILE") ==0 )
+			fseek( fid, 80*(3+glbParam->nCh)+2 + c*(glbParam->nBinsRaw_Ch[c] * sizeof(int)+2), SEEK_SET ) ;
+		else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
+			fseek( fid, 80*(3+glbParam->nCh)+2 + 9 + c*(glbParam->nBinsRaw_Ch[c] * sizeof(int)+2), SEEK_SET ) ;
+
 		fread ( (int*)&dataFile->db_ADC[c][0], sizeof(int), glbParam->nBinsRaw, fid ) ;
 		// if ( glbParam->DAQ_Type[c] ==0 ) // ANALOG
 		// {
