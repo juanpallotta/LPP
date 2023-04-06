@@ -169,6 +169,7 @@ struct strcMolecularData
 	double  *prMol	   		=NULL 	;
 	double  *prMol_avg 		=NULL 	;
 	double  *pr2Mol	   		=NULL 	;
+	double  *pr2Mol_avg		=NULL 	;
 	double 	*zr		   		=NULL	;
 	double 	*z_asl     		=NULL	;
 	double 	*MOD	   		=NULL	;

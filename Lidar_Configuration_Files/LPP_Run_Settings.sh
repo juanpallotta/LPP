@@ -3,12 +3,12 @@
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no"
 L0="yes"
-L1="no"
-L2="no"
+L1="yes"
+L2="yes"
 
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
-# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Holger_Sim/Original/"
+PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Holger_Sim/Original/"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/multiangulo/20151105/ramVert/"
@@ -16,19 +16,19 @@ L2="no"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Bariloche/20150504/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/Paper_Celeste/20190930/"
 
-PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/9/21/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/9/21/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/"
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 
 # CONFIGURATION FILES
 # ! SIMULATIONS
 # ! HOLGER
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Holger.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Holger.conf"
 # ! PAPPALARDO 2004
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pappalardo.conf"
 # ! BRAZIL
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! ARGENTINA
 # BARILOCHE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"

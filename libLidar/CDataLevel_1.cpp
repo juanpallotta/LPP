@@ -90,7 +90,11 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	else
 	{
 		for( int b=0 ; b <glbParam->nBins ; b++ )
-			prS[b] 	  = (double)pr[b] ;	
+		{
+			prS[b] 	  				= (double)pr[b] 	;	
+			dataMol->prMol_avg[b] 	= dataMol->prMol[b] ;
+			glbParam->r_avg[b] 		= glbParam->r[b] 	;
+		}
 	}
 	for( int b=0 ; b <glbParam->nBins ; b++ )
 	{
@@ -124,14 +128,14 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 			{
 				cloudProfiles[glbParam->evSel].test_1[b] 	=(double) 0.0 ;
 				cloudProfiles[glbParam->evSel].clouds_ON[b] =(int)    0.0 ;
-				prFit[b] 									  	 	 =(double) 0.0 ;
+				prFit[b] 							 	 	=(double) 0.0 ;
 			}
 
 			sppm = (double)0.0 ;	spm = (double)0.0 ;		spmpm = (double)0.0 ;	 m = (double)0.0 ;
 			fitParam.nFit = fitParam.indxEndFit - fitParam.indxInicFit ;
-			sum( (double*)prprm    		, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&sppm ) ;
+			sum( (double*)prprm    			, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&sppm ) ;
 			sum( (double*)dataMol->prMol_avg, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spm  ) ;
-			sum( (double*)prmprm		, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spmpm) ;
+			sum( (double*)prmprm			, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spmpm) ;
 				m = (double)((sppm - biasRef * spm) /spmpm) ;
 
 			for( int b=0 ; b <=glbParam->indxEndSig ; b++ ) // for( int b=glbParam->indxInitSig ; b <=glbParam->indxEndSig ; b++ ) // for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )

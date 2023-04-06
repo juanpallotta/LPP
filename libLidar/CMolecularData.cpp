@@ -18,18 +18,19 @@ CMolecularData::~CMolecularData()
 
 void CMolecularData::GetMem_dataMol( int nBins )
 {
-		dataMol.nBins	 = (int)nBins ;
-		dataMol.zr		 = (double*) new double [nBins] ; memset( dataMol.zr	   , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.z_asl	 = (double*) new double [nBins] ; memset( dataMol.z_asl	   , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.betaMol  = (double*) new double [nBins] ; memset( dataMol.betaMol  , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.alphaMol = (double*) new double [nBins] ; memset( dataMol.alphaMol , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.nBins	  = (int)nBins ;
+		dataMol.zr		  = (double*) new double [nBins] ; memset( dataMol.zr	   , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.z_asl	  = (double*) new double [nBins] ; memset( dataMol.z_asl	   , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.betaMol   = (double*) new double [nBins] ; memset( dataMol.betaMol  , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.alphaMol  = (double*) new double [nBins] ; memset( dataMol.alphaMol , 0, ( sizeof(double) * nBins) ) ;
 		dataMol.betaMol_avg  = (double*) new double [nBins] ; memset( dataMol.betaMol_avg  , 0, ( sizeof(double) * nBins) ) ;
 		dataMol.alphaMol_avg = (double*) new double [nBins] ; memset( dataMol.alphaMol_avg , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.nMol  	 = (double*) new double [nBins] ; memset( dataMol.nMol     , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.prMol	 = (double*) new double [nBins] ; memset( dataMol.prMol    , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.prMol_avg= (double*) new double [nBins] ; memset( dataMol.prMol_avg, 0, ( sizeof(double) * nBins) ) ;
-		dataMol.pr2Mol	 = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.zenith	 = 0 ;
+		dataMol.nMol  	  = (double*) new double [nBins] ; memset( dataMol.nMol     , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.prMol	  = (double*) new double [nBins] ; memset( dataMol.prMol    , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.prMol_avg = (double*) new double [nBins] ; memset( dataMol.prMol_avg, 0, ( sizeof(double) * nBins) ) ;
+		dataMol.pr2Mol	  = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.pr2Mol_avg = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.zenith	  = 0 ;
 
 		dataMol.tK	 = (double*) new double [nBins] ; memset( dataMol.tK , 0, ( sizeof(double) * nBins) ) ;
 		dataMol.pPa	 = (double*) new double [nBins] ; memset( dataMol.pPa, 0, ( sizeof(double) * nBins) ) ;
