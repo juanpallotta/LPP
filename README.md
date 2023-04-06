@@ -245,6 +245,25 @@ An example of the settings variables for data level 1 contained in a configurati
 # PARAMETERS FOR lidarAnalysis_PDL1
 ##########################################################################################
 
+# DESATURATION
+PHO_MAX_COUNT_MHz = 250
+
+# GLUING INFORMATION
+# IF NO GLUING SIGNALS IS NEEDED, THE LINES CONTAINING THE VARIABLES indx_Gluing_Low_AN AND indx_Gluing_High_PHO MUST BE COMMENTED
+MIN_TOGGLE_RATE_MHZ = 0.5
+MAX_TOGGLE_RATE_MHZ = 10
+# indx_Gluing_Low_AN   = 2
+# indx_Gluing_High_PHO = 3
+
+# NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
+# ! IF THERE IS NO NOISE FILE: PATH_DARK_FILE MUST BE SET AS: "-"
+# ! IF THERE IS    NOISE FILE: PATH_DARK_FILE MUST CONTAIN THE STRING 'bkg' IN SOME PART OF ITS NAME!!!
+# PATH_DARK_FILES = 
+
+# OVERLAP FILE.
+# ! IF THERE IS NO OVERLAP FILE: VERLAP_FILE MUST BE SET AS: "-"
+# ! IF THERE IS    OVERLAP FILE: OVERLAP_FILE MUST BE SET WITH THE FULL PATH
+# OVERLAP_FILE = 
 
 # NUMBER OF FILES (EVENTS) THAT WILL BE AVERAGED INTO A SINGLE LIDAR SIGNAL
 numEventsToAvg_PDL1 = 10
@@ -284,6 +303,14 @@ DELTA_RANGE_LIM_BINS = 100
 
 Below is a description of each of these parameters:
 
+* `PHO_MAX_COUNT_MHz`: Photon-counting maximun counting rate. Used for desaturation photon-counted lidar signals under non-paralyzable method.
+* `MIN_TOGGLE_RATE_MHZ` and `MAX_TOGGLE_RATE_MHZ`: Minumun and maximun rate of photon counting (in MHz) for gluing procedure. See Licel manual for details (https://licel.com/manuals/analogpc.pdf).
+* `indx_Gluing_Low_AN` and `indx_Gluing_High_PHO`: Indexes of the analog and phothon-counting channels for gluing. It can be an array, and must have the same numbers of elements, containing the indexes (starting at 0) of the channels to glue. For instance, if analog channel 0 should be glued to channel 1, the setting must be:
+```
+indx_Gluing_Low_AN   = 0
+indx_Gluing_High_PHO = 1
+```
+in case of gluing more channels, it has to be added using comma.
 * `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lidarAnalysis_PDL1` the numbers of the adjacents lidar profiles to average producing one merged profile. After this, the `time` dimension in the NetCDF file for the L1 data products will be reduced by `numEventsToAvg_PDL1` times. The averaging is applied to the L0 lidar profiles matrix.
 
 * `indxWL_PDL1`: An index (starting from 0) of the channel to use in layer-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file for better cloud discrimination.
