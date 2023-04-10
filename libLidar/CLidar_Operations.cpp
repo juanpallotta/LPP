@@ -48,8 +48,16 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 			evSig->pr_noBias[i] = evSig->pr[i] ;
 			evSig->pr_noBkg[i]  = evSig->pr[i] ;
 		}
+
 		int 	indxMaxRange ;
-		Find_Max_Range( (double*)evSig->pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+		if ( glbParam->rEndSig <0 )
+			Find_Max_Range( (double*)evSig->pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+		else
+		{
+			indxMaxRange 							 = (int) glbParam->indxEndSig ;
+			glbParam->indxEndSig_ev[glbParam->evSel] = indxMaxRange ;
+			glbParam->rEndSig_ev   [glbParam->evSel] = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+		}
 	}
 	else if ( (strcmp( glbParam->BkgCorrMethod, "MEAN" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
 	{
@@ -95,7 +103,14 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 			evSig->pr_noBkg[i]  = evSig->pr[i] ;
 		}
 		int 	indxMaxRange ;
-		Find_Max_Range( (double*)evSig->pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+		if ( glbParam->rEndSig <0 )
+			Find_Max_Range( (double*)evSig->pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+		else
+		{
+			indxMaxRange 							 = (int) glbParam->indxEndSig ;
+			glbParam->indxEndSig_ev[glbParam->evSel] = indxMaxRange ;
+			glbParam->rEndSig_ev   [glbParam->evSel] = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+		}
 	}
 	else if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
 	{
@@ -115,8 +130,14 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBias, double *Bias_Pr )
 {
 	int 	indxMaxRange ;
-	Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
-	// printf("\n CLidar_Operations::Bias_Substraction_Auto() ---> After Find_Max_Range() --> glbParam->indxEndSig_ev[glbParam->evSel]= %d \n", glbParam->indxEndSig_ev[glbParam->evSel] ) ;
+	if ( glbParam->rEndSig <0 )
+		Find_Max_Range( (double*)pr, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	else
+	{
+		indxMaxRange 							 = (int) glbParam->indxEndSig ;
+		glbParam->indxEndSig_ev[glbParam->evSel] = indxMaxRange ;
+		glbParam->rEndSig_ev   [glbParam->evSel] = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+	}
 
 	if ( indxMaxRange <= (glbParam->nBins-1) )
 	{
@@ -212,8 +233,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 
 	for (i =indxMin_Pr; i>=0; i--)
 	{
-		// if ( rate[i] >1.02 )
-		if ( rate[i] >1.1 )
+		// if ( rate[i] >1.1 )
+		if ( rate[i] >1.02 )
 		{
 			indxMax_ = i ;
 			break;
@@ -230,8 +251,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 
 	if ( glbParam->chSel== indxWL_PDLx )
 	{
-		glbParam->indxEndSig_ev[glbParam->evSel] = *indxMaxRange ;
-		glbParam->rEndSig_ev[glbParam->evSel] 	 = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+		glbParam->indxEndSig_ev[glbParam->evSel] = *indxMaxRange ; // glbParam->nBins -1 ; // 
+		glbParam->rEndSig_ev   [glbParam->evSel] = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
 	}
 	// printf( "\n ev: %d \t glbParam->indxInitSig= %d \n indxMin_Pr= %d \n Max. Range: %lf \n indxMaxRange= %d", glbParam->evSel, glbParam->indxInitSig, indxMin_Pr, glbParam->rEndSig_ev[glbParam->evSel], *indxMaxRange ) ;
 	// printf( "\nCLidar_Operations::Find_Max_Range() --> ev: %d \t Max. Range: %lf \n glbParam->indxEndSig_ev[glbParam->evSel]= %d", glbParam->evSel, glbParam->rEndSig_ev[glbParam->evSel], glbParam->indxEndSig_ev[glbParam->evSel] ) ;
@@ -242,7 +263,14 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBkg)
 {
 	int 	indxMaxRange ;
-	Find_Max_Range( (double*)sig, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	if ( glbParam->rEndSig <0 )
+		Find_Max_Range( (double*)sig, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	else
+	{
+		indxMaxRange 							 = (int) glbParam->indxEndSig ;
+		glbParam->indxEndSig_ev[glbParam->evSel] = indxMaxRange ;
+		glbParam->rEndSig_ev   [glbParam->evSel] = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+	}
 
 	if ( indxMaxRange<(glbParam->nBins-1) )
 	{
@@ -266,7 +294,14 @@ void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *
 void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, const double *prEl, strcGlobalParameters *glbParam, double *pr_noBkg)
 {
 	int 	indxMaxRange ;
-	Find_Max_Range( (double*)prEl, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	if ( glbParam->rEndSig <0 )
+		Find_Max_Range( (double*)prEl, (double*)dataMol->prMol, (strcGlobalParameters*)glbParam, (int*)&indxMaxRange ) ;
+	else
+	{
+		indxMaxRange 							 = (int) glbParam->indxEndSig ;
+		glbParam->indxEndSig_ev[glbParam->evSel] = indxMaxRange ;
+		glbParam->rEndSig_ev   [glbParam->evSel] = glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+	}
 
 	if ( indxMaxRange < (glbParam->nBins-1) )
 	{
@@ -399,12 +434,12 @@ printf("| Desaturation  |\t") ;
 
             if ( glbParam->is_Noise_Data_Loaded == true )
             {
-                printf("| Background, bias and range corrected |\t") ;
+                printf("| Background and bias correction |\t") ;
 				MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)glbParam, (double**)data_Noise, (strcMolecularData*)&oMolData->dataMol ) ;
             }
             else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
             {
-                printf("| Bias and range corrected |\t") ;
+                printf("| Bias correction |\t") ;
 				MakeRangeCorrected( (strcLidarSignal*)&evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
             }
 
