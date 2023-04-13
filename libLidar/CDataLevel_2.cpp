@@ -252,8 +252,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] ;
 		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
 		delete pr2Fit ;
-		for( int b=fitParam.indxInicFit ; b<=fitParam.indxEndFit ; b++ )
-			pr2[t][c][b] = pr2Fit[b] ;
+		// for( int b=fitParam.indxInicFit ; b<=fitParam.indxEndFit ; b++ )
+		// 	pr2[t][c][b] = pr2Fit[b] ;
 	}
 		pr2[t][c][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
 
