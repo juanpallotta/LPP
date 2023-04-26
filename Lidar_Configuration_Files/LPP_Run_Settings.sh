@@ -14,7 +14,7 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2015/20150426/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Bariloche/20150504/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/Paper_Celeste/20190930/"
-PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20230411/signal/"
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20230418/signal/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/9/21/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/"
@@ -32,9 +32,9 @@ PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20230411/signal/"
 # ! ARGENTINA
 # BARILOCHE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
 # PILAR (CORDOBA), 2009-AGOSTO/SEPTIEMBRE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar_2009_AgoSep.conf"
-# ! HECTOR
 FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Hector.conf"
 #! MULTIANGLE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_multRam.conf"

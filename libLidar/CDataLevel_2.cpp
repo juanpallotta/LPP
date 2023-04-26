@@ -247,13 +247,17 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		fitParam.indxEndFit  = indxRef_Fernald[glbParam->evSel] + avg_Half_Points_Fernald_Ref ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 			RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol_avg, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
+
+		double *absDiff = (double*) new double[ fitParam.nFit ] ;
+		for (int i =0 ; i <fitParam.nFit ; i++)
+			absDiff[i] = fabs( pr2[t][c][fitParam.indxInicFit +i] - pr2Fit[fitParam.indxInicFit +i] ) ;
+		
+		findIndxMin( (double*)absDiff, (int)0, (int)(fitParam.nFit -1), (int*)&indxMin_absDiff, (double*)&minDiff ) ;
+		indxRef_Fernald[glbParam->evSel] = fitParam.indxInicFit + indxMin_absDiff ;
 		pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] ;
-		// 	RayleighFit( (double*)&pr[t][0], (double*)dataMol->prMol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
-		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] ;
-		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
-		delete pr2Fit ;
-		// for( int b=fitParam.indxInicFit ; b<=fitParam.indxEndFit ; b++ )
-		// 	pr2[t][c][b] = pr2Fit[b] ;
+
+		delete pr2Fit  ;
+		delete absDiff ;
 	}
 		pr2[t][c][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
 

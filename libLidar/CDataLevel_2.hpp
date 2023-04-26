@@ -47,6 +47,9 @@ class CDataLevel_2
 		double 	ipNref ;
 		double 	intAlphaMol_Ref ;
 
+		int		indxMin_absDiff ;
+		double  minDiff 		;
+
 	private:
 		void FernaldInversion_Test_Ref_Value( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;
 		void FernaldInversion_Core( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;

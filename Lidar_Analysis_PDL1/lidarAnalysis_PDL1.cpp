@@ -227,7 +227,6 @@ int main( int argc, char *argv[] )
     // - BIAS 
     // - OVERLAP
     printf("\n") ;
-printf("\n glbParam->rEndSig: %lf \n", glbParam.rEndSig) ;
     oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)data_File_L1, (double***)pr_corr, (double***)pr2 ) ;
 
 printf("\n\n") ;
