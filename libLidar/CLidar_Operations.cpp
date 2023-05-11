@@ -312,7 +312,7 @@ void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, con
 		RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 			for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam.b) ; 
 
-printf("\n a: %lf \t bkg: %lf \n", fitParam.m, fitParam.b ) ;
+// printf("\n a: %lf \t bkg: %lf \n", fitParam.m, fitParam.b ) ;
 
 	}
 	else

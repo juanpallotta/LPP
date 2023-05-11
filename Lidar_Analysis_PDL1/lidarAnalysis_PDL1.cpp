@@ -280,7 +280,6 @@ printf("\n\n") ;
             printf("\n\t Different numbers of elements in the arrarys indx_Gluing_Low_AN and indx_Gluing_High_PHO" ) ;
         printf("\n\t NO gluing is applied for this analysis.\n\n" ) ;
     }
-
 // END GLUING ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
