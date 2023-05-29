@@ -26,7 +26,7 @@ authors:
     email: fabiolopes@alumni.usp.br
     affiliation: Instituto de Pesquisas Energéticas e Nucleares, São
       Paulo, Brazil
-    orcid: ''
+    orcid: 'https://orcid.org/0000-0001-7243-7197'
   - given-names: Alexandre
     family-names: Cacheffo
     email: cacheffo@ufu.br
@@ -44,7 +44,7 @@ authors:
       United States, Universidade de São Paulo, São Paulo,
       Brazil
     email: hbarbosa@umbc.edu
-    orcid: ''
+    orcid: 'https://orcid.org/0000-0002-4027-1855'
 identifiers:
   - type: doi
     value: 10.5281/zenodo.7814688
