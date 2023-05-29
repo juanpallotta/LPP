@@ -13,8 +13,7 @@ authors:
     family-names: Pallotta
     name-particle: Juan
     email: juanpallotta@gmail.com
-    affiliation: >-
-      Centro de Investigaciones en Láseres y Aplicaciones,
+    affiliation: Centro de Investigaciones en Láseres y Aplicaciones,
       UNIDEF (CITEDEF-CONICET), Buenos Aires, Argentina
     orcid: 'https://orcid.org/0000-0003-4846-8748'
   - family-names: Carvalho
@@ -25,9 +24,9 @@ authors:
   - given-names: Fabio
     family-names: Lopez
     email: fabiolopes@alumni.usp.br
-    affiliation: >-
-      Instituto de Pesquisas Energéticas e Nucleares, São
+    affiliation: Instituto de Pesquisas Energéticas e Nucleares, São
       Paulo, Brazil
+    orcid: ''
   - given-names: Alexandre
     family-names: Cacheffo
     email: cacheffo@ufu.br
@@ -35,18 +34,17 @@ authors:
     orcid: 'https://orcid.org/0000-0002-8801-7434'
   - given-names: Eduardo
     family-names: Landulfo
-    affiliation: >-
-      Instituto de Pesquisas Energéticas e Nucleares, São
+    affiliation: Instituto de Pesquisas Energéticas e Nucleares, São
       Paulo, Brazil
     email: elandulf@ipen.br
     orcid: 'https://orcid.org/0000-0002-9691-5306'
   - given-names: Henrique
     family-names: Barbosa
-    affiliation: >-
-      University of Maryland Baltimore County, Baltimore,
+    affiliation: University of Maryland Baltimore County, Baltimore,
       United States, Universidade de São Paulo, São Paulo,
       Brazil
     email: hbarbosa@umbc.edu
+    orcid: ''
 identifiers:
   - type: doi
     value: 10.5281/zenodo.7814688
