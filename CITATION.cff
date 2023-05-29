@@ -1,0 +1,105 @@
+
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Lidar Processing Pipeline (LPP)
+message: >-
+  Collection of tools used to handle all the steps for the
+  retrieval of atmospheric elastic lidar systems.
+type: software
+authors:
+  - given-names: Juan Vicente
+    family-names: Pallotta
+    name-particle: Juan
+    email: juanpallotta@gmail.com
+    affiliation: >-
+      Centro de Investigaciones en Láseres y Aplicaciones,
+      UNIDEF (CITEDEF-CONICET), Buenos Aires, Argentina
+    orcid: 'https://orcid.org/0000-0003-4846-8748'
+  - family-names: Carvalho
+    given-names: Silvânia
+    email: silvaniaalves@id.uff.br
+    affiliation: 'Universidade Federal Fluminense, Volta Redonda, Brazil'
+    orcid: 'https://orcid.org/0000-0002-2140-2151'
+  - given-names: Fabio
+    family-names: Lopez
+    email: fabiolopes@alumni.usp.br
+    affiliation: >-
+      Instituto de Pesquisas Energéticas e Nucleares, São
+      Paulo, Brazil
+  - given-names: Alexandre
+    family-names: Cacheffo
+    email: cacheffo@ufu.br
+    affiliation: 'Universidade Federal de Uberlândia, Ituiutaba, Brazil'
+    orcid: 'https://orcid.org/0000-0002-8801-7434'
+  - given-names: Eduardo
+    family-names: Landulfo
+    affiliation: >-
+      Instituto de Pesquisas Energéticas e Nucleares, São
+      Paulo, Brazil
+    email: elandulf@ipen.br
+    orcid: 'https://orcid.org/0000-0002-9691-5306'
+  - given-names: Henrique
+    family-names: Barbosa
+    affiliation: >-
+      University of Maryland Baltimore County, Baltimore,
+      United States, Universidade de São Paulo, São Paulo,
+      Brazil
+    email: hbarbosa@umbc.edu
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7814688
+    description: >-
+      Lidar Processing Pipeline (LPP) release version 1.1.0.
+      Manuscript accessible at
+      https://gi.copernicus.org/preprints/gi-2022-19/
+repository-code: 'https://github.com/juanpallotta/LPP'
+abstract: >-
+  Atmospheric lidars can simultaneously measure clouds and
+  aerosols with high temporal and spatial resolution and
+  hence help understand cloud-aerosol interactions, which
+  are the source of the largest uncertainties in future
+  climate projections. However, atmospheric lidars are
+  typically custom-built, and there are significant
+  differences between them. In this sense, lidar networks
+  play a crucial role as they coordinate the efforts of
+  different groups, providing guidelines for quality-assured
+  routine measurements, opportunities for side-by-side
+  instrument comparisons, and enforce algorithms validation,
+  all aiming to homogenize the physical retrievals from
+  heterogeneous instruments in a network. Here we provide a
+  high-level overview of the Lidar Processing Pipeline
+  (LPP), an ongoing, collaborative, and open-source
+  coordinated effort in Latin America. The LPP is a
+  collection of tools that have the ultimate goal of
+  handling all the steps of a typical analysis of lidar
+  measurements. The modular and configurable framework is
+  generic enough to be applicable to any lidar instrument.
+  The first publicly released version of LPP produces data
+  files at levels 0 (raw and metadata), 1 (averaging and
+  layer-mask), and 2 (aerosol optical properties). We assess
+  the performance of LPP through quantitative and
+  qualitative analyses of simulated and measured elastic
+  lidar signals. 
+
+  For noiseless synthetic 532 nm elastic signals with a
+  constant LR, the root-mean-square error (RMSE) in aerosol
+  extinction within the boundary layer is about 0.1 %. In
+  contrast, retrievals of aerosol backscatter from noisy
+  elastic signals with a variable LR have an RMSE of 11 %,
+  mostly due to assuming a constant LR in the inversion.
+
+  The application of LPP for measurements in Sao Paulo,
+  further constrained by co-located AERONET data, indicates
+  a lidar ratio of 63.9 +/- 6.7 sr at 532 nm, in agreement
+  with reported values for urban aerosols. Over the Amazon,
+  analysis of a 6 km thick multi-layer cirrus indicates a
+  cloud optical depth of about 0.77, also in agreement with
+  previous results. From this exercise, we identify the need
+  for new features and discuss a roadmap to guide future
+  development, accommodating the needs of our community.
+license: MIT
+version: 1.1.0
+date-released: '2023-05-29'
+
