@@ -1184,7 +1184,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     double *Ref_Range = (double*) new double[ glbParam->nEventsAVG ]  ;
     for (int i =0; i <glbParam->nEventsAVG; i++)
-        Ref_Range[i] = oDL2->indxRef_Fernald[i] *glbParam->dr - glbParam->siteASL ;
+        Ref_Range[i] = oDL2->indxRef_Fernald[i] *glbParam->dr + glbParam->siteASL ;
 
     int     indxWL_PDL2 ;
     double  R_ref       ;

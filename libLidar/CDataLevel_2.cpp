@@ -66,7 +66,9 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 			}
 		}
 	}
-	indxRef_Fernald = (int*) new int [ glbParam->nEventsAVG ] ;
+	indxRef_Fernald 	  = (int*) new int [ glbParam->nEventsAVG ] ;
+	indxRef_Fernald_Start = (int*) new int [ glbParam->nEventsAVG ] ;
+	indxRef_Fernald_Stop  = (int*) new int [ glbParam->nEventsAVG ] ;
 
 	oLOp = (CLidar_Operations*) new CLidar_Operations( (strcGlobalParameters*)glbParam ) ;
 }
@@ -189,7 +191,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 	} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 }
 
-void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int c, strcMolecularData *dataMol)
+void CDataLevel_2::FernaldInversion_v0( strcGlobalParameters *glbParam, int t, int c, strcMolecularData *dataMol)
 {
 	LRM = (double) dataMol->LR_mol ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
@@ -224,7 +226,6 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "reference_method", "string", (char*)reference_method.c_str() ) ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Half_Points_Fernald_Ref", "int", (int*)&avg_Half_Points_Fernald_Ref ) ;
 
-	double heightRef_Inversion_ASL ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "double" , (double*)&heightRef_Inversion_ASL ) ;
 
 	if ( heightRef_Inversion_ASL >0 )
@@ -248,6 +249,105 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 			RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol_avg, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
 
+		double *absDiff = (double*) new double[ fitParam.nFit ] ;
+		for (int i =0 ; i <fitParam.nFit ; i++)
+			absDiff[i] = fabs( pr2[t][c][fitParam.indxInicFit +i] - pr2Fit[fitParam.indxInicFit +i] ) ;
+		
+		findIndxMin( (double*)absDiff, (int)0, (int)(fitParam.nFit -1), (int*)&indxMin_absDiff, (double*)&minDiff ) ;
+		indxRef_Fernald[glbParam->evSel] = fitParam.indxInicFit + indxMin_absDiff ;
+		pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] ;
+
+		delete pr2Fit  ;
+		delete absDiff ;
+	}
+		pr2[t][c][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
+
+// ********************** FERNALD INVERSION **********************
+	for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
+	{
+		// ********************** FERNALD INVERSION: TEST REFERENCE VALUE **********************
+		// FernaldInversion_Test_Ref_Value( (strcGlobalParameters*)glbParam, (int)t, (int)c, (int)l, (strcMolecularData*)dataMol, (double)LR[l],
+		// 	(int)(indxRef_Fernald[glbParam->evSel] - avg_Half_Points_Fernald_Ref), (int)(indxRef_Fernald[glbParam->evSel] + avg_Half_Points_Fernald_Ref) ) ;
+
+		FernaldInversion_Core( (strcGlobalParameters*)glbParam, (int)t, (int)c, (int)l, (strcMolecularData*)dataMol, (double)LR[l],
+								(int)0, (int)glbParam->nBins ) ;
+
+		int indx_integral_max_range_for_AOD ;
+		int integral_max_range_for_AOD ;
+		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
+		indx_integral_max_range_for_AOD = (int)round(integral_max_range_for_AOD /glbParam->dr) ;
+
+		smooth( (double*)&beta_Aer[t][l][0] , (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&beta_Aer[t][l][0]  ) ;
+		smooth( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&alpha_Aer[t][l][0] ) ;
+		sum(    (double*)&alpha_Aer[t][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[t][l] ) ;
+		AOD_LR[t][l] = AOD_LR[t][l] * glbParam->dr ;
+		printf("\nAOD@LR = %lf --> %lf", LR[l], AOD_LR[t][l]) ;
+
+	} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
+}
+
+void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int c, strcMolecularData *dataMol)
+{
+	LRM = (double) dataMol->LR_mol ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)glbParam->avg_Points_Fernald ) ;
+	if ( glbParam->avg_Points_Fernald[c] >1 )
+	{
+		smooth( (double*)&pr2[t][c][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)pr2_s 			) ;
+			for (int i =0; i <glbParam->nBins; i++)
+				pr2[t][c][i] = (double)pr2_s[i] 	;
+
+		smooth( (double*)&dataMol->alphaMol[0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->alphaMol_avg[0] ) ;
+		smooth( (double*)&dataMol->betaMol [0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->betaMol_avg [0] ) ;
+		smooth( (double*)&dataMol->pr2Mol  [0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->pr2Mol_avg  [0] ) ;
+
+		sum(glbParam->r, 0, glbParam->avg_Points_Fernald[c]-1, &glbParam->r_avg[0] ) ;
+		glbParam->r_avg[0] = glbParam->r_avg[0] /glbParam->avg_Points_Fernald[c] ;
+		for (int i =1; i <glbParam->nBins; i++)
+			glbParam->r_avg[i] = glbParam->r_avg[0] + i*glbParam->dr ;
+	}
+	else
+	{
+		for (int i =1; i <glbParam->nBins; i++)
+		{
+			dataMol->alphaMol_avg[i] = dataMol->alphaMol[i] ;
+			dataMol->betaMol_avg[i]  = dataMol->betaMol [i] ;
+			dataMol->pr2Mol_avg [i]  = dataMol->pr2Mol  [i] ;
+			glbParam->r_avg[i] 		 = glbParam->r[i]		;
+		}
+	}
+	string 	reference_method ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "reference_method", "string", (char*)reference_method.c_str() ) ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "heightRef_Inversion_Start_ASL", "double", (double*)&heightRef_Inversion_Start_ASL ) ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL" , "double", (double*)&heightRef_Inversion_Stop_ASL  ) ;
+
+	if ( (heightRef_Inversion_Start_ASL >0) && (heightRef_Inversion_Stop_ASL >0) && (heightRef_Inversion_Stop_ASL > heightRef_Inversion_Start_ASL) )
+	{
+		heightRef_Inversion_ASL = ( heightRef_Inversion_Stop_ASL + heightRef_Inversion_Start_ASL )/2 ;
+		indxRef_Fernald[glbParam->evSel] = (int)round( ( heightRef_Inversion_ASL - glbParam->siteASL)/dzr ) ;
+		indxRef_Fernald_Start[glbParam->evSel] = (int)round( ( heightRef_Inversion_Start_ASL - glbParam->siteASL)/dzr ) ;
+		indxRef_Fernald_Stop [glbParam->evSel] = (int)round( ( heightRef_Inversion_Stop_ASL  - glbParam->siteASL)/dzr ) ;
+	}
+	else
+	{
+		// indxRef_Fernald[glbParam->evSel] = Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+		indxRef_Fernald[glbParam->evSel] = (int)(glbParam->indxEndSig_ev[glbParam->evSel] - 2*glbParam->nBinsBkg) ;
+	}
+	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
+	{
+			// sum( (double*)&pr[t][0], (int)(indxRef_Fernald[glbParam->evSel] -avg_Half_Points_Fernald_Ref), (int)(indxRef_Fernald[glbParam->evSel] +avg_Half_Points_Fernald_Ref), (double*)&pr2_Ref ) ;
+			sum( (double*)&pr[t][0], (int)indxRef_Fernald_Start[glbParam->evSel], (int)indxRef_Fernald_Stop[glbParam->evSel], (double*)&pr2_Ref ) ;
+			pr2_Ref = pr2_Ref /(indxRef_Fernald_Stop[glbParam->evSel] - indxRef_Fernald_Start[glbParam->evSel] +1) ;
+			pr2_Ref = pr2_Ref * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] * glbParam->r_avg[indxRef_Fernald[glbParam->evSel]] ;
+	}
+	else if ( strcmp( reference_method.c_str(), "FIT" ) ==0 )
+	{
+		double *pr2Fit = (double*) new double[ glbParam->nBins ] ;
+		strcFitParam fitParam ;
+		fitParam.indxInicFit = indxRef_Fernald_Start[glbParam->evSel] ;
+		fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+			RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol_avg, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
 		double *absDiff = (double*) new double[ fitParam.nFit ] ;
 		for (int i =0 ; i <fitParam.nFit ; i++)
 			absDiff[i] = fabs( pr2[t][c][fitParam.indxInicFit +i] - pr2Fit[fitParam.indxInicFit +i] ) ;

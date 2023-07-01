@@ -115,8 +115,6 @@ void 	GetMemDataToSave				( strcDataToSave*, strcGlobalParameters* ) ;
 void	FreeMemVectorsFernaldInversion 	( strcFernaldInversion* ) ;
 // void	SinteticLidarSignal 		( strcGlobalParameters*, strcMolecularData*, strcAerosolData*, strcLidarSignal* ) ;
 
-void 	ProcessFernaldInversion		( strcFernaldInversion*, strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcLidarSignal*, strcAerosolData*, strcErrorSignalSet*, strcErrorSignalSet* ) ;
-// void    ProcessFernaldInversion		( strcFernaldInversion*, strcGlobalParameters*, strcMolecularData*, strcLidarSignal*, strcAerosolData*, strcErrorSignalSet*, strcErrorSignalSet*) ;
 // void	PreProcesingLidarSignal		( strcGlobalParameters*, strcMolecularData*, strcCloudProfiles*, strcLidarSignal*, strcIndexMol* ) ;
 // void	PreProcesingLidarSignal     ( strcGlobalParameters*, strcMolecularData*, strcLidarSignal*, strcIndexMol* ) ;
 // void 	MakeRangeCorrected			( strcGlobalParameters*, strcMolecularData*, strcLidarSignal* )  ;

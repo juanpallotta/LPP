@@ -294,14 +294,15 @@ printf("\n\n") ;
     string  strCompCM ;
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
 
+    printf("\nLayer detection algorithm:") ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         glbParam.evSel = t ;
-
+        printf("\n") ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;
-            printf("\nEvent: %d/%d \t Wavelenght: %d", t, glbParam.nEventsAVG, glbParam.iLambda[c] ) ;
+            printf("\nEvent: %d/%d \t Wavelenght: %d", t, glbParam.nEventsAVG-1, glbParam.iLambda[c] ) ;
 
             oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 

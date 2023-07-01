@@ -1470,31 +1470,6 @@ void FernaldInversion_pr( double *pr, strcMolecularData *dataMol, strcGlobalPara
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH_TOT", "int", (int*)&VAODheigh ) ; dataAer->VAOD     = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
 }
 
-void ProcessFernaldInversion( strcFernaldInversion *fernaldVectors, strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcIndexMol *indxMol, strcLidarSignal *evSig, strcAerosolData *dataAer, strcErrorSignalSet *rndErrSigSet, strcErrorSignalSet *sysErrSigSet )
-{
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "LR", "double" , (double*)&glbParam->LR ) ;
-	glbParam->ka = (double)(1/glbParam->LR) ;
-	printf("\nLR used: %d\n", (int)glbParam->LR) ;
-
-	char sigTypeInversionUsed[10];
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "sigTypeInversionUsed", "string" , (char*)sigTypeInversionUsed ) ;
-	int 	heightRef_Inversion_ASL ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "int" , (int*)&heightRef_Inversion_ASL ) ;
-	if ( heightRef_Inversion_ASL >0 )
-		indxMol->indxRef = (int)round( ( (heightRef_Inversion_ASL-glbParam->siteASL) /cos(dataMol->zenith*PI/180)) /glbParam->dr ) ;	
-
-	if ( strcmp(sigTypeInversionUsed, "Fil") ==0 )
-		FernaldInversion_pr( (double*)evSig->prGlued, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxRef, (double)glbParam->ka, (strcFernaldInversion*)fernaldVectors, (strcAerosolData*)dataAer ) ;
-	else
-    	FernaldInversion_pr( (double*)evSig->pr		, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxRef, (double)glbParam->ka, (strcFernaldInversion*)fernaldVectors, (strcAerosolData*)dataAer ) ;
-
-// RANDOM ERROR CALCULATION
-	// MonteCarloRandomError    ( (double*)evSig->pr2Glued, (double*)evSig->pr, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (strcIndexMol*)indxMol, (strcFernaldInversion*)fernaldVectors, (strcErrorSignalSet*)rndErrSigSet ) ;
-// SYSTEMATIC ERROR CALCULATION
-	// MonteCarloSystematicError( (double*)evSig->pr2Glued,                     (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (strcIndexMol*)indxMol, (strcFernaldInversion*)fernaldVectors, (strcErrorSignalSet*)sysErrSigSet ) ;
-
-} // ProcessFernaldInversion(...)
-
 void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 {
     // double a = evSig->pr2[glbParam->indxInitSig] / evSig->pr2[ glbParam->indxInitSig *2 -1 ] ;

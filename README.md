@@ -382,12 +382,13 @@ LR = 50 , 60 , 70 , 80
 # INDEX OF THE CHANNEL TO BE INVERTED (INDEXED FROM 0)
 indxWL_PDL2 = 0
 
-# REFERENCE HEIGHT FOR LIDAR SIGNAL (ABOVE SEA LEVEL)
-heightRef_Inversion_ASL = 10000
-# HALF NUMBER OF POINTS (BINS) TO AVERAGE AROUND THE REFERENCE HEIGHT DURING THE NORMALIZATION OF THE LIDAR SIGNAL.
-avg_Half_Points_Fernald_Ref = 15
+# REFERENCE HEIGHT RANGES FOR FERNALD-KLETT INVERSION (ABOVE SEA LEVEL)
+heightRef_Inversion_Start_ASL = 7000
+heightRef_Inversion_Stop_ASL  = 8000
 # LIDAR SIGNAL NORMALIZATION METHOD: MEAN/FIT
 reference_method = FIT
+# MAXIMUM RANGE TO ITEGRATE THE EXTINCTION PROFILE TO OBTAIN THE AOD (IN METERS)
+integral_max_range_for_AOD = 6000
 # BACKSCATTERING RATIO = R_ref = BetaTot(rRef) / BetaMol(rRef) >1
 R_ref = 1
 ```
@@ -398,10 +399,9 @@ A description of each of these parameters is described below:
 * `avg_Points_Fernald`: Numbers of points used for spatial smoothing to apply to the inverted retrieved profiles (extinction and backscatter).
 * `LR`: Lidar ratio used for the inversion. The current version of LPP only accepts a constant value for the lidar ratio across the ranges. It can be more than one value, in wich each elements must be sepparated by `,`, with a space before and after `,` (see the example array in the previous lines: `LR = 50 , 60 , 70 , 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
-* `heightRef_Inversion_ASL`: Altitude above sea level (in meters) used as reference height used to normalize the lidar signal.
+* `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`: Initial and end altitude above sea level (in meters). These ranges are used to calculeta the reference height during the inversion procedure.
 * `integral_max_range_for_AOD`: Maximun range to integrate the extinction profile to obtain the aerosol optical depth.
-* `avg_Half_Points_Fernald_Ref`: Number of bins used to obtain the mean value of the lidar signal around `heightRef_Inversion_ASL` altitude. The average is performed from `heightRef_Inversion_ASL - avg_Half_Points_Fernald_Ref` to `heightRef_Inversion_ASL + avg_Half_Points_Fernald_Ref`.
-* `reference_method`: This variable is used to define how the reference value is obtained from the lidar signal, having two values to adopt: MEAN and FIT. If MEAN option is set, a mean value is taken around the altitude `heightRef_Inversion_ASL` +/- `avg_Half_Points_Fernald_Ref`. If FIT option is set, a Rayleigh-Fit is done from `heightRef_Inversion_ASL - avg_Half_Points_Fernald_Ref` to `heightRef_Inversion_ASL + avg_Half_Points_Fernald_Ref`. Then, the value of the fit at `heightRef_Inversion_ASL` is taken from the fitted profile.
+* `reference_method`: Used to define how the reference value is obtained from the lidar signal, having two values to adopt: MEAN and FIT. If MEAN option is set, a mean value is taken between the altitudes `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`. If FIT option is set, a Rayleigh-Fit is done whithin the same ranges and its middle point is taken from the fitted profile.
 * `R_ref`: Backscatter ratio at reference altitude, being the ratio for the total to the molecular backscatter. This parameter can control the turbidity of the reference altitude, being `R_ref=1` completely molecular, and higher values mean more polluted reference altitude.
 
 

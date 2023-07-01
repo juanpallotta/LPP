@@ -13,6 +13,7 @@ class CDataLevel_2
 		CDataLevel_2( strcGlobalParameters* ) ;
 		~CDataLevel_2()  					  ;
 		void 	Fernald_1983    ( strcGlobalParameters*, int, int, strcMolecularData* ) ;
+		void 	FernaldInversion_v0( strcGlobalParameters*, int, int, strcMolecularData* ) ;
 		void 	FernaldInversion( strcGlobalParameters*, int, int, strcMolecularData* ) ;
 		// int 	Find_Ref_Range(strcGlobalParameters*, strcMolecularData*) ;
 
@@ -29,11 +30,12 @@ class CDataLevel_2
 		double  LRM, LR[100]						;
 		double  **AOD_LR 							;
 		int		nLRs 								;
-		int 	indxInitSig, indxEndSig, *indxRef_Fernald ;
+		int 	indxInitSig, indxEndSig, *indxRef_Fernald, *indxRef_Fernald_Start, *indxRef_Fernald_Stop ;
 		double  R_ref    							;
 
 		double 	pr2_Ref ;
 		int 	avg_Half_Points_Fernald_Ref ;
+		double	heightRef_Inversion_ASL, heightRef_Inversion_Start_ASL, heightRef_Inversion_Stop_ASL ;
 		double  ka  ;
 		double  KM_ ;
 

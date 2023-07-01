@@ -73,8 +73,8 @@ int main( int argc, char *argv[] )
     CDataLevel_1    *oDL1 ;
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
-    int nCh_to_invert ;
-    nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
+    int nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
+    nCh_to_invert = 1 ;
     assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
     glbParam.chSel  = glbParam.indxWL_PDL2 ;
 
@@ -187,7 +187,6 @@ oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolec
     {
         printf("\n") ;
         glbParam.evSel = t ;
-
         oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
 
         // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
@@ -201,10 +200,10 @@ oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolec
         oDL2->dzr = oMolData->dataMol.dzr ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
-            cout << endl << "Inverting: " << "\t Event: " << t << "\t Channel: " << glbParam.indxWL_PDL2 << "\t Wavelenght: " << glbParam.iLambda[glbParam.indxWL_PDL2] ;
+            printf("\nInverting:\t Event: %d \t Channel: %d \t Wavelenght: %d", t, glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
             oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
-            // oDL2->Fernald_1983( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
+
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;
 

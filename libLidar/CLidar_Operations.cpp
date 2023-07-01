@@ -404,10 +404,10 @@ printf("| Offset |\t") ;
 					pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( glbParam->numEventsToAvg * glbParam->nShots[c] * glbParam->tBin_us) ) ; // [MHz]
 
 				if ( glbParam->PHO_MAX_COUNT_MHz <0 )
-printf("| Desaturation *NOT* applied (only conversion to MHz) |\t" ) ;
+printf("| Dead-Time Correction *NOT* applied (converted to MHz only due to PHO_MAX_COUNT_MHz<0) |\t" ) ;
 				else
 				{
-printf("| Desaturation  |\t") ;
+printf("| Dead-Time Correction  |\t") ;
 					for (int b =0; b <glbParam->nBins ; b++)
 						pr_corr[e][c][b] = (double)( pr_corr[e][c][b] /( 1.0 - pr_corr[e][c][b] / glbParam->PHO_MAX_COUNT_MHz ) ) ; // Non-paralyzable correction 
 				}            
@@ -460,26 +460,27 @@ void CLidar_Operations::GluingLidarSignals( strcGlobalParameters *glbParam, doub
 
 	for ( int c =0 ; c <glbParam->nPair_Ch_to_Glue ; c++ )
 	{
-		findIndxMin( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 0, (glbParam->nBins-1), (int*)&indx_MHz_Min, (double*)&MHz_Min ) ;
-		findIndxMax( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 0, (glbParam->nBins-1), (int*)&indx_MHz_Max, (double*)&MHz_Max ) ;
+		// findIndxMin( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 0, (glbParam->nBins-1), (int*)&indx_MHz_Min, (double*)&MHz_Min ) ;
+		findIndxMin( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], (glbParam->nBins-1-glbParam->nBinsBkg), (glbParam->nBins-1), (int*)&indx_MHz_Min, (double*)&MHz_Min ) ;
+		findIndxMax( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 0									 , (glbParam->nBins-1), (int*)&indx_MHz_Max, (double*)&MHz_Max ) ;
 
 		if ( (MHz_Min <= glbParam->MIN_TOGGLE_RATE_MHZ) && (MHz_Max >= glbParam->MAX_TOGGLE_RATE_MHZ) )
 		{
 			printf("\nEvent= %d --> Gluing channels %d and %d (%d nm)", glbParam->evSel, glbParam->indx_gluing_Low_AN[c],
 																		glbParam->indx_gluing_High_PHO[c], glbParam->iLambda[glbParam->indx_gluing_High_PHO[c]] ) ;
-
 			// CORRECTED PHOTON COUNTING VALUES HIGHER THAN MAX_TOGGLE_RATE_MHZ
 			memset( dummy, 0, ( sizeof(double) * glbParam->nBins ) ) ;
 			for ( int b =0 ; b <glbParam->nBins ; b++ )
 				dummy[b] = fabs(pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][b] - glbParam->MAX_TOGGLE_RATE_MHZ) ;
-			findIndxMin( (double*)&dummy[0], 0, indx_MHz_Max, (int*)&indxs_fit[0], (double*)&a ) ;
+			findIndxMin( (double*)&dummy[0], 0			 , indx_MHz_Max		  , (int*)&indxs_fit[0], (double*)&a ) ; // indxs_fit[0] DISCARDED
 			findIndxMin( (double*)&dummy[0], indx_MHz_Max, (glbParam->nBins-1), (int*)&indxs_fit[1], (double*)&a ) ;
 
 			// CORRECTED PHOTON COUNTING VALUES LOWER THAN MIN_TOGGLE_RATE_MHZ
 			memset( dummy, 0, ( sizeof(double) * glbParam->nBins ) ) ;
 			for ( int b =0 ; b <glbParam->nBins ; b++ )
 				dummy[b] = fabs(pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][b] - glbParam->MIN_TOGGLE_RATE_MHZ) ;
-			findIndxMin( (double*)&dummy[0], indx_MHz_Max, (glbParam->nBins-1), (int*)&indxs_fit[2], (double*)&a ) ;
+			findIndxMin( (double*)&dummy[0], indxs_fit[1], (glbParam->nBins-1), (int*)&indxs_fit[2], (double*)&a ) ;
+			// findIndxMin( (double*)&dummy[0], indx_MHz_Max, (glbParam->nBins-1), (int*)&indxs_fit[2], (double*)&a ) ;
 
 			memset( dummy, 0, ( sizeof(double) * glbParam->nBins ) ) ;
 			fitParam.indxInicFit = indxs_fit[1] ;

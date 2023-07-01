@@ -361,8 +361,11 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 		// MOLECULAR RANGES SETTINGS
 		if ( indxMol[glbParam->evSel].nMolRanges ==1 )
 		{
-			int 	heightRef_Inversion_ASL ;
-			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_ASL" , "int" , (int*)&heightRef_Inversion_ASL ) ;
+			double 	heightRef_Inversion_ASL, heightRef_Inversion_Start_ASL, heightRef_Inversion_Stop_ASL ;
+			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_Start_ASL" , "double", (int*)&heightRef_Inversion_Start_ASL ) ;
+			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL"  , "double", (int*)&heightRef_Inversion_Stop_ASL  ) ;
+			heightRef_Inversion_ASL = (heightRef_Inversion_Start_ASL + heightRef_Inversion_Stop_ASL)/2 ;
+
 			indxMol[glbParam->evSel].indxRef = (int)round(heightRef_Inversion_ASL /glbParam->dzr) ;
 				if ( indxMol[glbParam->evSel].indxRef > (glbParam->nBins-1) )
 					indxMol[glbParam->evSel].indxRef = glbParam->nBins -10 ;
