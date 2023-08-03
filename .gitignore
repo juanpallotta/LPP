@@ -94,3 +94,5 @@ Lidar_Configuration_Files/analysisParameters_SPU_PAPER.conf
 Lidar_Configuration_Files/analysisParameters_Manaus_PAPER_L1.conf
 Lidar_Configuration_Files/analysisParameters_Manaus_PAPER_L2.conf
 Lidar_Configuration_Files/analysisParameters_SPU_PAPER_L2.conf
+LPP_Python_Plots/test.py
+LPP_Python_Plots/__pycache__/python_colormap.cpython-38.pyc

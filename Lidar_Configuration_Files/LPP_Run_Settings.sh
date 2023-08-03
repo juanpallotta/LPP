@@ -15,11 +15,11 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Bariloche/20150504/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/Paper_Celeste/20190927/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20230502/data/"
-PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2023/06/13/CON_T/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2023/06/13/CON_T/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/9/21/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/"
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
+PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
 
 # CONFIGURATION FILES
 
@@ -29,10 +29,10 @@ PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2023/06/13/CON_T/"
 # ! PAPPALARDO 2004
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pappalardo.conf"
 # ! BRAZIL
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! ARGENTINA
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
 # PILAR (CORDOBA), 2009-AGOSTO/SEPTIEMBRE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar_2009_AgoSep.conf"
