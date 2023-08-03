@@ -10,10 +10,10 @@
 // #include <netcdf.h>
 
 // GENERIC LIDAR LIBRARIES
-#include "../../LPP/libLidar/libLidar.hpp"
-#include "../../LPP/libLidar/CNetCDF_Lidar.hpp"
-#include "../../LPP/libLidar/CDataLevel_1.hpp"
-#include "../../LPP/libLidar/CMolecularData_USStd.hpp"
+#include "../libLidar/libLidar.hpp"
+#include "../libLidar/CNetCDF_Lidar.hpp"
+#include "../libLidar/CDataLevel_1.hpp"
+#include "../libLidar/CMolecularData_USStd.hpp"
 
 int main( int argc, char *argv[] )
 {
