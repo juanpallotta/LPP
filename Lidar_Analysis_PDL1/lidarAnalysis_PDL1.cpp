@@ -226,10 +226,10 @@ int main( int argc, char *argv[] )
     // - BACKGROUND NOISE
     // - BIAS 
     // - OVERLAP
-    printf("\n") ;
+
     oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)data_File_L1, (double***)pr_corr, (double***)pr2 ) ;
 
-printf("\n\n") ;
+    printf("\n\n") ;
 
 // START GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
@@ -247,18 +247,40 @@ printf("\n\n") ;
           ( (glbParam.MAX_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ < glbParam.MAX_TOGGLE_RATE_MHZ) )
         )
     {
-        printf("Gluing procedure:") ;
+        printf("Gluing:") ;
         for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
         {
-            if ( ( glbParam.iLambda[glbParam.indx_gluing_Low_AN[c]]     == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
-                 ( glbParam.DAQ_Type[glbParam.indx_gluing_Low_AN[c]]    == 0 )                                                  &&
+            if ( ( glbParam.iLambda [glbParam.indx_gluing_Low_AN[c]  ]   == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
+                 ( glbParam.DAQ_Type[glbParam.indx_gluing_Low_AN[c]  ]  == 0 )                                                   &&
                  ( glbParam.DAQ_Type[glbParam.indx_gluing_High_PHO[c]]  == 1 )     )
             {
                 glbParam.nPair_Ch_to_Glue = nIndxsToGlue_Low_AN ;
                 for ( int e =0; e <glbParam.nEventsAVG; e++)
                 {
                     glbParam.evSel = e ;
-                    oDL1->oLOp->GluingLidarSignals( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
+                printf("\nEv: %d \t Max range channel %d BEFORE gluing with channel %d: %lf", e, glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
+                                                                                            , glbParam.rEndSig_ev[e] ) ;
+
+                oDL1->oLOp->GluingLidarSignals( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
+
+                    if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL1 )
+                    {
+                        if ( glbParam.rEndSig <0 )
+                        {   // FIND THE MAX RANGE OF THE GLUED SIGNALS
+                            int indxMaxRange ;
+                            glbParam.chSel = glbParam.indxWL_PDL1 ;
+                            oDL1->oLOp->Find_Max_Range( (double*)&pr_corr[e][glbParam.indxWL_PDL1][0], (double*)oMolData->dataMol.prMol,
+                                                        (strcGlobalParameters*)&glbParam, (int*)&indxMaxRange ) ;
+
+                printf("\t Max range channel %d AFTER gluing with channel %d: %lf\n", glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
+                                                                                    , glbParam.rEndSig_ev[e] ) ;
+                        }
+                        else // glbParam.rEndSig >0
+                        {
+                            glbParam.indxEndSig_ev[glbParam.evSel] = (int) glbParam.indxEndSig ;
+                            glbParam.rEndSig_ev   [glbParam.evSel] = glbParam.indxEndSig_ev[glbParam.evSel] * glbParam.dr ;
+                        }
+                    } // if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL1 )
                 }
             }
             else
@@ -267,7 +289,7 @@ printf("\n\n") ;
                 printf( "\t indx_Gluing_Low_AN[%d]   --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_Low_AN  [c] ] ) ;
                 printf( "\t indx_Gluing_High_PHO[%d] --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_High_PHO[c] ] ) ;
             }
-        }
+        } // for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
     }
     else
     {
@@ -280,7 +302,7 @@ printf("\n\n") ;
             printf("\n\t Different numbers of elements in the arrarys indx_Gluing_Low_AN and indx_Gluing_High_PHO" ) ;
         printf("\n\t NO gluing is applied for this analysis.\n\n" ) ;
     }
-// END GLUING ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END GLUING PROCEDURE ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
@@ -302,12 +324,12 @@ printf("\n\n") ;
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;
-            printf("\nEvent: %d/%d \t Wavelenght: %d", t, glbParam.nEventsAVG-1, glbParam.iLambda[c] ) ;
-
-            oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
+            printf("\nEvent: %d/%d \t Wavelenght: %04d", t, glbParam.nEventsAVG-1, glbParam.iLambda[c] ) ;
 
             if ( c == glbParam.indxWL_PDL1 )
             {
+                oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
+
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
                 {
                     printf("   --> Getting cloud profile...");
@@ -317,7 +339,7 @@ printf("\n\n") ;
                     printf("\t Cloud profiles are not computed. \t") ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
-                    printf(" %d clouds detected with a cloud base height at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
+                    printf(" %d clouds detected starting with a cloud base height at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
                     printf(" NO clouds detected at %lf zenithal angle ", glbParam.aZenithAVG[t]  ) ;
 

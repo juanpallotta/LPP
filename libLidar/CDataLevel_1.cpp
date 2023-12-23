@@ -296,7 +296,7 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 	cloudProfiles[glbParam->evSel].nClouds  = 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
 	indxMol[glbParam->evSel].nMolRanges 	= 0 ; // USED AS INDEX AND THEN, AS TOTAL NUMBER.
 
-	if ( maxCloud ==1 ) // IF THERE ARE CLOUDS --> GETS THEIRS LIMITS
+	if ( maxCloud ==1 ) // IF THERE ARE CLOUDS IN THE EVENT UNDER ANALYSIS --> GETS THEIRS LIMITS
 	{
 		memset( (int*)dco, 0, (sizeof(int) * glbParam->nBins) ) ;
 
@@ -319,7 +319,7 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 			{
 				if( dco[i] == (int)BIN_CLOUD ) // INIT CLOUD
 				{
-					cloudProfiles[glbParam->evSel].indxInitClouds[cloudProfiles[glbParam->evSel].nClouds] = i ;
+					cloudProfiles[glbParam->evSel].indxInitClouds[cloudProfiles[glbParam->evSel].nClouds] = i ;  // USED AS INDEX (INITIALIZED WITH 0) AND THEN, AS TOTAL NUMBER.
 					for (int j =i ; j <=glbParam->indxEndSig_ev[glbParam->evSel] ; j++)
 					{	// SEARCH THE END OF THE CLOUD
 						if( dco[j] == (int)(-BIN_CLOUD) ) // END CLOUD
@@ -411,7 +411,7 @@ void CDataLevel_1::saveCloudsInfoDB( char *Path_File_Out, strcGlobalParameters *
 		fprintf( fpDB, "%d %d ", Raw_Data_Start_Time_AVG[t], cloudProfiles[t].nClouds ) ;
 
 		for ( int n =0; n <cloudProfiles[t].nClouds ; n++)
-			fprintf( fpDB, "%5.3lf %5.3lf ", cloudProfiles[t].indxInitClouds[0] *glbParam->dr,
+			fprintf( fpDB, "%5.3lf %5.3lf ", cloudProfiles[t].indxInitClouds[n] *glbParam->dr,
 				   (cloudProfiles[t].indxEndClouds[n] - cloudProfiles[t].indxInitClouds[n]) *glbParam->dr ) ;
 
 		fprintf( fpDB, "\n" ) ;

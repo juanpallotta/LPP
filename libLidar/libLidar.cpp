@@ -70,10 +70,11 @@ bool isFileInTimeRange ( char *fileName, time_t minTime_num, time_t maxTime_num,
 	int		dumpInt  ;
 
 	if ( strcmp(glbParam->inputDataFileFormat, "LICEL_FILE") ==0 )
-		sscanf( fileName, "%c%2d%1x%2d%2d.%2d%2d%2d", &dumpChar1, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min, &tmFile.tm_sec, &dumpInt ) ;
-	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
 	{
-		sscanf( fileName, "%c%c%2d%1x%2d%2d.%2d", &dumpChar1, &dumpChar2, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min ) ;
+		if ( isalpha(fileName[0]) && isalpha(fileName[1]) )
+			sscanf( fileName, "%c%c%2d%1x%2d%2d.%2d", &dumpChar1, &dumpChar2, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min ) ;
+		else
+			sscanf( fileName, "%c%2d%1x%2d%2d.%2d%2d%2d", &dumpChar1, &tmFile.tm_year, &tmFile.tm_mon, &tmFile.tm_mday, &tmFile.tm_hour, &tmFile.tm_min, &tmFile.tm_sec, &dumpInt ) ;
 	}
 	else
 		printf("\n Wrong 'inputDataFileFormat' parameter in %s file. (inputDataFileFormat=%s) \n", glbParam->FILE_PARAMETERS, glbParam->inputDataFileFormat ) ;
@@ -192,7 +193,8 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 	}
     if ( found == false)
     {
-		printf("\n\n*** ReadAnalisysParameter() --> variable %s not found or commented in setting file %s *** \n\n", varToFind, fileName ) ;
+		// printf("\n\n*** ReadAnalisysParameter() --> variable %s not found or commented in setting file %s *** \n\n", varToFind, fileName ) ;
+		printf("\n Variable *%s* not found or commented in setting file *%s*  \n\n", varToFind, fileName ) ;
         if ( strcmp( varType, "string" ) == 0 )
             strcpy( ((char*)var), "NOT_FOUND") ;
         else if ( strcmp( varType, "int" ) == 0 )
@@ -206,7 +208,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
     }
 	return nElemVec ;
 }
-// FROM ChatGPT
+// int ReadAnalisysParameter FROM ChatGPT
 
 // #include <iostream>
 // #include <fstream>
@@ -251,319 +253,6 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 
 //   return 0;
 // }
-
-
-/**
- * @brief 
- * All the files has to have the same header, and this information is taken from the first file in the time range.
- * @param lidarFile Lidar file to process.
- * @param glbParam General struct parameters where the parameters from the header will be stored.
- */
-void ReadLicelGobalParameters( char *lidarFile, strcGlobalParameters *glbParam )
-{
-	FILE *fid = fopen(lidarFile, "r");
-	if ( fid == NULL )
-		printf("\n Failed at opening the file %s \n", lidarFile) ;
-	assert( fid !=NULL ) ;
-
-	glbParam->nAnCh   = 0 ;
-	glbParam->nPhotCh = 0 ;
-
-	char strDump[20] ;
-
-	glbParam->aAzimuth 	   = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aAzimuth    , 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->aZenith      = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->aZenith     , 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->temp_K_agl = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->temp_K_agl, 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->pres_Pa_agl     = (double*) new double[glbParam->nEvents] ; memset( (double*)glbParam->pres_Pa_agl    , 0, (sizeof(double)*glbParam->nEvents) ) ;
-	glbParam->aAzimuthAVG  	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aAzimuthAVG	   , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;	
-	glbParam->aZenithAVG   	  = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aZenithAVG     , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->temp_K_agl_AVG = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_K_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->pres_Pa_agl_AVG     = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_Pa_agl_AVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-	glbParam->indxEndSig_ev   = (int*) new int[glbParam->nEventsAVG] ;
-
-	strcLicelDataFile lidarHeaderData ;
-// LINE 1: File name
-	fscanf( fid, "%s ", lidarHeaderData.Name )  ;
-// LINE 2:
-	if ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE" ) ==0 )
-	{
-		fscanf( fid, "%s", strDump ) ;
-		if ( strcmp( strDump, "Sao" ) ==0 )
-		{
-			strcpy( glbParam->site, "Sao Paul" ) ;
-			fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
-			strDump, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
-			&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
-		}
-		else
-		{
-			strcpy( glbParam->site, strDump ) ;
-			fscanf( fid, "%10s %08s %10s %08s %lf %lf %lf %lf ", 
-			lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
-			&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
-			// fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
-			// glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
-			// &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
-		}
-// printf("\n lidarHeaderData.Name: %s	glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
-		// lidarHeaderData.Name, glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT ) ;
-	}
-	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
-	{
-		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
-		glbParam->site, lidarHeaderData.StartD, lidarHeaderData.StartT, lidarHeaderData.EndD, lidarHeaderData.EndT, 
-		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_K_agl[0], &glbParam->pres_Pa_agl[0] ) ;
-// printf("\n glbParam->aZenith[0]: %lf \t glbParam->aAzimuth[0]: %lf \t glbParam->temp_K_agl: %lf \t glbParam->pres_Pa_agl: %lf \n", glbParam->aZenith[0], glbParam->aAzimuth[0], glbParam->temp_K_agl, glbParam->pres_Pa_agl) ;
-	}
-// LINE 3:
-	fscanf( fid, "%07d %04lf %07d %04lf %02d ", 
-	&glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], &glbParam->Accum_Pulses[1], &glbParam->Laser_Frec[1], &glbParam->nCh ) ;
-// printf("\n glbParam->Accum_Pulses[0]: %d	glbParam->Laser_Frec[0]: %d		glbParam->Accum_Pulses[1]: %d	glbParam->Laser_Frec[1]: %d		glbParam->nCh: %d \n",
-// 		glbParam->Accum_Pulses[0], glbParam->Laser_Frec[0], glbParam->Accum_Pulses[1], glbParam->Laser_Frec[1], glbParam->nCh ) ;
-
-	glbParam->DAQ_Type     = (int*)    new int [ glbParam->nCh ] ;
-	glbParam->Laser_Src   = (int*)    new int [ glbParam->nCh ] ;
-	glbParam->nBinsRaw_Ch = (int*)    new int [ glbParam->nCh ] ;
-	glbParam->PMT_Voltage = (int*)    new int [ glbParam->nCh ] ;
-	glbParam->iLambda     = (int*)    new int [ glbParam->nCh ] ;
-	glbParam->iADCbits    = (int*)    new int [ glbParam->nCh ] ;
-	glbParam->nShots	  = (int*) 	  new int [ glbParam->nCh ] ;
-	glbParam->sPol        = (char*)   new char[ glbParam->nCh ] ;
-	glbParam->iMax_mVLic  = (double*) new double [ glbParam->nCh ] ;
-
-// DATASETS
-	for ( int i=0 ; i<glbParam->nCh ; i++ )
-	{
-		fscanf(fid,"%s %d %d %05d 1 %d %lf %05d.%s 0 0 00 000 %d %06d %lf %s", lidarHeaderData.sAct[i], &glbParam->DAQ_Type[i], &glbParam->Laser_Src[i],
-		&glbParam->nBinsRaw_Ch[i], &glbParam->PMT_Voltage[i], &glbParam->dr, &glbParam->iLambda[i], lidarHeaderData.sPol[i], &glbParam->iADCbits[i], 
-		&glbParam->nShots[i], &glbParam->iMax_mVLic[i], lidarHeaderData.sDescrp[i] ) ;
-
-		glbParam->sPol[i]     = lidarHeaderData.sPol[i][0] ;
-		// glbParam->DAQ_Type[i] --> 0: ANALOG	1:PHOTONCOUNTING
-		if ( glbParam->DAQ_Type[i] ==0 )
-		{
-			glbParam->nAnCh++   ; // CONTADOR DE CANALES ANALOGICOS
-			glbParam->iMax_mVLic[i] = glbParam->iMax_mVLic[i] *1000 ;
-		}
-		else if ( glbParam->DAQ_Type[i] ==1 ) 	glbParam->nPhotCh++ ; // CONTADOR DE CANALES DE FOTOCONTEO
-	}
-	if ( fclose(fid) != 0 )
-		printf("\n Failed to close the lidar file.\n\n") ;
-
-	glbParam->nLambda   = glbParam->nCh;
-	glbParam->nBinsRaw  = *min_element( glbParam->nBinsRaw_Ch, glbParam->nBinsRaw_Ch +glbParam->nCh ) ;
-	glbParam->nBins		= glbParam->nBinsRaw ;
-	glbParam->nBins_in_File = glbParam->nBinsRaw ;
-	strcpy( glbParam->fileName, lidarHeaderData.Name ) ;
-}
-
-void ReadLicelData( char *lidarFile, strcGlobalParameters *glbParam, strcLidarDataFile *dataFile )
-{
-	FILE *fid = fopen(lidarFile, "r");
-	if ( fid == NULL )
-		printf("\n Failed at opening the file %s \n", lidarFile) ;
-
-	ReadLicelTime_and_Coord( (FILE*)fid, (strcGlobalParameters*)glbParam ) ;
-
-	// int cAn, cPh ;
-	// cAn =0 ; cPh =0 ;
-
-	for ( int c=0 ; c<glbParam->nCh ; c++ )
-	{
-		if ( strcmp(glbParam->inputDataFileFormat, "LICEL_FILE") ==0 )
-			fseek( fid, 80*(3+glbParam->nCh)+2 + c*(glbParam->nBinsRaw_Ch[c] * sizeof(int)+2), SEEK_SET ) ;
-		else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
-			fseek( fid, 80*(3+glbParam->nCh)+2 + 9 + c*(glbParam->nBinsRaw_Ch[c] * sizeof(int)+2), SEEK_SET ) ;
-
-		fread ( (int*)&dataFile->db_ADC[c][0], sizeof(int), glbParam->nBinsRaw, fid ) ;
-		// if ( glbParam->DAQ_Type[c] ==0 ) // ANALOG
-		// {
-		// 	glbParam->ScaleFactor_Analog = ( glbParam->iMax_mVLic[c] / pow(2, glbParam->iADCbits[c]) ) ;
-		// 	for( int b=0 ; b<glbParam->nBinsRaw ; b++ )
-		// 		dataFile->db_mV[cAn][b] = (double) ( dataFile->db_ADC[c][b] * glbParam->ScaleFactor_Analog ) ;
-		// 	cAn++ ;
-		// }
-		// else if ( glbParam->DAQ_Type[c] ==1 ) // PHOTONCOUNTING
-		// {
-		// 	glbParam->ScaleFactor_Dig = (double) 1 ;
-		// 	for( int b=0 ; b<glbParam->nBinsRaw ; b++ )
-		// 		dataFile->db_CountsMHz[cPh][b] = (double) ( dataFile->db_ADC[c][b] * glbParam->ScaleFactor_Dig ) ;
-		// 	cPh++ ;
-		// }
-	}
-	if ( fclose(fid) != 0 )
-		printf("\n Failed to close the lidar file.\n\n") ;
-} // FIN DEL ReadLidarData()
-
-void check_Lidar_Files_Consistency( strcGlobalParameters *glbParam, char **inputFilesInTime )
-{
-
-}
-
-void ReadLicelTime_and_Coord( FILE *fid, strcGlobalParameters *glbParam )
-{
-	assert( fid !=NULL ) ;
-
-	char strMisc[50] ;
-
-// LINE 1: File name
-	fscanf( fid, "%s ", strMisc )  ;
-// LINE 2:
-	if ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE" ) ==0 )
-	{
-		fscanf( fid, "%s ", strMisc ) ;
-		if ( strcmp( strMisc, "Sao" ) ==0 )
-		{
-			sprintf( glbParam->site, "Sao Paul" ) ;
-			fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
-			strMisc, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-			&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
-		}
-		else
-		{
-			sprintf( glbParam->site, "%s", strMisc ) ;
-			fscanf( fid, "%10s %08s %10s %08s %lf %lf %lf %lf ",
-					glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-					&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
-			// fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", 
-			// glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-			// &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
-		}
-		// printf("\nReadLicelTime_and_Coord()") ;
-		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
-		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
-		glbParam->aAzimuth[glbParam->evSel] 	 = (double)0 ;
-		//! IMPLEMENT THIS: IF THE FILE IS LICEL TYPE, SET THE TEMP AND PRESSURE FROM THE CONFIGURATION FILE.
-		//! SAVE THIS ARRAYS IN DATA LEVEL 0 
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station_K", "double", (double*)&glbParam->temp_K_agl[glbParam->evSel] ) ;
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station_Pa"   , "double", (double*)&glbParam->pres_Pa_agl[glbParam->evSel]     ) ;
-		glbParam->temp_K_agl[glbParam->evSel] = (double)-999.0 ;
-		glbParam->pres_Pa_agl[glbParam->evSel]     = (double)-999.0 ;
-	}
-	else if ( strcmp(glbParam->inputDataFileFormat, "RAYMETRIC_FILE") ==0 )
-	{
-		fscanf( fid, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf ", 
-		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, 
-		&glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel], 
-		&glbParam->aAzimuth[glbParam->evSel], &glbParam->temp_K_agl[glbParam->evSel], &glbParam->pres_Pa_agl[glbParam->evSel] ) ;
-	}
-		// printf("\nReadLicelTime_and_Coord()") ;
-		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	lidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
-		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
-
-	// StartDate = 05/08/2020
-	sprintf( &glbParam->StartDate[2], "%s", &glbParam->StartDate[3] ) ; // 05/08/2020 --> 0508/2020
-	sprintf( &glbParam->StartDate[4], "%s", &glbParam->StartDate[5] ) ; // 0508/2020  --> 05082020
-	// StoptDate = 05/08/2020
-	sprintf( &glbParam->StopDate[2], "%s", &glbParam->StopDate[3] ) ; // 05/08/2020 --> 0508/2020
-	sprintf( &glbParam->StopDate[4], "%s", &glbParam->StopDate[5] ) ; // 0508/2020  --> 05082020
-
-	// StartTime = 00:00:30
-	sprintf( (char*)&glbParam->StartTime[2], "%s", (char*)&glbParam->StartTime[3] ) ; // 0000:30
-	sprintf( (char*)&glbParam->StartTime[4], "%s", (char*)&glbParam->StartTime[5] ) ; // 000030
-	// StoptDate = 00:00:40
-	sprintf( (char*)&glbParam->StopTime[2], "%s", (char*)&glbParam->StopTime[3] ) ; // 0000:30
-	sprintf( (char*)&glbParam->StopTime[4], "%s", (char*)&glbParam->StopTime[5] ) ; // 000030
-		// printf("\nReadLicelTime_and_Coord()") ;
-		// printf("\n glbParam->site: %s	lidarHeaderData.StartD: %s	lidarHeaderData.StartT: %s	\nlidarHeaderData.EndD: %s	lidarHeaderData.EndT: %s\n",
-		//  		glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime ) ;
-}
-
-int Read_Bkg_Data_Files( char *path_to_bkg_files, strcGlobalParameters *glbParam , double **data_Bkg )
-{
-    struct stat path_to_bkg_files_stat ;
-    stat( path_to_bkg_files, &path_to_bkg_files_stat ) ;
-
-  	if ( S_ISDIR(path_to_bkg_files_stat.st_mode) )
-	{ // A *FOLDER* WAS PASSED AS AN ARGUMENT
-		int     nFilesInInputFolder =0 ;
-		DIR *d;
-		struct dirent *dir;
-		// GET THE NUMBER OF FILES IN THE INPUT FOLDER
-		d = opendir( path_to_bkg_files ) ;
-		while ( (dir = readdir(d)) != NULL )
-		{ // GET THE NUMBER OF FILES INSIDE THE FOLDER
-			if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) && ( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
-				nFilesInInputFolder++;
-		}
-
-		if ( nFilesInInputFolder ==0 )
-		{
-			printf("\n There are not Licel files in the folder (see %s) \nBye...", glbParam->FILE_PARAMETERS ) ;
-			return -1 ;
-		}
-		rewinddir(d) ;
-		
-		string *bkg_files = (string*) new string[nFilesInInputFolder] ;
-
-		int f=0 ;
-		printf("\n\tNumber of background files to average: %d\n", nFilesInInputFolder) ;
-		while ( (dir = readdir(d)) != NULL )
-		{ // GET THE BACKGROUND FILES NAMES
-			if ( ( dir->d_type == DT_REG ) && ( strcmp(dir->d_name, "..") !=0 ) && ( strcmp(dir->d_name, ".") !=0 ) &&
-				( strcmp(dir->d_name, "log.txt") !=0 ) && ( strcmp(dir->d_name, "temp.dat") !=0 ) )
-			{
-				bkg_files[f].assign(path_to_bkg_files) ;
-				bkg_files[f].append(dir->d_name) ;
-				// printf( "\n\tbkg_files[%d]= %s", f, bkg_files[f].c_str() ) ;
-				f++ ;
-			}
-		}
-
-		strcGlobalParameters glbParam_bkg ;
-		sprintf( glbParam_bkg.inputDataFileFormat, "%s", glbParam->inputDataFileFormat ) ;
-		sprintf( glbParam_bkg.site				 , "%s", glbParam->site ) ;
-		glbParam_bkg.nEvents	= (int)nFilesInInputFolder ; // glbParam->nEvents    ;
-		glbParam_bkg.nEventsAVG = (int)1 ; // glbParam->nEventsAVG ;
-			ReadLicelGobalParameters( (char*)bkg_files[0].c_str(), (strcGlobalParameters*)&glbParam_bkg ) ;
-
-		f=0 ;
-		if ( ( glbParam_bkg.nCh == glbParam->nCh) && ( glbParam_bkg.nBins >= glbParam->nBins )  )
-		{
-			strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam_bkg.nEvents ] ;
-			GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)&glbParam_bkg ) ;
-			
-			for ( f=0 ; f <nFilesInInputFolder ; f++ )
-			{
-				// printf("\nbkg_files[%d].c_str() = %s", f, bkg_files[f].c_str() ) ;
-				glbParam->evSel = f;
-				ReadLicelData ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)&glbParam_bkg, (strcLidarDataFile*)&dataFile[f] ) ;
-
-				for (int c=0 ; c <glbParam_bkg.nCh ; c++)
-				{
-					for (int i=0 ; i <glbParam->nBins; i++) // IT MUST BE glbParam, NOT glbParam_bkg
-						data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
-				}
-			}
-
-			for ( int c =0; c <glbParam_bkg.nCh ; c++)
-			{
-				for (int i =0; i <glbParam->nBins; i++) // IT MUST BE glbParam, NOT glbParam_bkg
-					data_Bkg[c][i] = data_Bkg[c][i] /nFilesInInputFolder ;
-			}
-			if ( glbParam_bkg.nBins > glbParam->nBins )
-			{
-				printf("\n Background files contain %d bins \n Lidar files contain %d \n Background signals are truncated to %d bins.\n\n", glbParam_bkg.nBins, glbParam->nBins, glbParam->nBins ) ;
-			}
-		}
-		else
-		{
-			printf("\n *** Background files with different number of channels and/or bins. Not saved in the NetCDF file ***\n") ;
-			printf(" *** Number of channels in the background files: %d ***\n", glbParam_bkg.nCh 	) ;
-			printf(" *** Number of channels in the lidar files: %d ***\n", glbParam->nCh 			) ;
-			printf(" *** Number of bins in the background files: %d ***\n", glbParam_bkg.nBins		) ;
-			printf(" *** Number of bins in the lidar files: %d ***\n", glbParam->nBins				) ;
-			return -10 ;
-		}
-    }
-	else
-	{
-		printf("\nDark-Current files: A folder must be set containing the dark-current files in the configuration file.\n") ;
-		printf("%s\n", path_to_bkg_files) ;
-		return -1 ;
-	}
-	return 0 ;
-}
 
 void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
 {
@@ -873,22 +562,6 @@ int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double *
 // 	delete nLR ;
 // }
 
-
-// MEMORY GETTERS 
-// void GetMem_cloudProfiles( strcCloudProfiles *cloudProfiles, strcGlobalParameters *glbParam )
-// {
-// 	for( int e=0 ; e<glbParam->nEventsAVG ; e++ )
-// 	{
-// 		cloudProfiles[e].clouds_ON 	    = (int*) new int [glbParam->nBins]   	 ; memset( cloudProfiles[e].clouds_ON     , 0, ( sizeof(int) * glbParam->nBins) ) ;
-// 		cloudProfiles[e].indxInitClouds = (int*) new int [NMAXCLOUDS]        	 ; memset( cloudProfiles[e].indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS	    ) ) ;
-// 		cloudProfiles[e].indxEndClouds  = (int*) new int [NMAXCLOUDS]        	 ; memset( cloudProfiles[e].indxEndClouds , 0, ( sizeof(int) * NMAXCLOUDS	    ) ) ;
-// 		cloudProfiles[e].VOD_cloud      = (double*) new double [NMAXCLOUDS]  	 ; memset( cloudProfiles[e].VOD_cloud     , 0, ( sizeof(double) * NMAXCLOUDS  ) ) ;
-// 		cloudProfiles[e].test_1  		= (double*) new double [glbParam->nBins] ; memset( cloudProfiles[e].test_1		  , 0, ( sizeof(double) * glbParam->nBins ) ) ;
-// 		cloudProfiles[e].test_2  		= (double*) new double [glbParam->nBins] ; memset( cloudProfiles[e].test_2		  , 0, ( sizeof(double) * glbParam->nBins ) ) ;
-// 		cloudProfiles[e].nClouds		= (int)0 ;
-// 	}
-// }
-
 void GetMem_DataFile( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam )
 {
  	for (int e = 0; e <glbParam->nEvents ; e++)
@@ -960,20 +633,20 @@ void GetMem_evSig( strcLidarSignal *evSig, strcGlobalParameters *glbParam )
 // 		dataMol->zenith		= 0 ;
 // }
 
-void GetMemVectorsFernaldInversion( strcFernaldInversion *fernaldVectors, int nBins )
-{
-	fernaldVectors->pr2n 	   	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->pr2n  		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->prn 	   	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->prn  		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->phi  	 	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->phi   		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->p 		  	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->p   		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->ip		  	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->ip    		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->ipN 		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->ipN   		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->betaT 		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->betaT 		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->pr2Fit		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->pr2Fit		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->prFit		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->prFit		 , 0, sizeof(double) * nBins ) ;
-	fernaldVectors->intAlphaMol_r = (double*) new double [ nBins ] ;	memset( fernaldVectors->intAlphaMol_r, 0, sizeof(double) * nBins ) ;
-	fernaldVectors->created = true ;
-}
+// void GetMemVectorsFernaldInversion( strcFernaldInversion *fernaldVectors, int nBins )
+// {
+// 	fernaldVectors->pr2n 	   	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->pr2n  		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->prn 	   	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->prn  		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->phi  	 	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->phi   		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->p 		  	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->p   		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->ip		  	  = (double*) new double [ nBins ] ;	memset( fernaldVectors->ip    		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->ipN 		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->ipN   		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->betaT 		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->betaT 		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->pr2Fit		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->pr2Fit		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->prFit		  = (double*) new double [ nBins ] ;	memset( fernaldVectors->prFit		 , 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->intAlphaMol_r = (double*) new double [ nBins ] ;	memset( fernaldVectors->intAlphaMol_r, 0, sizeof(double) * nBins ) ;
+// 	fernaldVectors->created = true ;
+// }
 
 void GetMem_dataAer( strcAerosolData *dataAer, strcGlobalParameters *glbParam )
 {
@@ -1120,92 +793,70 @@ SET_NEW_INDX_END_SIG:
 	// printf("glbParam->indxEndSig_ev[glbParam->evSel]: %d\n", glbParam->indxEndSig_ev[glbParam->evSel] ) ;
 }
 
-// int checkUnderShoot( strcLidarDataFile *dataFileAVG, strcGlobalParameters *glbParam, int e )
+// int GetIndxEvntToAvg_DiscScan( strcGlobalParameters *glbParam, strcIndxLimToAvg *indxEvntToAvg )
 // {
-// 	int 	deltaUnderShoot ;
-// 	double 	minPr, sTestSum, bkg ;
+// 	double 	*dZeniths = (double*) new double [glbParam->nEvents -1] ;
+// 	diffPr( (double*)glbParam->aZenith, (int)(glbParam->nEvents-1), (double*)dZeniths ); //  [i]= [i+1] - [i]
 
-// 	strcFitParam	fitParam ;
-// 	fitParam.indxInicFit = glbParam->nBins - glbParam->nBinsBkg ; // glbParam->indxEndSig - glbParam->nBinsBkg ; // 
-// 	fitParam.indxEndFit  = glbParam->nBins ; // glbParam->indxEndSig ; // 
-// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+// 	int 	c = 0 ;
+// 	indxEvntToAvg[c].indxEvntInit = 0 ; // indxEvntToAvg[glbParam.numClusters]
+// 	for( int e=0 ; e<glbParam->nEvents-1 ; e++ )
+// 	{
+// 		if ( fabs(dZeniths[e]) >2 )
+// 		{
+// 			indxEvntToAvg[c].indxEvntEnd = e ;
+// 			c++ ;
+// 			indxEvntToAvg[c].indxEvntInit = e+1 ;
+// 		}
+// 	}
+// 	indxEvntToAvg[c].indxEvntEnd = glbParam->nEvents-1 ;
 
-// 	int 	avg_check_undershoot ;
-// 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "avg_check_undershoot", "int", (int*)&avg_check_undershoot ) ;
-// 	smoothGSL( (double*)dataFileAVG[glbParam->chSel].db_mV[e], (int)(glbParam->nBins -1), (int)avg_check_undershoot, (double*)dataFileAVG[glbParam->chSel].db_mV_TEST[e] ) ;
-
-// 	// findIndxMin( (double*)dataFileAVG[glbParam->chSel].db_mV_TEST[e], (int)(glbParam->indxInitSig), (int)(glbParam->nBins-avg_check_undershoot), (int*)&glbParam->nBinsEvnt[e], (double*)&minPr ) ;
-// 	findIndxMin( (double*)dataFileAVG[glbParam->chSel].db_mV_TEST[e], (int)(glbParam->indxInitSig), (int)glbParam->indxEndSig, (int*)&glbParam->nBinsEvnt[e], (double*)&minPr ) ;
-// 	// glbParam->nBinsEvnt[e] = glbParam->nBinsEvnt[e] +1 ;
-// 	// printf( "\n e: %d \t glbParam->nBinsEvnt[%d]: %d ", e, e, glbParam->nBinsEvnt[e] ) ;
-
-// 		return EVNT_OK ;
+// 	return 0 ;
 // }
 
-int GetIndxEvntToAvg_DiscScan( strcGlobalParameters *glbParam, strcIndxLimToAvg *indxEvntToAvg )
-{
-	double 	*dZeniths = (double*) new double [glbParam->nEvents -1] ;
-	diffPr( (double*)glbParam->aZenith, (int)(glbParam->nEvents-1), (double*)dZeniths ); //  [i]= [i+1] - [i]
+// void GetIndxEvntToAvg_ContScan( strcGlobalParameters *glbParam, strcIndxLimToAvg *indxEvntToAvg )
+// {
+// 	int indxS =0 ;
+// 	int dIndx =1 ;
+// 	// int c =0 ;
 
-	int 	c = 0 ;
-	indxEvntToAvg[c].indxEvntInit = 0 ; // indxEvntToAvg[glbParam.numClusters]
-	for( int e=0 ; e<glbParam->nEvents-1 ; e++ )
-	{
-		if ( fabs(dZeniths[e]) >2 )
-		{
-			indxEvntToAvg[c].indxEvntEnd = e ;
-			c++ ;
-			indxEvntToAvg[c].indxEvntInit = e+1 ;
-		}
-	}
-	indxEvntToAvg[c].indxEvntEnd = glbParam->nEvents-1 ;
+// 	glbParam->nEventsAVG =0 ;
+// 	indxEvntToAvg[glbParam->nEventsAVG].indxEvntInit =0 ;
 
-	return 0 ;
-}
+// 	int deltaZenithAvg ;
+// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "deltaZenithAvg", "int", (int*)&deltaZenithAvg ) ;
 
-void GetIndxEvntToAvg_ContScan( strcGlobalParameters *glbParam, strcIndxLimToAvg *indxEvntToAvg )
-{
-	int indxS =0 ;
-	int dIndx =1 ;
-	// int c =0 ;
-
-	glbParam->nEventsAVG =0 ;
-	indxEvntToAvg[glbParam->nEventsAVG].indxEvntInit =0 ;
-
-	int deltaZenithAvg ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "deltaZenithAvg", "int", (int*)&deltaZenithAvg ) ;
-
-	COUNT_nEventsAVG:
-						if ( (indxS + dIndx) <glbParam->nEvents )
-						{
-							if ( fabs(glbParam->aZenith[indxS] - glbParam->aZenith[indxS + dIndx]) >(int)deltaZenithAvg )
-							{
-								indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd = indxS + dIndx -1 ;
-								glbParam->nEventsAVG++ ;
-								indxS = indxS + dIndx ;
-								indxEvntToAvg[glbParam->nEventsAVG].indxEvntInit = indxS ;
-								dIndx =1 ;
-								goto COUNT_nEventsAVG ;
-							}
-							else
-							{
-								dIndx++;
-								goto COUNT_nEventsAVG ;
-							}
-						}
-						else
-						{
-							indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd = glbParam->nEvents -1 ;
-							if ( indxEvntToAvg[glbParam->nEventsAVG].indxEvntInit == indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd )
-							{
-								glbParam->nEventsAVG-- ;
-								indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd = glbParam->nEvents -1 ;
-								glbParam->nEventsAVG++ ;
-							}
-							else
-								glbParam->nEventsAVG++ ;
-						}
-}
+// 	COUNT_nEventsAVG:
+// 						if ( (indxS + dIndx) <glbParam->nEvents )
+// 						{
+// 							if ( fabs(glbParam->aZenith[indxS] - glbParam->aZenith[indxS + dIndx]) >(int)deltaZenithAvg )
+// 							{
+// 								indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd = indxS + dIndx -1 ;
+// 								glbParam->nEventsAVG++ ;
+// 								indxS = indxS + dIndx ;
+// 								indxEvntToAvg[glbParam->nEventsAVG].indxEvntInit = indxS ;
+// 								dIndx =1 ;
+// 								goto COUNT_nEventsAVG ;
+// 							}
+// 							else
+// 							{
+// 								dIndx++;
+// 								goto COUNT_nEventsAVG ;
+// 							}
+// 						}
+// 						else
+// 						{
+// 							indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd = glbParam->nEvents -1 ;
+// 							if ( indxEvntToAvg[glbParam->nEventsAVG].indxEvntInit == indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd )
+// 							{
+// 								glbParam->nEventsAVG-- ;
+// 								indxEvntToAvg[glbParam->nEventsAVG].indxEvntEnd = glbParam->nEvents -1 ;
+// 								glbParam->nEventsAVG++ ;
+// 							}
+// 							else
+// 								glbParam->nEventsAVG++ ;
+// 						}
+// }
 
 int GetBinOffset( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam )
 {
@@ -1237,78 +888,63 @@ int GetBinOffset( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam )
 	return 0 ;
 }
 
-int AverageLidarSignal( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam, int *evStatus, strcIndxLimToAvg *indxEvntToAvg, strcLidarDataFile *dataFileAVG )
-{
-	int         evntOKcounter = 0 ;
-    long int    gpsTime_EventCluster = 0 ;
-
-	for( int c=0 ; c<glbParam->nEventsAVG ; c++ ) // CLUSTER: CLUSTER OF *EVENTS*
-	{
-		indxEvntToAvg[c].zenithClusterEvnt = 0 ;
-		for( int b=0 ; b<glbParam->nBinsRaw ; b++ )
-		{
-			for( int e=indxEvntToAvg[c].indxEvntInit ; e<=indxEvntToAvg[c].indxEvntEnd ; e++ )
-			{
-                    if ( b==0 )
-                    {
-                        indxEvntToAvg[c].zenithClusterEvnt  = (double)indxEvntToAvg[c].zenithClusterEvnt + (double)glbParam->aZenith[e] ;
-                        gpsTime_EventCluster = gpsTime_EventCluster + (long int)glbParam->event_gps_sec[e] ;
-                    }
-				dataFileAVG[glbParam->chSel].db_mV 		  [c][b] = (double)dataFileAVG[glbParam->chSel].db_mV[c][b] 	   + (double)dataFile[glbParam->chSel].db_mV[e][b]	;
-				dataFileAVG[glbParam->chSel].db_CountsMHz [c][b] = (double)dataFileAVG[glbParam->chSel].db_CountsMHz[c][b] + (double)dataFile[glbParam->chSel].db_CountsMHz[e][b]	;
-
-					if ( evStatus[e] == EVNT_OK ) // IF EVENT IS WRONG --> dataFile[glbParam->chSel].db_mV [e][:] = 0 
-						evntOKcounter++ ;
-			}
-			if( evntOKcounter ==0 ) evntOKcounter =1 ;
-			dataFileAVG[glbParam->chSel].db_mV[c][b]  		= (double)dataFileAVG[glbParam->chSel].db_mV[c][b]         / evntOKcounter ;
-			dataFileAVG[glbParam->chSel].db_CountsMHz[c][b] = (double)dataFileAVG[glbParam->chSel].db_CountsMHz[c][b]  / evntOKcounter ;
-            evntOKcounter = 0 ;
-		}
-        glbParam->event_gps_sec[c] = (int) round(gpsTime_EventCluster / (indxEvntToAvg[c].indxEvntEnd - indxEvntToAvg[c].indxEvntInit +1)) ;
-        gpsTime_EventCluster = 0 ;
-		indxEvntToAvg[c].zenithClusterEvnt = indxEvntToAvg[c].zenithClusterEvnt / (indxEvntToAvg[c].indxEvntEnd - indxEvntToAvg[c].indxEvntInit +1) ;
-	}
-    memset( (int*)&glbParam->event_gps_sec[glbParam->nEventsAVG], 0, sizeof(int)*(glbParam->nEvents - glbParam->nEventsAVG) );
-
-	// memset( glbParam->aZenith, 0, sizeof(double)*glbParam->nEvents ) ;
-	// glbParam->nEvents = glbParam->nEventsAVG ;
-	for( int c=0 ; c<glbParam->nEventsAVG ; c++ )
-		glbParam->aZenithAVG[c] = indxEvntToAvg[c].zenithClusterEvnt ;
-
-	for( int c=glbParam->nEventsAVG ; c<glbParam->nEvents ; c++ )
-		glbParam->aZenithAVG[c] = -1 ; // FILL THE REST
-
-	return 0 ;    
-}
-
-// int selectChannel ( strcGlobalParameters *glbParam, const char *tel_range ) // tel_range = used_channel = long_range_2 - long_range_1 - nothing
+// int AverageLidarSignal( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam, int *evStatus, strcIndxLimToAvg *indxEvntToAvg, strcLidarDataFile *dataFileAVG )
 // {
-// 	char 	strSearch[20], strInfo[20] ;
+// 	int         evntOKcounter = 0 ;
+//     long int    gpsTime_EventCluster = 0 ;
 
-// 	for ( int i=0 ; i<glbParam->nChMax ; i++ )
+// 	for( int c=0 ; c<glbParam->nEventsAVG ; c++ ) // CLUSTER: CLUSTER OF *EVENTS*
 // 	{
-// 		sprintf( strSearch, "%s.%d.ch%d", glbParam->site, glbParam->year, i ) ;
+// 		indxEvntToAvg[c].zenithClusterEvnt = 0 ;
+// 		for( int b=0 ; b<glbParam->nBinsRaw ; b++ )
+// 		{
+// 			for( int e=indxEvntToAvg[c].indxEvntInit ; e<=indxEvntToAvg[c].indxEvntEnd ; e++ )
+// 			{
+//                     if ( b==0 )
+//                     {
+//                         indxEvntToAvg[c].zenithClusterEvnt  = (double)indxEvntToAvg[c].zenithClusterEvnt + (double)glbParam->aZenith[e] ;
+//                         gpsTime_EventCluster = gpsTime_EventCluster + (long int)glbParam->event_gps_sec[e] ;
+//                     }
+// 				dataFileAVG[glbParam->chSel].db_mV 		  [c][b] = (double)dataFileAVG[glbParam->chSel].db_mV[c][b] 	   + (double)dataFile[glbParam->chSel].db_mV[e][b]	;
+// 				dataFileAVG[glbParam->chSel].db_CountsMHz [c][b] = (double)dataFileAVG[glbParam->chSel].db_CountsMHz[c][b] + (double)dataFile[glbParam->chSel].db_CountsMHz[e][b]	;
 
-// 			ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "string" , (char*)strInfo ) ;
-// 		if ( strcmp( strInfo, tel_range ) == 0 )
-// 			return i ;
+// 					if ( evStatus[e] == EVNT_OK ) // IF EVENT IS WRONG --> dataFile[glbParam->chSel].db_mV [e][:] = 0 
+// 						evntOKcounter++ ;
+// 			}
+// 			if( evntOKcounter ==0 ) evntOKcounter =1 ;
+// 			dataFileAVG[glbParam->chSel].db_mV[c][b]  		= (double)dataFileAVG[glbParam->chSel].db_mV[c][b]         / evntOKcounter ;
+// 			dataFileAVG[glbParam->chSel].db_CountsMHz[c][b] = (double)dataFileAVG[glbParam->chSel].db_CountsMHz[c][b]  / evntOKcounter ;
+//             evntOKcounter = 0 ;
+// 		}
+//         glbParam->event_gps_sec[c] = (int) round(gpsTime_EventCluster / (indxEvntToAvg[c].indxEvntEnd - indxEvntToAvg[c].indxEvntInit +1)) ;
+//         gpsTime_EventCluster = 0 ;
+// 		indxEvntToAvg[c].zenithClusterEvnt = indxEvntToAvg[c].zenithClusterEvnt / (indxEvntToAvg[c].indxEvntEnd - indxEvntToAvg[c].indxEvntInit +1) ;
 // 	}
-//     return -1 ;
+//     memset( (int*)&glbParam->event_gps_sec[glbParam->nEventsAVG], 0, sizeof(int)*(glbParam->nEvents - glbParam->nEventsAVG) );
+
+// 	// memset( glbParam->aZenith, 0, sizeof(double)*glbParam->nEvents ) ;
+// 	// glbParam->nEvents = glbParam->nEventsAVG ;
+// 	for( int c=0 ; c<glbParam->nEventsAVG ; c++ )
+// 		glbParam->aZenithAVG[c] = indxEvntToAvg[c].zenithClusterEvnt ;
+
+// 	for( int c=glbParam->nEventsAVG ; c<glbParam->nEvents ; c++ )
+// 		glbParam->aZenithAVG[c] = -1 ; // FILL THE REST
+
+// 	return 0 ;    
 // }
 
-int ReadChannelSelected ( strcGlobalParameters *glbParam ) // tel_range = used_channel = long_range_2 - long_range_1 - nothing
-{
-	char 	strSearch[50] ;
-	int		used_channel  ;
+// int ReadChannelSelected ( strcGlobalParameters *glbParam ) // tel_range = used_channel = long_range_2 - long_range_1 - nothing
+// {
+// 	char 	strSearch[50] ;
+// 	int		used_channel  ;
 
-	sprintf( strSearch, "%s.%d.used_channel", glbParam->site, glbParam->year ) ;
-	// printf("\n ReadChannelSelected() --> strSearch: %s \n", strSearch) ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "int" , (int*)&used_channel ) ;
-	// printf("\n ReadChannelSelected() --> used_channel: %d \n", used_channel) ;
+// 	sprintf( strSearch, "%s.%d.used_channel", glbParam->site, glbParam->year ) ;
+// 	// printf("\n ReadChannelSelected() --> strSearch: %s \n", strSearch) ;
+// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "int" , (int*)&used_channel ) ;
+// 	// printf("\n ReadChannelSelected() --> used_channel: %d \n", used_channel) ;
 
-    return used_channel ;
-}
+//     return used_channel ;
+// }
 
 void GetMemDataToSave( strcDataToSave *dataToSave, strcGlobalParameters *glbParam )
 {
@@ -1606,107 +1242,107 @@ void GetErrSetParam( char *FILE_PARAMETERS, int nSigSetErr, int nBins, double dz
 	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH3", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[3] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
 }
 
-void bkgSubstractionMolFit (strcMolecularData *dataMol, const double *prEl, strcFitParam *fitParam, double *pr_noBkg)
-{
-	// cout<<"----------- bkgSubstractionMolFit" ;
-	// printf("\n\nfitParam->indxInicFit: %d\nfitParam->indxEndFit: %d\nfitParam->nFit: %d\n\n", fitParam->indxInicFit, fitParam->indxEndFit, fitParam->nFit) ;
+// void bkgSubstractionMolFit (strcMolecularData *dataMol, const double *prEl, strcFitParam *fitParam, double *pr_noBkg)
+// {
+// 	// cout<<"----------- bkgSubstractionMolFit" ;
+// 	// printf("\n\nfitParam->indxInicFit: %d\nfitParam->indxEndFit: %d\nfitParam->nFit: %d\n\n", fitParam->indxInicFit, fitParam->indxEndFit, fitParam->nFit) ;
 
-	double *dummy = (double*) new double[dataMol->nBins] ; 
-	RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
-		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam->b) ; 
+// 	double *dummy = (double*) new double[dataMol->nBins] ; 
+// 	RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
+// 		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam->b) ; 
 
-	// printf( "\nbkgSubstractionMolFit() --> fitParam->b: %lf \nfitParam->indxInicFit: %d \nfitParam->indxInicFit: %d \n", fitParam->b, fitParam->indxInicFit, fitParam->indxEndFit ) ;
+// 	// printf( "\nbkgSubstractionMolFit() --> fitParam->b: %lf \nfitParam->indxInicFit: %d \nfitParam->indxInicFit: %d \n", fitParam->b, fitParam->indxInicFit, fitParam->indxEndFit ) ;
 
-	delete dummy ;
-}
+// 	delete dummy ;
+// }
 
-void bkgSubstractionMolFit_unCorr( strcMolecularData *dataMol, double *prEl, strcFitParam *fitParam, double *pr)
-{ // 
-// GET m AND b UNCORRELATED (m IS SLIGTHLY CORRELATED WITH b)
+// void bkgSubstractionMolFit_unCorr( strcMolecularData *dataMol, double *prEl, strcFitParam *fitParam, double *pr)
+// { // 
+// // GET m AND b UNCORRELATED (m IS SLIGTHLY CORRELATED WITH b)
 
-	double 	*prDiff	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
-	diffPr( prEl, dataMol->nBins, prDiff ) ;
-	double 	*prMolDiff	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
-	diffPr( dataMol->prMol, dataMol->nBins, prMolDiff ) ;
+// 	double 	*prDiff	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
+// 	diffPr( prEl, dataMol->nBins, prDiff ) ;
+// 	double 	*prMolDiff	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
+// 	diffPr( dataMol->prMol, dataMol->nBins, prMolDiff ) ;
 
-	// GET m
-	double 	*prMolDiffFit	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
-	RayleighFit( prDiff, prMolDiff, dataMol->nBins, "wOutB", "NOTall", fitParam, prMolDiffFit ) ;
+// 	// GET m
+// 	double 	*prMolDiffFit	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
+// 	RayleighFit( prDiff, prMolDiff, dataMol->nBins, "wOutB", "NOTall", fitParam, prMolDiffFit ) ;
 
-	double 	*m_prMol	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
-	for( int j=0 ; j<dataMol->nBins ; j++ )		m_prMol[j] = dataMol->prMol[j] * fitParam->m ;
-	// GET b
-	RayleighFit( (double*)prEl, (double*)m_prMol, (int)dataMol->nBins, "wB", "NOTall", fitParam, (double*)pr ) ;
+// 	double 	*m_prMol	= (double*) malloc( dataMol->nBins * sizeof(double) ) ;
+// 	for( int j=0 ; j<dataMol->nBins ; j++ )		m_prMol[j] = dataMol->prMol[j] * fitParam->m ;
+// 	// GET b
+// 	RayleighFit( (double*)prEl, (double*)m_prMol, (int)dataMol->nBins, "wB", "NOTall", fitParam, (double*)pr ) ;
 
-		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr[i] = (double)( prEl[i] - fitParam->b ) ;
+// 		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr[i] = (double)( prEl[i] - fitParam->b ) ;
 
-	free(prDiff) 		;
-	free(prMolDiff)		;
-	free(prMolDiffFit) 	;
-	free(m_prMol) 		;
-}
+// 	free(prDiff) 		;
+// 	free(prMolDiff)		;
+// 	free(prMolDiffFit) 	;
+// 	free(m_prMol) 		;
+// }
 
-double bkgSubstractionMean( double *sig, int binInitMean, int binEndMean, int nBins, double *pr_noBkg)
-{
-	int nFit = binEndMean - binInitMean ;
+// double bkgSubstractionMean( double *sig, int binInitMean, int binEndMean, int nBins, double *pr_noBkg)
+// {
+// 	int nFit = binEndMean - binInitMean ;
 
-	double 	bkgMean = 0 ;
+// 	double 	bkgMean = 0 ;
 
-	for( int j=binInitMean ; j<binEndMean ; j++ ) bkgMean = bkgMean + sig[j] ;
+// 	for( int j=binInitMean ; j<binEndMean ; j++ ) bkgMean = bkgMean + sig[j] ;
 
-	bkgMean = bkgMean /nFit ;
+// 	bkgMean = bkgMean /nFit ;
 
-	for ( int i=0 ; i<nBins ; i++ ) 	pr_noBkg[i] = (double)(sig[i] - bkgMean) ;
+// 	for ( int i=0 ; i<nBins ; i++ ) 	pr_noBkg[i] = (double)(sig[i] - bkgMean) ;
 
-	// printf( "\n bkgMean: %lf \n", bkgMean ) ;
+// 	// printf( "\n bkgMean: %lf \n", bkgMean ) ;
 
-	return bkgMean ;
-}
+// 	return bkgMean ;
+// }
 
-void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***dataFile, double ***dataFile_AVG, 
-                                    int *Raw_Data_Start_Time    , int *Raw_Data_Stop_Time, 
-                                    int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG	)
-{
-	printf( "\n\n" ) ;
-    for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
-    {
-        printf("Averaging in time Cluster Nº %d \n", fC ) ;
+// void Average_In_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***dataFile, double ***dataFile_AVG, 
+//                                     int *Raw_Data_Start_Time    , int *Raw_Data_Stop_Time, 
+//                                     int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG	)
+// {
+// 	printf( "\n\n" ) ;
+//     for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
+//     {
+//         printf("Averaging in time Cluster Nº %d \n", fC ) ;
 
-		for ( int c=0 ; c <glbParam->nCh ; c++ )
-		{
-			for ( int b=0 ; b <glbParam->nBins ; b++ )
-			{
-				for ( int t=0 ; t <glbParam->numEventsToAvg ; t++ )
-				{
-					dataFile_AVG[fC][c][b] = (double) dataFile_AVG[fC][c][b] + dataFile[ fC *glbParam->numEventsToAvg +t ][c][b] ;
-					if( (b==0) && (c==0) )
-					{
-					// TIME IS *NOT* AVERAGED!!!!
-						// Raw_Data_Start_Time_AVG[fC]	  = (int)( (int)Raw_Data_Start_Time_AVG[fC] + (int)Raw_Data_Start_Time[fC*glbParam->numEventsToAvg +t] ) ;
-						// Raw_Data_Stop_Time_AVG[fC] 	  = (int)( (int)Raw_Data_Stop_Time_AVG [fC] + (int)Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ) ;
-						if ( t ==0 )
-							Raw_Data_Start_Time_AVG[fC]	  = (int)Raw_Data_Start_Time[ fC *glbParam->numEventsToAvg ] ;
-						if ( t ==(glbParam->numEventsToAvg -1) )
-							Raw_Data_Stop_Time_AVG[fC] 	  = (int)Raw_Data_Stop_Time[ fC *glbParam->numEventsToAvg +t ] ;
+// 		for ( int c=0 ; c <glbParam->nCh ; c++ )
+// 		{
+// 			for ( int b=0 ; b <glbParam->nBins ; b++ )
+// 			{
+// 				for ( int t=0 ; t <glbParam->numEventsToAvg ; t++ )
+// 				{
+// 					dataFile_AVG[fC][c][b] = (double) dataFile_AVG[fC][c][b] + dataFile[ fC *glbParam->numEventsToAvg +t ][c][b] ;
+// 					if( (b==0) && (c==0) )
+// 					{
+// 					// TIME IS *NOT* AVERAGED!!!!
+// 						// Raw_Data_Start_Time_AVG[fC]	  = (int)( (int)Raw_Data_Start_Time_AVG[fC] + (int)Raw_Data_Start_Time[fC*glbParam->numEventsToAvg +t] ) ;
+// 						// Raw_Data_Stop_Time_AVG[fC] 	  = (int)( (int)Raw_Data_Stop_Time_AVG [fC] + (int)Raw_Data_Stop_Time[fC*glbParam->numEventsToAvg +t] ) ;
+// 						if ( t ==0 )
+// 							Raw_Data_Start_Time_AVG[fC]	  = (int)Raw_Data_Start_Time[ fC *glbParam->numEventsToAvg ] ;
+// 						if ( t ==(glbParam->numEventsToAvg -1) )
+// 							Raw_Data_Stop_Time_AVG[fC] 	  = (int)Raw_Data_Stop_Time[ fC *glbParam->numEventsToAvg +t ] ;
 
-						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
-						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
-						glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] + glbParam->temp_K_agl[fC*glbParam->numEventsToAvg +t] ;
-						glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     + glbParam->pres_Pa_agl[fC*glbParam->numEventsToAvg +t] 	  ;
-					}
-				}
-					dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
-					if( (b==0) && (c==0) )
-					{
-						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
-						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
-						glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] /glbParam->numEventsToAvg ;
-						glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     /glbParam->numEventsToAvg ;
-					}
-			}
-		}
-	}
-}
+// 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] + glbParam->aAzimuth[fC*glbParam->numEventsToAvg +t] ;
+// 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  + glbParam->aZenith [fC*glbParam->numEventsToAvg +t]  ;
+// 						glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] + glbParam->temp_K_agl[fC*glbParam->numEventsToAvg +t] ;
+// 						glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     + glbParam->pres_Pa_agl[fC*glbParam->numEventsToAvg +t] 	  ;
+// 					}
+// 				}
+// 					dataFile_AVG[fC][c][b]      = (double)(dataFile_AVG[fC][c][b] /glbParam->numEventsToAvg) ;
+// 					if( (b==0) && (c==0) )
+// 					{
+// 						glbParam->aAzimuthAVG[fC] 	  = glbParam->aAzimuthAVG[fC] /glbParam->numEventsToAvg ;
+// 						glbParam->aZenithAVG[fC]  	  = glbParam->aZenithAVG[fC]  /glbParam->numEventsToAvg ;
+// 						glbParam->temp_K_agl_AVG[fC] = glbParam->temp_K_agl_AVG[fC] /glbParam->numEventsToAvg ;
+// 						glbParam->pres_Pa_agl_AVG[fC]     = glbParam->pres_Pa_agl_AVG[fC]     /glbParam->numEventsToAvg ;
+// 					}
+// 			}
+// 		}
+// 	}
+// }
 
 
 // void bkgSubstractionLinearFit ( double *r, double *prEl, int nBins, strcFitParam *fitParam, double *pr)

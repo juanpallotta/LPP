@@ -4,8 +4,8 @@
 #include <cstddef>
 #include <string>
 
-#define MAX_CH_LICEL	20 // == MAX CHANNELS
-#define MAX_CH 			3  // == MAX_TEL
+#define MAX_CH_LICEL	100 // == MAX CHANNELS
+#define MAX_CH 			3   // == MAX_TEL
 #define MAX_EV 			150
 #define MOL_BIN_GAP		200
 #define MOL_ON			1
@@ -19,7 +19,7 @@
 #define VAOD_OK				0X0F
 // #define PHO_MAX_COUNT_MHz	250    // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
 #define MAX_MOL_RANGES		51
-#define NMAXCLOUDS 			50 		// MAX NUMBER OF CLOUDS TO BE DETECTED.
+#define NMAXCLOUDS 			10 		// MAX NUMBER OF CLOUDS TO BE DETECTED.
 
 /*
 tyspedef struct{
@@ -77,12 +77,12 @@ struct strcGlobalParameters
 	int 	nCh 					;
 	int 	*indx_gluing_Low_AN		;
 	int 	*indx_gluing_High_PHO	;
-	int 	nPair_Ch_to_Glue		;
+	int 	nPair_Ch_to_Glue		; // = lenght(indx_gluing_Low_AN) = = lenght(indx_gluing_High_PHO)
 	double  MIN_TOGGLE_RATE_MHZ		;
 	double  MAX_TOGGLE_RATE_MHZ 	;
 	double  PHO_MAX_COUNT_MHz = 250	; // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
     int     chSel               	;
-	int 	*nBinsRaw_Ch			; // int 	nBinsRaw_Ch[MAX_CH_LICEL]	;
+	int 	*nBins_Ch			; // int 	nBins_Ch[MAX_CH_LICEL]	;
 	int 	nBinsRaw				;
 	int 	nBins_in_File			;
 	int 	nBinsBkg 				;
@@ -103,6 +103,7 @@ struct strcGlobalParameters
 	int		indxWL_PDL2				;
 	int 	nLambda					;
 	char	*sPol			    	; // char	sPol[MAX_CH_LICEL]    	;
+	int		*iPol			    	; // char	sPol[MAX_CH_LICEL]    	;
 	int 	*DAQ_Type				; // int 	DAQ_Type[MAX_CH_LICEL]   ;
 	double 	*iMax_mVLic				; // double 	iMax_mVLic[MAX_CH_LICEL];
 	int 	*iADCbits 				; // int 	iADCbits[MAX_CH_LICEL] 	;
@@ -119,13 +120,15 @@ struct strcGlobalParameters
 	int 	nEvents 				;
 	int 	nEventsAVG 				;
 	int		numEventsToAvg			;
+	int		numEventsToAvg_PDL1		;
+	int		numEventsToAvg_PDL2		;
 	int 	*indxOffset				; // [MAX_CH_LICEL]
 	char	fileName[200] 			;
 	char	infoFile[100] 			;
 	char 	site[20] 				;
-	double	Laser_Frec[2] 			;
+	int 	Laser_Frec[3] 			;
+	int		Accum_Pulses[3]			;
 	int		*Laser_Src				; // int		Laser_Src[MAX_CH_LICEL]	;
-	int		Accum_Pulses[2]			;
 	char	scanType[5]				;
 	double 	siteASL 				;
 	double 	siteLat 				;
@@ -399,11 +402,11 @@ struct strcTheta
 struct strcLicelDataFile
 {
 	char Name[17] 	 ; 	// File name
-	char Station[10] ;  // Station name
-	char StartD[11]  ; 	// Start date
-	char StartT[9] 	 ;	// Start time
-	char EndD[11] 	 ;	// End date
-	char EndT[9] 	 ;	// End time
+	char Station[15] ;  // Station name
+	char StartD[15]  ; 	// Start date
+	char StartT[15]	 ;	// Start time
+	char EndD[15] 	 ;	// End date
+	char EndT[15] 	 ;	// End time
 	int  Alt 		 ;	// Altitude
 	double  Lat 	 ;	// Latitude
 	double  Long	 ;	// Longitude
@@ -415,19 +418,24 @@ struct strcLicelDataFile
 	int  nCh		 ;	// Number of channels
 
 	char 	sAct[MAX_CH_LICEL][2]	 ;
-	int 	DAQ_Type[MAX_CH_LICEL]    ;
-	char 	sLasSrc[MAX_CH_LICEL][2] ;
+	int 	DAQ_Type[MAX_CH_LICEL]   ;
+	char 	sLasSrc[MAX_CH_LICEL][2] ;  //! TRANSFORMARLO EN INT
 	int 	nBins ;
 	int 	iPMTv[MAX_CH_LICEL];
 	char 	sDump1[20] ;
 	char 	sDump2[20] ;
-	float 	Dz ;
+	double 	Dz ;
 	int		iLambda[MAX_CH_LICEL]  ;
 	char 	sPol[MAX_CH_LICEL][2]  ;
+	int 	iPol[MAX_CH_LICEL]	   ;
+	int		bin_shift_whole 	   ;
+	int		bin_shift_decimal 	   ;
  	int 	iADCbits[MAX_CH_LICEL] ;
 	int	 	nShots ;
 	float 	iMaxVLic[MAX_CH_LICEL] ;
-	char 	sDescrp[MAX_CH_LICEL][4] ;
+	char 	sDescrp[MAX_CH_LICEL][5] ;
+	char 	sInfoChannel[MAX_CH_LICEL][100] ;
+
 
 	// int			*dbADC[MAX_CH] ; // long int	*dbADC[MAX_CH] ; // 
 	// int			*dbPHO[MAX_CH] ; // long int	*dbPHO[MAX_CH] ; // 

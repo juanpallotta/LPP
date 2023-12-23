@@ -62,7 +62,7 @@ $./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.con
 
 Where:
 - `lidarAnalysis_PDLx`: Software module to generate the data level ***x***.
-- `/Input_File_or_Folder/`: Input folder or file to produce the data Level ***x***. In the case of L0, this first parameter is the folder with the raw lidar data files in Licel or Raymetric data file format. For the rest of the data levels, the input is the NetCDF file produced in the previous stage.
+- `/Input_File_or_Folder/`: Input folder or file to produce the data Level ***x***. In the case of L0, this first parameter is the folder with the raw lidar data files in Licel data file format. For the rest of the data levels, the input is the NetCDF file produced in the previous stage.
 - `/Output_File`: Output NetCDF filename. The output file contains the information of the input folder/file, adding the information of the new data of the level under analysis.
 - `analysisParameters.conf`: Configuration file with all the variables needed for the level analysis.
 - `[Extra_Files]`: Not mandatory information containing extra data about the lidar system, like background noise or overlap function.
@@ -80,7 +80,7 @@ Download or clone the repository from GitHub [https://www.github.com/juanpallott
 - `/Lidar_Analysis_L1`: Folder with C/C++ sources code of the module `lidarAnalysis_PDL1` for producing data level 1.
 - `/Lidar_Analysis_L2`: Folder with C/C++ sources code of the module `lidarAnalysis_PDL2` for producing data level 2.
 - `/Lidar_Configuration_Files`: Folder containing the configuration files (`.conf`) for each module. Also, the settings file for an automatic run (see later [section](#automatizing-lpp) about the LPP automation).
-- `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (Licel data type files) and Brazil: Sao Paulo (folder `Brazil/SPU/`, Licel data type files) and Manaus (folder `Brazil/Manaus`, Raymetric data type files).
+- `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (Licel data type files) and Brazil: Sao Paulo (folder `Brazil/SPU/`) and Manaus (folder `Brazil/Manaus`).
 - `install_Lidar_Dependencies.sh`: Linux shell-script to install the basic software/libraries needed to use LPP.
 - `/compile_All.sh`: Linux shell script to compile all the modules.
 - `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. The main settings for automatic run are configured the setting file `/Lidar_Configuration_Files/LPP_Run_Settings.sh`. More about the automatization of all modules in [Automatizing LPP](#automatizing-lpp) section of this README file.
@@ -160,7 +160,7 @@ An example of how to run this module using the sample signals included in this r
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
-- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in Licel or Raymetric data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
+- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in Licel data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file path contains subfolders, it will be generated automatically (in this example `/LPP_OUT/`).
 - `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
 - `[Background_Noise_File]`: This fourth argument is optional, and is the absolute path to the background noise file. This file is obtained by performing a regular measurement with the telescope fully covered. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. If this file is not provided, a "-" character must be used as fourth argument.
@@ -189,7 +189,6 @@ maxTime = 2022/03/02-02:00:00
 
 # INPUT DATAFILE FORMAT
 inputDataFileFormat = LICEL_FILE
-# inputDataFileFormat = RAYMETRIC_FILE
 
 # UTC REFERENCE
 Time_Zone = 0.0
@@ -218,7 +217,7 @@ r,1064,1064,532,532,530,530,355,355,387,387,408,408
 <u>**Important Note:</u> This information is not mandatory, and if is not provided, it must be commented writing a `"#"` at the beginning of the line.**
 It is highly recommentable to use absolute paths to avoid errors in the execution.
 
-* `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) or Raymetric (`RAYMETRIC_FILE` option) data type file are accepted. There is planned to accept more input data types formats in the future. 
+* `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) data type file are accepted. There is planned to accept more input data types formats in the future. Take into account that for Raymetric lidars, the data file format used are Licel files, so this variable must be set as `LICEL_FILE` for these systems. 
 * `Time_Zone`: Difference hours referenced to UTC time. If the time in lidar files are in UTC time, this variable must be set to zero. If the time of the files is set in local time, and for instance, the lidar if from Argentina, it must be set -3. 
 * `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different names conventions of the variables inside the file. A detailed description of LALINET data type can be seen in later sections of this document ([LALINET data type format](#lalinet-netcdf-file-format)).
 * `minTime` and `maxTime`: Minimum and maximum time to analyze inside the folder passed as the first argument. The format must be like the example show above: **YYYY/MM/DD-HH:MM:SS**. If `minTime` and `maxTime` are equal, all the files inside the folder passed as argument will be analyzed.
@@ -427,7 +426,7 @@ FILE_CONF="/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParamet
 ```
 As can be seen, a few variables are needed to run LPP automatically. These are:
 * `L0`, `L1` and `L2`: Data level to process. By setting `"yes"` or `"no"`, the run of each module can be controled. These variables are strings, and must be between inverted commas `"` and can be capitalized or not.<u>**Since this file is also a Linux script, do not let spaces before and after the `=` sign.**</u>
-* `PATH_IN`: Input path containing the input information for the lowest data level set. This mean that, if the lowest data level set is 0 (`L0="yes"`), `PATH_IN` must point to a folder containing the raw lidar files in Licel or Raymetric data file format. The subfolders will also be analized, and will skipped if contains LPP's processed data.
+* `PATH_IN`: Input path containing the input information for the lowest data level set. This mean that, if the lowest data level set is 0 (`L0="yes"`), `PATH_IN` must point to a folder containing the raw lidar files in Licel data file format. The subfolders will also be analized, and will skipped if contains LPP's processed data.
 The output NetCDF file will be stored in a folder named `/LPP_OUT/` created automatically in the same directory of its raw lidar files.
 If `L0="no"`, and `L1="yes"`, `PATH_IN` variable must be pointing to a <u>**NetCDF file**</u> containing the information generated in the module 0, which is the input for the data level 1.
 
@@ -496,9 +495,9 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
 * `DAQ_Range (channels)`: Maximun DAQ range set in the Licel, in mV.
 * `Laser_Source (channels)`: Number of laser source set for each channel.
-* `Number_Of_Bins (channels)`: Number of bins saved for each channel.
+* `nBins_Ch (channels)`: Number of bins saved for each channel.
 * `PMT_Voltage (channels)`: Photomuliplier voltage used in each channel.
-* `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel/Raymetric files: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
+* `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel files format: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
 * `Raw_Data_Start_Time (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Raw_Data_Stop_Time (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Raw_Lidar_Data (time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
@@ -513,8 +512,8 @@ Here, global variables taken from the headers of the raw lidar files. All these 
 * `Latitude_degrees_north`: Double data type with the latitude of the lidar site.
 * `Longitude_degrees_east`: Double data type with the longitude of the lidar site.
 * `Range_Resolution`: Double data type with the range resolution (in meters).
-* `Laser_Frec_1`: Double data type with the laser 1 repetition rate (in Hz). 
-* `Laser_Frec_2`: Double data type with the laser 2 repetition rate (in Hz).
+* `Laser_Frec_1`: Int data type with the laser 1 repetition rate (in Hz). 
+* `Laser_Frec_2`: Int data type with the laser 2 repetition rate (in Hz).
 
 ## NetCDF's File Produced for Data Level 1
 

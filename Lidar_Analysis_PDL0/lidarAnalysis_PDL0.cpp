@@ -22,7 +22,7 @@
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CNetCDF_Lidar.hpp"
-// #include "../libLidar/CLicel_DataFile_Handling.h"
+#include "../libLidar/CLicel_DataFile_Handling.h"
 
 int main( int argc, char *argv[] )
 {
@@ -83,8 +83,9 @@ int main( int argc, char *argv[] )
         for( int f=0 ; f<nFilesInInputFolder ; f++ )
             inputFilesInTime[f] = (char*) new char [200] ;
         // GET THE NUMBER OF FILES WITHIN THE TIME BIN SET IN analysisParameter.dat
-        glbParam.nEvents = (int)getInputFilesInTimeRange((char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
-    }
+        glbParam.nEvents = (int)getInputFilesInTimeRange( (char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
+        // glbParam.nEvents = (int)getInputFilesInZenithRange((char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
+    } // if ( S_ISDIR(pathFileInput_stat.st_mode) )
     else
     {
         cout << endl << "A folder must be passed as first argument (check dirFile.sh file)" << endl ;
@@ -99,13 +100,14 @@ int main( int argc, char *argv[] )
     glbParam.nEventsAVG = (int)glbParam.nEvents ; // ! FOR COMPATIBILITY --> ERASE
 
     //! check_Lidar_Files_Consistency( (strcGlobalParameters*)&glbParam, (char**)inputFilesInTime ) ;
-    // CLicel_DataFile_Handling oLDH ;
+    CLicel_DataFile_Handling oLDH ;
 
     if ( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
     {
         cout << "\n\tInput data file: " << glbParam.inputDataFileFormat ;
-        ReadLicelGobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
-        // oLDH.ReadLicelGobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
+        glbParam.chSel = 0 ;
+        glbParam.evSel = 0 ;
+        oLDH.ReadLicel_GlobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
     }
     else if( (strcmp( glbParam.inputDataFileFormat, "LALINET_NETCDF" ) ==0) )
         cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
@@ -115,8 +117,6 @@ int main( int argc, char *argv[] )
         cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
     else
         cout << "\n\t Input data file: wrong value. Please, check mergingParameters.dat" ;
-
-    // printf( "\n Total Events: %d \n", glbParam.nEvents ) ;
 
 // * LICEL FILE READOUT ////////////////////////////////////////////////////////////////////////////////////
     strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam.nEvents ] ;
@@ -135,7 +135,6 @@ int main( int argc, char *argv[] )
         }
     }
 
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"float", (float*)&glbParam.Time_Zone ) ;
     struct tm   *tmFile_start = (struct tm*) new struct tm [1] ;    tmFile_start->tm_isdst = 0 ;    tmFile_start->tm_gmtoff = round(glbParam.Time_Zone *60*60) ;
     struct tm   *tmFile_stop  = (struct tm*) new struct tm [1] ;    tmFile_stop->tm_isdst  = 0 ;    tmFile_stop->tm_gmtoff  = round(glbParam.Time_Zone *60*60) ;    
     time_t     *Raw_Data_Start_Time = (time_t*) new time_t [glbParam.nEvents] ;
@@ -150,8 +149,7 @@ int main( int argc, char *argv[] )
         // printf("\n File Nº %d: %s \n", f, inputFilesInTime[f] ) ;
         // avgTime_num =0 ;
             if( (strcmp( glbParam.inputDataFileFormat, "LICEL_FILE" ) ==0) || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0) )
-                ReadLicelData ( (char*)inputFilesInTime[f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
-                // oLDH.ReadLicelData ( (char*)inputFilesInTime[f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
+                oLDH.ReadLicel_Data ( (char*)inputFilesInTime[f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
             sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year  ) ;
             sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;
             sscanf( glbParam.StopDate , "%2d%2d%4d", &tmFile_stop->tm_mday , &tmFile_stop->tm_mon , &tmFile_stop->tm_year   ) ;
@@ -184,7 +182,7 @@ int main( int argc, char *argv[] )
                     {
                         for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
                         {
-                                dataToSave[f][c][b] = (double) dataFile[f].db_ADC[c][b] ;
+                            dataToSave[f][c][b] = (double) dataFile[f].db_ADC[c][b] ;
                         }
                     }
     } // for ( int f=0 ; f <glbParam.nEventsAVG ; f++ )
@@ -194,25 +192,19 @@ int main( int argc, char *argv[] )
 
     if ( strcmp(glbParam.outputDataFileFormat, "SCC_NETCDF") ==0 )
     {
-        cout << endl << "\tOutput datafile: SCC_NETCDF" ;
+        printf("\n\nOutput datafile: SCC_NETCDF\n") ;
         oNCL->Save_SCC_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave, 
                                    (long*)Raw_Data_Start_Time, (string*)Raw_Data_Start_Time_str, (long*)Raw_Data_Stop_Time, (string*)Raw_Data_Stop_Time_str ) ;
     }
     else if ( strcmp(glbParam.outputDataFileFormat, "LALINET_NETCDF") ==0 )
     {
-        cout << endl << "\tOutput datafile: LALINET_NETCDF" ;
+        printf("\n\nOutput datafile: LALINET_NETCDF\n") ;
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time, (char**)inputFilesInTime ) ;
 
         char *path_dark_files = (char*) new char[100] ;
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"PATH_DARK_FILES", (const char*)"string", (char*)path_dark_files ) ;
-        printf("\n Path to dark files: %s", path_dark_files) ;
-
-        if ( strcmp(path_dark_files, "NOT_FOUND") ==0 )
-        {
-            printf( "\nNo background files set in the configuration file %s\n", glbParam.FILE_PARAMETERS ) ;
-        }
-        else
+        if ( strcmp(path_dark_files, "NOT_FOUND") !=0 ) // DARK FILES FOUND
         {
             printf("\n Adding noise files (%s) to NetCDF file \n", path_dark_files ) ;  
             double **data_Bkg = (double**) new double*[glbParam.nCh];
@@ -222,7 +214,7 @@ int main( int argc, char *argv[] )
                 for(int b =0; b <glbParam.nBinsRaw; b++)
                     data_Bkg[c][b] = (double) 0;
             }
-            if( Read_Bkg_Data_Files( (char*)path_dark_files, (strcGlobalParameters*)&glbParam,(double**)data_Bkg ) >=0 )
+            if( oLDH.Read_Bkg_Data_Files( (char*)path_dark_files, (strcGlobalParameters*)&glbParam,(double**)data_Bkg ) >=0 )
             {
                 oNCL->Add_Noise_LALINET_NCDF_PDL0( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)data_Bkg ) ;
             }
@@ -232,13 +224,12 @@ int main( int argc, char *argv[] )
 
         char *overlap_file = (char*) new char[100] ;
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"OVERLAP_FILE", (const char*)"string", (char*)overlap_file ) ;
-        printf("\n Path to overlap file: %s", overlap_file ) ;
-
-        if ( strcmp(overlap_file, "NOT_FOUND") ==0 )
-        {
-            printf( "\nNo overlap file set in the configuration file %s\n", glbParam.FILE_PARAMETERS ) ;
-        }
-        else
+        // printf("\n Path to overlap file: %s", overlap_file ) ;
+        if ( strcmp(overlap_file, "NOT_FOUND") !=0 ) // OVERLAP FILE FOUND
+        // {
+            // printf( "\nNo overlap file set in the configuration file %s\n", glbParam.FILE_PARAMETERS ) ;
+        // }
+        // else
         {
             printf("\n Adding overlap file (%s) to NetCDF file \n", overlap_file ) ;
 

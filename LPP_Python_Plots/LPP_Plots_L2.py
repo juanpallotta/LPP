@@ -1,6 +1,6 @@
 
 # python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/LPP_OUT/14_L0_L1_L2.nc 54
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0_L1_L2.nc 37
+# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0_L1_L2.nc 5
 # python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/test/LPP_OUT/test_L0_L1_L2.nc 5
 # python LPP_Plots_L2.py /home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/LPP_OUT/Pappalardo_2004_L0_L1_L2.nc 0
 
@@ -96,9 +96,12 @@ plt.savefig(fname_Img, dpi=300, bbox_inches='tight')
 ##### PLOT RCLS FOR THE SAME TIME OF ALPHA #####################################################################################
 
 plt.figure(num=1,figsize=(8,6),clear=True)
-plt.plot( r[0:indx_Max], RCLS_L2[indx_Time_to_Plot][indx_Ch_L2][0:indx_Max]*1e6, linestyle='-')
-plt.xlabel('Range [km]')
-plt.ylabel('RCLS L2 [au]')
+# plt.plot( r[0:indx_Max], RCLS_L2[indx_Time_to_Plot][indx_Ch_L2][0:indx_Max]*1e6, linestyle='-')
+plt.plot( RCLS_L2[indx_Time_to_Plot][indx_Ch_L2][0:indx_Max]*1e6, r[0:indx_Max], linestyle='-')
+# plt.xlabel('Range [km]')
+plt.xlabel('RCLS L2 [au]')
+# plt.ylabel('RCLS L2 [au]')
+plt.ylabel('Range [km]')
 # plt.ylim(-1, 5)
 plt.title(time_L2[indx_Time_to_Plot])
 # plt.legend(loc='upper right')

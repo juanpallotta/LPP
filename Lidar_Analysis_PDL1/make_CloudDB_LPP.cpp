@@ -145,13 +145,6 @@ int main( int argc, char *argv[] )
     CMolecularData       *oMolData = (CMolecularData*) new CMolecularData ( (strcGlobalParameters*)&glbParam ) ;
     oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
 
-    strcCloudInfoDB_LPP cloudInfoDB ;
-	cloudInfoDB.lowestCloudHeight_ASL = (double*) new double [ glbParam.nEventsAVG ] ;
-	cloudInfoDB.lowestCloudThickness  = (double*) new double [ glbParam.nEventsAVG ] ;
-	cloudInfoDB.lowestCloud_VOD       = (double*) new double [ glbParam.nEventsAVG ] ;
-	cloudInfoDB.cloudTime             = (int*   ) new int    [ glbParam.nEventsAVG ] ;
-	cloudInfoDB.nClouds               = (int*   ) new int    [ glbParam.nEventsAVG ] ;
-
     glbParam.rEndSig_ev    = (double*) new double [ glbParam.nEventsAVG ] ;
     glbParam.indxEndSig_ev = (int*)    new int    [ glbParam.nEventsAVG ] ;
     oNCL.ReadVar( (int)nc_grp_id, (const char*)"MaxRangeAnalysis", (double*)&glbParam.rEndSig_ev[0] ) ;
@@ -184,27 +177,21 @@ int main( int argc, char *argv[] )
                 // TransmissionMethod_pr( (double*)pr_VOD, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, 
                 //                     (int)oDL1.cloudProfiles[t].indxInitClouds[0], (int)oDL1.cloudProfiles[t].indxEndClouds[0], (double*)&oDL1.cloudProfiles[t].VOD_cloud[0] ) ;
 
-    printf("\n(%d) CLOUDS DETECTED \t Base heigh: %lf \t Top heigh: %lf \n", t, oDL1.cloudProfiles[t].indxInitClouds[0] *glbParam.dzr + glbParam.siteASL
-                                                                           ,    oDL1.cloudProfiles[t].indxEndClouds[0]  *glbParam.dzr + glbParam.siteASL ) ;
-        }
+            // printf("\n(%d) %d CLOUDS DETECTED \t Base heigh: %lf \t Top heigh: %lf \n", t, oDL1.cloudProfiles[t].nClouds, 
+            //                                                                             oDL1.cloudProfiles[t].indxInitClouds[0] *glbParam.dzr + glbParam.siteASL,
+            //                                                                             oDL1.cloudProfiles[t].indxEndClouds[0]  *glbParam.dzr + glbParam.siteASL ) ;
+            printf("\n(%d) %d CLOUDS DETECTED \n", t, oDL1.cloudProfiles[t].nClouds ) ;
+            for (int i = 0; i < oDL1.cloudProfiles[t].nClouds ; i++)
+            {
+                printf("\t Base heigh: %lf \t Top heigh: %lf \n", oDL1.cloudProfiles[t].indxInitClouds[i] *glbParam.dzr + glbParam.siteASL,
+                                                                  oDL1.cloudProfiles[t].indxEndClouds [i] *glbParam.dzr + glbParam.siteASL ) ;
+            }
+        } // if ( oDL1.cloudProfiles[t].nClouds >=1 )
         else
             printf( "\n(%d) NO CLOUDS DETECTED", t ) ;
 
-        cloudInfoDB.lowestCloudHeight_ASL[glbParam.evSel] =  oDL1.cloudProfiles[t].indxInitClouds[0] *glbParam.dr ;
-        cloudInfoDB.lowestCloudThickness [glbParam.evSel] = (oDL1.cloudProfiles[t].indxEndClouds[0] - oDL1.cloudProfiles[t].indxInitClouds[0]) *glbParam.dr ;
-        cloudInfoDB.lowestCloud_VOD      [glbParam.evSel] =  oDL1.cloudProfiles[t].VOD_cloud[0] ;
-        cloudInfoDB.nClouds              [glbParam.evSel] =  oDL1.cloudProfiles[t].nClouds      ;
-        cloudInfoDB.cloudTime            [glbParam.evSel] =  Raw_Data_Start_Time_AVG[t]         ;
-
-        // printf("\n\n\t main() " ) ;
-        // printf("\n\t cloudInfoDB.lowestCloudHeight_ASL[%d]: %lf " , glbParam.evSel, cloudInfoDB.lowestCloudHeight_ASL[t] ) ;
-        // printf("\n\t cloudInfoDB.lowestCloudThickness[%d] : %lf " , glbParam.evSel, cloudInfoDB.lowestCloudThickness[t]  ) ;
-        // printf("\n\t cloudInfoDB.lowestCloud_VOD[%d]      : %lf " , glbParam.evSel, cloudInfoDB.lowestCloud_VOD[t]       ) ;
-        // printf("\n\t cloudInfoDB.nClouds[%d]              : %d "  , glbParam.evSel, cloudInfoDB.nClouds[t]	            ) ;
-        // printf("\n\t cloudInfoDB.cloudTime[%d]            : %d "  , glbParam.evSel, cloudInfoDB.cloudTime[t]	            ) ;
     } // for ( int t =0; t <glbParam.nEventsAVG ; t++ )
 
-    // oDL1.saveCloudsInfoDB( (char*)Path_File_Out.c_str(), (strcGlobalParameters*)&glbParam, (strcCloudInfoDB_LPP*)&cloudInfoDB ) ;
     oDL1.saveCloudsInfoDB( (char*)Path_File_Out.c_str(), (strcGlobalParameters*)&glbParam, (int*)Raw_Data_Start_Time_AVG ) ;
   
     printf("\n\n---- CLOUD DB (END) -----------------------------------------------------------------------------\n\n\n\n") ;

@@ -190,10 +190,11 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
             ERR(retval);
         // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
     }
-    glbParam->nEvents = size_dim[0] ; glbParam->nEventsAVG = glbParam->nEvents ; // 'time' DIMENSION
-    glbParam->evSel   = -1 ; // DEFAULT VALUE, IF <0, ANALYZE VERTICAL PROFILE
-    glbParam->nCh     = size_dim[1] ; glbParam->nLambda    = glbParam->nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
-    glbParam->nBins   = size_dim[2] ; // 'points' DIMENSION
+    glbParam->nEvents  = size_dim[0] ; glbParam->nEventsAVG = glbParam->nEvents ; // 'time' DIMENSION
+    glbParam->evSel    = -1 ; // DEFAULT VALUE, IF <0, ANALYZE VERTICAL PROFILE
+    glbParam->nCh      = size_dim[1] ; glbParam->nLambda    = glbParam->nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
+    glbParam->nBins    = size_dim[2] ; // 'points' DIMENSION
+    glbParam->nBins_Ch = (int*) new int[ glbParam->nCh ] ;
 
     glbParam->nEventsAVG     = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
 
@@ -216,20 +217,26 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
         glbParam->pres_Pa_agl[i] = glbParam->pres_Pa_agl[0] ;
     }
 
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution", (double*)&glbParam->dr) ) )
+    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution"  , (double*)&glbParam->dr) )            )
         ERR(retval);
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam->siteASL) ) )
+    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam->siteASL) )       )
         ERR(retval);
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_1", (double*)&glbParam->Laser_Frec[0]) ) )
+    // if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_1"      , (double*)&glbParam->Laser_Frec[0]) ) )
+    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_1"      , (int*)&glbParam->Laser_Frec[0]) ) )
         ERR(retval);
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_2", (double*)&glbParam->Laser_Frec[1]) ) )
+    // if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_2"      , (double*)&glbParam->Laser_Frec[1]) ) )
+    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_2"      , (int*)&glbParam->Laser_Frec[1]) ) )
         ERR(retval);
 
     glbParam->indxOffset = (int*) new int [ glbParam->nCh ] ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)&glbParam->nBinsBkg      ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)glbParam->indxOffset     ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg"   , (const char*)"int"   , (int*)   &glbParam->nBinsBkg   ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)    glbParam->indxOffset ) ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam->rInitSig   ) ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rEndSig"    , (const char*)"double", (double*)&glbParam->rEndSig    ) ;
+
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam->indxWL_PDL1 ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam->indxWL_PDL2 ) ;
+
     glbParam->indxInitSig = (int)round( glbParam->rInitSig /glbParam->dr ) ;
     glbParam->indxEndSig  = (int)round( glbParam->rEndSig  /glbParam->dr ) ;
     glbParam->iLambda = (int*) new int [glbParam->nCh] ;
@@ -241,6 +248,8 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)glbParam->iMax_mVLic ) ;
     glbParam->nShots = (int*) new int [glbParam->nCh] ;
     ReadVar( (int)ncid, (const char*)"Accumulated_Pulses", (int*)&glbParam->nShots[0] ) ;
+
+    ReadVar( (int)ncid, (const char*)"nBins_Ch", (int*)&glbParam->nBins_Ch[0] ) ;
 
     glbParam->indxEndSig_ev = (int*)    new int    [ glbParam->nEventsAVG ] ;
     glbParam->rEndSig_ev    = (double*) new double [ glbParam->nEventsAVG ] ;
@@ -340,8 +349,8 @@ void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glb
     for ( int e =0; e <glbParam->nEventsAVG; e++ )
     {
         glbParam->indxEndSig_ev[e]   = (int)round(glbParam->rEndSig_ev[e] /glbParam->dr) ;
-        glbParam->temp_K_agl_AVG[e] = (double)glbParam->temp_K_agl[e] ;
-        glbParam->pres_Pa_agl_AVG[e]     = (double)glbParam->pres_Pa_agl[e]     ;
+        glbParam->temp_K_agl_AVG[e]  = (double)glbParam->temp_K_agl[e] ;
+        glbParam->pres_Pa_agl_AVG[e] = (double)glbParam->pres_Pa_agl[e]     ;
     }
     
     int id_var_lm ;
@@ -616,7 +625,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     dimsName[0] = "time" ;                  dimsSize[0] = glbParam->nEventsAVG   ;
     dimsName[1] = "channels" ;              dimsSize[1] = glbParam->nCh          ;
     dimsName[2] = "points" ;                dimsSize[2] = glbParam->nBinsRaw     ;
-
+// printf("\n Save_LALINET_NCDF_PDL0 --> glbParam->nBinsRaw= %d \n", glbParam->nBinsRaw) ;
     // int  dim_ids_StartEnd_time[2];
     int  dim_ids[NDIMS_LALINET_L0];
     int  var_ids[NVARS_LALINET_L0] ;
@@ -636,9 +645,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     strNameVars[12] = "Pressure" ;
     strNameVars[13] = "ADC_Bits" ;
     strNameVars[14] = "Laser_Source" ;
-    strNameVars[15] = "Number_Of_Bins" ;
+    strNameVars[15] = "nBins_Ch" ; 
     strNameVars[16] = "File_Names" ;
-
+// printf("\n Save_LALINET_NCDF_PDL0 --> glbParam->nCh= %d \n", glbParam->nCh) ;
     // DEFINE Raw_Lidar_Data VARIABLE
     DefineVarDims( (int)ncid, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dim_ids, (char*)strNameVars[0].c_str(), (const char*)"double", (int*)&var_ids[0] ) ; // Raw_Lidar_Data
 
@@ -654,9 +663,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     DefineVariable( (int)ncid, (char*)strNameVars[10].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[10] ) ; // Azimuth
     DefineVariable( (int)ncid, (char*)strNameVars[13].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[13] ) ; // ADC_Bits
     DefineVariable( (int)ncid, (char*)strNameVars[14].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[14] ) ; // Laser_Source
-    DefineVariable( (int)ncid, (char*)strNameVars[15].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[15] ) ; // Number_Of_Bins
+    DefineVariable( (int)ncid, (char*)strNameVars[15].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[15] ) ; // nBins_Ch
     DefineVariable( (int)ncid, (char*)strNameVars[16].c_str(), (const char*)"string", (int)1, (int*)&dim_ids[0], (int*)&var_ids[16] ) ; // File_Names
-
+// printf("\n Save_LALINET_NCDF_PDL0 --> \n") ;
     // TEXT GLOBAL ATTRIBUTES
     string strAttListName[10], strAttList ;
     strAttListName[0] = "Site_Name"             ;   strcpy ( (char*)strAttList.c_str(), glbParam->site )  ;
@@ -706,13 +715,13 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuth         ) ;
     PutVar( (int)ncid, (int)var_ids[13], (const char*)"int"   , (int*)glbParam->iADCbits            ) ;
     PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)glbParam->Laser_Src           ) ;
-    PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBinsRaw_Ch         ) ;
+    PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBins_Ch         ) ;
     PutVar_String( (int)ncid, (int)var_ids[16], (char**)inputFilesInTime     ) ;
 
     if ( (retval = nc_close(ncid)) )
         ERR(retval);
 }
-
+/*
 void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, long *Raw_Data_Start_Time_sec, long *Raw_Data_Stop_Time_sec )
 {
     int  ncid ;
@@ -747,7 +756,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     strNameVars[12] = "Pressure" ;
     strNameVars[13] = "ADC_Bits" ;
     strNameVars[14] = "Laser_Source" ;
-    strNameVars[15] = "Number_Of_Bins" ;
+    strNameVars[15] = "nBins_Ch" ;
 
     // DEFINE Raw_Lidar_Data VARIABLE
     DefineVarDims( (int)ncid, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dim_ids, (char*)strNameVars[0].c_str(), (const char*)"double", (int*)&var_ids[0] ) ; // Raw_Lidar_Data
@@ -764,7 +773,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     DefineVariable( (int)ncid, (char*)strNameVars[10].c_str(), (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[10] ) ; // Azimuth
     DefineVariable( (int)ncid, (char*)strNameVars[13].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[13] ) ; // ADC_Bits
     DefineVariable( (int)ncid, (char*)strNameVars[14].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[14] ) ; // Laser_Source
-    DefineVariable( (int)ncid, (char*)strNameVars[15].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[15] ) ; // Number_Of_Bins
+    DefineVariable( (int)ncid, (char*)strNameVars[15].c_str(), (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[15] ) ; // nBins_Ch
 
     // TEXT GLOBAL ATTRIBUTES
     string strAttListName[10], strAttList ;
@@ -815,11 +824,12 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     PutVar( (int)ncid, (int)var_ids[10], (const char*)"double", (double*)glbParam->aAzimuth         ) ;
     PutVar( (int)ncid, (int)var_ids[13], (const char*)"int"   , (int*)glbParam->iADCbits            ) ;
     PutVar( (int)ncid, (int)var_ids[14], (const char*)"int"   , (int*)glbParam->Laser_Src           ) ;
-    PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBinsRaw_Ch         ) ;
+    PutVar( (int)ncid, (int)var_ids[15], (const char*)"int"   , (int*)glbParam->nBins_Ch         ) ;
 
     if ( (retval = nc_close(ncid)) )
         ERR(retval);
 }
+*/
 
 void CNetCDF_Lidar::Add_Noise_LALINET_NCDF_PDL0( string *Path_File_Out, strcGlobalParameters *glbParam, double **data_Noise )
 {
@@ -995,9 +1005,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalPar
             ERR(retval);
     }
 
-    PutVar( (int)nc_id_group_L1, (int)var_ids[1], (const char*)"int", (long*)Start_Time_AVG ) ;
-    PutVar( (int)nc_id_group_L1, (int)var_ids[2], (const char*)"int", (long*)Stop_Time_AVG  ) ;
-    PutVar( (int)nc_id_group_L1, (int)var_ids[6], (const char*)"double", (double*)glbParam->rEndSig_ev ) ;
+    PutVar( (int)nc_id_group_L1, (int)var_ids[1], (const char*)"int"   , (long*)  Start_Time_AVG        ) ;
+    PutVar( (int)nc_id_group_L1, (int)var_ids[2], (const char*)"int"   , (long*)  Stop_Time_AVG         ) ;
+    PutVar( (int)nc_id_group_L1, (int)var_ids[6], (const char*)"double", (double*)glbParam->rEndSig_ev  ) ;
 
     // WRITE CLOUD RAW LIDAR DATA CORRECTED
     size_t start_pr[3], count_pr[3];
