@@ -197,7 +197,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->nBins_Ch = (int*) new int[ glbParam->nCh ] ;
 
     glbParam->nEventsAVG     = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
-
+// printf("\n PDL1: glbParam->nEvents= %d \t glbParam->numEventsToAvg= %d \t glbParam->nEventsAVG= %d \n", glbParam->nEvents, glbParam->numEventsToAvg, glbParam->nEventsAVG) ;
     glbParam->aZenith     = (double*) new double [glbParam->nEvents]    ;
     glbParam->aAzimuth    = (double*) new double [glbParam->nEvents]    ;
     glbParam->aZenithAVG  = (double*) new double [glbParam->nEventsAVG] ;     memset( (double*)glbParam->aZenithAVG , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;

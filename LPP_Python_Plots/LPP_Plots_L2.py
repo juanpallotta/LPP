@@ -4,13 +4,15 @@
 # python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/test/LPP_OUT/test_L0_L1_L2.nc 5
 # python LPP_Plots_L2.py /home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/LPP_OUT/Pappalardo_2004_L0_L1_L2.nc 0
 
+# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/LPP_OUT/RS_20230214_0925_L0_L1_L2.nc 0
+
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 2100
+indx_Max = 5000
 minFactor = 0.00
 maxFactor = 1.00
 
@@ -68,7 +70,7 @@ for l in np.arange(len(LRs), step=1):
 
 # COD = 7.5*np.sum( alpha_Aer[indx_Time_to_Plot][0][1000:2000] )
 # print("\nCOD:", COD )
-
+# plt.xlim(0, 10) ;
 plt.xlabel('Aerosols Extinction [Mm$^{-1}$]')
 plt.ylabel('Range [km]')
 plt.legend(loc='upper right')

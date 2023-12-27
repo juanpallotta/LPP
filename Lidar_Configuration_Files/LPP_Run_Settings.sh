@@ -17,7 +17,7 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/miniLidar/20230727/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20230914/data/"
 
-PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
+PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/test/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Chile/20190507/"
 

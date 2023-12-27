@@ -324,7 +324,7 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             glbParam.chSel = c ;
-            printf("\nEvent: %d/%d \t Wavelenght: %04d", t, glbParam.nEventsAVG-1, glbParam.iLambda[c] ) ;
+            printf("\nEvent: %d/%d \t Ch= %02d - Wavelenght: %04d nm", t, glbParam.nEventsAVG-1, c, glbParam.iLambda[c] ) ;
 
             if ( c == glbParam.indxWL_PDL1 )
             {
@@ -339,7 +339,8 @@ int main( int argc, char *argv[] )
                     printf("\t Cloud profiles are not computed. \t") ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
-                    printf(" %d clouds detected starting with a cloud base height at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
+                    printf(" %d clouds detected starting with a cloud base height at %lf m asl ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ] ) ;
+                    // printf(" %d clouds detected starting with a cloud base height at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
                 else
                     printf(" NO clouds detected at %lf zenithal angle ", glbParam.aZenithAVG[t]  ) ;
 

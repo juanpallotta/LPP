@@ -191,7 +191,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 
 		if (nMaxLoop == 0)
 		{
-			printf("\t Completely pure Rayleigh lidar signal\t") ;
+			// printf("\t Completely pure Rayleigh lidar signal\t") ;
 			nMaxLoop = 1 ;
 		}
 

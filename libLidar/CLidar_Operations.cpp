@@ -26,7 +26,7 @@ CLidar_Operations::~CLidar_Operations()
 // MakeRangeCorrected() WITHOUT BACKGROUND NOISE FILE, USING 'MEAN', 'FIT', 'NO_BKG' OR 'AUTO' METHODS TO REMOVE BIAS.
 void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
-	if ( glbParam->DAQ_Type[glbParam->chSel] ==0 )
+	if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
 		BiasCorrection( (strcLidarSignal*)evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 	else
 	{
@@ -43,7 +43,7 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 // IF data_noise IS PASSED AS ARGUMENT, IT IS USED
 void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, double **data_Noise, strcMolecularData *dataMol )
 {
-	if ( glbParam->DAQ_Type[glbParam->chSel] ==0 )
+	if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
 	{
 		for (int i =0; i <glbParam->nBins; i++)
 			evSig->pr_noBkg[i] = (double)( evSig->pr[i] - data_Noise[glbParam->chSel][i] ) ;
@@ -383,22 +383,22 @@ printf("\n\n\nApplying corrections to the lidar event number: %d/%d \t", e, (glb
 			switch ( glbParam->DAQ_Type[c] )
 			{
 				case 0:
-						printf( "\n Channel: %02d (Analog) - Correction Applied -------------------> ", c ) ;
+						printf( "\n Channel: %02d - %04d nm - (Analog) - Correction Applied -------------------> ", c, glbParam->iLambda[c] ) ;
 						break;
 				case 1:
-						printf( "\n Channel: %02d (Photon Counting) - Correction Applied ----------> ", c ) ;
+						printf( "\n Channel: %02d - %04d nm - (Photon Counting) - Correction Applied ----------> ", c, glbParam->iLambda[c] ) ;
 						break;
 				case 2:
-						printf( "\n Channel: %02d (Analog Squared) - Correction Applied -----------> ", c ) ;
+						printf( "\n Channel: %02d - %04d nm - (Analog Squared) - Correction Applied -----------> ", c, glbParam->iLambda[c] ) ;
 						break;
 				case 3:
-						printf( "\n Channel: %02d (Photon Counting Squared) - Correction Applied --> ", c ) ;
+						printf( "\n Channel: %02d - %04d nm - (Photon Counting Squared) - Correction Applied --> ", c, glbParam->iLambda[c] ) ;
 						break;
 				case 4:
-						printf( "\n Channel: %02d (Power Meter) - Correction Applied --------------> ", c ) ;
+						printf( "\n Channel: %02d - %04d nm - (Power Meter) - Correction Applied --------------> ", c, glbParam->iLambda[c] ) ;
 						break;
 				case 5:
-						printf( "\n Channel: %02d (Overflow) - Correction Applied -----------------> ", c ) ;
+						printf( "\n Channel: %02d - %04d nm - (Overflow) - Correction Applied -----------------> ", c, glbParam->iLambda[c] ) ;
 						break;
 			}
             // OFFSET CORRECTIONS /*------------------------------------------------------------------------*/
@@ -435,7 +435,7 @@ printf("\n\n\nApplying corrections to the lidar event number: %d/%d \t", e, (glb
 				}
 			} /*--------------------------------------------------------------------------------------------*/
 
-			if ( (glbParam->DAQ_Type[c] == 0) || (glbParam->DAQ_Type[c] == 1) )
+			if ( (glbParam->DAQ_Type[c] == 0) || (glbParam->DAQ_Type[c] == 1) ) // ANALOG OR PHOTON-COUNTING LIDAR SIGNALS DATA TYPES
 			{
 				if( glbParam->is_Ovlp_Data_Loaded ==true )
 				{
@@ -456,7 +456,7 @@ printf("\n\n\nApplying corrections to the lidar event number: %d/%d \t", e, (glb
 				else if ( strcmp(glbParam->exeFile, "./lidarAnalysis_PDL2" ) ==0 )
 					oMolData->Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
 
-				// DARK-CURRENT CORRECTION
+				// DARK-CURRENT AND RANGE CORRECTION
 				if ( glbParam->is_Noise_Data_Loaded == true )
 				{
 					printf("| Dark-Current and bias |  ") ;
@@ -476,6 +476,8 @@ printf("\n\n\nApplying corrections to the lidar event number: %d/%d \t", e, (glb
 					evSig.pr2[i]       = (double) pr_corr[e][c][i]	;
 				}
 			}
+
+			// LOAD IN THE RETURNED VARIABLES pr_corr AND pr2 THE CORRECTED SIGNALS
 			for ( int i =0 ; i <glbParam->nBins_Ch[glbParam->chSel] ; i++ )
 			{
 				pr_corr[e][c][i] = (double)evSig.pr_noBias[i] ;

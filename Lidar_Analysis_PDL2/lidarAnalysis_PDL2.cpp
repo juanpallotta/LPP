@@ -74,7 +74,7 @@ int main( int argc, char *argv[] )
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     int nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
-    nCh_to_invert = 1 ;
+    nCh_to_invert = 1 ; // *NUMBER* OF CHANNELS TO INVERT
     assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
     glbParam.chSel  = glbParam.indxWL_PDL2 ;
 
@@ -159,18 +159,21 @@ int main( int argc, char *argv[] )
                 oDL2->pr[e][i] = (double)pr_corr[e][glbParam.indxWL_PDL2][i]  ;
         }
     } // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
-    else // DATA WAS READ FROM L1 (ALREADY CORRECTED)
-    {
+    else // DATA WAS READ FROM L1 (ALREADY CORRECTED) --> SAVE THE RANGE CORRECTED LIDAR SIGNALS
+    {   // oDL2->data_File_L2 == Raw_Lidar_Data_L1
         printf("\n** L2: Due to numEventsToAvg_PDL1 = numEventsToAvg_PDL2 --> Data is taken from L1 group (already corrected) **.\n") ;
         for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
         {
             for ( int c=0 ; c <glbParam.nCh ; c++ )
             {
-                for ( int i=0 ; i<glbParam.nBins ; i++ )
-                    oDL2->pr2[e][c][i] = (double)oDL2->data_File_L2[e][c][i] * pow(glbParam.r[i], 2) ;
+                if ( (glbParam.DAQ_Type[c] == 0) || (glbParam.DAQ_Type[c] == 1) ) // IF THE CHANNEL c IS ANALOG OR PHOTON-COUNTING -->
+                {
+                    for ( int i=0 ; i<glbParam.nBins ; i++ )
+                        oDL2->pr2[e][c][i] = (double)oDL2->data_File_L2[e][c][i] * pow(glbParam.r[i], 2) ;
+                }
             }
-            for ( int i=0 ; i<glbParam.nBins ; i++ )
-                oDL2->pr[e][i] = (double)oDL2->data_File_L2[e][glbParam.indxWL_PDL2][i]  ;
+            for ( int i=0 ; i<glbParam.nBins ; i++ ) // oDL2->pr[e][i]: USADO EN FernaldInversion()
+                oDL2->pr[e][i] = (double)oDL2->data_File_L2[e][glbParam.indxWL_PDL2][i]  ; // oDL2->data_File_L2 == Raw_Lidar_Data_L1
         }
     }
 
@@ -179,7 +182,6 @@ int main( int argc, char *argv[] )
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval) ;
 
-//! TO-DO RE-ANALYSIS: SWIPE ACROSS THE SELECTED EVENTS BETWEEN minTime and maxTime
     glbParam.chSel = glbParam.indxWL_PDL2 ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
