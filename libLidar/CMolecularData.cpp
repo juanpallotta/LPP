@@ -57,7 +57,7 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 	}
 	fseek( fid, 0, 0 ) ; // RESET THE POINTER
 
-// READ RADIOSONDE DATA REFERENCED AT *ASL* AND LOW RESOLUTION (LR)
+	// READ RADIOSONDE DATA REFERENCED AT *ASL* AND LOW RESOLUTION (LR)
 	RadSondeData.nBinsLR = lines ;
 	RadSondeData.zLR = (double*) new double [RadSondeData.nBinsLR] ;
 	RadSondeData.pLR = (double*) new double [RadSondeData.nBinsLR] ;
@@ -83,12 +83,11 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 	}
 
 	double co2_ppmv = 400 ;
-	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9, (double)co2_ppmv, (int)RadSondeData.nBinsLR, 
-  									  (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
+	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9, (double)co2_ppmv,
+									  (int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 
 	Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
 
-	// RadSondeData.radSoundingDataLOADED = true ;
 	Tem_Pres_to_HR( ) ;
 
 	fclose(fid) ;
@@ -212,9 +211,9 @@ void CMolecularData::Mol_Low_To_High_Res() // USED IN lidarAnalysis_PDL1.cpp
 
 	for (int i =0 ; i <dataMol.nBins ; i++ )
 	{
-		dataMol.nMol[i] 	= (double)( pow(dataMol.zr[i], 3) *coeff_N[3]     + pow(dataMol.zr[i], 2) *coeff_N[2]     + dataMol.zr[i]*coeff_N[1]     + coeff_N[0]     ) ;
+		dataMol.nMol    [i] = (double)( pow(dataMol.zr[i], 3) *coeff_N[3]     + pow(dataMol.zr[i], 2) *coeff_N[2]     + dataMol.zr[i]*coeff_N[1]     + coeff_N[0]     ) ;
 		dataMol.alphaMol[i] = (double)( pow(dataMol.zr[i], 3) *coeff_alpha[3] + pow(dataMol.zr[i], 2) *coeff_alpha[2] + dataMol.zr[i]*coeff_alpha[1] + coeff_alpha[0] ) ;
-		dataMol.betaMol[i]  = (double)( pow(dataMol.zr[i], 3) *coeff_beta[3]  + pow(dataMol.zr[i], 2) *coeff_beta[2]  + dataMol.zr[i]*coeff_beta[1]  + coeff_beta[0]  ) ;
+		dataMol.betaMol [i] = (double)( pow(dataMol.zr[i], 3) *coeff_beta[3]  + pow(dataMol.zr[i], 2) *coeff_beta[2]  + dataMol.zr[i]*coeff_beta[1]  + coeff_beta[0]  ) ;
 	}
 	delete coeff_N     ;
 	delete coeff_alpha ;
@@ -261,21 +260,21 @@ void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters 
 			      (const double* const) RadSondeData.nHR ,
 			      (unsigned int       ) dataMol.nBins    ,
 			      (unsigned int		  ) 3				 ,
-			      (double*			  ) coeff_N	 )	;
+			      (double*			  ) coeff_N	 ) ;
 
 	polyfitCoeff( (const double* const) dataMol.z_asl     			,
-			      (const double* const) RadSondeData.alpha_mol 	,
+			      (const double* const) RadSondeData.alpha_mol 		,
 			      (unsigned int       ) dataMol.nBins 	  			,
 			      (unsigned int		  ) 3							,
-			      (double*			  ) coeff_alpha	 )	;
+			      (double*			  ) coeff_alpha	 ) ;
 
 	polyfitCoeff( (const double* const) dataMol.z_asl    			,
-			      (const double* const) RadSondeData.beta_mol 	,
+			      (const double* const) RadSondeData.beta_mol 		,
 			      (unsigned int       ) dataMol.nBins 	 			,
 			      (unsigned int		  ) 3							,
-			      (double*			  ) coeff_beta	 )	;
+			      (double*			  ) coeff_beta	 ) ;
 
-	for (int i =0 ; i <dataMol.nBins ; i++ )
+	for ( int i =0 ; i <dataMol.nBins ; i++ )
 	{
 		dataMol.nMol[i]     = (double)( pow(dataMol.zr[i], 3) *coeff_N[3] + pow(dataMol.zr[i], 2) *coeff_N[2] + dataMol.zr[i]*coeff_N[1] + coeff_N[0] ) ;
 		dataMol.alphaMol[i] = (double)( pow(dataMol.zr[i], 3) *coeff_alpha[3] + pow(dataMol.zr[i], 2) *coeff_alpha[2] + dataMol.zr[i]*coeff_alpha[1] + coeff_alpha[0] ) ;

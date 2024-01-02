@@ -473,14 +473,14 @@ In this version, 3 dimensions are defined:
 ```
 time
 channels
-points
+range
 ```
 The length of the `time` dimension is equal to the number of raw lidar signals stored in the variable `Raw_Lidar_Data`. The lenght of this dimmensions is not necessarily the same of the number of files of the input folder (variable name `PATH_IN` in `LPP_Run_Settings.sh` or the first argument passed to `lidarAnalysis_PDL0`). This is because it is possible to set the time range of analysis in the configuration file of this module (variables `minTime`, `maxTime`).
 
 
 `channels` store the number of channels saved in the file. The length of this dimension is the number of channels contained in the raw lidar files inputs. <u>**Important Note:</u> all the lidar files stored in the input folder must have the same number of channels.** `lidarAnalysis_PDL0` considers that all the files contained in the input folder passed as first argument have the same hardware features. If some changes in the hardware are made during a measurement, please, save them in another folder and analyze them in another run.
 
-`points` dimension store the bins of the lidar tracks recorded.
+`range` dimension store the range of the lidar tracks recorded (in meters).
 
 
 ### Variables
@@ -500,7 +500,7 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Polarization (channels)`: Polarization of each channel. Terminology used in the Licel files format: `o: no polarisation`, `s: perpendicular`, `l: parallel`.
 * `Raw_Data_Start_Time (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Raw_Data_Stop_Time (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
-* `Raw_Lidar_Data (time, channels, points)`: Raw lidar data, as it is read from the file, whitout any correction.
+* `Raw_Lidar_Data (time, channels, range)`: Raw lidar data, as it is read from the file, whitout any correction.
 * `Wavelengths (channels)`: Array with the wavelenghts recorded in the file (in nanometers).
 * `Zenith (time)`: Array with the zenithal angle of each saved profile (in degrees). 
 
@@ -526,9 +526,9 @@ The dimensions name of this sub-group are inherited from L0 data.
 ```
 time
 channels
-points
+range
 ```
-Due to time averaging, `time` dimension from data L1 could be different to `time` dimension from data L0. `channels` and `points` dimensions are equal to data L0. 
+Due to time averaging, `time` dimension from data L1 could be different to `time` dimension from data L0. `channels` and `range` dimensions are equal to data L0. 
 
 ### Variables
 In the next figure, a glimpse of the `L1_Data` are shown using Panoply software.
@@ -538,13 +538,13 @@ In the next figure, a glimpse of the `L1_Data` are shown using Panoply software.
 Following, a brief description of the variables (in alphabetical order), is done. The dimensions of each one are shown between parentheses.
 
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
-* `Cloud_Mask (time, points)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
+* `Cloud_Mask (time, range)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
 * `Laser_Zero_Bin_Offset (channels)`: Number of points removed from each channel due to the laser offset.
-* `Pressure_Pa (points)`: Pressure profile (in Pascals) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
-* `Temperature_K (points)`: Temperature profile (in Kelvins) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
+* `Pressure_Pa (range)`: Pressure profile (in Pascals) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
+* `Temperature_K (range)`: Temperature profile (in Kelvins) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
 * `Pressure_Ground_Level (time)`: Atmospheric pressure at site level (to be used in future versions of LPP).
-<!-- * `Range_Corrected_Lidar_Signal_L1 (time, channels, points)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding configuration file passed as third argument. -->
-* `Raw_Lidar_Data_L1 (time, channels, points)`: Raw lidar data used in level 1. These signals has the all the corrections need for produce the cloud mask, like zero-bin and bias correction as the time and spatial averaging set for this data level.
+<!-- * `Range_Corrected_Lidar_Signal_L1 (time, channels, range)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding configuration file passed as third argument. -->
+* `Raw_Lidar_Data_L1 (time, channels, range)`: Raw lidar data used in level 1. These signals has the all the corrections need for produce the cloud mask, like zero-bin and bias correction as the time and spatial averaging set for this data level.
 * `Start_Time_L1 (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Stop_Time_L1 (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Temperature_Ground_Level (time)`:  Atmospheric temperature at site level (to be used in future versions of LPP)..
@@ -567,12 +567,12 @@ This module adds a new dimension related to the lidar ratios used in the inversi
 ```
 time
 channels
-points
+range
 lrs
 ```
 
 As in `L1_Data` sub-group, `time` dimension is averaged using data from level 0, so it could be different from `time` dimension from the data level 1.
-The current version of `lidarAnalysis_PDL2` only accept the inversion of only one wavelength per run. The channel selected for the inversion is set in the variable `indxWL_PDL2` in the configuration file passed as third argument to this module. In this sense, the lidar ratio dimension is added for aerosols optical profiles, where has the dimensions (`time`, `lrs`, `points`).
+The current version of `lidarAnalysis_PDL2` only accept the inversion of only one wavelength per run. The channel selected for the inversion is set in the variable `indxWL_PDL2` in the configuration file passed as third argument to this module. In this sense, the lidar ratio dimension is added for aerosols optical profiles, where has the dimensions (`time`, `lrs`, `range`).
 
 ### Variables
 The `L2_Data` sub-group data variables can be observed in the next Figure.
@@ -581,11 +581,11 @@ The `L2_Data` sub-group data variables can be observed in the next Figure.
 
 The variables (in alphabetical order) are described below. The dimensions of each one are shown between parentheses.
 
-* `Aerosol_Backscattering (time, lrs, points)`: Aerosol backscattering profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
-* `Aerosol_Extinction (time, lrs, points)`: Aerosol extinction profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
+* `Aerosol_Backscattering (time, lrs, range)`: Aerosol backscattering profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
+* `Aerosol_Extinction (time, lrs, range)`: Aerosol extinction profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lidarAnalysis_PDL2` module.
 * `AOD_LR (time, lrs)`: Aerosols optical depth obtained by integrating the aerosol extinction profile across the `point` dimmension.
 * `LRs (lrx)`: Lidar ratios used in the inversion. The values are set in the configuration file as the variable `LR`.
-<!-- * `Range_Corrected_Lidar_Signal_L2 (time, channels, points)`: Range corrected lidar signals. These signals has all the corrections, as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument. -->
+<!-- * `Range_Corrected_Lidar_Signal_L2 (time, channels, range)`: Range corrected lidar signals. These signals has all the corrections, as the time and spatial averaging set for this data level in the corresponding confiugation file passed as third argument. -->
 * `Start_Time_L2 (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Stop_Time_L2 (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
 * `Fernald_smooth_bins (channels)`: Number of point to average the elastic lidar signal prior to apply the Fernald inversion. One value per channel.

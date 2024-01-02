@@ -1,7 +1,7 @@
 
 # python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/LPP_OUT/14_L0_L1.nc
 
-# python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/Manaus/2011/9/21/LPP_OUT/21_L0_L1.nc
+# python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/SPU/20170409/day/LPP_OUT/day_L0_L1.nc
 
 # python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0_L1.nc
 # python LPP_Plots_L1.py /mnt/Disk-1_8TB/Argentina/Cordoba/Paper_Celeste/20190927/LPP_OUT/20190927_L0_L1.nc
@@ -16,7 +16,7 @@ from scipy.interpolate import interp2d
 import sys
 
 minFactor = 0.00
-maxFactor = 0.10
+maxFactor = 1.00
 maxRange  = 20000
 
 nc_file = sys.argv[1]
@@ -25,7 +25,7 @@ print("\n")
 
 fh = Dataset( nc_file, mode='r' )
 
-nbins      = fh.dimensions['points'].size
+nbins      = fh.dimensions['range'].size
 resolution = fh.getncattr('Range_Resolution')
 indx_Ch_L1 = int(fh.groups['L1_Data'].getncattr('indxChannel_for_Cloud_Mask'))
 # print("\nindx_Ch_L1: ", indx_Ch_L1)

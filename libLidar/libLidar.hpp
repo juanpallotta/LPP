@@ -48,11 +48,6 @@ int 	ReadAnalisysParameter	   	( const char*, const char*, const char*, void* ) 
 // int 	ReadAnalisysParameter_template ( const char*, const char*, const char*, T& ) ;
 int 	findLastCharInString		( char*, const char ) ;
 
-void 	RayleighFit 				( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
-
-void 	TransmissionMethod_pr		( double*, strcGlobalParameters*, strcMolecularData*, int, int, double* ) ;
-void 	ODcut						( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int* ) ;
-
 void 	Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData*, double* ) ;
 
 // MEMORY GETTERS 
@@ -64,11 +59,9 @@ void  	GetMemStrcErrorSigSet			( strcErrorSignalSet*, int, int ) ;
 
 int 	CheckLidarDataBaseIntegrity ( strcLidarDataFile*, strcGlobalParameters*, int* ) ;
 int 	CheckLidarDataBaseIntegrityAVG ( strcLidarDataFile*, strcGlobalParameters*, int* ) ;
-void 	checkUnderShoot				( double*, strcGlobalParameters*, strcMolecularData*, int* ) ;
+// void 	checkUnderShoot				( double*, strcGlobalParameters*, strcMolecularData*, int* ) ;
 
-void	RayleighFit_Factor			( double*, double*, strcFitParam*, double* ) ;
-
-void 	FindMolecularRange_v2		( double*, strcMolecularData*, strcGlobalParameters*, strcIndexMol*) ;
+// void 	FindMolecularRange_v2		( double*, strcMolecularData*, strcGlobalParameters*, strcIndexMol*) ;
 
 int     Read_Overlap_File           (char *, strcGlobalParameters*, double **) ;
 void	overlapCorrection			( double*, int, const char * ) ;
@@ -77,18 +70,12 @@ void	overlapCorrectionSignal		( double*, int ) ;
 int     GetBinOffset                ( strcLidarDataFile*, strcGlobalParameters* ) ;
 void 	chooseEventNumber			( strcGlobalParameters *, strcTheta*, int*, double* ) ;
 
-void 	FernaldInversion			  	( double*, strcMolecularData*, strcGlobalParameters*, int, double, strcFernaldInversion*, strcAerosolData* ) ;
-void 	FernaldInversion_pr			  	( double*, strcMolecularData*, strcGlobalParameters*, int, double, strcFernaldInversion*, strcAerosolData* ) ;
-
 void 	GetMemDataToSave				( strcDataToSave*, strcGlobalParameters* ) ;
 
 void	FreeMemVectorsFernaldInversion 	( strcFernaldInversion* ) ;
 
-void 	LowRangeCorrection			( strcGlobalParameters*, double* )  ;
+// void 	LowRangeCorrection			( strcGlobalParameters*, double* )  ;
 
-void 	MonteCarloRandomError		( double*, double*, strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
-void 	MonteCarloSystematicError	( double*,          strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
-void 	GetErrSetParam				( char*, int, int, double, strcErrorSignalSet* ) ;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif

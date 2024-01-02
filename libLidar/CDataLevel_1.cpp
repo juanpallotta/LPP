@@ -78,7 +78,7 @@ void CDataLevel_1::GetMem_indxMol( strcGlobalParameters *glbParam )
 	}
 }
 
-void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
+void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
 	if ( avg_Points_Cloud_Mask !=0 )
 	{	
@@ -107,7 +107,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 	fitParam.indxEndFit  = glbParam->nBins - 1 ; // glbParam->indxEndSig - avg_Points_Cloud_Mask ; //  
 	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-		RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+		oLOp->RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
 	errRefBkg = sqrt ( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
 	// printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.sumsq_m: %lf", fitParam.m, biasRef, errRefBkg, fitParam.sumsq_m) ;
@@ -148,7 +148,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 			if ( (errFitStage <= (errRefBkg *errScanCheckFactor )) && ( (m*fitParam.m) >0 ) )
 			{ // ME FIJO SI ESE FUE EL ULTIMO FIT...
 				scanNumExit =i;
-				// printf("\n(%d) ScanCloud_RayleightFit(...): SALIENDO *OK* EN nScan = %d --> fit=%d-%d -- errFit / errRefBkg = %f / %f ",glbParam->evSel, i, fitParam.indxInicFit, fitParam.indxEndFit, errFitStage, errRefBkg ) ;
+				// printf("\n(%d) ScanCloud_RayleighFit(...): SALIENDO *OK* EN nScan = %d --> fit=%d-%d -- errFit / errRefBkg = %f / %f ",glbParam->evSel, i, fitParam.indxInicFit, fitParam.indxEndFit, errFitStage, errRefBkg ) ;
 				break ;
 			}
 			else // SET THE CLOUDS CANDIDATES
@@ -213,6 +213,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 		}
 		// CHECK CLOUDS TESTS:
 		// REMOVE CLOUDS THINNER THAN CLOUD_MIN_THICK BINS.
+
 		for (int b =0 ; b <=(glbParam->indxEndSig -CLOUD_MIN_THICK -1) ; b++)
 		{
 			if ( (cloudProfiles[glbParam->evSel].clouds_ON[b] == (int)0) && (cloudProfiles[glbParam->evSel].clouds_ON[b+1] == (int)BIN_CLOUD) ) // IF A CLOUD START...
@@ -245,7 +246,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 				b = b +CLOUD_MIN_THICK ;
 			}
 		}
-		cloudProfiles[glbParam->evSel].clouds_ON[0] 				    = (int)0 ; // NO -> THE ABL IS CONSIDERED AS CLOUD. FIRST BIN IS SET TO ZERO BE COHERENT FOR THE INDEXES COMPUTATION.
+		cloudProfiles[glbParam->evSel].clouds_ON[0] 				   = (int)0 ; // NO -> THE ABL IS CONSIDERED AS CLOUD. FIRST BIN IS SET TO ZERO BE COHERENT FOR THE INDEXES COMPUTATION.
 		cloudProfiles[glbParam->evSel].clouds_ON[glbParam->indxEndSig] = (int)0 ; // LAST BIN IS SET TO ONE BE COHERENT FOR THE INDEXES COMPUTATION.
 
 // DONE WITH cloudProfile, NOW GET THE CLOUD LIMITS
@@ -259,7 +260,7 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 
 			if( fitParam.indxInicFit > glbParam->indxInitSig )
 			{
-					RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
+					oLOp->RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
 				errCloud =0 ;
 				// errCloud = (double)sqrt(fitParam.sumsq_m/(fitParam.nFit -1)) ; // (errCloud/fitParam.nFit) ;
 				errCloud = (double)(fitParam.sumsq_m/(fitParam.nFit -1)) ;
@@ -273,12 +274,11 @@ void CDataLevel_1::ScanCloud_RayleightFit ( const double *pr, strcGlobalParamete
 				// 	printf("SC_RF() - (%d) Clouds: errRefBkg: %2.3lf \t errCloud: %2.3lf --> Cloud: %d-%d --> Fit: %d-%d\n", glbParam->evSel, errRefBkg, errCloud, cloudProfiles[glbParam->evSel].indxInitClouds[i], cloudProfiles[glbParam->evSel].indxEndClouds[i], cloudProfiles[glbParam->evSel].indxInitClouds[i] -DELTA_RANGE_LIM_BINS, cloudProfiles[glbParam->evSel].indxEndClouds[i]  +DELTA_RANGE_LIM_BINS) ;
 			
 				if ( strcmp(ifODcut, "YES") ==0 )
-					ODcut( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int*)cloudProfiles[glbParam->evSel].clouds_ON ) ;
+					oLOp->ODcut( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int*)cloudProfiles[glbParam->evSel].clouds_ON ) ;
 			}
 		}
 		// if (cloudProfiles[glbParam->evSel].nClouds ==0)
 		// 	printf("\nSC_RF() - (%d) NO Clouds detected\n", glbParam->evSel) ;
-		
 		GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
 }
 
@@ -317,16 +317,20 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 			// CLOUDS DETECTION
 			for( int i=0 ; i <=(glbParam->indxEndSig_ev[glbParam->evSel]) ; i++ )
 			{
-				if( dco[i] == (int)BIN_CLOUD ) // INIT CLOUD
+				if ( cloudProfiles[glbParam->evSel].nClouds < NMAXCLOUDS )
 				{
-					cloudProfiles[glbParam->evSel].indxInitClouds[cloudProfiles[glbParam->evSel].nClouds] = i ;  // USED AS INDEX (INITIALIZED WITH 0) AND THEN, AS TOTAL NUMBER.
-					for (int j =i ; j <=glbParam->indxEndSig_ev[glbParam->evSel] ; j++)
-					{	// SEARCH THE END OF THE CLOUD
-						if( dco[j] == (int)(-BIN_CLOUD) ) // END CLOUD
-						{
-							cloudProfiles[glbParam->evSel].indxEndClouds[cloudProfiles[glbParam->evSel].nClouds] = j -1;
-							cloudProfiles[glbParam->evSel].nClouds++ ; // COUNT CLOUDS
-							break ;
+					if( dco[i] == (int)BIN_CLOUD ) // INIT CLOUD
+					{
+						cloudProfiles[glbParam->evSel].indxInitClouds[cloudProfiles[glbParam->evSel].nClouds] = i ;  // USED AS INDEX (INITIALIZED WITH 0) AND THEN, AS TOTAL NUMBER.
+						for (int j =i ; j <=glbParam->indxEndSig_ev[glbParam->evSel] ; j++)
+						{	// SEARCH THE END OF THE CLOUD
+							if( dco[j] == (int)(-BIN_CLOUD) ) // END CLOUD
+							{
+								cloudProfiles[glbParam->evSel].indxEndClouds[cloudProfiles[glbParam->evSel].nClouds] = j -1;
+								cloudProfiles[glbParam->evSel].nClouds++ ; // COUNT CLOUDS
+								i = j+1 ;
+								break ;
+							}
 						}
 					}
 				}

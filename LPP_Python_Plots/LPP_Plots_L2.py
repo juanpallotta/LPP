@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 5000
+indx_Max = 1500
 minFactor = 0.00
 maxFactor = 1.00
 
@@ -27,7 +27,7 @@ if len(sys.argv) ==3:
 
 fh = Dataset( nc_file, mode='r' )
 
-nbins      = fh.dimensions['points'].size
+nbins      = fh.dimensions['range'].size
 resolution = fh.getncattr('Range_Resolution')
 indx_Ch_L2 = int(fh.groups['L2_Data'].getncattr('indxChannel_for_Fernald_inv'))
 r          = (np.arange(nbins)+1) *resolution*1e-3 - (resolution*1e-3)/2        # r = (np.arange(nbins)+1) *resolution*1e-3 

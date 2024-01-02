@@ -544,6 +544,263 @@ RayleighFit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c
 	printf("\n") ;
 }
 
+void CLidar_Operations::RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
+{
+	fitParam->sumsq_m = (double)0.0  ;
+
+	if ( strcmp( modeBkg, "wB" ) == 0 )
+	{
+		double *coeff = (double*) new double[2] ;
+		polyfitCoeff( (const double* const) &sigMol[fitParam->indxInicFit], // X DATA
+		  			  (const double* const) &sig[fitParam->indxInicFit], // Y DATA
+					  (unsigned int       ) fitParam->nFit,
+					  (unsigned int		  ) 1,
+					  (double*			  ) coeff	 ) ;
+		fitParam->m = (double)coeff[1] ;
+		fitParam->b = (double)coeff[0] ;
+		delete coeff ;
+
+		if ( strcmp( modeRangesFit, "all" ) == 0 )
+		{
+			for ( int i=0 ; i < nBins ; i++ )
+			{
+				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
+				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+			}
+		}
+		else
+		{ // "NOTall"
+			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
+			{
+				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
+				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+			}
+		}
+	}
+	else if ( strcmp( modeBkg, "wOutB" ) == 0 )
+	{
+		double	mNum=0, mDen=0 ;
+		for ( int i=fitParam->indxInicFit ; i <= fitParam->indxEndFit ; i++ )
+		{
+			mNum = mNum + sig   [i]*sigMol[i] ;
+			mDen = mDen + sigMol[i]*sigMol[i] ;
+		}
+		fitParam->m = mNum/mDen ;
+		fitParam->b = 0     	;
+
+		if ( strcmp( modeRangesFit, "all" ) == 0 )
+		{
+			for ( int i=0 ; i < nBins ; i++ )
+			{
+				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
+				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+			}
+		}
+		else
+		{
+			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
+			{
+				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
+				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+			}
+		}
+	}
+}
+
+void CLidar_Operations::TransmissionMethod_pr( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, int indxBefCloud, int indxAftCloud, double *VOD )
+{
+	double *prFit = (double*) new double [ glbParam->nBins ] ;
+
+	int DELTA_RANGE_LIM_BINS ;
+	ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "DELTA_RANGE_LIM_BINS", "int", (int*)&DELTA_RANGE_LIM_BINS ) ;
+
+	strcFitParam fitParam_before_cloud ;
+	strcFitParam fitParam_after_cloud  ;
+	double prBeforeCloud, prAfterCloud ;
+	int indxA, indxB ;
+	do
+	{
+		fitParam_before_cloud.indxInicFit = indxBefCloud - (int)round(DELTA_RANGE_LIM_BINS) ;
+		fitParam_before_cloud.indxEndFit  = indxBefCloud - (int)round(DELTA_RANGE_LIM_BINS/5) ;
+		fitParam_before_cloud.nFit = fitParam_before_cloud.indxEndFit - fitParam_before_cloud.indxInicFit +1;
+			RayleighFit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_before_cloud, (double*)prFit ) ;
+			indxB = indxBefCloud -(int)round(DELTA_RANGE_LIM_BINS/2) ;
+			prBeforeCloud = prFit[indxB] ;
+			// printf("\n prFit[indxB]= %lf \t fitParam_before_cloud.m= %lf \n", prFit[indxB], fitParam_before_cloud.m ) ;
+			// printf(" pr[%d]= %lf \n", indxB, pr[indxB] ) ;
+		fitParam_after_cloud.indxInicFit = indxAftCloud + (int)round(DELTA_RANGE_LIM_BINS/5) ;
+		fitParam_after_cloud.indxEndFit  = indxAftCloud + (int)round(DELTA_RANGE_LIM_BINS) ;
+		fitParam_after_cloud.nFit = fitParam_after_cloud.indxEndFit - fitParam_after_cloud.indxInicFit +1;
+			RayleighFit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_after_cloud, (double*)prFit ) ;
+			indxA = indxAftCloud +(int)round(DELTA_RANGE_LIM_BINS/2) ;
+			prAfterCloud = prFit[indxA] ;
+			// printf(" prFit[indxA]= %lf \t fitParam_after_cloud.m= %lf \n", prFit[indxA], fitParam_after_cloud.m ) ;
+			// printf(" pr[%d]= %lf \n", indxA, pr[indxA] ) ;
+		// DELTA_RANGE_LIM_BINS = DELTA_RANGE_LIM_BINS -3 ;
+		indxBefCloud = indxBefCloud -1 ;
+		indxAftCloud = indxAftCloud +1 ;
+	} while( (prBeforeCloud < prAfterCloud) ) ;
+
+	double rPr 		= prAfterCloud / prBeforeCloud ;
+	double rPrMol   = dataMol->prMol[indxA] / dataMol->prMol[indxB] ;
+	double rR2 		= pow(glbParam->r[indxA], 2) / pow(glbParam->r[indxB], 2) ;
+	double Tp2Cloud	= rPr / (rPrMol * rR2) ;
+	// printf("\t\t rPr: %lf - prAfterCloud[%d]: %lf - prBeforeCloud[%d]: %lf \n", rPr, indxA, prAfterCloud, indxB, prBeforeCloud ) ;
+	// printf("\t\t %d-%d --- rPr: %lf - rPrMol: %lf - Tp2Cloud: %lf \n", indxBefCloud, indxAftCloud, rPr, rPrMol, Tp2Cloud) ;
+	*VOD = -0.5*log(Tp2Cloud) *cos(dataMol->zenith*PI/180) ;
+	delete prFit ;
+}
+
+void CLidar_Operations::ODcut( double *prS, strcMolecularData *dataMol, strcGlobalParameters *glbParam, strcFitParam *fitParam, int *clouds_ON )
+{
+	double OD =0 ; // CLOUD TRANSMISSION
+	// double *pr2	   = (double*) new double [ glbParam->nBins ] ;
+
+	// 	MakeRangeCorrected_array( (double*)prS, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (double*)pr2 ) ;
+
+	int indxBefCloud, indxAftCloud ;
+	indxBefCloud = fitParam->indxInicFit ;
+	indxAftCloud = fitParam->indxEndFit ;
+		TransmissionMethod_pr( (double*)prS, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (int)indxBefCloud, (int)indxAftCloud, (double*)&OD ) ;
+
+	double OD_cut ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "OD_cut", "double", (double*)&OD_cut ) ;
+
+	if( (OD >=0) && (OD <= OD_cut) )
+	{
+		printf("\n<%d> filtering cloud due to OD (%lf)...\n", glbParam->evSel, OD) ;
+		for (int i =fitParam->indxEndFit; i <=fitParam->indxEndFit ; i++)
+			clouds_ON[i] =0;
+	}
+	// else
+	// 	printf("\nOptical Depth of the cloud: %lf \t Altitude (asl): %lf - %lf\n", OD, glbParam->siteASL + fitParam->indxInicFit * dataMol->dzr, glbParam->siteASL + fitParam->indxEndFit * dataMol->dzr ) ;
+
+	// delete pr2 ;
+}
+
+/*
+void GetErrSetParam( char *FILE_PARAMETERS, int nSigSetErr, int nBins, double dzr, strcErrorSignalSet *errSigSet )
+{
+	float 	VAODheigh ;
+// r_meanErrSet
+	memset( errSigSet->alphaAer_meanErrSet, 0, sizeof(double) * nBins ) ;
+	memset( errSigSet->VAODr_meanErrSet   , 0, sizeof(double) * nBins ) ;
+		for ( int b=0 ; b<nBins ; b++ )
+		{
+			for ( int j=0 ; j < nSigSetErr ; j++ )
+			{
+				errSigSet->alphaAer_meanErrSet[b] = errSigSet->alphaAer_meanErrSet[b] + errSigSet->alphaAer_ErrSet[j][b] ;
+				errSigSet->   VAODr_meanErrSet[b] = errSigSet->   VAODr_meanErrSet[b] + errSigSet->   VAODr_ErrSet[j][b] ;
+			}
+			errSigSet->alphaAer_meanErrSet[b] = errSigSet->alphaAer_meanErrSet[b] / nSigSetErr ;
+			errSigSet->   VAODr_meanErrSet[b] = errSigSet->   VAODr_meanErrSet[b] / nSigSetErr ;
+		}
+// VAODmean OF THE DATASET AT DIFFERENT HEIGHTS
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH0", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[0] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH1", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[1] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH2", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[2] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH3", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[3] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
+
+// r_stdErrSet STANDAR ERROR MEAN OF THE DATASET AT DIFFERENT HEIGHTS
+		memset( errSigSet->alphaAer_stdErrSet, 0, sizeof(double) * nBins ) ;
+		memset( errSigSet->VAODr_stdErrSet   , 0, sizeof(double) * nBins ) ;
+		for ( int b=0 ; b<nBins ; b++ )
+		{
+			for ( int j=0 ; j < nSigSetErr ; j++ )
+			{
+				errSigSet->alphaAer_stdErrSet[b] = errSigSet->alphaAer_stdErrSet[b] + pow( (errSigSet->alphaAer_ErrSet[j][b] - errSigSet->alphaAer_meanErrSet[b]), 2) ;
+				errSigSet->   VAODr_stdErrSet[b] = errSigSet->   VAODr_stdErrSet[b] + pow( (errSigSet->   VAODr_ErrSet[j][b] - errSigSet->   VAODr_meanErrSet[b]), 2) ;
+			}
+			errSigSet->alphaAer_stdErrSet[b] = sqrt(errSigSet->alphaAer_stdErrSet[b] / (nSigSetErr-1) ) ;
+			errSigSet->   VAODr_stdErrSet[b] = sqrt(errSigSet->   VAODr_stdErrSet[b] / (nSigSetErr-1) ) ;
+		}
+// VAODstd OF THE DATASET
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH0", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[0] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH1", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[1] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH2", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[2] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
+	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH3", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[3] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
+}
+
+void MonteCarloRandomError( double *pr2Glued, double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcIndexMol *indxMol, strcFernaldInversion *fernaldVectors, strcErrorSignalSet *rndErrSigSet )
+{
+	strcAerosolData dataAerErr ;
+	dataAerErr.alphaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;  memset( dataAerErr.alphaAer, 0, ( glbParam->nEventsAVG * sizeof(double) ) ) ;
+	dataAerErr.betaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;  memset( dataAerErr.betaAer , 0, ( glbParam->nEventsAVG * sizeof(double) ) ) ;
+	dataAerErr.VAODr	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;  memset( dataAerErr.VAODr   , 0, ( glbParam->nEventsAVG * sizeof(double) ) ) ;
+
+	int 	nSigSetErr ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "nSigSetErr", "int" , (int*)&nSigSetErr ) ;
+// GET THE STANDAR DEVIATION TO GENERATE THE RANDOM ERROR IN THE LIDAR SIGNALS SET
+	strcFitParam	fitParam ;
+	fitParam.indxInicFit = dataMol->nBins - glbParam->nBinsBkg  	  ;
+	fitParam.indxEndFit  = dataMol->nBins -1 						  ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+	double *prFit = (double*) new double[glbParam->nBins] ;
+	// gsl_fit_linear( &dataMol->prMol[fitParam.indxInicFit], 1, &pr[fitParam.indxInicFit], 1, fitParam.nFit, &fitParam.b, &fitParam.m, &fitParam.cov00, &fitParam.cov01, &fitParam.cov11, &fitParam.sumsq_m ) ;
+		RayleighFit( (double*)&dataMol->prMol[fitParam.indxInicFit], (double*)&pr[fitParam.indxInicFit], fitParam.nFit, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+	delete prFit ;	
+	double 	stdPr = sqrt(fitParam.sumsq_m/(fitParam.nFit-1)) ;
+	int 	spamAvgWin ;
+	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
+	for( int j=0 ; j < nSigSetErr ; j++ )
+	{
+		for ( int i=0 ; i < glbParam->nBins ; i++ )
+		{
+			rndErrSigSet->prGlued [j][i] = pr2Glued[i] / (glbParam->r[i]*glbParam->r[i]) ;
+			rndErrSigSet->prNoisy [j][i] = RandN2( rndErrSigSet->prGlued[j][i], stdPr ) ;
+			rndErrSigSet->pr2Noisy[j][i] = rndErrSigSet->prNoisy[j][i] * (glbParam->r[i]*glbParam->r[i]) ;
+		}
+		// smoothGSL( (double*)rndErrSigSet->pr2Noisy[j], (int)(glbParam->nBins), (int)spamAvgWin, (double*)rndErrSigSet->pr2Noisy[j] ) ;
+		smooth( (double*)rndErrSigSet->pr2Noisy[j], (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)rndErrSigSet->pr2Noisy[j] ) ;
+// FERNALD INVERSION
+	FernaldInversion( (double*)rndErrSigSet->pr2Noisy[j], (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxInicMol[0]+110, (double)glbParam->ka, (strcFernaldInversion*)fernaldVectors, (strcAerosolData*)&dataAerErr ) ;
+		for( int b=0 ; b<glbParam->nBins ; b++ )
+		{
+			rndErrSigSet->alphaAer_ErrSet[j][b] = dataAerErr.alphaAer[b] ;
+			rndErrSigSet->   VAODr_ErrSet[j][b] = dataAerErr.VAODr   [b] ;
+		}
+	}
+// OBTAIN MEAN AND STANDAR DEVIATION
+		GetErrSetParam( (char*)glbParam->FILE_PARAMETERS, (int)nSigSetErr, (int)glbParam->nBins, (double)dataMol->dzr, (strcErrorSignalSet*)rndErrSigSet ) ;
+}
+
+void MonteCarloSystematicError( double *pr2Glued, strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcIndexMol *indxMol, strcFernaldInversion *fernaldVectors, strcErrorSignalSet *sysErrSigSet )
+{
+	strcAerosolData dataAerErr ;
+	dataAerErr.alphaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;
+	dataAerErr.betaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;
+	dataAerErr.VAODr	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;
+
+	double 	LR_init, LR_end, LR_step ;
+		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "LR_init", "double" , (double*)&LR_init ) ;
+		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "LR_end" , "double" , (double*)&LR_end  ) ;
+	int 	nSigSetErr ;
+		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "nSigSetErr", "int" , (int*)&nSigSetErr ) ;
+
+	double 	*ka_ite = (double*) malloc( nSigSetErr * sizeof(double) ) ;
+	LR_step = (double) 1 ; // ((LR_end - LR_init) /nSigSetErr) ;
+	for ( int j=0 ; j<nSigSetErr ; j++ )		ka_ite[j] = (double) 1/(LR_init + j*LR_step) ;
+//	double ka_ite[10] = { 0.015, 0.018, 0.020, 0.025, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08 } ;
+
+	for( int j=0 ; j<nSigSetErr ; j++ )
+	{
+// FERNALD INVERSION
+	FernaldInversion( (double*)pr2Glued, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxInicMol[0]+110, (double)ka_ite[j], (strcFernaldInversion*)fernaldVectors , (strcAerosolData*)&dataAerErr ) ;
+	//FernaldInversion( (double*)pr2Glued, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxInicMol[0]+110, (double)ka_ite[j], (strcAerosolData*)&dataAerErr ) ;
+		for( int b=0 ; b<glbParam->nBins ; b++ )
+		{
+			sysErrSigSet->alphaAer_ErrSet[j][b] = dataAerErr.alphaAer[b] ;
+			sysErrSigSet->   VAODr_ErrSet[j][b] = dataAerErr.VAODr   [b] ;
+		}
+	}
+// OBTAIN MEAN AND STANDAR DEVIATION
+	GetErrSetParam( (char*)glbParam->FILE_PARAMETERS, (int)nSigSetErr, (int)glbParam->nBins, (double)dataMol->dzr, (strcErrorSignalSet*)sysErrSigSet ) ;
+
+// FREE MEM FROM fernaldVectors
+	//FreeMemVectorsFernaldInversion( (strcFernaldInversion*)&fernaldVectors ) ;
+}
+*/
+
 // void CLidar_Operations::Bias_Residual_Correction( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, double *pr_res_corr )
 // {
 // 	fitParam.indxInicFit = 300 ;

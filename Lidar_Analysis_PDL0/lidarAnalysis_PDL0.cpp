@@ -1,11 +1,8 @@
 
 /**
- * @file mergeLidarFiles.cpp
  * @author Juan V. Pallotta (juanpallotta@gmail.com)
- * @brief Main code to process lidar signals.
- * @version 0.1
+ * @brief Code to process data level 0 lidar signals.
  * @date 2021-06-08
- * @copyright Copyright (c) 2021
  */
 
 #include <stdlib.h>
@@ -84,7 +81,7 @@ int main( int argc, char *argv[] )
             inputFilesInTime[f] = (char*) new char [200] ;
         // GET THE NUMBER OF FILES WITHIN THE TIME BIN SET IN analysisParameter.dat
         glbParam.nEvents = (int)getInputFilesInTimeRange( (char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
-        // glbParam.nEvents = (int)getInputFilesInZenithRange((char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
+     // TODO: glbParam.nEvents = (int)getInputFilesInZenithRange((char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
     } // if ( S_ISDIR(pathFileInput_stat.st_mode) )
     else
     {
@@ -108,6 +105,11 @@ int main( int argc, char *argv[] )
         glbParam.chSel = 0 ;
         glbParam.evSel = 0 ;
         oLDH.ReadLicel_GlobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
+
+        glbParam.r     = (double*) new double[glbParam.nBins] ;
+        for( int i=0 ; i <glbParam.nBins ; i++ )
+            glbParam.r[i]     = (i+1)*glbParam.dr - glbParam.dr /2 ; // glbParam->r[0] = 3.75 (ie)
+        
     }
     else if( (strcmp( glbParam.inputDataFileFormat, "LALINET_NETCDF" ) ==0) )
         cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
@@ -181,9 +183,7 @@ int main( int argc, char *argv[] )
                     for ( int c=0 ; c <glbParam.nCh ; c++ )
                     {
                         for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
-                        {
                             dataToSave[f][c][b] = (double) dataFile[f].db_ADC[c][b] ;
-                        }
                     }
     } // for ( int f=0 ; f <glbParam.nEventsAVG ; f++ )
 
@@ -226,10 +226,6 @@ int main( int argc, char *argv[] )
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"OVERLAP_FILE", (const char*)"string", (char*)overlap_file ) ;
         // printf("\n Path to overlap file: %s", overlap_file ) ;
         if ( strcmp(overlap_file, "NOT_FOUND") !=0 ) // OVERLAP FILE FOUND
-        // {
-            // printf( "\nNo overlap file set in the configuration file %s\n", glbParam.FILE_PARAMETERS ) ;
-        // }
-        // else
         {
             printf("\n Adding overlap file (%s) to NetCDF file \n", overlap_file ) ;
 

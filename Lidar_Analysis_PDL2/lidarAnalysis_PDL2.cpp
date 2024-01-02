@@ -1,11 +1,7 @@
-
 /**
- * @file lidarAnalysisPDL1.cpp
  * @author Juan V. Pallotta (juanpallotta@gmail.com)
- * @brief Main code to process lidar signals.
- * @version 0.1
+ * @brief Code to process data level 2 lidar signals.
  * @date 2021-06-08
- * @copyright Copyright (c) 2021
  */
 
 #include <stdio.h>
@@ -108,6 +104,10 @@ int main( int argc, char *argv[] )
     printf("\n\n") ;
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0
     {
+        oDL2->layer_mask = (int**) new int*[ glbParam.nEventsAVG ] ; // TIME DIMENSION
+        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+            oDL2->layer_mask[e] = (int*) new int[ glbParam.nBins ] ; // POINTS DIMESIONS
+
         double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
         double  ***pr2     = (double***) new double**[glbParam.nEventsAVG];
         for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
@@ -144,7 +144,7 @@ int main( int argc, char *argv[] )
             oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
         }
 
-        printf("\n** L2: Due to numEventsToAvg_PDL1 != numEventsToAvg_PDL2 --> Corrections MUST be applied again to data from L0 group **\n") ;
+        printf("\n** L2: Due to numEventsToAvg_PDL1 != numEventsToAvg_PDL2 --> Corrections MUST be applied again from data L0 data **\n") ;
         oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, 
                                                (double***)oDL2->data_File_L2, (double***)pr_corr, (double***)pr2 ) ;
 
@@ -161,7 +161,7 @@ int main( int argc, char *argv[] )
     } // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
     else // DATA WAS READ FROM L1 (ALREADY CORRECTED) --> SAVE THE RANGE CORRECTED LIDAR SIGNALS
     {   // oDL2->data_File_L2 == Raw_Lidar_Data_L1
-        printf("\n** L2: Due to numEventsToAvg_PDL1 = numEventsToAvg_PDL2 --> Data is taken from L1 group (already corrected) **.\n") ;
+        printf("\n\n** L2: Due to numEventsToAvg_PDL1 = numEventsToAvg_PDL2 --> Data is taken from L1 group (already corrected) **.\n") ;
         for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
         {
             for ( int c=0 ; c <glbParam.nCh ; c++ )
@@ -185,25 +185,25 @@ int main( int argc, char *argv[] )
     glbParam.chSel = glbParam.indxWL_PDL2 ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
-        printf("\n") ;
         glbParam.evSel = t ;
         oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
-
         if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 )
         {
-             printf(" L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...");
-            oDL1->ScanCloud_RayleightFit( (const double*)&oDL2->pr[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+            if ( t == 0 )
+                printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
+            oDL1->ScanCloud_RayleighFit( (const double*)&oDL2->pr[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ... DONE ") ;
+
             for (int b = 0; b <glbParam.nBins ; b++)
                 oDL2->layer_mask[t][b] = oDL1->cloudProfiles[t].clouds_ON[b] ;
         }
-
+        printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
-            printf("\nInverting:\t Event: %d \t Channel: %d \t Wavelenght: %d ", t, glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
+            printf("\nInverting:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[c], glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
             oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
         } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
-
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;
 

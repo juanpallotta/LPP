@@ -1,11 +1,7 @@
-
 /**
- * @file lidarAnalysisPDL1.cpp
  * @author Juan V. Pallotta (juanpallotta@gmail.com)
- * @brief Main code to process lidar signals.
- * @version 0.1
+ * @brief Code to process data level 1 lidar signals.
  * @date 2021-06-08
- * @copyright Copyright (c) 2021
  */
 
 #include <stdio.h>
@@ -333,7 +329,7 @@ int main( int argc, char *argv[] )
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
                 {
                     printf("   --> Getting cloud profile...");
-                    oDL1->ScanCloud_RayleightFit( (const double*)&pr_corr[t][c][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                    oDL1->ScanCloud_RayleighFit( (const double*)&pr_corr[t][c][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 }
                 else
                     printf("\t Cloud profiles are not computed. \t") ;
@@ -365,10 +361,10 @@ int main( int argc, char *argv[] )
     //     delete [] Cloud_Profiles[e] ;
     // delete [] Cloud_Profiles ;
 
-    // delete Raw_Data_Start_Time      ;
-    // delete Raw_Data_Stop_Time       ;
-    // delete Raw_Data_Start_Time_AVG  ;
-    // delete Raw_Data_Stop_Time_AVG   ;
+    delete Raw_Data_Start_Time      ;
+    delete Raw_Data_Stop_Time       ;
+    delete Raw_Data_Start_Time_AVG  ;
+    delete Raw_Data_Stop_Time_AVG   ;
 
     cout << endl << endl << "\tLidar Analisys PDL1 Done" << endl << endl ;
     printf("\n\n---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\n\n") ;

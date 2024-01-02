@@ -32,6 +32,17 @@ public:
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
     void    GluingLidarSignals( strcGlobalParameters*, double*** ) ;
 
+    void    RayleighFit ( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
+
+    void 	TransmissionMethod_pr( double*, strcGlobalParameters*, strcMolecularData*, int, int, double* ) ;
+
+    void 	ODcut	 			 ( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int* ) ;
+
+    // void 	MonteCarloRandomError		( double*, double*, strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
+    // void 	MonteCarloSystematicError	( double*,          strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
+    // void 	GetErrSetParam				( char*, int, int, double, strcErrorSignalSet* ) ;
+
+
 private:
     double  *pr_NObkg_i, *pr2_i ;
     double  *errRMS_mol, *errRMS_k, *rate, *k_ones ;

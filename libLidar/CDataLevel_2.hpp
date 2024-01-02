@@ -44,6 +44,7 @@ class CDataLevel_2
 		double 	*ip	   ;
 		double 	*ipN   ;
 		double 	*betaT ;
+		double  *betaMol_Fit ;
 		double 	*intAlphaMol_r  ;
 		double 	ipNref ;
 		double 	intAlphaMol_Ref ;

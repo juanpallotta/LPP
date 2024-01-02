@@ -19,6 +19,7 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	ip	   			= (double*) new double[glbParam->nBins ] ;
 	ipN   			= (double*) new double[glbParam->nBins ] ;
 	betaT  			= (double*) new double[glbParam->nBins ] ;
+	betaMol_Fit		= (double*) new double[glbParam->nBins ] ;
 	intAlphaMol_r  	= (double*) new double[glbParam->nBins ] ;
 
 	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
@@ -128,7 +129,7 @@ void CDataLevel_2::Fernald_1983( strcGlobalParameters *glbParam, int t, int c, s
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 		// 	RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
 		// pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] ;
-			RayleighFit( (double*)&pr[t][0], (double*)dataMol->prMol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
+			oLOp->RayleighFit( (double*)&pr[t][0], (double*)dataMol->prMol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
 		pr2_Ref = pr2Fit[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] * glbParam->r[indxRef_Fernald[glbParam->evSel]] ;
 		delete pr2Fit ;
 	}
@@ -252,7 +253,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		fitParam.indxInicFit = indxRef_Fernald_Start[glbParam->evSel] ;
 		fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-			RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol_avg, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
+			oLOp->RayleighFit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol_avg, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fit ) ;
 		double *absDiff = (double*) new double[ fitParam.nFit ] ;
 		for (int i =0 ; i <fitParam.nFit ; i++)
 			absDiff[i] = fabs( pr2[t][c][fitParam.indxInicFit +i] - pr2Fit[fitParam.indxInicFit +i] ) ;
@@ -266,6 +267,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 	}
 		pr2[t][c][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
 
+	int indx_integral_max_range_for_AOD ;
+	int integral_max_range_for_AOD ;
 // ********************** FERNALD INVERSION **********************
 	for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 	{
@@ -273,11 +276,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		// FernaldInversion_Test_Ref_Value( (strcGlobalParameters*)glbParam, (int)t, (int)c, (int)l, (strcMolecularData*)dataMol, (double)LR[l],
 		// 	(int)indxRef_Fernald_Start[glbParam->evSel], (int)indxRef_Fernald_Stop[glbParam->evSel] ) ;
 
-		FernaldInversion_Core( (strcGlobalParameters*)glbParam, (int)t, (int)c, (int)l, (strcMolecularData*)dataMol, (double)LR[l],
-								(int)0, (int)glbParam->nBins ) ;
+		FernaldInversion_Core( (strcGlobalParameters*)glbParam, (int)t, (int)c, (int)l, (strcMolecularData*)dataMol, (double)LR[l], (int)0, (int)glbParam->nBins ) ;
 
-		int indx_integral_max_range_for_AOD ;
-		int integral_max_range_for_AOD ;
 		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
 		indx_integral_max_range_for_AOD = (int)round(integral_max_range_for_AOD /glbParam->dr) ;
 
@@ -363,8 +363,22 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t,
 	{
 		ipN[i] 	 = ip[i] - ipNref ;
 		betaT[i] = p[i] / ( (1/dataMol->betaMol_avg[indxRef_Fernald[glbParam->evSel]]) - (2/ka) * ipN[i] ) ;
+	}
 
-		beta_Aer[t][l][i]  = betaT[i] - dataMol->betaMol_avg[i]  ; // r
+// TODO: CHECK WITH THIS IF 
+// if ( (heightRef_Inversion_Start_ASL >0) && (heightRef_Inversion_Stop_ASL >0) && (heightRef_Inversion_Stop_ASL > heightRef_Inversion_Start_ASL) )
+// {
+// TO MAKE THIS ADJUSTMENT IN THE INVERSION
+
+			strcFitParam fitParam ;
+			fitParam.indxInicFit = indxRef_Fernald_Start[glbParam->evSel] ;
+			fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
+			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
+				oLOp->RayleighFit( (double*)&betaT[0], (double*)dataMol->betaMol_avg, glbParam->nBins , "wB", "all", (strcFitParam*)&fitParam, (double*)betaMol_Fit ) ;
+
+	for ( int i=indxStart ; i <indxStop ; i++ )
+	{
+		beta_Aer[t][l][i]  = betaT[i] - betaMol_Fit[i] ; // dataMol->betaMol_avg[i]  ;
 		alpha_Aer[t][l][i] = beta_Aer[t][l][i] *LR ; // r
 	}
 	for (int i =0 ; i <glbParam->indxInitSig; i++)
@@ -373,6 +387,48 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t,
 		beta_Aer[t][l][i]  = beta_Aer [t][l][glbParam->indxInitSig] ;
 	}
 }
+
+// void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t, int c, int l, strcMolecularData *dataMol, double LR, int indxStart, int indxStop )
+// {
+// 	memset( (double*)phi		  , 0, sizeof(double)*glbParam->nBins ) ;
+// 	memset( (double*)p  		  , 0, sizeof(double)*glbParam->nBins ) ;
+// 	memset( (double*)ip 		  , 0, sizeof(double)*glbParam->nBins ) ;
+// 	memset( (double*)ipN		  , 0, sizeof(double)*glbParam->nBins ) ;
+// 	memset( (double*)betaT		  , 0, sizeof(double)*glbParam->nBins ) ;
+// 	memset( (double*)intAlphaMol_r, 0, sizeof(double)*glbParam->nBins ) ;
+// 	memset( (double*)alpha_Aer[t][l], 0, sizeof(double)*glbParam->nBins ) ;
+// 	memset( (double*)beta_Aer[t][l] , 0, sizeof(double)*glbParam->nBins ) ;
+
+// 	ka  = 1/LR ;
+// 	KM_ = 1/dataMol->LR_mol ;
+
+// 	cumtrapz( glbParam->dr, dataMol->alphaMol_avg, 0, (dataMol->nBins-1)			   , intAlphaMol_r    ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
+// 	trapz	( glbParam->dr, dataMol->alphaMol_avg, 0, indxRef_Fernald[glbParam->evSel] , &intAlphaMol_Ref ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
+
+// 	for( int i=indxStart ; i <indxStop ; i++  )
+// 	{
+// 		pr2n[i] = pr2[t][c][i] /pr2_Ref ;
+// 		phi[i]	= 2*((KM_-ka)/ka) * (intAlphaMol_r[i] - intAlphaMol_Ref) ;
+// 		p[i]   	= pr2n[i] * exp(-phi[i]) ;
+// 	}
+
+// 	cumtrapz( glbParam->dr, p, 0, (glbParam->nBins-1)		      , ip 		) ;
+// 	trapz   ( glbParam->dr, p, 0, indxRef_Fernald[glbParam->evSel], &ipNref ) ;
+
+// 	for ( int i=indxStart ; i <indxStop ; i++ )
+// 	{
+// 		ipN[i] 	 = ip[i] - ipNref ;
+// 		betaT[i] = p[i] / ( (1/dataMol->betaMol_avg[indxRef_Fernald[glbParam->evSel]]) - (2/ka) * ipN[i] ) ;
+
+// 		beta_Aer[t][l][i]  = betaT[i] - dataMol->betaMol_avg[i]  ; // r
+// 		alpha_Aer[t][l][i] = beta_Aer[t][l][i] *LR ; // r
+// 	}
+// 	for (int i =0 ; i <glbParam->indxInitSig; i++)
+// 	{
+// 		alpha_Aer[t][l][i] = alpha_Aer[t][l][glbParam->indxInitSig] ;
+// 		beta_Aer[t][l][i]  = beta_Aer [t][l][glbParam->indxInitSig] ;
+// 	}
+// }
 
 void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, int t )
 {

@@ -13,7 +13,7 @@ class CDataLevel_1
 		CDataLevel_1( strcGlobalParameters* );
 		~CDataLevel_1();
 
-		void ScanCloud_RayleightFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
+		void ScanCloud_RayleighFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
 		void GetCloudLimits( strcGlobalParameters* ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, strcCloudInfoDB_LPP* ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, int* ) ;
