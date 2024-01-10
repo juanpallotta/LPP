@@ -18,10 +18,11 @@ class CDataLevel_1
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, strcCloudInfoDB_LPP* ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, int* ) ;
 
-		CLidar_Operations 	*oLOp ;		
+		CLidar_Operations 	*oLOp ;
 
 	    strcCloudProfiles 	*cloudProfiles 			;
 		strcIndexMol      	*indxMol  	 			;
+		double 				**pr_for_cloud_mask		;
 		double 				**SE_lay     			;
 		double				*prS, errRefBkg			;
 		int					avg_Points_Cloud_Mask 	;

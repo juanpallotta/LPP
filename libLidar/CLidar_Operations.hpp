@@ -32,7 +32,7 @@ public:
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
     void    GluingLidarSignals( strcGlobalParameters*, double*** ) ;
 
-    void    RayleighFit ( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
+    void    Fit ( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
 
     void 	TransmissionMethod_pr( double*, strcGlobalParameters*, strcMolecularData*, int, int, double* ) ;
 

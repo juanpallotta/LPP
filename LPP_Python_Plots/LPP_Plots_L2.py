@@ -6,13 +6,15 @@
 
 # python LPP_Plots_L2.py /mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/LPP_OUT/RS_20230214_0925_L0_L1_L2.nc 0
 
+# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Auger/LidarData/CO/2023/05/18/LPP_OUT/lidar-ch-20230518-014231-R128282.root_L0_L1_L2.nc 20
+
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 1500
+indx_Max = 2000
 minFactor = 0.00
 maxFactor = 1.00
 

@@ -104,10 +104,11 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 	nMaxLoop = (int)0 ;
 
  // ERROR REFERENCE CALCULATION
-	fitParam.indxEndFit  = glbParam->nBins - 1 ; // glbParam->indxEndSig - avg_Points_Cloud_Mask ; //  
+	fitParam.indxEndFit  = glbParam->nBins - 1 ;
+	// fitParam.indxEndFit  = glbParam->indxEndSig_ev[glbParam->evSel] ;
 	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-		oLOp->RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
 	errRefBkg = sqrt ( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
 	// printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.sumsq_m: %lf", fitParam.m, biasRef, errRefBkg, fitParam.sumsq_m) ;
@@ -119,7 +120,7 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			SE_lay[i][k] =(double) 0.0 ;
 	}
 
-	glbParam->indxEndSig = glbParam->indxEndSig_ev[glbParam->evSel] ;
+	glbParam->indxEndSig = glbParam->indxEndSig_ev[glbParam->evSel] ; // THIS IS ONLY TO USE glbParam->indxEndSig INSTEAD OF glbParam->indxEndSig_ev[glbParam->evSel] THROUGHT THE METHOD
 	fitParam.indxInicFit = (int) glbParam->indxInitSig ;
 	fitParam.indxEndFit  = (int) glbParam->indxEndSig  ;
 		for ( int i=0 ; i<nScanMax ; i++ ) // ------------------------------------------------------------------------------------------
@@ -260,7 +261,7 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 
 			if( fitParam.indxInicFit > glbParam->indxInitSig )
 			{
-					oLOp->RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
+					oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
 				errCloud =0 ;
 				// errCloud = (double)sqrt(fitParam.sumsq_m/(fitParam.nFit -1)) ; // (errCloud/fitParam.nFit) ;
 				errCloud = (double)(fitParam.sumsq_m/(fitParam.nFit -1)) ;
@@ -368,7 +369,7 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 			double 	heightRef_Inversion_ASL, heightRef_Inversion_Start_ASL, heightRef_Inversion_Stop_ASL ;
 			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_Start_ASL" , "double", (int*)&heightRef_Inversion_Start_ASL ) ;
 			ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL"  , "double", (int*)&heightRef_Inversion_Stop_ASL  ) ;
-			heightRef_Inversion_ASL = (heightRef_Inversion_Start_ASL + heightRef_Inversion_Stop_ASL)/2 ;
+			heightRef_Inversion_ASL = ( fabs(heightRef_Inversion_Start_ASL) + fabs(heightRef_Inversion_Stop_ASL) )/2 ;
 
 			indxMol[glbParam->evSel].indxRef = (int)round(heightRef_Inversion_ASL /glbParam->dzr) ;
 				if ( indxMol[glbParam->evSel].indxRef > (glbParam->nBins-1) )

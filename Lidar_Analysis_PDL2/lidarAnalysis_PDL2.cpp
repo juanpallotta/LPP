@@ -191,8 +191,8 @@ int main( int argc, char *argv[] )
         {
             if ( t == 0 )
                 printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
+
             oDL1->ScanCloud_RayleighFit( (const double*)&oDL2->pr[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-                printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ... DONE ") ;
 
             for (int b = 0; b <glbParam.nBins ; b++)
                 oDL2->layer_mask[t][b] = oDL1->cloudProfiles[t].clouds_ON[b] ;

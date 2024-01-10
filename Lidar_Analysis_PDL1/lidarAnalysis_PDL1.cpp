@@ -227,6 +227,24 @@ int main( int argc, char *argv[] )
 
     printf("\n\n") ;
 
+//  SAVE THE LIDAR SIGNAL
+    string  strCompCM ;
+    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
+    if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
+    {
+        // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
+        if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
+            printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog. The performance could not be good!!!\n", glbParam.indxWL_PDL1 ) ;
+
+        oDL1->pr_for_cloud_mask = (double**) new double*[ glbParam.nEventsAVG ] ;
+        for (int e=0 ; e <glbParam.nEventsAVG ; e++)
+        {
+            oDL1->pr_for_cloud_mask[e] = (double*) new double[ glbParam.nBins_Ch[glbParam.indxWL_PDL1] ] ;
+            for ( int i =0 ; i < glbParam.nBins_Ch[glbParam.indxWL_PDL1] ; i++ )
+                oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
+        }
+    }
+
 // START GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
 	glbParam.indx_gluing_High_PHO   = (int*) new int[ glbParam.nCh ] ;
@@ -236,7 +254,6 @@ int main( int argc, char *argv[] )
 
     int nIndxsToGlue_Low_AN   = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_Low_AN"  , (const char*)"int", (int*)glbParam.indx_gluing_Low_AN   ) ;
     int nIndxsToGlue_High_PHO = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_High_PHO", (const char*)"int", (int*)glbParam.indx_gluing_High_PHO ) ;
-
     // CHECK IF THE GLUING INFORMATION IS CORRECTLY SET
     if  ( ( (nIndxsToGlue_Low_AN == nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
             &&
@@ -309,8 +326,8 @@ int main( int argc, char *argv[] )
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
-    string  strCompCM ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
+    // string  strCompCM ;
+    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
 
     printf("\nLayer detection algorithm:") ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
@@ -329,7 +346,7 @@ int main( int argc, char *argv[] )
                 if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
                 {
                     printf("   --> Getting cloud profile...");
-                    oDL1->ScanCloud_RayleighFit( (const double*)&pr_corr[t][c][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                    oDL1->ScanCloud_RayleighFit( (const double*)&oDL1->pr_for_cloud_mask[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 }
                 else
                     printf("\t Cloud profiles are not computed. \t") ;

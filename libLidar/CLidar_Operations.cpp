@@ -109,7 +109,7 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 		fitParam.indxEndFit  = indxMaxRange ; 
 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-		RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		Fit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 
 		b_ref_max = 1.5* fitParam.b ;
 		b_ref_min = 0.5* fitParam.b ;
@@ -128,7 +128,7 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 					pr_NObkg_i[i]  = pr[i] - b_i[b] ;
 					pr2_i[i]       = pr_NObkg_i[i] * pow(glbParam->r[i], 2) ;
 				}
-				RayleighFit( (double*)pr2_i, (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+				Fit( (double*)pr2_i, (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 				errRMS_Bias[b] = fitParam.sumsq_m ;
 			}
 				polyfitCoeff( (const double* const) b_i				, // X DATA
@@ -177,17 +177,17 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 	int i=0 ;
 	do
 	{
-		// RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-		RayleighFit( (double*)pr, (double*)prMol, glbParam->nBins_Ch[glbParam->chSel] , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		// Fit( (double*)pr, (double*)prMol, glbParam->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		Fit( (double*)pr, (double*)prMol, glbParam->nBins_Ch[glbParam->chSel] , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 		errRMS_mol[fitParam.indxEndFit] = (double)fitParam.sumsq_m ;
 
-		// RayleighFit( (double*)pr, (double*)k_ones, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-		RayleighFit( (double*)pr, (double*)k_ones, glbParam->nBins_Ch[glbParam->chSel] , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		// Fit( (double*)pr, (double*)k_ones, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		Fit( (double*)pr, (double*)k_ones, glbParam->nBins_Ch[glbParam->chSel] , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 		errRMS_k[fitParam.indxEndFit] = (double)fitParam.sumsq_m ;
 
 		i = i+1 ;
 		// fitParam.indxEndFit  = glbParam->nBins - i            				 ;
-		fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - i            				 ;
+		fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - i       ;
 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
 		fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
 	} while( fitParam.indxInicFit >glbParam->indxInitSig ) ; //! CHANGE TO THE PEAK OF THE LIDAR SIGNAL
@@ -277,7 +277,7 @@ void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, con
 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
 		fitParam.nFit	   	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 
-		RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+		Fit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 			for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam.b) ; 
 	}
 	else
@@ -526,9 +526,9 @@ void CLidar_Operations::GluingLidarSignals( strcGlobalParameters *glbParam, doub
 			fitParam.indxInicFit = indxs_fit[1] ;
 			fitParam.indxEndFit  = indxs_fit[2] ;
 			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
-// RayleighFit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 
+// Fit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 
 // 			 (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_Low_AN  [c]][0], glbParam->nBins, "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
-RayleighFit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 
+Fit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], 
 			 (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_Low_AN  [c]][0], glbParam->nBins_Ch[glbParam->chSel], "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
 
 			for ( int b =0 ; b <indxs_fit[1] ; b++ )
@@ -544,7 +544,7 @@ RayleighFit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c
 	printf("\n") ;
 }
 
-void CLidar_Operations::RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
+void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
 {
 	fitParam->sumsq_m = (double)0.0  ;
 
@@ -623,7 +623,7 @@ void CLidar_Operations::TransmissionMethod_pr( double *pr, strcGlobalParameters 
 		fitParam_before_cloud.indxInicFit = indxBefCloud - (int)round(DELTA_RANGE_LIM_BINS) ;
 		fitParam_before_cloud.indxEndFit  = indxBefCloud - (int)round(DELTA_RANGE_LIM_BINS/5) ;
 		fitParam_before_cloud.nFit = fitParam_before_cloud.indxEndFit - fitParam_before_cloud.indxInicFit +1;
-			RayleighFit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_before_cloud, (double*)prFit ) ;
+			Fit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_before_cloud, (double*)prFit ) ;
 			indxB = indxBefCloud -(int)round(DELTA_RANGE_LIM_BINS/2) ;
 			prBeforeCloud = prFit[indxB] ;
 			// printf("\n prFit[indxB]= %lf \t fitParam_before_cloud.m= %lf \n", prFit[indxB], fitParam_before_cloud.m ) ;
@@ -631,7 +631,7 @@ void CLidar_Operations::TransmissionMethod_pr( double *pr, strcGlobalParameters 
 		fitParam_after_cloud.indxInicFit = indxAftCloud + (int)round(DELTA_RANGE_LIM_BINS/5) ;
 		fitParam_after_cloud.indxEndFit  = indxAftCloud + (int)round(DELTA_RANGE_LIM_BINS) ;
 		fitParam_after_cloud.nFit = fitParam_after_cloud.indxEndFit - fitParam_after_cloud.indxInicFit +1;
-			RayleighFit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_after_cloud, (double*)prFit ) ;
+			Fit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam_after_cloud, (double*)prFit ) ;
 			indxA = indxAftCloud +(int)round(DELTA_RANGE_LIM_BINS/2) ;
 			prAfterCloud = prFit[indxA] ;
 			// printf(" prFit[indxA]= %lf \t fitParam_after_cloud.m= %lf \n", prFit[indxA], fitParam_after_cloud.m ) ;
@@ -737,7 +737,7 @@ void MonteCarloRandomError( double *pr2Glued, double *pr, strcGlobalParameters *
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
 	double *prFit = (double*) new double[glbParam->nBins] ;
 	// gsl_fit_linear( &dataMol->prMol[fitParam.indxInicFit], 1, &pr[fitParam.indxInicFit], 1, fitParam.nFit, &fitParam.b, &fitParam.m, &fitParam.cov00, &fitParam.cov01, &fitParam.cov11, &fitParam.sumsq_m ) ;
-		RayleighFit( (double*)&dataMol->prMol[fitParam.indxInicFit], (double*)&pr[fitParam.indxInicFit], fitParam.nFit, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+		Fit( (double*)&dataMol->prMol[fitParam.indxInicFit], (double*)&pr[fitParam.indxInicFit], fitParam.nFit, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	delete prFit ;	
 	double 	stdPr = sqrt(fitParam.sumsq_m/(fitParam.nFit-1)) ;
 	int 	spamAvgWin ;
@@ -806,7 +806,7 @@ void MonteCarloSystematicError( double *pr2Glued, strcGlobalParameters *glbParam
 // 	fitParam.indxInicFit = 300 ;
 // 	fitParam.indxEndFit  = 900 ;
 // 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
-// 	RayleighFit( (double*)&pr[0], (double*)&dataMol->prMol[0], glbParam->nBins, "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
+// 	Fit( (double*)&pr[0], (double*)&dataMol->prMol[0], glbParam->nBins, "wB", "all", (strcFitParam*)&fitParam, (double*)dummy ) ;
 
 // 	for (int i =0; i <glbParam->nBins; i++)
 // 		pr_res_corr[i] = pr[i] - dummy[i] ;

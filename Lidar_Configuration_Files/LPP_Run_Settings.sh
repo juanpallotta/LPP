@@ -4,7 +4,7 @@
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no"
 L0="yes"
 L1="yes"
-L2="no"
+L2="yes"
 
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
@@ -12,8 +12,8 @@ L2="no"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2022/20220818/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2023/20231104/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2023/20231104/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2023/20231103/"
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2023/20231104/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/miniLidar/20230728/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/miniLidar/20230727/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Hector/20230914/data/"
@@ -24,7 +24,8 @@ L2="no"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/9/21/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/8/03/"
-PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/night/test/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/day/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/night/testNight/"
 # https://aeronet.gsfc.nasa.gov/cgi-bin/data_display_aod_v3?site=Sao_Paulo&nachal=0&year=2017&month=4&day=9&aero_water=0&level=3&if_day=0&if_err=0&place_code=10&year_or_month=0
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
@@ -39,13 +40,13 @@ PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/night/test/"
 # ! CHILE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_ChileSN.conf"
 # ! BRAZIL
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
 # ! ARGENTINA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
 #! PILAR (CORDOBA), 2009-AGOSTO/SEPTIEMBRE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar_2009_AgoSep.conf"

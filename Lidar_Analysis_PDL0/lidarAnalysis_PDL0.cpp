@@ -81,7 +81,7 @@ int main( int argc, char *argv[] )
             inputFilesInTime[f] = (char*) new char [200] ;
         // GET THE NUMBER OF FILES WITHIN THE TIME BIN SET IN analysisParameter.dat
         glbParam.nEvents = (int)getInputFilesInTimeRange( (char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
-     // TODO: glbParam.nEvents = (int)getInputFilesInZenithRange((char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
+     // TO-DO: glbParam.nEvents = (int)getInputFilesInZenithRange((char*)Path_In.c_str(), (char**)inputFilesInTime, (strcGlobalParameters*)&glbParam ) ;
     } // if ( S_ISDIR(pathFileInput_stat.st_mode) )
     else
     {

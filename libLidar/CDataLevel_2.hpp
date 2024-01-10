@@ -12,7 +12,7 @@ class CDataLevel_2
 	public:
 		CDataLevel_2( strcGlobalParameters* ) ;
 		~CDataLevel_2()  					  ;
-		void 	Fernald_1983    ( strcGlobalParameters*, int, int, strcMolecularData* ) ;
+		// void 	Fernald_1983    ( strcGlobalParameters*, int, int, strcMolecularData* ) ;
 		void 	FernaldInversion( strcGlobalParameters*, int, int, strcMolecularData* ) ;
 		void 	Find_Ref_Range  (strcGlobalParameters* , int    					  ) ;
 
@@ -45,6 +45,7 @@ class CDataLevel_2
 		double 	*ipN   ;
 		double 	*betaT ;
 		double  *betaMol_Fit ;
+		// double  *betaTot_Fit ;
 		double 	*intAlphaMol_r  ;
 		double 	ipNref ;
 		double 	intAlphaMol_Ref ;
