@@ -68,8 +68,7 @@ Where:
 
 <!-- - `[Extra_Files]`: Not mandatory information containing extra data about the lidar system, like background noise or overlap function. -->
 
-
-To avoid possible mistakes, it is preferable to use absolute paths for all the file's arguments passed to the modules.
+To avoid possible errors, and to establish a standardization, use <u>**absolute paths**</u> for all the file's arguments passed to each module (`/Output_File` and `/Input_File_or_Folder/`).
 
 In the next sections, a step-by-step on how to download/clone, build and run LPP's modules are described.
 
