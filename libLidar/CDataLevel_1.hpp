@@ -27,6 +27,7 @@ class CDataLevel_1
 		double				*prS, errRefBkg			;
 		int					avg_Points_Cloud_Mask 	;
 		int 				*dco					; // DIFFERENTIAL CLOUD ON 
+		string		  		strCompCM, strCompPBL  	;
 
 	private:
 		void	GetMem_indxMol( strcGlobalParameters*) ;

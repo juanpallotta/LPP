@@ -157,15 +157,12 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
 {
 	int indxMax_ ;
-	// smooth( (double*)pr, (int)0, (int)(glbParam->nBins-1), (int)15, (double*)dummy ) ;
 	smooth( (double*)pr, (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int)15, (double*)dummy ) ;
 
-	// fitParam.indxEndFit  = glbParam->nBins - 1 ; // glbParam->nBins -1 ; // 
-	fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - 1 ; // glbParam->nBins -1 ; // 
-    fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
+	fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - 1  	 ;
+    fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
 	fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
 
-	// for (int j =0; j <glbParam->nBins; j++)
 	for (int j =0; j <glbParam->nBins_Ch[glbParam->chSel]; j++)
 	{
 		k_ones[j] 		= (double)1.0 		;
@@ -306,7 +303,7 @@ int CLidar_Operations::Get_Max_Range( double *sig, strcMolecularData *dataMol, s
 		// LOADED IN Find_Max_Range(...) IF glbParam->chSel == indxWL_PDLx
 	}
 	else 
-	{ // MAXIMUN RANGE IS NOT OBTAINED AUTOMATICALLY
+	{ // MAXIMUN RANGE IS *NOT* OBTAINED AUTOMATICALLY
 
 		indxMaxRange = glbParam->indxEndSig ;
 
@@ -677,129 +674,6 @@ void CLidar_Operations::ODcut( double *prS, strcMolecularData *dataMol, strcGlob
 
 	// delete pr2 ;
 }
-
-/*
-void GetErrSetParam( char *FILE_PARAMETERS, int nSigSetErr, int nBins, double dzr, strcErrorSignalSet *errSigSet )
-{
-	float 	VAODheigh ;
-// r_meanErrSet
-	memset( errSigSet->alphaAer_meanErrSet, 0, sizeof(double) * nBins ) ;
-	memset( errSigSet->VAODr_meanErrSet   , 0, sizeof(double) * nBins ) ;
-		for ( int b=0 ; b<nBins ; b++ )
-		{
-			for ( int j=0 ; j < nSigSetErr ; j++ )
-			{
-				errSigSet->alphaAer_meanErrSet[b] = errSigSet->alphaAer_meanErrSet[b] + errSigSet->alphaAer_ErrSet[j][b] ;
-				errSigSet->   VAODr_meanErrSet[b] = errSigSet->   VAODr_meanErrSet[b] + errSigSet->   VAODr_ErrSet[j][b] ;
-			}
-			errSigSet->alphaAer_meanErrSet[b] = errSigSet->alphaAer_meanErrSet[b] / nSigSetErr ;
-			errSigSet->   VAODr_meanErrSet[b] = errSigSet->   VAODr_meanErrSet[b] / nSigSetErr ;
-		}
-// VAODmean OF THE DATASET AT DIFFERENT HEIGHTS
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH0", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[0] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH1", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[1] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH2", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[2] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH3", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_meanErrSet[3] = errSigSet->VAODr_meanErrSet[(int)round(VAODheigh/dzr)] ;
-
-// r_stdErrSet STANDAR ERROR MEAN OF THE DATASET AT DIFFERENT HEIGHTS
-		memset( errSigSet->alphaAer_stdErrSet, 0, sizeof(double) * nBins ) ;
-		memset( errSigSet->VAODr_stdErrSet   , 0, sizeof(double) * nBins ) ;
-		for ( int b=0 ; b<nBins ; b++ )
-		{
-			for ( int j=0 ; j < nSigSetErr ; j++ )
-			{
-				errSigSet->alphaAer_stdErrSet[b] = errSigSet->alphaAer_stdErrSet[b] + pow( (errSigSet->alphaAer_ErrSet[j][b] - errSigSet->alphaAer_meanErrSet[b]), 2) ;
-				errSigSet->   VAODr_stdErrSet[b] = errSigSet->   VAODr_stdErrSet[b] + pow( (errSigSet->   VAODr_ErrSet[j][b] - errSigSet->   VAODr_meanErrSet[b]), 2) ;
-			}
-			errSigSet->alphaAer_stdErrSet[b] = sqrt(errSigSet->alphaAer_stdErrSet[b] / (nSigSetErr-1) ) ;
-			errSigSet->   VAODr_stdErrSet[b] = sqrt(errSigSet->   VAODr_stdErrSet[b] / (nSigSetErr-1) ) ;
-		}
-// VAODstd OF THE DATASET
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH0", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[0] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH1", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[1] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH2", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[2] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
-	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH3", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[3] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
-}
-
-void MonteCarloRandomError( double *pr2Glued, double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcIndexMol *indxMol, strcFernaldInversion *fernaldVectors, strcErrorSignalSet *rndErrSigSet )
-{
-	strcAerosolData dataAerErr ;
-	dataAerErr.alphaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;  memset( dataAerErr.alphaAer, 0, ( glbParam->nEventsAVG * sizeof(double) ) ) ;
-	dataAerErr.betaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;  memset( dataAerErr.betaAer , 0, ( glbParam->nEventsAVG * sizeof(double) ) ) ;
-	dataAerErr.VAODr	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;  memset( dataAerErr.VAODr   , 0, ( glbParam->nEventsAVG * sizeof(double) ) ) ;
-
-	int 	nSigSetErr ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "nSigSetErr", "int" , (int*)&nSigSetErr ) ;
-// GET THE STANDAR DEVIATION TO GENERATE THE RANDOM ERROR IN THE LIDAR SIGNALS SET
-	strcFitParam	fitParam ;
-	fitParam.indxInicFit = dataMol->nBins - glbParam->nBinsBkg  	  ;
-	fitParam.indxEndFit  = dataMol->nBins -1 						  ;
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
-	double *prFit = (double*) new double[glbParam->nBins] ;
-	// gsl_fit_linear( &dataMol->prMol[fitParam.indxInicFit], 1, &pr[fitParam.indxInicFit], 1, fitParam.nFit, &fitParam.b, &fitParam.m, &fitParam.cov00, &fitParam.cov01, &fitParam.cov11, &fitParam.sumsq_m ) ;
-		Fit( (double*)&dataMol->prMol[fitParam.indxInicFit], (double*)&pr[fitParam.indxInicFit], fitParam.nFit, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
-	delete prFit ;	
-	double 	stdPr = sqrt(fitParam.sumsq_m/(fitParam.nFit-1)) ;
-	int 	spamAvgWin ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
-	for( int j=0 ; j < nSigSetErr ; j++ )
-	{
-		for ( int i=0 ; i < glbParam->nBins ; i++ )
-		{
-			rndErrSigSet->prGlued [j][i] = pr2Glued[i] / (glbParam->r[i]*glbParam->r[i]) ;
-			rndErrSigSet->prNoisy [j][i] = RandN2( rndErrSigSet->prGlued[j][i], stdPr ) ;
-			rndErrSigSet->pr2Noisy[j][i] = rndErrSigSet->prNoisy[j][i] * (glbParam->r[i]*glbParam->r[i]) ;
-		}
-		// smoothGSL( (double*)rndErrSigSet->pr2Noisy[j], (int)(glbParam->nBins), (int)spamAvgWin, (double*)rndErrSigSet->pr2Noisy[j] ) ;
-		smooth( (double*)rndErrSigSet->pr2Noisy[j], (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)rndErrSigSet->pr2Noisy[j] ) ;
-// FERNALD INVERSION
-	FernaldInversion( (double*)rndErrSigSet->pr2Noisy[j], (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxInicMol[0]+110, (double)glbParam->ka, (strcFernaldInversion*)fernaldVectors, (strcAerosolData*)&dataAerErr ) ;
-		for( int b=0 ; b<glbParam->nBins ; b++ )
-		{
-			rndErrSigSet->alphaAer_ErrSet[j][b] = dataAerErr.alphaAer[b] ;
-			rndErrSigSet->   VAODr_ErrSet[j][b] = dataAerErr.VAODr   [b] ;
-		}
-	}
-// OBTAIN MEAN AND STANDAR DEVIATION
-		GetErrSetParam( (char*)glbParam->FILE_PARAMETERS, (int)nSigSetErr, (int)glbParam->nBins, (double)dataMol->dzr, (strcErrorSignalSet*)rndErrSigSet ) ;
-}
-
-void MonteCarloSystematicError( double *pr2Glued, strcGlobalParameters *glbParam, strcMolecularData *dataMol, strcIndexMol *indxMol, strcFernaldInversion *fernaldVectors, strcErrorSignalSet *sysErrSigSet )
-{
-	strcAerosolData dataAerErr ;
-	dataAerErr.alphaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;
-	dataAerErr.betaAer	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;
-	dataAerErr.VAODr	= (double*) malloc( glbParam->nBins * sizeof(double) ) ;
-
-	double 	LR_init, LR_end, LR_step ;
-		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "LR_init", "double" , (double*)&LR_init ) ;
-		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "LR_end" , "double" , (double*)&LR_end  ) ;
-	int 	nSigSetErr ;
-		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "nSigSetErr", "int" , (int*)&nSigSetErr ) ;
-
-	double 	*ka_ite = (double*) malloc( nSigSetErr * sizeof(double) ) ;
-	LR_step = (double) 1 ; // ((LR_end - LR_init) /nSigSetErr) ;
-	for ( int j=0 ; j<nSigSetErr ; j++ )		ka_ite[j] = (double) 1/(LR_init + j*LR_step) ;
-//	double ka_ite[10] = { 0.015, 0.018, 0.020, 0.025, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08 } ;
-
-	for( int j=0 ; j<nSigSetErr ; j++ )
-	{
-// FERNALD INVERSION
-	FernaldInversion( (double*)pr2Glued, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxInicMol[0]+110, (double)ka_ite[j], (strcFernaldInversion*)fernaldVectors , (strcAerosolData*)&dataAerErr ) ;
-	//FernaldInversion( (double*)pr2Glued, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)indxMol->indxInicMol[0]+110, (double)ka_ite[j], (strcAerosolData*)&dataAerErr ) ;
-		for( int b=0 ; b<glbParam->nBins ; b++ )
-		{
-			sysErrSigSet->alphaAer_ErrSet[j][b] = dataAerErr.alphaAer[b] ;
-			sysErrSigSet->   VAODr_ErrSet[j][b] = dataAerErr.VAODr   [b] ;
-		}
-	}
-// OBTAIN MEAN AND STANDAR DEVIATION
-	GetErrSetParam( (char*)glbParam->FILE_PARAMETERS, (int)nSigSetErr, (int)glbParam->nBins, (double)dataMol->dzr, (strcErrorSignalSet*)sysErrSigSet ) ;
-
-// FREE MEM FROM fernaldVectors
-	//FreeMemVectorsFernaldInversion( (strcFernaldInversion*)&fernaldVectors ) ;
-}
-*/
 
 // void CLidar_Operations::Bias_Residual_Correction( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, double *pr_res_corr )
 // {

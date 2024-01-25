@@ -38,11 +38,6 @@ public:
 
     void 	ODcut	 			 ( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int* ) ;
 
-    // void 	MonteCarloRandomError		( double*, double*, strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
-    // void 	MonteCarloSystematicError	( double*,          strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
-    // void 	GetErrSetParam				( char*, int, int, double, strcErrorSignalSet* ) ;
-
-
 private:
     double  *pr_NObkg_i, *pr2_i ;
     double  *errRMS_mol, *errRMS_k, *rate, *k_ones ;

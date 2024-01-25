@@ -55,7 +55,7 @@ void    GetMem_DataFile             	( strcLidarDataFile*, strcGlobalParameters*
 void 	GetMem_indxMol					( strcIndexMol*, strcGlobalParameters* ) ;
 void    GetMem_evSig                	( strcLidarSignal*, strcGlobalParameters* ) ;
 void    GetMem_dataAer                  ( strcAerosolData*, strcGlobalParameters* ) ;
-void  	GetMemStrcErrorSigSet			( strcErrorSignalSet*, int, int ) ;
+// void  	GetMemStrcErrorSigSet			( strcErrorSignalSet*, int, int ) ;
 
 int 	CheckLidarDataBaseIntegrity ( strcLidarDataFile*, strcGlobalParameters*, int* ) ;
 int 	CheckLidarDataBaseIntegrityAVG ( strcLidarDataFile*, strcGlobalParameters*, int* ) ;

@@ -74,6 +74,10 @@ int main( int argc, char *argv[] )
     assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
     glbParam.chSel  = glbParam.indxWL_PDL2 ;
 
+	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method", "string", (char*)oDL2->reference_method.c_str() ) ;
+	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Start_ASL", "double", (double*)&oDL2->heightRef_Inversion_Start_ASL ) ;
+	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL" , "double", (double*)&oDL2->heightRef_Inversion_Stop_ASL  ) ;
+
 // LOADING LIDAR DATA  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // READ DATA FROM L0 DATA LEVEL AND AVERAGE TO L2 DATA LEVEL
     {
@@ -102,7 +106,7 @@ int main( int argc, char *argv[] )
     //     oDL2->nMol[i] = oMolData->dataMol.nMol[i] ;
 
     printf("\n\n") ;
-    if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0
+    if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0 --> CORRECTIONS
     {
         oDL2->layer_mask = (int**) new int*[ glbParam.nEventsAVG ] ; // TIME DIMENSION
         for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
@@ -192,6 +196,7 @@ int main( int argc, char *argv[] )
             if ( t == 0 )
                 printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
 
+            oDL1->strCompPBL.assign("YES") ;
             oDL1->ScanCloud_RayleighFit( (const double*)&oDL2->pr[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 
             for (int b = 0; b <glbParam.nBins ; b++)
@@ -199,11 +204,22 @@ int main( int argc, char *argv[] )
         }
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
+
+        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MonteCarlo_N_SigSet_Err", (const char*)"int", (int*)&glbParam.MonteCarlo_N_SigSet_Err ) ;
+
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
-            printf("\nInverting:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[c], glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
-            oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
-        } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
+            if ( glbParam.MonteCarlo_N_SigSet_Err >=1 )
+            {
+                printf("\nInverting w/Error Analysis:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[c], glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
+                oDL2->MonteCarloRandomError( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+            }
+            else
+            {
+                printf("\nInverting:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[c], glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
+                    oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
+            }
+        } // for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;
 

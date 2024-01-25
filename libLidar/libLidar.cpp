@@ -1,15 +1,17 @@
 
 #include "libLidar.hpp"
 
-const double DBL_EPS_COMP = 1 - DBL_EPSILON; // DBL_EPSILON is defined in <limits.h>.
-inline double RandU()
-{
-    return DBL_EPSILON + ((double) rand()/RAND_MAX) ;
-}
-inline double RandN2(double mu, double sigma)
-{
-    return mu + (rand()%2 ? -1.0 : 1.0)*sigma*pow(-log(DBL_EPS_COMP*RandU()), 0.5) ;
-}
+
+// const double DBL_EPS_COMP = 1 - DBL_EPSILON; // DBL_EPSILON is defined in <limits.h>.
+// inline double RandU()
+// {
+//     return DBL_EPSILON + ((double) rand()/RAND_MAX) ;
+// }
+// inline double RandN2(double mu, double sigma)
+// {
+//     return mu + (rand()%2 ? -1.0 : 1.0)*sigma*pow(-log(DBL_EPS_COMP*RandU()), 0.5) ;
+// }
+
 
 int pstrcmp( const void* a, const void* b )
 {
@@ -59,6 +61,7 @@ int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, s
             closedir(d);
         }
         qsort( inputFilesInTime, nFilesInTime, sizeof(inputFilesInTime[0]), pstrcmp );
+	printf("\n\tFound %d files in the time-bin selected", nFilesInTime) ; 
 	return nFilesInTime ;
 }
 
@@ -586,31 +589,32 @@ void GetMem_dataAer( strcAerosolData *dataAer, strcGlobalParameters *glbParam )
     dataAer->VAODr		 = (double*) new double [glbParam->nBins]   ; memset( dataAer->VAODr   , 0, ( glbParam->nBins * sizeof(double) ) ) ;
 }
 
-void GetMemStrcErrorSigSet( strcErrorSignalSet *errSigSet, int nSigSetErr, int nBins )
-{
-		errSigSet->prGlued  	   = (double**) new double*[nSigSetErr] ;
-		errSigSet->prNoisy  	   = (double**) new double*[nSigSetErr] ;
-		errSigSet->pr2Noisy 	   = (double**) new double*[nSigSetErr] ;
-		errSigSet->alphaAer_ErrSet = (double**) new double*[nSigSetErr] ;
-		errSigSet->VAODr_ErrSet    = (double**) new double*[nSigSetErr] ;
+// BACKUP
+// void GetMemStrcErrorSigSet( strcErrorSignalSet *errSigSet, int MonteCarlo_N_SigSet_Err, int nBins )
+// {
+// 		errSigSet->prGlued  	   = (double**) new double*[MonteCarlo_N_SigSet_Err] ;
+// 		errSigSet->prNoisy  	   = (double**) new double*[MonteCarlo_N_SigSet_Err] ;
+// 		errSigSet->pr2Noisy 	   = (double**) new double*[MonteCarlo_N_SigSet_Err] ;
+// 		errSigSet->alphaAer_ErrSet = (double**) new double*[MonteCarlo_N_SigSet_Err] ;
+// 		errSigSet->VAODr_ErrSet    = (double**) new double*[MonteCarlo_N_SigSet_Err] ;
 
-		for( int j=0 ; j < nSigSetErr ; j++ )
-		{
-			errSigSet->prGlued		  [j] = (double*) new double[nBins] ;
-			errSigSet->prNoisy		  [j] = (double*) new double[nBins] ;
-			errSigSet->pr2Noisy		  [j] = (double*) new double[nBins] ;
-			errSigSet->alphaAer_ErrSet[j] = (double*) new double[nBins] ;
-			errSigSet->   VAODr_ErrSet[j] = (double*) new double[nBins] ;
-		}
+// 		for( int j=0 ; j < MonteCarlo_N_SigSet_Err ; j++ )
+// 		{
+// 			errSigSet->prGlued		  [j] = (double*) new double[nBins] ;
+// 			errSigSet->prNoisy		  [j] = (double*) new double[nBins] ;
+// 			errSigSet->pr2Noisy		  [j] = (double*) new double[nBins] ;
+// 			errSigSet->alphaAer_ErrSet[j] = (double*) new double[nBins] ;
+// 			errSigSet->   VAODr_ErrSet[j] = (double*) new double[nBins] ;
+// 		}
 
-		errSigSet->VAODr_meanErrSet	   = (double*) new double[nBins] ; 	memset( errSigSet->VAODr_meanErrSet   , 0, sizeof(double) * nBins ) ;
-		errSigSet-> VAODr_stdErrSet	   = (double*) new double[nBins] ; 	memset( errSigSet->VAODr_stdErrSet    , 0, sizeof(double) * nBins ) ;
-		errSigSet->alphaAer_meanErrSet = (double*) new double[nBins] ; 	memset( errSigSet->alphaAer_meanErrSet, 0, sizeof(double) * nBins ) ;
-		errSigSet->alphaAer_stdErrSet  = (double*) new double[nBins] ;	memset( errSigSet->alphaAer_stdErrSet , 0, sizeof(double) * nBins ) ;
+// 		errSigSet->VAODr_meanErrSet	   = (double*) new double[nBins] ; 	memset( errSigSet->VAODr_meanErrSet   , 0, sizeof(double) * nBins ) ;
+// 		errSigSet-> VAODr_stdErrSet	   = (double*) new double[nBins] ; 	memset( errSigSet->VAODr_stdErrSet    , 0, sizeof(double) * nBins ) ;
+// 		errSigSet->alphaAer_meanErrSet = (double*) new double[nBins] ; 	memset( errSigSet->alphaAer_meanErrSet, 0, sizeof(double) * nBins ) ;
+// 		errSigSet->alphaAer_stdErrSet  = (double*) new double[nBins] ;	memset( errSigSet->alphaAer_stdErrSet , 0, sizeof(double) * nBins ) ;
 
-		memset( errSigSet->hVAOD_meanErrSet, 0, sizeof(double) * 4 ) ;
-		memset( errSigSet-> hVAOD_stdErrSet, 0, sizeof(double) * 4 ) ;
-}
+// 		memset( errSigSet->hVAOD_meanErrSet, 0, sizeof(double) * 4 ) ;
+// 		memset( errSigSet-> hVAOD_stdErrSet, 0, sizeof(double) * 4 ) ;
+// }
 
 int CheckLidarDataBaseIntegrity( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam, int *evStatus )
 {

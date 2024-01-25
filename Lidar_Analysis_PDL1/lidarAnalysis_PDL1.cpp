@@ -228,9 +228,10 @@ int main( int argc, char *argv[] )
     printf("\n\n") ;
 
 //  SAVE THE LIDAR SIGNAL
-    string  strCompCM ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
-    if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
+    // string  strCompCM ;
+    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
+
+    if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
     {
         // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
         if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
@@ -326,9 +327,6 @@ int main( int argc, char *argv[] )
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
-    // string  strCompCM ;
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
-
     printf("\nLayer detection algorithm:") ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
@@ -343,19 +341,19 @@ int main( int argc, char *argv[] )
             {
                 oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 
-                if ( strcmp(strCompCM.c_str(), "YES" ) ==0 )
+                if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
                 {
-                    printf("   --> Getting cloud profile...");
+                    printf("   --> Getting non-molecular layers...") ; // printf("   --> Getting cloud profile...") ;
                     oDL1->ScanCloud_RayleighFit( (const double*)&oDL1->pr_for_cloud_mask[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 }
                 else
                     printf("\t Cloud profiles are not computed. \t") ;
 
                 if ( (oDL1->cloudProfiles[t].nClouds) >0 )
-                    printf(" %d clouds detected starting with a cloud base height at %lf m asl ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ] ) ;
-                    // printf(" %d clouds detected starting with a cloud base height at %lf m asl @ %lf deg zenithal angle ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ], glbParam.aZenithAVG[t] ) ;
+                    printf( " %d layer detected ", oDL1->cloudProfiles[t].nClouds ) ;
+                    // printf(" %d layer detected starting with at height %lf m asl ", oDL1->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->cloudProfiles[t].indxInitClouds[0] ] ) ;
                 else
-                    printf(" NO clouds detected at %lf zenithal angle ", glbParam.aZenithAVG[t]  ) ;
+                    printf(" NO layer detected at %lf zenithal angle ", glbParam.aZenithAVG[t]  ) ;
 
                 for( int b=0 ; b <glbParam.nBins ; b++ )
                 {

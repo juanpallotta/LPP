@@ -13,6 +13,8 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "errCloudCheckFactor"  , "double", (double*)&errCloudCheckFactor  ) ;
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "ifODcut"			  	 , "string", (char*)ifODcut 				) ;
 	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "nScanMax"			 , "int"   , (int*)&nScanMax 			    ) ;
+	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "COMPUTE_CLOUD_MASK"   , "string", (char*)strCompCM.c_str() 		) ;
+	ReadAnalisysParameter( glbParam->FILE_PARAMETERS, "COMPUTE_PBL_MASK"     , "string", (char*)strCompPBL.c_str() 		) ;
 
 	scanNumExit = nScanMax ;
 
@@ -80,7 +82,7 @@ void CDataLevel_1::GetMem_indxMol( strcGlobalParameters *glbParam )
 
 void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
-	if ( avg_Points_Cloud_Mask !=0 )
+	if ( avg_Points_Cloud_Mask >1 )
 	{	
 		smooth( (double*)pr			, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)prS ) ;
 		smooth( (double*)glbParam->r, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)glbParam->r_avg ) ;
@@ -105,9 +107,8 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 
  // ERROR REFERENCE CALCULATION
 	fitParam.indxEndFit  = glbParam->nBins - 1 ;
-	// fitParam.indxEndFit  = glbParam->indxEndSig_ev[glbParam->evSel] ;
 	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
 	errRefBkg = sqrt ( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
@@ -120,7 +121,7 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			SE_lay[i][k] =(double) 0.0 ;
 	}
 
-	glbParam->indxEndSig = glbParam->indxEndSig_ev[glbParam->evSel] ; // THIS IS ONLY TO USE glbParam->indxEndSig INSTEAD OF glbParam->indxEndSig_ev[glbParam->evSel] THROUGHT THE METHOD
+	glbParam->indxEndSig = glbParam->indxEndSig_ev[glbParam->evSel] ; // JUST TO USE glbParam->indxEndSig INSTEAD OF glbParam->indxEndSig_ev[glbParam->evSel] THROUGHT THE METHOD
 	fitParam.indxInicFit = (int) glbParam->indxInitSig ;
 	fitParam.indxEndFit  = (int) glbParam->indxEndSig  ;
 		for ( int i=0 ; i<nScanMax ; i++ ) // ------------------------------------------------------------------------------------------
@@ -131,50 +132,57 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 				cloudProfiles[glbParam->evSel].clouds_ON[b] =(int)    0.0 ;
 				prFit[b] 							 	 	=(double) 0.0 ;
 			}
-
+			// PERFORM THE FIT
 			sppm = (double)0.0 ;	spm = (double)0.0 ;		spmpm = (double)0.0 ;	 m = (double)0.0 ;
-			fitParam.nFit = fitParam.indxEndFit - fitParam.indxInicFit ;
+			fitParam.nFit = fitParam.indxEndFit - fitParam.indxInicFit +1;
 			sum( (double*)prprm    			, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&sppm ) ;
 			sum( (double*)dataMol->prMol_avg, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spm  ) ;
 			sum( (double*)prmprm			, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spmpm) ;
 				m = (double)((sppm - biasRef * spm) /spmpm) ;
+				for( int b=0 ; b <=glbParam->indxEndSig ; b++ ) // for( int b=glbParam->indxInitSig ; b <=glbParam->indxEndSig ; b++ ) // for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )
+					prFit[b] = m * dataMol->prMol_avg[b] + biasRef ;
 
-			for( int b=0 ; b <=glbParam->indxEndSig ; b++ ) // for( int b=glbParam->indxInitSig ; b <=glbParam->indxEndSig ; b++ ) // for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )
-				prFit[b] = m * dataMol->prMol_avg[b] + biasRef ;
-
+			// OBTAIN THE RMS ERROR OF THE FITTED SIGNAL
 			errFitStage = 0 ;
 			for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )
 				errFitStage = (double)( errFitStage + pow( (prFit[b]-prS[b]), 2 ) ) ;
 			errFitStage = (double)sqrt( errFitStage /(fitParam.nFit -1) ) ;
+			// CHECK IF THIS WAS THE LAST FIT...
 			if ( (errFitStage <= (errRefBkg *errScanCheckFactor )) && ( (m*fitParam.m) >0 ) )
-			{ // ME FIJO SI ESE FUE EL ULTIMO FIT...
+			{
 				scanNumExit =i;
 				// printf("\n(%d) ScanCloud_RayleighFit(...): SALIENDO *OK* EN nScan = %d --> fit=%d-%d -- errFit / errRefBkg = %f / %f ",glbParam->evSel, i, fitParam.indxInicFit, fitParam.indxEndFit, errFitStage, errRefBkg ) ;
-				break ;
+				break ; // EXTIS THE SCAN --> for ( int i=0 ; i<nScanMax ; i++ )
 			}
 			else // SET THE CLOUDS CANDIDATES
 			{
-				fitParam.indxInicFit = (int)fitParam.indxInicFit + (int)stepScanCloud ;
+				fitParam.indxInicFit = (int)fitParam.indxInicFit + (int)stepScanCloud ; // PREPARED FOR THE NEXT SCAN
 				if ( m>0 ) // IF THE FIT IS OK
 				{
 					// SET THE CLOUDS/PLUMES CANDIDATES
 					for( int b=glbParam->indxInitSig ; b<=glbParam->indxEndSig ; b++ )
 					{
-						if( prS[b] > ( prFit[b] + errRefBkg *errFactor ) )
+						if( prS[b] > ( prFit[b] + errRefBkg *errFactor ) ) // errFactor = 2.0
 							SE_lay[i][b] = (double)pow( (prS[b] - prFit[b] - errRefBkg *errFactor), 2) ; // SE_lay = D(i, r) --> SE_lay(i, r)  IN THE PAPER
 					}
-					// REMOVE THE FIRST CLUSTER OF "BIN_CLOUD" IN SE_lay[i][:] VALUES (ABL BINS)
-					first_cluster_ON =0 ;
-					for( int b=(glbParam->indxInitSig) ; b<=glbParam->indxEndSig ; b++ )
-					{
-						if ( (SE_lay[i][b] >(double)0) )	{
-							SE_lay[i][b] =(double)0.0 ; // ELIMINATE THE BINS OF THE ABL.
-							first_cluster_ON  =(double)1   ;	}
-						else 			{
-							if ( first_cluster_ON ==1 ) // SE_lay[i][b] ==0 AND THE BINS WERE ALREADY RESETED.
-								break ; }
+
+					// REMOVE THE BINS RELATED TO THE PBL IF "COMPUTE_PBL_MASK = NO" IS SET IN THE SETTING FILE
+					// REMOVE THE FIRST CLUSTER OF "BIN_CLOUD" IN SE_lay[i][:] VALUES (PBL BINS)
+					if ( strcmp( strCompPBL.c_str(), "NO" ) ==0 )
+                	{
+						first_cluster_ON =0 ;
+						for( int b=(glbParam->indxInitSig) ; b<=glbParam->indxEndSig ; b++ )
+						{
+							if ( (SE_lay[i][b] >(double)0) )	{
+								SE_lay[i][b] =(double)0.0 ; // ELIMINATE THE BINS OF THE ABL.
+								first_cluster_ON  =(double)1   ;	}
+							else 			{
+								if ( first_cluster_ON ==1 ) // SE_lay[i][b] ==0 AND THE FIRST CLUSTER OF BINS WERE ALREADY RESETED.
+									break ; }
+						}
 					}
-					// INCREASE THE COUNTER IF THERE IS A CLOUD DETECTED
+
+					// INCREASE THE COUNTER IF A CLOUD DETECTED WAS DETECTED IN THE PROFILE
 					for( int b=glbParam->indxInitSig ; b<=glbParam->indxEndSig ; b++ ) 
 					{
 						if( SE_lay[i][b] > 0 )
@@ -182,11 +190,11 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 							nMaxLoop++ ;
 							break ;
 						}
-					}
-				}
+					} // for( int b=glbParam->indxInitSig ; b<=glbParam->indxEndSig ; b++ ) 
+				} // if ( m>0 )
 				else {
-					if ( fitParam.indxInicFit >= fitParam.indxEndFit )
-						break ; }
+						if ( fitParam.indxInicFit >= fitParam.indxEndFit )
+							break ; 											}
 			}  // END OF "SET THE CLOUDS CANDIDATES"
 		} // for ( int i=0 ; i<nScanMax ; i++ ) ------------------------------------------------------------------------------------------
 
@@ -196,15 +204,23 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			nMaxLoop = 1 ;
 		}
 
+		// for ( int l =0; l < nScanMax ; l++)
+		// {
+		// 	// smooth( (double*)&(SE_lay[l][0]), (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)&(cloudProfiles[glbParam->evSel].test_2[0]) ) ;
+		// 	smooth( (double*)&(SE_lay[l][0]), (int)0, (int)(glbParam->nBins-1), (int)5, (double*)&(cloudProfiles[glbParam->evSel].test_2[0]) ) ;
+		// 	for( int b=0 ; b <glbParam->nBins ; b++ )
+		// 		SE_lay[l][b] = cloudProfiles[glbParam->evSel].test_2[b] ;
+		// }
+
 		for( int b=0 ; b <glbParam->nBins ; b++ )
 		{
 			for( int s=0 ; s <nScanMax ; s++ )
-				cloudProfiles[glbParam->evSel].test_1[b] = (double)(cloudProfiles[glbParam->evSel].test_1[b] + (double)SE_lay[s][b]) ;
-			// cloudProfiles[glbParam->evSel].test_1[b] = (double)sqrt( cloudProfiles[glbParam->evSel].test_1[b] /SE_lay_counts[b] ) ; 
-				cloudProfiles[glbParam->evSel].test_1[b] = (double)sqrt( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop )   ; // test1: RMSE_lay
-			// cloudProfiles[glbParam->evSel].test_1[b]    = (double)    ( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop ) ;
+				cloudProfiles[glbParam->evSel].test_1[b] = (double)(cloudProfiles[glbParam->evSel].test_1[b] + (double)SE_lay[s][b]) ; // cloudProfiles[glbParam->evSel].test_1[b] = (double)sqrt( cloudProfiles[glbParam->evSel].test_1[b] /SE_lay_counts[b] ) ; 
+
+			cloudProfiles[glbParam->evSel].test_1[b] = (double)sqrt( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop ) ; // test1: RMSE_lay // cloudProfiles[glbParam->evSel].test_1[b]    = (double)    ( cloudProfiles[glbParam->evSel].test_1[b] /nMaxLoop ) ;
 		}
 
+		// SET THE CLOUD-MASK PROFILE FOR THE PROFILE UNDER ANALYSIS
 		for( int b=0 ; b <glbParam->nBins ; b++ )
 		{
 			if ( cloudProfiles[glbParam->evSel].test_1[b] > (double)(errRefBkg *thresholdFactor) )
@@ -212,9 +228,9 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			else
 				cloudProfiles[glbParam->evSel].clouds_ON[b] = (int)0 ;
 		}
+
 		// CHECK CLOUDS TESTS:
 		// REMOVE CLOUDS THINNER THAN CLOUD_MIN_THICK BINS.
-
 		for (int b =0 ; b <=(glbParam->indxEndSig -CLOUD_MIN_THICK -1) ; b++)
 		{
 			if ( (cloudProfiles[glbParam->evSel].clouds_ON[b] == (int)0) && (cloudProfiles[glbParam->evSel].clouds_ON[b+1] == (int)BIN_CLOUD) ) // IF A CLOUD START...
@@ -253,20 +269,20 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 // DONE WITH cloudProfile, NOW GET THE CLOUD LIMITS
 	GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
 
+		// REMOVE THE FAKE CLOUDS BASED ON ITS RMS ERROR
 		for( int i=0 ; i <cloudProfiles[glbParam->evSel].nClouds ; i++ )
 		{
 			fitParam.indxInicFit = cloudProfiles[glbParam->evSel].indxInitClouds[i] -DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->evSel].indxInitClouds[0] 					   -DELTA_RANGE_LIM_BINS ; // 
 			fitParam.indxEndFit  = cloudProfiles[glbParam->evSel].indxEndClouds[i]  +DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->evSel].indxEndClouds[cloudProfiles[glbParam->evSel].nClouds-1]  +DELTA_RANGE_LIM_BINS ; // 
-			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 
 			if( fitParam.indxInicFit > glbParam->indxInitSig )
 			{
 					oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
 				errCloud =0 ;
-				// errCloud = (double)sqrt(fitParam.sumsq_m/(fitParam.nFit -1)) ; // (errCloud/fitParam.nFit) ;
-				errCloud = (double)(fitParam.sumsq_m/(fitParam.nFit -1)) ;
+				errCloud = (double)sqrt(fitParam.sumsq_m/(fitParam.nFit -1)) ; // errCloud = (double)(fitParam.sumsq_m/(fitParam.nFit -1)) ;
 
-				if ( errCloud <= (errRefBkg *errCloudCheckFactor) )
+				if ( errCloud <= (errRefBkg *errCloudCheckFactor) ) // errCloudCheckFactor =0
 				{
 					for( int b =(fitParam.indxInicFit) ; b <=(fitParam.indxEndFit) ; b++ ) // for( int b =(fitParam.indxInicFit-2) ; b <=(fitParam.indxEndFit+2) ; b++ ) // 
 						cloudProfiles[glbParam->evSel].clouds_ON[b] =0;
@@ -276,12 +292,19 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			
 				if ( strcmp(ifODcut, "YES") ==0 )
 					oLOp->ODcut( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (strcFitParam*)&fitParam, (int*)cloudProfiles[glbParam->evSel].clouds_ON ) ;
-			}
-		}
+			} // if( fitParam.indxInicFit > glbParam->indxInitSig )
+		} // for( int i=0 ; i <cloudProfiles[glbParam->evSel].nClouds ; i++ )
 		// if (cloudProfiles[glbParam->evSel].nClouds ==0)
 		// 	printf("\nSC_RF() - (%d) NO Clouds detected\n", glbParam->evSel) ;
+
+		if ( strcmp( strCompPBL.c_str(), "YES" ) ==0 )
+		{
+			for (int i =1; i < glbParam->indxInitSig; i++)
+				cloudProfiles[glbParam->evSel].clouds_ON[i] = BIN_CLOUD ;
+		}
+
 		GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
-}
+} // void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 
 void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 {
@@ -382,7 +405,7 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 				indxMol[glbParam->evSel].indxInicMol[i] = 0 ;
 				indxMol[glbParam->evSel].indxEndMol[i]  = glbParam->indxEndSig_ev[glbParam->evSel] ;
 			}
-		}
+		} // if ( indxMol[glbParam->evSel].nMolRanges ==1 )
 	}
 
 	// printf("\n\t CDataLevel_1::GetCloudLimits() " ) ;
@@ -390,7 +413,7 @@ void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 	// printf("\n\t cloudProfiles[%d].indxInitClouds[0]: %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].indxInitClouds[0] ) ;
 	// printf("\n\t cloudProfiles[%d].indxEndClouds[0] : %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].indxEndClouds[0]  ) ;
 	// printf("\n\t cloudProfiles[%d].VOD_cloud[0]     : %lf ", glbParam->evSel, cloudProfiles[glbParam->evSel].VOD_cloud[0]	  ) ;
-}
+} // void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam )
 
 void CDataLevel_1::saveCloudsInfoDB( char *Path_File_Out, strcGlobalParameters *glbParam, strcCloudInfoDB_LPP *cloudInfoDB )
 {

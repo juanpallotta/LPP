@@ -314,8 +314,8 @@ void CNetCDF_Lidar::Read_L0_into_L2( int ncid, strcGlobalParameters *glbParam, C
     ReadVar( (int)ncid, (const char*)"Raw_Data_Start_Time", (int*)oDL2->Start_Time_L0 ) ;
     ReadVar( (int)ncid, (const char*)"Raw_Data_Stop_Time" , (int*)oDL2->Stop_Time_L0  ) ;
 
-    ReadVar( (int)ncid, (const char*)"Azimuth", (double*)glbParam->aAzimuth ) ;
-    ReadVar( (int)ncid, (const char*)"Zenith" , (double*)glbParam->aZenith  ) ;
+    ReadVar( (int)ncid, (const char*)"Azimuth" , (double*)glbParam->aAzimuth ) ;
+    ReadVar( (int)ncid, (const char*)"Zenith"  , (double*)glbParam->aZenith  ) ;
 }
 
 void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )

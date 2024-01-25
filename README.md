@@ -291,8 +291,10 @@ Pres_column_index_in_File  = 2
 Temperature_at_Lidar_Station_K = 298.15
 Pressure_at_Lidar_Station_Pa = 94000.0
 
-# layer-mask RETRIEVAL PARAMETERS
-avg_Points_Cloud_Mask = 101
+# LAYER-MASK RETRIEVAL PARAMETERS
+COMPUTE_PBL_MASK = NO
+COMPUTE_CLOUD_MASK = YES
+avg_Points_Cloud_Mask = 11
 stepScanCloud = 1
 nScanMax = 5000
 errFactor = 2.0
@@ -300,8 +302,8 @@ thresholdFactor = 5.0
 CLOUD_MIN_THICK = 5
 
 errScanCheckFactor = 1.0
-errCloudCheckFactor = 0.0
-DELTA_RANGE_LIM_BINS = 100
+errCloudCheckFactor = 1.0
+DELTA_RANGE_LIM_BINS = 10
 
 ```
 
@@ -338,16 +340,19 @@ The first lines of the `US-StdA_DB_CEILAP.csv` file contained in this repository
 * `Temperature_at_Lidar_Station_K`: Temperature at ground level in Kelvins (K).
 * `Pressure_at_Lidar_Station_Pa`: Pressure at ground level in Pascals (Pa)
 
-* **layer-mask retrieval parameters:** These parameters are required for the cloud detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
+* **LAYER-MASK RETRIEVAL PARAMETERS:** These parameters are required for the layer detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
+The first two variables are the ones recommended to be modified: `COMPUTE_PBL_MASK` and `COMPUTE_CLOUD_MASK`, which could be `YES` or `NO` depending if the planetary boundary layer (PBL) or cloud mask is needed to be detected.
+**<u>IMPORTANT NOTE:</u> PBL height determination is still under development, so the results may not be accurate, showing higher PBL heights than the real ones. It is recommended to set this parameter as `NO`.**
 
-```
-avg_Points_Cloud_Mask = 101
+```bash
+COMPUTE_PBL_MASK = NO
+COMPUTE_CLOUD_MASK = YES
+avg_Points_Cloud_Mask = 11
 stepScanCloud = 1
 nScanMax = 5000
 errFactor = 2.0
 thresholdFactor = 5.0
 CLOUD_MIN_THICK = 5
-
 ```
 
 # <u>Product Data Level 2 Module:</u> Aerosol optical products
@@ -372,6 +377,12 @@ An example of the variables contained in the configuration file needed for data 
 # IF NEGATIVE, ALL THE L0 PRIFILES WILL BE AVERAGED
 numEventsToAvg_PDL2 = 18
 
+# ERROR CALCULUS FOR INVERSION. 
+#! IF MonteCarlo_N_SigSet_Err <=0 THE ERROR ANALYSIS WON'T BE COMPUTED.
+MonteCarlo_N_SigSet_Err = -10
+# WINDOWS SIZE [BINS] TO COMPUTE THE SMOOTHING SIGNAL FOR THE ERROR ANALYSIS
+spamAvgWin = 10
+
 # NUMBER OF POINTS USED FOR A SMOOTHING SLIDING WINDOWS TO APPLY TO THE RCLS BEFORE FERNALD'S INVERSION
 avg_Points_Fernald = 51
 
@@ -395,6 +406,8 @@ R_ref = 1
 A description of each of these parameters is described below:
 
 * `numEventsToAvg_PDL2`: Time averaging for L2 data level products. This parameters tell to `lidarAnalysis_PDL2` the numbers of the adjacents lidar profiles to average and produce one merged profile. After this, the `time` dimension in the NetCDF file for the L2 data products will be reduced by `numEventsToAvg_PDL2` times. The averaging is applied to the L0 lidar profiles matrix. If this parameter is negative, all L0 profiles will be averaged producing only one profile to invert.
+* `MonteCarlo_N_SigSet_Err`: Number of lidar signals set generated for the Monte Carlo random error analysis. Those lidar signals will be obtained based on the mean and standar error of the time-averaged lidar signal of the data level 2 using `numEventsToAvg_PDL2` lidar profiles. Once the time-averaged lidar signal for data level 2 is produced, the mean lidar signal is obtained smoothing it with a moving average filter using `spamAvgWin` bins.
+**If `MonteCarlo_N_SigSet_Err <0`, error analysis won't be computed in the data level 2.**
 * `avg_Points_Fernald`: Numbers of points used for spatial smoothing to apply to the inverted retrieved profiles (extinction and backscatter).
 * `LR`: Lidar ratio used for the inversion. The current version of LPP only accepts a constant value for the lidar ratio across the ranges. It can be more than one value, in wich each elements must be sepparated by `,`, with a space before and after `,` (see the example array in the previous lines: `LR = 50 , 60 , 70 , 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.

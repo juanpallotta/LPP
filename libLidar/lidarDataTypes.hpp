@@ -155,6 +155,8 @@ struct strcGlobalParameters
 	bool	is_Noise_Data_Loaded =false ;
 	bool	is_Ovlp_Data_Loaded  =false ;
 
+	int 	MonteCarlo_N_SigSet_Err	;
+
 	double 	drFit					;
 	int 	dNFit					;
     double  ka                  	;
@@ -327,7 +329,7 @@ struct strcLidarDataOut
 
 struct strcErrorSignalSet
 {
-	double 	**prGlued		  	 ;
+	double 	**pr_smooth		  	 ;
 	double 	**prNoisy		   	 ;
 	double 	**pr2Noisy		  	 ;
 
