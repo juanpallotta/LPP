@@ -57,7 +57,7 @@ Each LPP module must be run in a Linux terminal, following the convention:
 
 <a name="run_module"></a>
 ```
-$./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf [Extra_Files]
+$./lidarAnalysis_PDLx /Input_File_or_Folder/ /Output_File analysisParameters.conf
 ```
 
 Where:
@@ -73,7 +73,9 @@ To avoid possible errors, and to establish a standardization, use <u>**absolute 
 In the next sections, a step-by-step on how to download/clone, build and run LPP's modules are described.
 
 # Installation
-The installation of the LPP software and its dependencies is very straightforward, and shouldn't be a problem. Start by downloading or cloning the repository from GitHub [https://www.github.com/juanpallotta/LPP](https://www.github.com/juanpallotta/LPP). Uncompress the ZIP file in the most convenient location of your hard disk. Inside the de-compressed folder, you will find:
+The installation of the LPP software and its dependencies is very straightforward, and shouldn't be a problem. if some problem arises, do not hesitate to drop an email to <juanpallotta@gmail.com>.
+
+Start by downloading the repository from GitHub [https://www.github.com/juanpallotta/LPP](https://www.github.com/juanpallotta/LPP). Uncompress the ZIP file in the most convenient location of your hard disk, where you will find:
 
 - `/libLidar`: Folder with C/C++ lidar libraries source code.
 - `/Lidar_Analysis_PDL0`: Folder with C/C++ sources code of the module `lidarAnalysis_PDL0` for producing data level 0.
@@ -82,7 +84,7 @@ The installation of the LPP software and its dependencies is very straightforwar
 - `/Lidar_Configuration_Files`: Folder containing the configuration files (`.conf`) for each module. Also, the settings file for an automatic run (see later [section](#automatizing-lpp) about the LPP automation).
 - `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (Licel data type files) and Brazil: Sao Paulo (folder `Brazil/SPU/`) and Manaus (folder `Brazil/Manaus`).
 - `install_Lidar_Dependencies.sh: Linux shell script to install the basic software/libraries needed to use LPP.
-- `/compile_All.sh`: Linux shell script to compile all the modules. Used with the parameter `clean`, all the compiled object files will be removed.
+- `/compileAll.sh`: Linux shell script to compile all the modules. Used with the parameter `clean`, all the compiled object files will be removed.
 - `/run_LPP_Analysis.sh`: Linux shell script to run the whole chain automatically. The main settings for an automatic run are configured in the setting file `/Lidar_Configuration_Files/LPP_Run_Settings.sh`. More about the automatization of all modules in [Automatizing LPP](#automatizing-lpp) section of this README file.
 - `README.md`: This file.
 
@@ -93,14 +95,15 @@ The first steps after downloading/cloning the LPP's source code are described in
 There are a few prerequisites to be installed prior to building LPP. This job can be done by running the Linux shell script named `install_Lidar_Dependencies.sh`. It is a simple Linux shell script to install the basic packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials. Remember to set `install_Lidar_Dependencies.sh` with executable attributes: `chmod +x install_Lidar_Dependencies.sh`.
 
 ## Building the code
-To compile all the modules, just run the Linux shell script named `compile_All.sh`. This is a simple Linux script that produces the executables of each module inside their folders. Remember to set `compile_All.sh` with executable attributes prior run it: `chmod +x compile_All.sh`.
-At the moment, the compiler output will show some warnings. All of them will be solved in future versions.
+To compile all the modules, just run the Linux shell script named `compile_All.sh`. This is a simple Linux script that produces the executables of each module inside their folders. Remember to set `compile_All.sh` with executable attributes before running it: `chmod +x compile_All.sh`.
+For a clean build, the parameter `clean` can be passed as an argument to the script `compileAll.sh`. This will remove the previous pre-compiled objects. After that, a fresh `compileAll.sh` run will produce the new executables.
+At the moment, the compiler output may show some warnings during the compiling time. All of them will be solved in future versions.
 
 ## Configuring and running LPP modules
-The behavior of each module is based on the parameters written in its configuration file, passed as the [third argument](#runing-a-lpp-module). They are stored in the `/Lidar_Configuration_Files` folder of this repository. These are text-based files and have the variables needed for the module, having to follow only 4 main rules:
+The behavior of each module is based on the parameters written in its configuration file, passed as the [third argument](#runing-a-lpp-module). They are stored in the `/Lidar_Configuration_Files/` folder of this repository. These are text-based files and contain the variables needed for running the module. Its syntactic is very straightforward, having to follow only 4 main rules:
 1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable for you. The configuration files included in this repository have many comments to explain each variable.
-2. Variables definition must follow the convention typo `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variables data type can be integer, float, double, or string, depending on the variable. Also, in some cases, a variable can be an array of values, in those cases.
-3. Some variables have to be set as vectors. Each element must be separated by the character "`:`", for instance: `VAR_NAME = VALUE1 , VALUE2 , VALUE3`, <u>**and a minimum of 1 space character has to be placed before and after the "`,`" (comma) character**</u>. The number of elements depends on the variable, and how LPP make use of it. In order to minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case that the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
+2. Variables definition must follow the convention typo `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "`=`" character**</u>. The variable's data type can be integer, float, double, or string, depending on the variable. 
+3. Some variables have to be set as vectors. Each element must be separated by a comma character "`,`", for instance: `VAR_NAME = VALUE1 , VALUE2 , VALUE3`, <u>**and a minimum of 1 space has to be placed before and after the comma "`,`"**</u>. The number of elements depends on the variable, and how LPP makes use of it. To minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
 4. The configuration file <u>**must**</u> be the same for all the modules, containing all the variables needed for the run. All these variables are described in this document.
 
 It is worth mentioning that there is no rule for the order of the variables set in this file.
