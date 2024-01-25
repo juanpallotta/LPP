@@ -106,26 +106,12 @@ The behavior of each module is based on the parameters written in its configurat
 3. Some variables have to be set as vectors. Each element must be separated by a comma character "`,`", for instance: `VAR_NAME = VALUE1 , VALUE2 , VALUE3`, <u>**and a minimum of 1 space has to be placed before and after the comma "`,`"**</u>. The number of elements depends on the variable, and how LPP makes use of it. To minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
 4. The configuration file <u>**must**</u> be the same for all the modules, containing all the variables needed for the run. All these variables are described in this document.
 
-It is worth mentioning that there is no rule for the order of the variables set in this file.
-The next piece of code shows some general variables/paths contained in the configuration files:
+It is worth mentioning that there is no rule for the order of the variables set in this file. The next piece of code shows the general parameters contained in the configuration files:
 
 ```bash
 ##########################################################################################
 # GENERAL PARAMETERS
 ##########################################################################################
-
-# MAXIMUN ZENITHAL ANGLE TO ANALIZE [º] (IN CASE OF MULTIANGLE LIDARS)
-maxZthAngle = 90
-
-# LASER-BIN-OFFSET (OR TRIGGER-DELAY OR ZERO-BIN)
-# ARRAY: ONE PER CHANNEL
-indxOffset = 2 , 3 , 7 , 5 , 8 , 2 , 9 , 2 , 2 , 2 , 2 , 2 
-
-# BACKGROUND CORRECTION METHOD = AUTO/FIT/MEAN/NO_BKG
-BkgCorrMethod = AUTO
-# NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
-nBinsBkg = 1000
-nBiasRes_Auto = 1000 
 
 # INITIAL RANGE OF ANALYSIS: rInitSig
 # END RANGE OF ANALYSIS: rEndSig
@@ -135,19 +121,12 @@ rEndSig = 30000
 
 Where:
 
-- `maxZthAngle`: Maximum zenithal angle (in degrees) to be used in the analysis.
-- `indxOffset`: The number of bins to remove from the beginning of the lidar track recorded due to the laser offset. This parameter should be an array with one element for each channel acquired.
-- `nBinsBkg`: Number of bins used for background correction. This quantity is taken from the tail of the lidar signal. From the exsample number in the previous line: last 2000 bins will be used.
-- `BkgCorrMethod`: Background method used for the background substraction. There are 3 options:
-    - `MEAN`: The bias of the lidar signal is obtained computing the mean average of the last `nBinsBkg` bins.
-    - `FIT`: The bias of the lidar signal is obtained computing the linear fit of the pure molecular attenuated backscatter to the lidar signal across the last `nBinsBkg` bins. The independent term of the fit is taken as the bias of the lidar signal.
-    - `AUTO`: An automated method to compute the bias of the raw lidar signal. This method is recommended in cases where molecular modulation is still detected al the end of the track recorded. This method is based on guessing a set of bias and a test algorithm to find wich of the the bias tested is the best.
-    - `NO_BKG`: No background is subtracted to the lidar signal.
-- `nBiasRes_Auto`: Number of iterations used for obtaining the bias automatically. Only used when `BkgCorrMethod = AUTO`.
-* `rInitSig`: Initial range of the analysis (in meters from the lidar line of sight). It is preferable to set this value to the first point where the full overlap is achieved.
-* `rEndSig`: End range of analysis (in meters from the lidar line of sight). It is preferable to set this value to the last processable point in the acquired signal. If this values is negative, the maximun range is calculated automatically.
+<!-- - `maxZthAngle`: Maximum zenithal angle (in degrees) to be used in the analysis. -->
 
-The following sections describe each module and the variables that must to be configured for a correct run. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules. Then, use your own input files.
+* `rInitSig`: Initial range of the analysis (in meters from the lidar line of sight). It is preferable to set this value to the first point where the full overlap is achieved.
+* `rEndSig`: End range of analysis (in meters from the lidar line of sight). It is preferable to set this value to the last processable point in the acquired signal. If this value is negative, the maximum range is calculated automatically.
+
+The following sections describe each module and the variables that must be configured for a correct run. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules.
 
 # <u>Product Data Level 0 Module:</u> Converting raw lidar files in a single NetCDF file
 
@@ -163,12 +142,12 @@ An example of how to run this module using the sample signals included in this r
 
 Where:
 - `lidarAnalysis_PDL0`: Executable file of the L0 module.
-- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in Licel data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
+- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in the Licel data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
 - `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file path contains subfolders, it will be generated automatically (in this example `/LPP_OUT/`).
 - `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
-- `[Background_Noise_File]`: This fourth argument is optional, and is the absolute path to the background noise file. This file is obtained by performing a regular measurement with the telescope fully covered. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. If this file is not provided, a "-" character must be used as fourth argument.
-- `[Overlap_File]`: This fifth argument is optional, and is the absolute path to the overlap file. This file must be a text comma-sepparated file (.cvs), having one overlap file for each channel. The first line must contain the labels of each columns, and the first column must contain the range array whith the same resolution of the lidar siganls. <u>**Important Note:</u> No extra line/s must contain at the end of the file.**
-In the followings lines, and example of the first row and column whith its overlap values are shown:
+- `[Background_Noise_File]`: This fourth argument is optional and is the absolute path to the background noise file. This file is obtained by performing a regular measurement with the telescope fully covered. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. If this file is not provided, a "-" character must be used as the fourth argument.
+- `[Overlap_File]`: This fifth argument is optional and is the absolute path to the overlap file. This file must be a text comma-separated file (.cvs), having one overlap file for each channel. The first line must contain the labels of each column, and the first column must contain the range array with the same resolution as the lidar signals. <u>**Important Note:</u> No extra **line/s must **be contained** at the** end of the file.**
+In the following lines, an example of the first row and column with its overlap values are shown:
 
 ```bash
 ##########################################################################################
@@ -200,9 +179,9 @@ Time_Zone = 0.0
 outputDataFileFormat = LALINET_NETCDF
 # outputDataFileFormat = SCC_NETCDF
 ```
-L0 data levels configuration file only need a few of basic inputs:
+L0 data levels configuration file only needs a few basic inputs:
 
-* `PATH_DARK_FILES`: Absolute path to the background files folder. These files must be obtained by performing a regular measurement with the telescope fully covered. LPP will average all the files included in this folder and produce a single profile for each channel by averaging all the files. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. <u>**Important Note:</u> This information is not mandatory, and if is not provided, it must be commented writing a `"#"` at the beginning of the line.**
+* `PATH_DARK_FILES`: Absolute path to the background files folder. These files must be obtained by performing a regular measurement with the telescope fully covered. LPP will average all the files included in this folder and produce a single profile for each channel by averaging all the files. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. <u>**Important Note:</u> This information is not mandatory, and if is not provided, it must **be commented **on by **writing**** a `"`**#"` at the beginning of the line.**
 - `[Overlap_File]`: Absolute path to the overlap file. This file must be a text comma-sepparated file (.cvs), having one overlap profile for each channel. The first line must contain the labels of each columns, and the first column must contain the range array whith the same resolution of the lidar siganls. <u>**Important Note:</u> No extra line/s must contain at the end of the file.**
 In the followings lines, and example of the first row and column whith its overlap values are shown:
 
@@ -259,8 +238,8 @@ PHO_MAX_COUNT_MHz = 250
 # IF NO GLUING SIGNALS IS NEEDED, THE LINES CONTAINING THE VARIABLES indx_Gluing_Low_AN AND indx_Gluing_High_PHO MUST BE COMMENTED
 MIN_TOGGLE_RATE_MHZ = 0.5
 MAX_TOGGLE_RATE_MHZ = 10
-# indx_Gluing_Low_AN   = 2
-# indx_Gluing_High_PHO = 3
+indx_Gluing_Low_AN   = 2
+indx_Gluing_High_PHO = 3
 
 # NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
 # ! IF THERE IS NO NOISE FILE: PATH_DARK_FILE MUST BE SET AS: "-"
@@ -271,6 +250,16 @@ MAX_TOGGLE_RATE_MHZ = 10
 # ! IF THERE IS NO OVERLAP FILE: VERLAP_FILE MUST BE SET AS: "-"
 # ! IF THERE IS    OVERLAP FILE: OVERLAP_FILE MUST BE SET WITH THE FULL PATH
 # OVERLAP_FILE = 
+
+# LASER-BIN-OFFSET (OR TRIGGER-DELAY OR ZERO-BIN)
+# ARRAY: ONE PER CHANNEL
+indxOffset = 2 , 3 , 7 , 5 , 8 , 2 , 9 , 2 , 2 , 2 , 2 , 2 
+
+# BACKGROUND CORRECTION METHOD = AUTO/FIT/MEAN/NO_BKG
+BkgCorrMethod = AUTO
+# NUMBER OF BINS USED FOR BACKGROUND CALCULATION (TAKEN FROM THE TAIL OF THE LIDAR SIGNAL)
+nBinsBkg = 1000
+nBiasRes_Auto = 1000 
 
 # NUMBER OF FILES (EVENTS) THAT WILL BE AVERAGED INTO A SINGLE LIDAR SIGNAL
 numEventsToAvg_PDL1 = 10
@@ -312,14 +301,23 @@ DELTA_RANGE_LIM_BINS = 10
 
 Below is a description of each of these parameters:
 
-* `PHO_MAX_COUNT_MHz`: Photon-counting maximun counting rate. Used for desaturation photon-counted lidar signals under non-paralyzable method.
-* `MIN_TOGGLE_RATE_MHZ` and `MAX_TOGGLE_RATE_MHZ`: Minumun and maximun rate of photon counting (in MHz) for gluing procedure. See Licel manual for details (https://licel.com/manuals/analogpc.pdf).
-* `indx_Gluing_Low_AN` and `indx_Gluing_High_PHO`: Indexes of the analog and phothon-counting channels for gluing. It can be an array, and must have the same numbers of elements, containing the indexes (starting at 0) of the channels to glue. For instance, if analog channel 0 should be glued to channel 1, the setting must be:
+* `PHO_MAX_COUNT_MHz: Photon-counting maximum counting rate. Used for desaturation photon-counted lidar signals under a non-paralyzable method.
+* `MIN_TOGGLE_RATE_MHZ` and `MAX_TOGGLE_RATE_MHZ`: Minumun and maximum rate of photon counting (in MHz) for the gluing procedure. See Licel manual for details (https://licel.com/manuals/analogpc.pdf).
+* `indx_Gluing_Low_AN` and `indx_Gluing_High_PHO`: Indexes of the analog and photon-counting channels for gluing. It can be an array and must have the same number of elements, containing the indexes (starting at 0) of the channels to glue. For instance, if analog channel 0 should be glued to channel 1, the setting must be:
 ```
 indx_Gluing_Low_AN   = 0
 indx_Gluing_High_PHO = 1
 ```
-in case of gluing more channels, it has to be added using comma.
+in case of gluing more channels, it has to be added using a comma.
+- `indxOffset`: The number of bins to remove from the beginning of the lidar track recorded due to the laser offset. This parameter should be an array with one element for each channel acquired.
+- `nBinsBkg`: Number of bins used for background correction. This quantity is taken from the tail of the lidar signal. From the example number in the previous line: the last 2000 bins will be used.
+- `BkgCorrMethod`: Background method used for the background subtraction. There are 3 options:
+    - `MEAN`: The bias of the lidar signal is obtained by computing the mean average of the last `nBinsBkg` bins.
+    - `FIT`: The bias of the lidar signal is obtained by computing the linear fit of the pure molecular attenuated backscatter to the lidar signal across the last `nBinsBkg` bins. The independent term of the fit is taken as the bias of the lidar signal.
+    - `AUTO`: An automated method to compute the bias of the raw lidar signal. This method is recommended in cases where molecular modulation is still detected at the end of the track recorded. This method is based on guessing a set of biases and a test algorithm to find which of the biases tested is the best.
+    - `NO_BKG`: No background is subtracted from the lidar signal.
+- `nBiasRes_Auto`: Number of iterations used for obtaining the bias automatically. Only used when `BkgCorrMethod = AUTO`.
+
 * `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lidarAnalysis_PDL1` the numbers of the adjacents lidar profiles to average producing one merged profile. After this, the `time` dimension in the NetCDF file for the L1 data products will be reduced by `numEventsToAvg_PDL1` times. The averaging is applied to the L0 lidar profiles matrix.
 
 * `indxWL_PDL1`: An index (starting from 0) of the channel to use in layer-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file for better cloud discrimination.
