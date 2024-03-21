@@ -5,10 +5,18 @@ double sum( double *y, int binInic, int binEnd, double *sumOut )
 {
 	*sumOut = 0 ;
 
-	for ( int i=binInic ; i <= binEnd ; i++ )
-        *sumOut = *sumOut + y[i] ;
+    if ( binInic < binEnd )
+    {
+        for ( int i=binInic ; i <= binEnd ; i++ )
+            *sumOut = *sumOut + y[i] ;
 
-	return *sumOut ;
+    	return *sumOut ;
+    }
+    else
+    {
+        printf("\n\n Wrong call to sum() function (binInic > binEnd) \n\n") ;
+        exit(1) ;
+    }
 }
 
 
@@ -270,7 +278,6 @@ int polyfitCoeff( const double* const dependentValues, // X DATA
     }
 
     // Initialize the reduction matrix
-    //
     for (ii = 0; ii < (order + 1); ii++)
     {
         for (jj = 0; jj < (order + 1); jj++)

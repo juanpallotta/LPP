@@ -112,14 +112,14 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 	if ( (heightRef_Inversion_Start_ASL >0) && (heightRef_Inversion_Stop_ASL >0) && (heightRef_Inversion_Stop_ASL > heightRef_Inversion_Start_ASL) )
 	{
 		heightRef_Inversion_ASL = ( heightRef_Inversion_Stop_ASL + heightRef_Inversion_Start_ASL )/2 ;
-		indxRef_Fernald[glbParam->evSel] 	   = (int)round( ( heightRef_Inversion_ASL - glbParam->siteASL)/dzr 	  ) ;
+		// indxRef_Fernald[glbParam->evSel] 	   = (int)round( ( heightRef_Inversion_ASL - glbParam->siteASL)/dzr 	  ) ;
 		indxRef_Fernald_Start[glbParam->evSel] = (int)round( ( heightRef_Inversion_Start_ASL - glbParam->siteASL)/dzr ) ;
 		indxRef_Fernald_Stop [glbParam->evSel] = (int)round( ( heightRef_Inversion_Stop_ASL  - glbParam->siteASL)/dzr ) ;
 	}
 	else
 		Find_Ref_Range( (strcGlobalParameters*)glbParam, (int)t ) ;
 
-	printf("\tRef. ranges: %lf - %lf", glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel]) ;
+printf("\tRef. ranges: %lf - %lf (%f)", glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], heightRef_Inversion_ASL) ;
 
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
 	{
@@ -338,7 +338,8 @@ void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, int t )
 	if ( indxRef_Fernald_Stop[glbParam->evSel] >= glbParam->indxEndSig_ev[glbParam->evSel] )
 		indxRef_Fernald_Stop[glbParam->evSel] = (int) glbParam->indxEndSig_ev[glbParam->evSel] ;
 
-	heightRef_Inversion_ASL = glbParam->siteASL + glbParam->dzr*( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel] )/2 ;
+	heightRef_Inversion_ASL 			= (double) (glbParam->siteASL + glbParam->dzr*( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel] )/2) ;
+	// indxRef_Fernald[glbParam->evSel]	= (int)    round( ( heightRef_Inversion_ASL - glbParam->siteASL)/dzr ) ;
 }
 
 void CDataLevel_2::MonteCarloRandomError( strcGlobalParameters *glbParam, strcMolecularData *dataMol)
@@ -358,7 +359,7 @@ void CDataLevel_2::MonteCarloRandomError( strcGlobalParameters *glbParam, strcMo
 	double *prFit = (double*) new double[glbParam->nBins] ;
 		oLOp->Fit( (double*)&dataMol->prMol[0], (double*)&pr[0], fitParam.nFit   , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	delete  prFit ;	
-	double 	stdPr = sqrt( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
+	double 	stdPr = sqrt( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
 
 	int 	spamAvgWin ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
@@ -559,7 +560,7 @@ void CDataLevel_2::MonteCarloRandomError( double *pr2Glued, double *pr, strcGlob
 	double *prFit = (double*) new double[glbParam->nBins] ;
 		oLOp->Fit( (double*)&dataMol->prMol[fitParam.indxInicFit], (double*)&pr[fitParam.indxInicFit], fitParam.nFit   , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	delete prFit ;	
-	double 	stdPr = sqrt( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
+	double 	stdPr = sqrt( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
 	int 	spamAvgWin ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
 

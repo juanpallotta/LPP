@@ -138,16 +138,18 @@ An example of how to run this module using the sample signals included in this r
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/ 
     /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
     /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
-    [Background_Noise_File] [Overlap_File]
 
 Where:
-- `lidarAnalysis_PDL0`: Executable file of the L0 module.
-- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in the Licel data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
-- `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file path contains subfolders, it will be generated automatically (in this example `/LPP_OUT/`).
-- `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
-- `[Background_Noise_File]`: This fourth argument is optional and is the absolute path to the background noise file. This file is obtained by performing a regular measurement with the telescope fully covered. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. If this file is not provided, a "-" character must be used as the fourth argument.
+- Executable file `lidarAnalysis_PDL0`: Executable file of the L0 module.
+- <u>Absolut input path to the Licel files</u> `/mnt/Disk-1_8TB/Brazil/SPU/20210730/`: Absolute input folder path with the raw-lidar files in the Licel data format. Since Licel files have no defined extension, <u>**it is critical that nothing but raw lidar data files must be in this input folder**</u>. 
+- <u>Absolut path to save the output NetCDF file</u> `/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc`: Absolute output path, <u>**including the file name**</u> of the output NetCDF file, in this example `20210730_L0.nc`. If the output file path contains subfolders, it will be generated automatically (in this example `/LPP_OUT/`).
+- <u>Absolut path to the configuration file</u> `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf`: Absolute path to the configuration file containing the variables needed for the merging.
+
+<!-- - `[Background_Noise_File]`: This fourth argument is optional and is the absolute path to the background noise file. This file is obtained by performing a regular measurement with the telescope fully covered. If this file is provided, the data will be added to the NetCDF file under the variable `Bkg_Noise`. If this file is not provided, a "-" character must be used as the fourth argument.
 - `[Overlap_File]`: This fifth argument is optional and is the absolute path to the overlap file. This file must be a text comma-separated file (.cvs), having one overlap file for each channel. The first line must contain the labels of each column, and the first column must contain the range array with the same resolution as the lidar signals. <u>**Important Note:</u> No extra **line/s must **be contained** at the** end of the file.**
-In the following lines, an example of the first row and column with its overlap values are shown:
+In the following lines, an example of the first row and column with its overlap values are shown: -->
+
+For this data level, the parameters needed are described bellow:
 
 ```bash
 ##########################################################################################
@@ -159,25 +161,24 @@ In the following lines, an example of the first row and column with its overlap 
 minTime = 2022/03/02-01:00:00
 maxTime = 2022/03/02-02:00:00
 
-# INPUT DATAFILE FORMAT
-inputDataFileFormat = LICEL_FILE
-
 # UTC REFERENCE
 Time_Zone = 0.0
 
+# INPUT DATAFILE FORMAT
+inputDataFileFormat = LICEL_FILE
+
 # OUTPUT NETCDF DATAFILE FORMAT --> outDataFileFormat
 outputDataFileFormat = LALINET_NETCDF
-# outputDataFileFormat = SCC_NETCDF
 ```
-L0 data levels configuration file only needs a few basic inputs:
+Where:
 
-* `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) data type files are accepted. There is planned to accept more input data types formats in the future. Take into account that for Raymetric lidars, the data file format used is Licel files, so this variable must be set as `LICEL_FILE` for these systems. 
-* `Time_Zone`: Difference hours referenced to UTC. If the time in lidar files is in UTC time, this variable must be set to zero. If the time of the files is set in local time, and for instance, the lidar is from Argentina, it must be set -3. 
-* `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different naming conventions of the variables inside the file. A detailed description of the LALINET data type can be seen in later sections of this document ([LALINET data type format](#lalinet-netcdf-file-format)).
 * `minTime` and `maxTime`: Minimum and maximum time to analyze inside the folder passed as the first argument. The format must be like the example shown above **YYYY/MM/DD-HH:MM:SS**. If `minTime` and `maxTime` are equal, all the files inside the folder passed as arguments will be analyzed.
+* `Time_Zone`: Difference hours referenced to UTC. If the time in lidar files is in UTC time, this variable must be set to zero. If the time of the files is set in local time, and for instance, the lidar is from Argentina, it must be set -3. 
+* `inputDataFileFormat`: At the moment, only Licel (`LICEL_FILE` option) data type files are accepted. There is planned to accept more input data types formats in the future. Take into account that for Raymetric lidars, the data file format used is Licel files, so this variable must be set as `LICEL_FILE` for these systems. 
+* `outputDataFileFormat`: The output data types accepted are: LALINET (`LALINET_NETCDF`) and Single Calculus Chain (`SCC_NETCDF`) data type files. If `SCC_NETCDF` is selected, higher modules of LPP (`lidarAnalysis_PDL1` and `lidarAnalysis_PDL2`) can not be executed due to the different naming conventions of the variables inside the file. A detailed description of the LALINET data type can be seen in later sections of this document ([LALINET data type format](#lalinet-netcdf-file-format)).
 
-If `SCC_NETCDF` is selected, the output file generated can be used as input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described on the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). 
-To proceed most safely, we highly recommend uncommenting the proper line in the configuration files included in this repository. Also, it is worth mentioning that this input allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented).
+<!-- If `SCC_NETCDF` is selected, the output file generated can be used as input for the SCC platform (https://www.earlinet.org/index.php?id=281). More info about SCC data file format and its name convention is described on the web page of the project (https://docs.scc.imaa.cnr.it/en/latest/file_formats/netcdf_file.html). 
+To proceed most safely, we highly recommend uncommenting the proper line in the configuration files included in this repository. Also, it is worth mentioning that this input allows only one valid entry for each variable, so check carefully if only one line of each variable is enabled (uncommented). -->
 
 # <u>Product Data Level 1 Module:</u> Lidar signals corrections and layer-mask
 
@@ -214,7 +215,6 @@ indx_Gluing_High_PHO = 3
 
 # NOISE FILE OBTAINED WITH THE TELESCOPE COVERED AND THE LASER FIRING.
 # ! IF THERE IS NO NOISE FILE: PATH_DARK_FILE MUST BE SET AS: "-"
-# ! IF THERE IS    NOISE FILE: PATH_DARK_FILE MUST CONTAIN THE STRING 'bkg' IN SOME PART OF ITS NAME!!!
 PATH_DARK_FILES = 
 
 # OVERLAP FILE.

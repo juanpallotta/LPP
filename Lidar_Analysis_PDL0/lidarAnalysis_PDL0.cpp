@@ -245,8 +245,8 @@ int main( int argc, char *argv[] )
                 printf( "\n\n No overlap file was added to the L0 NetCDF file due to inconsistencies in its parameters\n" ) ;                
             }
         }
+    } // else if ( strcmp(glbParam.outputDataFileFormat, "LALINET_NETCDF") ==0 )
 
-    }
     printf("\n\n\t\t SUCCESS writing %s file!\n", Path_File_Out.c_str() ) ;
     cout << endl << endl << "\tLidar Analisys PDL0 Done" << endl ;
     printf("\n\n---- lidarAnalisys_PDL0 (END) -----------------------------------------------------------------------------\n\n") ;

@@ -11,11 +11,19 @@ L2="yes"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Holger_Sim/Original/"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/"
 
-# PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/test/"
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
+
+# PATH_IN="/mnt/Disk-1_8TB/Colombia/20220413/RS/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/21/01/test/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/02/test/"
-PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/day/"
+
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_04_dt/LPP_2017_09_04_dt/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_04_nt/LPP_2017_09_04_nt/"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_25_nt/LPP_2017_09_25_nt/"
+PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_28_dt/LPP_2017_09_28_dt"
+
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/day/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/night/testNight/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/test/"
@@ -29,8 +37,15 @@ PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/day/"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pappalardo.conf"
 # ! CHILE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_ChileSN.conf"
+# ! COLOMBIA - MEDELLIN
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Medellin.conf"
 # ! BRAZIL
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_PaperComparison.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_04_dt.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_04_nt.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_25_nt.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_28_dt.conf"
+
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_PaperComparison.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA

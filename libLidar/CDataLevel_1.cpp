@@ -111,8 +111,8 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
-	errRefBkg = sqrt ( fitParam.sumsq_m/(fitParam.nFit -1) ) ;
-	// printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.sumsq_m: %lf", fitParam.m, biasRef, errRefBkg, fitParam.sumsq_m) ;
+	errRefBkg = sqrt ( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
+	// printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.squared_sum_fit: %lf", fitParam.m, biasRef, errRefBkg, fitParam.squared_sum_fit) ;
 	// printf("\nindex fit=%d-%d\n", fitParam.indxInicFit, fitParam.indxEndFit ) ;
 
 	for ( int i=0 ; i<nScanMax ; i++ )
@@ -280,7 +280,7 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			{
 					oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
 				errCloud =0 ;
-				errCloud = (double)sqrt(fitParam.sumsq_m/(fitParam.nFit -1)) ; // errCloud = (double)(fitParam.sumsq_m/(fitParam.nFit -1)) ;
+				errCloud = (double)sqrt(fitParam.squared_sum_fit/(fitParam.nFit -1)) ; // errCloud = (double)(fitParam.squared_sum_fit/(fitParam.nFit -1)) ;
 
 				if ( errCloud <= (errRefBkg *errCloudCheckFactor) ) // errCloudCheckFactor =0
 				{

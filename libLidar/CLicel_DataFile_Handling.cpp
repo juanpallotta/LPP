@@ -345,7 +345,7 @@ int CLicel_DataFile_Handling::Read_Bkg_Data_Files( char *path_to_bkg_files, strc
 		strcGlobalParameters glbParam_bkg ;
 		sprintf( glbParam_bkg.inputDataFileFormat, "%s", glbParam->inputDataFileFormat ) ;
 		sprintf( glbParam_bkg.site				 , "%s", glbParam->site ) ;
-		glbParam_bkg.nEvents	= (int)nFilesInInputFolder ; // glbParam->nEvents    ;
+		glbParam_bkg.nEvents	= (int)nFilesInInputFolder ;
 		glbParam_bkg.nEventsAVG = (int)1 ; // glbParam->nEventsAVG ;
 			ReadLicel_GlobalParameters( (char*)bkg_files[0].c_str(), (strcGlobalParameters*)&glbParam_bkg ) ;
 

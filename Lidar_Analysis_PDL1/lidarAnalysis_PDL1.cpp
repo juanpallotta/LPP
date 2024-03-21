@@ -272,8 +272,8 @@ int main( int argc, char *argv[] )
                 for ( int e =0; e <glbParam.nEventsAVG; e++)
                 {
                     glbParam.evSel = e ;
-                printf("\nEv: %d \t Max range channel %d BEFORE gluing with channel %d: %lf", e, glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
-                                                                                            , glbParam.rEndSig_ev[e] ) ;
+                // printf("\nEv: %d \t Max range channel %d BEFORE gluing with channel %d: %lf", e, glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
+                                                                                            // , glbParam.rEndSig_ev[e] ) ;
 
                 oDL1->oLOp->GluingLidarSignals( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
 

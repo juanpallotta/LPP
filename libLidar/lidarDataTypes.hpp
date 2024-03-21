@@ -80,7 +80,7 @@ struct strcGlobalParameters
 	int 	nPair_Ch_to_Glue		; // = lenght(indx_gluing_Low_AN) = = lenght(indx_gluing_High_PHO)
 	double  MIN_TOGGLE_RATE_MHZ		;
 	double  MAX_TOGGLE_RATE_MHZ 	;
-	double  PHO_MAX_COUNT_MHz = 250	; // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
+	double  PHO_MAX_COUNT_MHz    	; // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
     int     chSel               	;
 	int 	*nBins_Ch			; // int 	nBins_Ch[MAX_CH_LICEL]	;
 	int 	nBinsRaw				;
@@ -367,12 +367,19 @@ struct strcFitParam
 	double 	m ;
 	double  b ;
 	double  f ;
-	double  cov00   ;
-	double 	cov01   ;
-	double 	cov11   ;
-	double  sumsq_m ;
-	double  sumsq_f ;
-	double  chisq   ;
+	double  squared_sum_fit ;
+	double  var     ;
+	double  std     ;
+	double  R2	    ;
+
+	//INTERMEDIATE VARIABLES FOR R2
+	double s  				   ;
+	double mean_sig 		   ;
+	double squared_sum_fit_vs_Mean ;
+
+	// double  cov00    ;
+	// double 	cov01   ;
+	// double 	cov11   ;
 } ;
 
 struct strcIndexMol

@@ -6,10 +6,11 @@ CLidar_Operations::CLidar_Operations( strcGlobalParameters *glbParam )
 	dummy 	 	= (double*) new double[glbParam->nBins] ; 
     pr_NObkg_i	= (double*) new double[glbParam->nBins] ; 
 	pr2_i 		= (double*) new double[glbParam->nBins] ;	
-	errRMS_mol	= (double*) new double[glbParam->nBins] ;	
-	errRMS_k 	= (double*) new double[glbParam->nBins] ;	
-	rate 		= (double*) new double[glbParam->nBins] ;	
-	k_ones 		= (double*) new double[glbParam->nBins] ;
+	// errRMS_mol	= (double*) new double[glbParam->nBins] ;	
+	// errRMS_k 	= (double*) new double[glbParam->nBins] ;	
+	// rate 		= (double*) new double[glbParam->nBins] ;	
+	// k_ones 		= (double*) new double[glbParam->nBins] ;
+	// R2_array	= (double*) new double[glbParam->nBins] ;
 
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBiasRes_Auto", "int" , (int*)&nBiasRes_Auto) ;
 
@@ -129,7 +130,7 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 					pr2_i[i]       = pr_NObkg_i[i] * pow(glbParam->r[i], 2) ;
 				}
 				Fit( (double*)pr2_i, (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-				errRMS_Bias[b] = fitParam.sumsq_m ;
+				errRMS_Bias[b] = fitParam.squared_sum_fit ;
 			}
 				polyfitCoeff( (const double* const) b_i				, // X DATA
 							(const double* const  ) errRMS_Bias		, // Y DATA
@@ -156,6 +157,56 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 
 void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
 {
+	// int indxMax_ ;
+	smooth( (double*)pr, (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int)3, (double*)dummy ) ;
+
+	fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - 1  	 ;
+    fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
+	fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
+
+	int i=0 ;
+	printf("\n") ;
+	do
+	{
+		Fit( (double*)pr, (double*)prMol, glbParam->nBins_Ch[glbParam->chSel] , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+
+		i = i+1 ;
+		fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - i       ;
+		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
+	} while( (fitParam.indxInicFit >glbParam->indxInitSig) && (fitParam.R2 <0.1) ) ; //! CHANGE TO THE PEAK OF THE LIDAR SIGNAL
+
+	fitParam.indxEndFit  = fitParam.indxEndFit + 1       ;
+	fitParam.indxInicFit = fitParam.indxEndFit + glbParam->nBinsBkg 	 ;
+
+	if ( fitParam.indxEndFit > (glbParam->nBins_Ch[glbParam->chSel]-1) )
+	{
+		printf( "*ERROR* CLidar_Operations::Find_Max_Range() -> fitParam.indxEndFit (%d) > (glbParam->nBins-1) (%d) --> fitParam.indxEndFit = (glbParam->nBins-1)\n", 
+				fitParam.indxEndFit, glbParam->nBins-1 ) ;
+		fitParam.indxEndFit = glbParam->nBins_Ch[glbParam->chSel] -1 ;
+	}
+
+	*indxMaxRange = fitParam.indxEndFit ;
+
+    int indxWL_PDLx ;
+	if ( strcmp( glbParam->exeFile, "./lidarAnalysis_PDL1" ) ==0 )
+		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDLx ) ;
+	else if ( strcmp( glbParam->exeFile, "./lidarAnalysis_PDL2" ) ==0 )
+	    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&indxWL_PDLx ) ;
+
+	if ( glbParam->chSel== indxWL_PDLx )
+	{
+		glbParam->indxEndSig_ev[glbParam->evSel] = (int)  *indxMaxRange ;
+		glbParam->rEndSig_ev   [glbParam->evSel] = (double)glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr ;
+	// printf( "CLidar_Operations::Find_Max_Range() (2) --> glbParam->rEndSig_ev[glbParam->evSel]= %lf \t glbParam->indxEndSig_ev[glbParam->evSel]= %d", 
+														//    glbParam->rEndSig_ev[glbParam->evSel], glbParam->indxEndSig_ev[glbParam->evSel] ) ;
+	}
+		printf( "CLidar_Operations::Find_Max_Range() --> ev: %d \t Max. Range= %lf\t R2= %lf\n", 
+															glbParam->evSel, glbParam->rEndSig_ev[glbParam->evSel], fitParam.R2 ) ;
+} // void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
+
+/*  BACKUP
+void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
+{
 	int indxMax_ ;
 	smooth( (double*)pr, (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int)15, (double*)dummy ) ;
 
@@ -172,15 +223,21 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 	}
 
 	int i=0 ;
+	printf("\n") ;
 	do
 	{
 		// Fit( (double*)pr, (double*)prMol, glbParam->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 		Fit( (double*)pr, (double*)prMol, glbParam->nBins_Ch[glbParam->chSel] , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-		errRMS_mol[fitParam.indxEndFit] = (double)fitParam.sumsq_m ;
+		errRMS_mol[fitParam.indxEndFit] = (double)fitParam.squared_sum_fit ;
+			
+			if ( fitParam.indxInicFit == (glbParam->nBins_Ch[glbParam->chSel] - 1 - glbParam->nBinsBkg) )
+				printf("\n CLidar_Operations::Find_Max_Range() START R2 = %e", fitParam.R2 ) ;
+			else if ( fitParam.indxInicFit == 2000 )
+				printf("\n CLidar_Operations::Find_Max_Range() END   R2 = %e\n", fitParam.R2 ) ;
 
 		// Fit( (double*)pr, (double*)k_ones, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 		Fit( (double*)pr, (double*)k_ones, glbParam->nBins_Ch[glbParam->chSel] , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-		errRMS_k[fitParam.indxEndFit] = (double)fitParam.sumsq_m ;
+		errRMS_k[fitParam.indxEndFit] = (double)fitParam.squared_sum_fit ;
 
 		i = i+1 ;
 		// fitParam.indxEndFit  = glbParam->nBins - i            				 ;
@@ -199,6 +256,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		// if ( rate[i] >1.1 )
 		if ( rate[i] >1.02 )
 		{
+			// printf("\n CLidar_Operations::Find_Max_Range() exiting with R2 = %e \n\t n= %d -- squared_sum_fit_vs_Mean= %lf -- squared_sum_fit= %lf \n", 
+			// 		fitParam.R2, fitParam.nFit, fitParam.squared_sum_fit_vs_Mean, fitParam.squared_sum_fit ) ;
 			indxMax_ = i ;
 			break;
 		}
@@ -230,7 +289,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 	// printf( "\n ev: %d \t glbParam->indxInitSig= %d \n indxMin_Pr= %d \n Max. Range: %lf \n indxMaxRange= %d", glbParam->evSel, glbParam->indxInitSig, indxMin_Pr, glbParam->rEndSig_ev[glbParam->evSel], *indxMaxRange ) ;
 	// printf( "\nCLidar_Operations::Find_Max_Range() --> ev: %d \t Max. Range= %lf\n glbParam->indxEndSig_ev[glbParam->evSel]= %d", 
 														// glbParam->evSel, glbParam->rEndSig_ev[glbParam->evSel], glbParam->indxEndSig_ev[glbParam->evSel] ) ;
-}
+} // void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
+*/
 
 // BIAS SUBSTRACTION METHODS
 void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBkg)
@@ -373,7 +433,7 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
     for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
     {
         glbParam->evSel = e ;
-printf("\n\n\nApplying corrections to the lidar event number: %d/%d \t", e, (glbParam->nEventsAVG -1) ) ;
+printf("\n\n\nApplying corrections to the lidar event number: %d/%d -------------------------------------------------------------------------------------------------", e, (glbParam->nEventsAVG -1) ) ;
         for ( int c=0 ; c <glbParam->nCh ; c++ )
         {
             glbParam->chSel = (int)c ;
@@ -543,7 +603,7 @@ Fit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0],
 
 void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
 {
-	fitParam->sumsq_m = (double)0.0  ;
+	fitParam->squared_sum_fit = (double)0.0  ;
 
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
@@ -562,7 +622,7 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 			for ( int i=0 ; i < nBins ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
 			}
 		}
 		else
@@ -570,7 +630,7 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
 			}
 		}
 	}
@@ -590,7 +650,8 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 			for ( int i=0 ; i < nBins ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
+
 			}
 		}
 		else
@@ -598,11 +659,26 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
 			}
 		}
 	}
-}
+
+	fitParam->var = (double)fitParam->squared_sum_fit / (fitParam->nFit -1) ;
+	fitParam->std = (double)sqrt(fitParam->var)  						;
+
+	fitParam->mean_sig = (double) 0.0 ;
+	
+	fitParam->s 		= (double) 0.0 ;
+	fitParam->s			= (double) sum( (double*)sig, (int)fitParam->indxInicFit, (int)fitParam->indxEndFit, (double*)&fitParam->s ) ;
+	fitParam->mean_sig	= (double) fitParam->s /fitParam->nFit ;
+	fitParam->squared_sum_fit_vs_Mean = (double)0.0 ;
+	for ( int b=fitParam->indxInicFit ;  b<=fitParam->indxEndFit ; b++ )
+		fitParam->squared_sum_fit_vs_Mean  = fitParam->squared_sum_fit_vs_Mean + pow( (sig[b] - fitParam->mean_sig), 2) ;
+	
+	fitParam->R2  = (double) ( fitParam->squared_sum_fit_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_fit_vs_Mean ;
+
+} // void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
 
 void CLidar_Operations::TransmissionMethod_pr( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, int indxBefCloud, int indxAftCloud, double *VOD )
 {

@@ -260,7 +260,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 /*
 void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
 {
-	fitParam->sumsq_m = (double)0.0  ;
+	fitParam->squared_sum_fit = (double)0.0  ;
 
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
@@ -279,7 +279,7 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 			for ( int i=0 ; i < nBins ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
 			}
 		}
 		else
@@ -287,7 +287,7 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
 			}
 		}
 	}
@@ -307,7 +307,7 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 			for ( int i=0 ; i < nBins ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
 			}
 		}
 		else
@@ -315,7 +315,7 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
-				fitParam->sumsq_m = fitParam->sumsq_m + pow( (sigFil[i] - sig[i]), 2 ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
 			}
 		}
 	}
@@ -1170,7 +1170,7 @@ void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 // 	int binInitFit = (int) fitParam->indxInicFit ;
 // 	int nFit = fitParam->nFit ;
 
-// 	gsl_fit_linear( &r[binInitFit], 1, &prEl[binInitFit], 1, nFit, &fitParam->b, &fitParam->m, &fitParam->cov00, &fitParam->cov01, &fitParam->cov11, &fitParam->sumsq_m ) ;
+// 	gsl_fit_linear( &r[binInitFit], 1, &prEl[binInitFit], 1, nFit, &fitParam->b, &fitParam->m, &fitParam->cov00, &fitParam->cov01, &fitParam->cov11, &fitParam->squared_sum_fit ) ;
 // 	// RayleighFit( (double*)&dataMol->prMol[fitParam->indxInicFit], (double*)&prEl[fitParam->indxInicFit], dataMol->nBins, "wB", "NOTall", (strcFitParam*)fitParam, (double*)pr ) ;
 
 // 		for ( int i=0 ; i<nBins ; i++ ) 	pr[i] = (double)(prEl[i] - ( fitParam->m * r[i] + fitParam->b ) ) ;
@@ -1200,7 +1200,7 @@ for ( int idrf = 0 ; idrf<(int)NUMELEM(dNfit) ; idrf++ )
 		fitParam.nFit		 = fitParam.indxEndFit  - fitParam.indxInicFit ;
 			RayleighFit( (double*)pr2, (double*)dataMol->pr2Mol, dataMol->nBins, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fil ) ;
 
-		indxMol->errRMS[i]   = fitParam.sumsq_m ; // r
+		indxMol->errRMS[i]   = fitParam.squared_sum_fit ; // r
 	}
 	double maxErr ;
 	int indxMaxErr = 0 ;
@@ -1286,14 +1286,14 @@ void RayleighFit_Factor( double *sig, double *sigMol, strcFitParam *fitParam, do
 { // PASTE MOLECULAR PROFILE IN THE RANGES DEFINED BY fitParam (DOES'T NOT FIT!!)
 
 	fitParam->f = (double)sig[fitParam->indxInicFit]/sigMol[fitParam->indxInicFit] ;
-	fitParam->sumsq_f = 0 ;
+	fitParam->squared_sum_fit = 0 ;
 
 	for ( int i=fitParam->indxInicFit ; i <= fitParam->indxEndFit ; i++ )
 	{
 		sigFil_Factor[i] = (double) (sigMol[i] * fitParam->f ) ;
-		fitParam->sumsq_f = fitParam->sumsq_f + pow( (sig[i] - sigFil_Factor[i]), 2 ) ;
+		fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sig[i] - sigFil_Factor[i]), 2 ) ;
 	}
-	fitParam->sumsq_f = sqrt(fitParam->sumsq_f) ;
+	fitParam->squared_sum_fit = sqrt(fitParam->squared_sum_fit) ;
 }
 */
 

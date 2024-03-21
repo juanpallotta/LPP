@@ -40,7 +40,7 @@ public:
 
 private:
     double  *pr_NObkg_i, *pr2_i ;
-    double  *errRMS_mol, *errRMS_k, *rate, *k_ones ;
+    // double  *errRMS_mol, *errRMS_k, *rate, *k_ones, *R2_array;
     int 	nBiasRes_Auto ; 
     int 	nLoopFindBias =3 ;
 
