@@ -83,33 +83,42 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 					token = strtok(NULL, " ") ; // GET THE POINTER TO THE NEXT WORD
 				}
 
-				if ( nLineElements ==9 ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA (ALL))
+				if ( nLineElements ==9 ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA)
 				{	// LAST VALUE= ZENITH
+					sprintf( glbParam->inputDataFileFormat, "LICEL_FILE_OLD" ) ;
+					printf("\n glbParam->inputDataFileFormat= %s \n", glbParam->inputDataFileFormat) ;
 					if ( strcmp( glbParam->site, "Sao Paul" ) ==0 )
 					{
 						char strDump[20] ;
-						sscanf( strLine_bkp, "%s %s %10s %08s %10s %08s %lf %lf %lf %lf ", lidarHeaderData.Station, strDump, glbParam->StartDate, glbParam->StartTime, 
-													glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
+						sscanf( strLine_bkp, "%s %s %10s %08s %10s %08s %lf %lf %lf %lf ", lidarHeaderData.Station, strDump, glbParam->StartDate, 
+											glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, 
+											&glbParam->siteLong, &glbParam->aZenith[0] ) ;
 					}
 					else
 						sscanf( strLine_bkp, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", lidarHeaderData.Station, glbParam->StartDate, glbParam->StartTime, 
 													glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
 				}
-				else if ( nLineElements ==10 ) // LICEL NEW (IE. GRANADA)
+				else if ( nLineElements ==10 ) // LICEL NEW (IE. GRANADA/MEDELLIN)
 				{	// LAST VALUES= ZENITH AZIMUTH
+					sprintf( glbParam->inputDataFileFormat, "LICEL_FILE_NEW" ) ;
+					printf("\n glbParam->inputDataFileFormat= %s \n", glbParam->inputDataFileFormat) ;
 					sscanf( strLine_bkp, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf ", lidarHeaderData.Station, glbParam->StartDate, glbParam->StartTime, 
-											glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], 
-											&glbParam->aAzimuth[0] ) ;
-				}
-				else if( nLineElements ==11 )
-				{	// WRONG NUMBER OF ELEMENTS IN LINE 2
-					printf("\n\n void read_Licel_Header_Line()--> Number of elements (%d) in line number 2 of the file %s is not compatible.\n", nLineElements, glbParam->fileName ) ;
+											glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, 
+											&glbParam->aZenith[0], &glbParam->aAzimuth[0] ) ;
 				}
 				else if( nLineElements ==12 ) // RAYMETRIC
 				{	// LAST VALUES: ZENITH AZIMUTH TEMPERATURE PRESSURE
-					sscanf( strLine_bkp, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf", lidarHeaderData.Station, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, 
-												glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], 
-												&glbParam->temp_K_agl[0], &glbParam->pres_Pa_agl[0] ) ;
+					sprintf( glbParam->inputDataFileFormat, "LICEL_FILE_RAYMETRIC" ) ;
+					printf("\n glbParam->inputDataFileFormat= %s \n", glbParam->inputDataFileFormat) ;
+					sscanf( strLine_bkp, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf", lidarHeaderData.Station, glbParam->StartDate, 
+												glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat,
+												&glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_K_agl[0], 
+												&glbParam->pres_Pa_agl[0] ) ;
+				}
+				else
+				{	// WRONG NUMBER OF ELEMENTS IN LINE 2
+					printf("\n\n void read_Licel_Header_Line()--> file %s is not compatible \nNumber of elements (%d) in line number 2... exit\n", glbParam->fileName, nLineElements ) ;
+					exit(1) ;
 				}
 				break ;
 
@@ -120,16 +129,16 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 					token = strtok(NULL, " ") ; // GET THE POINTER TO THE NEXT WORD
 				}
 
-				if ( nLineElements ==5 ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA (ALL))
+				if ( nLineElements ==5 ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA)
 				{	// TWO LASER PARAMETERS AND NUMBER OF CHANNELS
-					sscanf( strLine_bkp, " %07d %04d %07d %04d %02d", &glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], &glbParam->Accum_Pulses[1], &glbParam->Laser_Frec[1]
-																	, &glbParam->nCh ) ;
+					sscanf( strLine_bkp, " %07d %d %07d %d %02d", &glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], &glbParam->Accum_Pulses[1]
+																, &glbParam->Laser_Frec[1], &glbParam->nCh ) ;
 				}
-				else if ( nLineElements ==9 ) // LICEL NEW (IE. GRANADA)
+				else if ( nLineElements >5 ) // LICEL NEW (IE. GRANADA/MEDELLIN)
 				{	// TREE LASER PARAMETERS, NUMBER OF CHANNELS, THIRD LASER PARAMETER AND 0000000 0000
-					sscanf( strLine_bkp, " %07d %04d %07d %04d %02d %07d %04d 0000000 0000", &glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], 
-																			  			     &glbParam->Accum_Pulses[1], &glbParam->Laser_Frec[1], &glbParam->nCh, 
-																						     &glbParam->Accum_Pulses[2], &glbParam->Laser_Frec[2] ) ;
+					sscanf( strLine_bkp, " %07d %d %07d %d %02d %07d %d 0000000 0000", &glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], 
+														 				  			   &glbParam->Accum_Pulses[1], &glbParam->Laser_Frec[1], &glbParam->nCh, 
+																					   &glbParam->Accum_Pulses[2], &glbParam->Laser_Frec[2] ) ;
 				}
 				break ;
 
@@ -143,24 +152,29 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 					}
 
 					if ( nLineElements == 16 )
-					{ // OLD LICEL DATASET
+					{ // OLD LICEL DATAFILE 
+						if ( (strncmp(&strLine_bkp[3], "0", 1) ==0) && (strncmp(&strLine_bkp[3], "1", 1) ==0) )
+						{ // THE OLD DATAFILE ONLY CONTAIN DATASET TYPE EQUAL TO 0 (ANALOG) OR 1 (PHOTONCOUNTING)
 						sscanf( strLine_bkp, " %s %d %d %05d 1 %4d %lf %05d.%s 0 0 00 000 %d %06d %lf %s", lidarHeaderData.sAct[c], &glbParam->DAQ_Type[c],
 								&glbParam->Laser_Src[c], &glbParam->nBins_Ch[c], &glbParam->PMT_Voltage[c], &glbParam->dr, &glbParam->iLambda[c], 
 								lidarHeaderData.sPol[c], &glbParam->iADCbits[c], &glbParam->nShots[c], &glbParam->iMax_mVLic[c], lidarHeaderData.sDescrp[c]) ;
+						}
 					}
 					else
 					{ // NEW LICEL DATASET
 						if ( (strncmp(&strLine_bkp[3], "3", 1) !=0) && (strncmp(&strLine_bkp[3], "4", 1) !=0) )
 						{
-							sscanf( strLine_bkp, " %s %d %d %05d %d %04d %lf %05d.%s 0 0 %02d %03d %2d %06d %lf %s %s", lidarHeaderData.sAct[c], &glbParam->DAQ_Type[c],
-								&glbParam->Laser_Src[c], &glbParam->nBins_Ch[c], &glbParam->iPol[c], &glbParam->PMT_Voltage[c], &glbParam->dr, &glbParam->iLambda[c], 
-								&glbParam->sPol[c], /*0 0*/ &lidarHeaderData.bin_shift_whole, &lidarHeaderData.bin_shift_decimal, &glbParam->iADCbits[c], &glbParam->nShots[c],
-								&glbParam->iMax_mVLic[c], lidarHeaderData.sDescrp[c], lidarHeaderData.sInfoChannel[c] ) ;
+							sscanf( strLine_bkp, " %s %d %d %05d %d %04d %lf %05d.%s 0 0 %02d %03d %2d %06d %lf %s %s", lidarHeaderData.sAct[c], 
+								&glbParam->DAQ_Type[c], &glbParam->Laser_Src[c], &glbParam->nBins_Ch[c], &glbParam->iPol[c], &glbParam->PMT_Voltage[c],
+								&glbParam->dr, &glbParam->iLambda[c], &glbParam->sPol[c], /*0 0*/ &lidarHeaderData.bin_shift_whole, 
+								&lidarHeaderData.bin_shift_decimal, &glbParam->iADCbits[c], &glbParam->nShots[c], &glbParam->iMax_mVLic[c],
+								lidarHeaderData.sDescrp[c], lidarHeaderData.sInfoChannel[c] ) ;
 						}
 						else // IF IS A DATASET OF "Power Meter" OR "Overflow dataset" THEN DO NOT LOAD glbParam->dz
-							sscanf( strLine_bkp, " %s %d %d %05d %d %04d %lf %05d.%s 0 0 %02d %03d %2d %06d %lf %s %s", lidarHeaderData.sAct[c], &glbParam->DAQ_Type[c],
-								&glbParam->Laser_Src[c], &glbParam->nBins_Ch[c], &glbParam->iPol[c], &glbParam->PMT_Voltage[c], &lidarHeaderData.Dz, &glbParam->iLambda[c], 
-								&glbParam->sPol[c], /*0 0*/ &lidarHeaderData.bin_shift_whole, &lidarHeaderData.bin_shift_decimal, &glbParam->iADCbits[c], &glbParam->nShots[c],
+							sscanf( strLine_bkp, " %s %d %d %05d %d %04d %lf %05d.%s 0 0 %02d %03d %2d %06d %lf %s %s", 
+								lidarHeaderData.sAct[c], &glbParam->DAQ_Type[c], &glbParam->Laser_Src[c], &glbParam->nBins_Ch[c], &glbParam->iPol[c], 
+								&glbParam->PMT_Voltage[c], &lidarHeaderData.Dz, &glbParam->iLambda[c], &glbParam->sPol[c], 
+								/*0 0*/ &lidarHeaderData.bin_shift_whole, &lidarHeaderData.bin_shift_decimal, &glbParam->iADCbits[c], &glbParam->nShots[c],
 								&glbParam->iMax_mVLic[c], lidarHeaderData.sDescrp[c], lidarHeaderData.sInfoChannel[c] ) ;
 
 						glbParam->indxOffset[c] = lidarHeaderData.bin_shift_whole ;
@@ -213,11 +227,11 @@ void CLicel_DataFile_Handling::ReadLicel_GlobalParameters( char *lidarFile, strc
 	glbParam->pres_Pa_agl_AVG   = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_Pa_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->indxEndSig_ev   	= (int*   ) new int   [glbParam->nEventsAVG] ;
 
-	if ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE" ) ==0 )
+	if ( strncmp( glbParam->inputDataFileFormat, "LICEL_FILE", 10 ) ==0 )
 	{
 		// LINE 1: File name
 		fscanf( fid, "%s ", glbParam->fileName )  ;
-		// HEADER LINE 2: INITALIZED AT 1 SO WE HAVE THE SAME CONVENTION OF THE EDITORS
+		// HEADER LINE 2: INITALIZED AT 1 SO WE HAVE THE SAME CONVENTION OF THE TEXT EDITORS
 		read_Licel_Header_Line( (FILE*)fid, (int)2, (strcGlobalParameters*)glbParam) ;
 // printf( "\nLINE 2: %s %s %s %s %s %lf %lf %lf %lf \n", glbParam->site, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime,
 // 						   		 				       glbParam->siteASL, glbParam->siteLat, glbParam->siteLong, glbParam->aZenith[0] ) ;
@@ -263,7 +277,7 @@ void CLicel_DataFile_Handling::ReadLicel_Data( char *lidarFile, strcGlobalParame
 	fseek( (FILE*)fid, 0, SEEK_SET ) ;
 
 	char strLine[500] ;
-	for ( int l = 0; l < (3+glbParam->nCh+1) ; l++)	// READ TILL THE LIDAR DATA. +1 ESTA OK.
+	for ( int l = 0; l < (3+glbParam->nCh+1) ; l++)	// READ TILL THE LIDAR DATA. +1 IS FOR THE EMPTY LINE BETWEEN THE HEADER AND THE LIDAR VECTORS
 			fgets( strLine, sizeof(strLine), fid ) ;
 
 	// long int prev_offset = ftell(fid) ;

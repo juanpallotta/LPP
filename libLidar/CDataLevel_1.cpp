@@ -105,15 +105,19 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 	}
 	nMaxLoop = (int)0 ;
 
+	printf("\n\nScanCloud_RayleighFit() --> glbParam->indxEndSig_ev= %d \t glbParam->rEndSig_ev= %lf \n", glbParam->indxEndSig_ev[glbParam->evSel], glbParam->rEndSig_ev[glbParam->evSel] ) ;
+
  // ERROR REFERENCE CALCULATION
-	fitParam.indxEndFit  = glbParam->nBins - 1 ;
+//  do{ // TODO
+	fitParam.indxEndFit  = glbParam->indxEndSig_ev[glbParam->evSel] ; // glbParam->nBins - 1 ; // 
 	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
 	errRefBkg = sqrt ( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
-	// printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.squared_sum_fit: %lf", fitParam.m, biasRef, errRefBkg, fitParam.squared_sum_fit) ;
-	// printf("\nindex fit=%d-%d\n", fitParam.indxInicFit, fitParam.indxEndFit ) ;
+	printf("\nm_ref: %lf \t biasRef: %lf \t errRefBkg: %lf \t fitParam.squared_sum_fit: %lf", fitParam.m, biasRef, errRefBkg, fitParam.squared_sum_fit) ;
+	printf("\nindex fit= (%d) - (%d)\n", fitParam.indxInicFit, fitParam.indxEndFit ) ;
+// } while( (fitParam.m <0) || (biasRef <0) ) ;
 
 	for ( int i=0 ; i<nScanMax ; i++ )
 	{ 	// RESET SE_lay
@@ -135,13 +139,14 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			// PERFORM THE FIT
 			sppm = (double)0.0 ;	spm = (double)0.0 ;		spmpm = (double)0.0 ;	 m = (double)0.0 ;
 			fitParam.nFit = fitParam.indxEndFit - fitParam.indxInicFit +1;
+// printf("(2)ScanCloud_RayleighFit() - fitParam.indxInicFit= %d \t fitParam.indxEndFit= %d\n", fitParam.indxInicFit, fitParam.indxEndFit) ;
 			sum( (double*)prprm    			, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&sppm ) ;
 			sum( (double*)dataMol->prMol_avg, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spm  ) ;
 			sum( (double*)prmprm			, (int)fitParam.indxInicFit, (int)fitParam.indxEndFit, (double*)&spmpm) ;
 				m = (double)((sppm - biasRef * spm) /spmpm) ;
 				for( int b=0 ; b <=glbParam->indxEndSig ; b++ ) // for( int b=glbParam->indxInitSig ; b <=glbParam->indxEndSig ; b++ ) // for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )
 					prFit[b] = m * dataMol->prMol_avg[b] + biasRef ;
-
+// printf("(3)ScanCloud_RayleighFit() - fitParam.indxInicFit= %d \t fitParam.indxEndFit= %d\n", fitParam.indxInicFit, fitParam.indxEndFit) ;
 			// OBTAIN THE RMS ERROR OF THE FITTED SIGNAL
 			errFitStage = 0 ;
 			for( int b=fitParam.indxInicFit ; b <=fitParam.indxEndFit ; b++ )
@@ -192,9 +197,18 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 						}
 					} // for( int b=glbParam->indxInitSig ; b<=glbParam->indxEndSig ; b++ ) 
 				} // if ( m>0 )
-				else {
-						if ( fitParam.indxInicFit >= fitParam.indxEndFit )
-							break ; 											}
+				else // m<0
+				{
+					printf("\nScanCloud_RayleighFit(...): m<0 --> break; \n") ;
+					break;
+					// TODO: ALGO SALIO MAL EN EL ESCANEO ---> HACER ALGO
+				}
+				if ( fitParam.indxInicFit >= fitParam.indxEndFit )
+				{
+					printf("\nScanCloud_RayleighFit(...): fitParam.indxInicFit >= fitParam.indxEndFit --> break; \n") ;
+					break;
+					// TODO: ALGO SALIO MAL EN EL ESCANEO ---> HACER ALGO
+				}
 			}  // END OF "SET THE CLOUDS CANDIDATES"
 		} // for ( int i=0 ; i<nScanMax ; i++ ) ------------------------------------------------------------------------------------------
 
@@ -275,7 +289,6 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 			fitParam.indxInicFit = cloudProfiles[glbParam->evSel].indxInitClouds[i] -DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->evSel].indxInitClouds[0] 					   -DELTA_RANGE_LIM_BINS ; // 
 			fitParam.indxEndFit  = cloudProfiles[glbParam->evSel].indxEndClouds[i]  +DELTA_RANGE_LIM_BINS ; // cloudProfiles[glbParam->evSel].indxEndClouds[cloudProfiles[glbParam->evSel].nClouds-1]  +DELTA_RANGE_LIM_BINS ; // 
 			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-
 			if( fitParam.indxInicFit > glbParam->indxInitSig )
 			{
 					oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	

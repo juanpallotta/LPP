@@ -82,7 +82,7 @@ struct strcGlobalParameters
 	double  MAX_TOGGLE_RATE_MHZ 	;
 	double  PHO_MAX_COUNT_MHz    	; // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
     int     chSel               	;
-	int 	*nBins_Ch			; // int 	nBins_Ch[MAX_CH_LICEL]	;
+	int 	*nBins_Ch				; // int 	nBins_Ch[MAX_CH_LICEL]	;
 	int 	nBinsRaw				;
 	int 	nBins_in_File			;
 	int 	nBinsBkg 				;

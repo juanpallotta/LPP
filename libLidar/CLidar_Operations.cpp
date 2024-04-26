@@ -27,7 +27,7 @@ CLidar_Operations::~CLidar_Operations()
 // MakeRangeCorrected() WITHOUT BACKGROUND NOISE FILE, USING 'MEAN', 'FIT', 'NO_BKG' OR 'AUTO' METHODS TO REMOVE BIAS.
 void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
-	if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
+	if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) ) // BIAS REMOVAL ONLY FOR ANALOG SIGNALS || (glbParam->DAQ_Type[glbParam->chSel] ==1)
 		BiasCorrection( (strcLidarSignal*)evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 	else
 	{
@@ -173,7 +173,7 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		i = i+1 ;
 		fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - i       ;
 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
-	} while( (fitParam.indxInicFit >glbParam->indxInitSig) && (fitParam.R2 <0.1) ) ; //! CHANGE TO THE PEAK OF THE LIDAR SIGNAL
+	} while( (fitParam.indxInicFit >glbParam->indxInitSig) && (fitParam.R2 <0.1) ) ; //! TODO: CHANGE TO THE PEAK OF THE LIDAR SIGNAL
 
 	fitParam.indxEndFit  = fitParam.indxEndFit + 1       ;
 	fitParam.indxInicFit = fitParam.indxEndFit + glbParam->nBinsBkg 	 ;
@@ -651,7 +651,6 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
 				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
-
 			}
 		}
 		else
@@ -668,7 +667,6 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 	fitParam->std = (double)sqrt(fitParam->var)  						;
 
 	fitParam->mean_sig = (double) 0.0 ;
-	
 	fitParam->s 		= (double) 0.0 ;
 	fitParam->s			= (double) sum( (double*)sig, (int)fitParam->indxInicFit, (int)fitParam->indxEndFit, (double*)&fitParam->s ) ;
 	fitParam->mean_sig	= (double) fitParam->s /fitParam->nFit ;
