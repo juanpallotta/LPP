@@ -11,9 +11,9 @@ L2="no"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Holger_Sim/Original/"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/"
 
-PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
 
-# PATH_IN="/mnt/Disk-1_8TB/Colombia/20220413/RS/"
+# PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220413/RS/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/21/01/test/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/02/test/"
@@ -27,6 +27,9 @@ PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20170409/night/testNight/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/test/"
+
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Comodoro/20200302/"
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/20220908/"
 
 # CONFIGURATION FILES
 
@@ -49,13 +52,15 @@ PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
 # ! ARGENTINA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_COMR.conf"
 #! PILAR (CORDOBA), 2009-AGOSTO/SEPTIEMBRE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar_2009_AgoSep.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Hector.conf"
 #! MULTIANGLE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_multRam.conf"

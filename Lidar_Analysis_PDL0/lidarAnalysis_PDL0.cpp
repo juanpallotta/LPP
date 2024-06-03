@@ -99,13 +99,12 @@ int main( int argc, char *argv[] )
     //! check_Lidar_Files_Consistency( (strcGlobalParameters*)&glbParam, (char**)inputFilesInTime ) ;
     CLicel_DataFile_Handling oLDH ;
 
-    if ( (strncmp( glbParam.inputDataFileFormat, "LICEL_FILE", 10 ) ==0) ) // || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0)
+    if ( (strncmp( glbParam.inputDataFileFormat, "LICEL_FILE", 10 ) ==0) )
     {
         cout << "\n\tInput data file: " << glbParam.inputDataFileFormat ;
         glbParam.chSel = 0 ;
         glbParam.evSel = 0 ;
-        oLDH.ReadLicel_GlobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
-
+            oLDH.ReadLicel_GlobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
         glbParam.r     = (double*) new double[glbParam.nBins] ;
         for( int i=0 ; i <glbParam.nBins ; i++ )
             glbParam.r[i]     = (i+1)*glbParam.dr - glbParam.dr /2 ; // glbParam->r[0] = 3.75 (ie)
@@ -150,7 +149,7 @@ int main( int argc, char *argv[] )
         glbParam.evSel = f;
         // printf("\n File Nº %d: %s \n", f, inputFilesInTime[f] ) ;
         // avgTime_num =0 ;
-            if( (strncmp( glbParam.inputDataFileFormat, "LICEL_FILE", 10 ) ==0) ) // || (strcmp( glbParam.inputDataFileFormat, "RAYMETRIC_FILE" ) ==0)
+            if( (strncmp( glbParam.inputDataFileFormat, "LICEL_FILE", 10 ) ==0) )
                 oLDH.ReadLicel_Data ( (char*)inputFilesInTime[f], (strcGlobalParameters*)&glbParam, (strcLidarDataFile*)&dataFile[f] ) ;
             sscanf( glbParam.StartDate, "%2d%2d%4d", &tmFile_start->tm_mday, &tmFile_start->tm_mon, &tmFile_start->tm_year  ) ;
             sscanf( glbParam.StartTime, "%2d%2d%2d", &tmFile_start->tm_hour, &tmFile_start->tm_min, &tmFile_start->tm_sec   ) ;

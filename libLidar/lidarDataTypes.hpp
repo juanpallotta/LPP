@@ -122,7 +122,9 @@ struct strcGlobalParameters
 	int		numEventsToAvg			;
 	int		numEventsToAvg_PDL1		;
 	int		numEventsToAvg_PDL2		;
-	int 	*indxOffset				; // [MAX_CH_LICEL]
+	int 	*indxOffset				;
+	int 	*bin_shift_whole		;
+	int		*bin_shift_decimal		;
 	char	fileName[200] 			;
 	char	infoFile[100] 			;
 	char 	site[20] 				;
@@ -133,6 +135,7 @@ struct strcGlobalParameters
 	double 	siteASL 				;
 	double 	siteLat 				;
 	double 	siteLong 				;
+	char 	siteName[10]			;
 	double  *temp_K_agl				;
 	double  *pres_Pa_agl			;
 	double  *temp_K_agl_AVG			;
@@ -141,6 +144,8 @@ struct strcGlobalParameters
 	char	StartTime[20]			;
 	char	StopDate[20]			;
 	char	StopTime[20]			;
+	char	**sChDescription		;
+	char	**sChInformation		;
 	float	Time_Zone				;
     long    *event_gps_sec  		; // GPS TIME
 	time_t	start_time_secs			; // UNIX TIME
@@ -375,7 +380,7 @@ struct strcFitParam
 	//INTERMEDIATE VARIABLES FOR R2
 	double s  				   ;
 	double mean_sig 		   ;
-	double squared_sum_fit_vs_Mean ;
+	double squared_sum_sig_vs_Mean ;
 
 	// double  cov00    ;
 	// double 	cov01   ;

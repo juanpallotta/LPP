@@ -256,8 +256,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		// if ( rate[i] >1.1 )
 		if ( rate[i] >1.02 )
 		{
-			// printf("\n CLidar_Operations::Find_Max_Range() exiting with R2 = %e \n\t n= %d -- squared_sum_fit_vs_Mean= %lf -- squared_sum_fit= %lf \n", 
-			// 		fitParam.R2, fitParam.nFit, fitParam.squared_sum_fit_vs_Mean, fitParam.squared_sum_fit ) ;
+			// printf("\n CLidar_Operations::Find_Max_Range() exiting with R2 = %e \n\t n= %d -- squared_sum_sig_vs_Mean= %lf -- squared_sum_fit= %lf \n", 
+			// 		fitParam.R2, fitParam.nFit, fitParam.squared_sum_sig_vs_Mean, fitParam.squared_sum_fit ) ;
 			indxMax_ = i ;
 			break;
 		}
@@ -601,9 +601,9 @@ Fit( (double*)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0],
 	printf("\n") ;
 }
 
-void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
+void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFit )
 {
-	fitParam->squared_sum_fit = (double)0.0  ;
+	fitParam->squared_sum_fit = (double)0.0  ; // RSS
 
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
@@ -621,16 +621,16 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 		{
 			for ( int i=0 ; i < nBins ; i++ )
 			{
-				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
-				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
+				sigFit[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFit[i] - sig[i]), 2 ) ; // RSS
 			}
 		}
 		else
 		{ // "NOTall"
 			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
 			{
-				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
-				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
+				sigFit[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFit[i] - sig[i]), 2 ) ; // RSS
 			}
 		}
 	}
@@ -649,16 +649,16 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 		{
 			for ( int i=0 ; i < nBins ; i++ )
 			{
-				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
-				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
+				sigFit[i] = (double) ( sigMol[i] * fitParam->m ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFit[i] - sig[i]), 2 ) ; // RSS
 			}
 		}
 		else
 		{
 			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
 			{
-				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
-				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
+				sigFit[i] = (double) ( sigMol[i] * fitParam->m ) ;
+				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFit[i] - sig[i]), 2 ) ; // RSS
 			}
 		}
 	}
@@ -670,13 +670,16 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 	fitParam->s 		= (double) 0.0 ;
 	fitParam->s			= (double) sum( (double*)sig, (int)fitParam->indxInicFit, (int)fitParam->indxEndFit, (double*)&fitParam->s ) ;
 	fitParam->mean_sig	= (double) fitParam->s /fitParam->nFit ;
-	fitParam->squared_sum_fit_vs_Mean = (double)0.0 ;
+	fitParam->squared_sum_sig_vs_Mean = (double)0.0 ;
 	for ( int b=fitParam->indxInicFit ;  b<=fitParam->indxEndFit ; b++ )
-		fitParam->squared_sum_fit_vs_Mean  = fitParam->squared_sum_fit_vs_Mean + pow( (sig[b] - fitParam->mean_sig), 2) ;
+		fitParam->squared_sum_sig_vs_Mean  = fitParam->squared_sum_sig_vs_Mean + pow( (sig[b] - fitParam->mean_sig), 2) ; // TSS
 	
-	fitParam->R2  = (double) ( fitParam->squared_sum_fit_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_fit_vs_Mean ;
+	// R2: COEFFICIENT OF DETERMINATION = 1 - RSS/TSS
+	// RSS = sum of squared residuals = ( sig - sigFit   )^2 --> SQUARED SUM OF THE ERROR OF THE MODEL
+	// TSS = total sum of squares     = ( sig - mean_sig )^2 --> SQUARED SUM OF THE ERROR OF THE MEAN
+	fitParam->R2  = (double) ( fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_sig_vs_Mean ;
 
-} // void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
+} // void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFit )
 
 void CLidar_Operations::TransmissionMethod_pr( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol, int indxBefCloud, int indxAftCloud, double *VOD )
 {
