@@ -187,6 +187,15 @@ int main( int argc, char *argv[] )
                             ERR(retval) ;
 
     glbParam.chSel = glbParam.indxWL_PDL2 ;
+
+    if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") ==0 )
+		printf("\nNo AERONET data set in the configuration file. Using fixed LRs\n") ;
+	else
+    {
+        printf("\nLoading AERONET data file  (%s)\n", oDL2->aeronet_file ) ;
+        oDL2->Load_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
+    }
+
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         glbParam.evSel = t ;
@@ -201,6 +210,7 @@ int main( int argc, char *argv[] )
 
             for (int b = 0; b <glbParam.nBins ; b++)
                 oDL2->layer_mask[t][b] = oDL1->cloudProfiles[t].clouds_ON[b] ;
+                // COPIAR TAMBIEN LOS DATOS DE LOS INDICES MOLECULARES
         }
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
@@ -217,7 +227,7 @@ int main( int argc, char *argv[] )
             else
             {
                 printf("\nInverting:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[c], glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
-                    oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (int)t, (int)glbParam.indxWL_PDL2, (strcMolecularData*)&oMolData->dataMol ) ;
+                    oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
             }
         } // for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )

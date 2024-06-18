@@ -973,7 +973,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalPar
     string strAttListName[4] ;
     int     intAttList[4] ;
     int     indxWL_PDL1 ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"       , (const char*)"int", (int*)&indxWL_PDL1        ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"          , (const char*)"int", (int*)&indxWL_PDL1           ) ;
     int avg_Points_Cloud_Mask ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
     strAttListName[0] = "indxChannel_for_Cloud_Mask"; intAttList[0] = (int)indxWL_PDL1              ;
@@ -1181,30 +1181,43 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 // id_dims_aer[1]: nLRs
 // id_dims_aer[2]: nBins
     int num_dim_var = 3 ;
-    int id_dims_aer[num_dim_var], id_dims_pr2[num_dim_var] ;
-    DefineDims( (int)nc_id_group_L2, (char*)"time"    , (int)glbParam->nEventsAVG, (int*)&id_dims_aer[0] ) ;
-    DefineDims( (int)nc_id_group_L2, (char*)"lrs"     , (int)oDL2->nLRs          , (int*)&id_dims_aer[1] ) ;
-    DefineDims( (int)nc_id_group_L2, (char*)"range"   , (int)glbParam->nBins     , (int*)&id_dims_aer[2] ) ;
-    // DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh       , (int*)&id_dims_aer[3] ) ;
+    int *id_dims_aer     = (int*) new int [num_dim_var] ;
+    int *id_dims_pr2     = (int*) new int [num_dim_var] ;
+    DefineDims( (int)nc_id_group_L2, (char*)"time"        , (int)glbParam->nEventsAVG    , (int*)&id_dims_aer[0] ) ;
+    DefineDims( (int)nc_id_group_L2, (char*)"lrs"         , (int)oDL2->nLRs              , (int*)&id_dims_aer[1] ) ;
+    DefineDims( (int)nc_id_group_L2, (char*)"range"       , (int)glbParam->nBins         , (int*)&id_dims_aer[2] ) ;
 
     id_dims_pr2[0] = id_dims_aer[0] ;
     DefineDims( (int)nc_id_group_L2, (char*)"channels", (int)glbParam->nCh, (int*)&id_dims_pr2[1] ) ;
     id_dims_pr2[2] = id_dims_aer[2] ;
 
+    int id_dims_AERONET[2] ;
+    if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") !=0 )
+    {
+        DefineDims( (int)nc_id_group_L2, (char*)"time_AERONET", (int)oDL2->i_Num_AERONET_data, (int*)&id_dims_AERONET[0] ) ;
+        DefineDims( (int)nc_id_group_L2, (char*)"data_AERONET", (int)oDL2->i_Num_AERONET_data, (int*)&id_dims_AERONET[1] ) ;
+    }
+
     int var_ids[NVARS_LALINET_L2] ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction"             , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[0]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscattering"         , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[1]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Range_Corrected_Lidar_Signal_L2", (const char*)"double", (int)num_dim_var, (int*)&id_dims_pr2[0], (int*)&var_ids[2]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Start_Time_AVG_L2"              , (const char*)"int"   , (int)1          , (int*)&id_dims_aer[0], (int*)&var_ids[3]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Stop_Time_AVG_L2"               , (const char*)"int"   , (int)1          , (int*)&id_dims_aer[0], (int*)&var_ids[4]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Zenith_AVG_L2"                  , (const char*)"double", (int)1          , (int*)&id_dims_pr2[0], (int*)&var_ids[5]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Azimuth_AVG_L2"                 , (const char*)"double", (int)1          , (int*)&id_dims_pr2[0], (int*)&var_ids[6]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"MaxRangeAnalysis"               , (const char*)"double", (int)1          , (int*)&id_dims_aer[0], (int*)&var_ids[7]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"LRs"                            , (const char*)"double", (int)1          , (int*)&id_dims_aer[1], (int*)&var_ids[8]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"                         , (const char*)"double", (int)2          , (int*)&id_dims_aer[0], (int*)&var_ids[9]  ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Ref_Range_ASL_m"                , (const char*)"double", (int)1          , (int*)&id_dims_aer[0], (int*)&var_ids[10] ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"Fernald_smooth_bins"            , (const char*)"int"   , (int)1          , (int*)&id_dims_pr2[1], (int*)&var_ids[11] ) ;
-    DefineVariable( (int)nc_id_group_L2, (char*)"range"                          , (const char*)"double", (int)1          , (int*)&id_dims_aer[2], (int*)&var_ids[12] ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction"             , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0]    , (int*)&var_ids[0]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscattering"         , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0]    , (int*)&var_ids[1]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Range_Corrected_Lidar_Signal_L2", (const char*)"double", (int)num_dim_var, (int*)&id_dims_pr2[0]    , (int*)&var_ids[2]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Start_Time_AVG_L2"              , (const char*)"int"   , (int)1          , (int*)&id_dims_aer[0]    , (int*)&var_ids[3]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Stop_Time_AVG_L2"               , (const char*)"int"   , (int)1          , (int*)&id_dims_aer[0]    , (int*)&var_ids[4]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Zenith_AVG_L2"                  , (const char*)"double", (int)1          , (int*)&id_dims_pr2[0]    , (int*)&var_ids[5]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Azimuth_AVG_L2"                 , (const char*)"double", (int)1          , (int*)&id_dims_pr2[0]    , (int*)&var_ids[6]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"MaxRangeAnalysis"               , (const char*)"double", (int)1          , (int*)&id_dims_aer[0]    , (int*)&var_ids[7]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"LRs"                            , (const char*)"double", (int)1          , (int*)&id_dims_aer[1]    , (int*)&var_ids[8]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"AOD_LR"                         , (const char*)"double", (int)2          , (int*)&id_dims_aer[0]    , (int*)&var_ids[9]  ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Ref_Range_ASL_m"                , (const char*)"double", (int)1          , (int*)&id_dims_aer[0]    , (int*)&var_ids[10] ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"Fernald_smooth_bins"            , (const char*)"int"   , (int)1          , (int*)&id_dims_pr2[1]    , (int*)&var_ids[11] ) ;
+    DefineVariable( (int)nc_id_group_L2, (char*)"range"                          , (const char*)"double", (int)1          , (int*)&id_dims_aer[2]    , (int*)&var_ids[12] ) ;
+
+    if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") !=0 )
+    {
+        DefineVariable( (int)nc_id_group_L2, (char*)"AERONET_time", (const char*)"int"   , (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[13] ) ;
+        DefineVariable( (int)nc_id_group_L2, (char*)"AERONET_AOD" , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[14] ) ;
+    }
 
     double *Ref_Range = (double*) new double[ glbParam->nEventsAVG ]  ;
     for (int i =0; i <glbParam->nEventsAVG; i++)
@@ -1273,6 +1286,11 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( string *Path_File_Out, strcGlobalPar
 
     PutVar( (int)nc_id_group_L2, (int)var_ids[12], (const char*)"double", (int*)glbParam->r ) ;
 
+    if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") !=0 )
+    {
+        PutVar( (int)nc_id_group_L2, (int)var_ids[13], (const char*)"int"   , (int*)   oDL2->AERONET_time ) ;
+        PutVar( (int)nc_id_group_L2, (int)var_ids[14], (const char*)"double", (double*)oDL2->AERONET_AOD  ) ;
+    }
             if ( (retval = nc_close(nc_id) ) )
                 ERR(retval);
 }

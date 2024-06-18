@@ -121,19 +121,11 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 				break ;
 
 		case 3 : // LINE NUMBER 3
-				// while ( strcmp(token, "\r\n") !=0 ) // SEARCH FOR THE END OF LINE
-				// {
-				// 	nLineElements++ ;
-				// 	token = strtok(NULL, " ") ; // GET THE POINTER TO THE NEXT WORD
-				// }
-
-				// if ( nLineElements ==5 ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA)
 				if ( ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE_OLD" ) ==0 ) ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA OR RAYMETRIC) || ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE_RAYMETRICS" ) ==0 )
 				{	// TWO LASER PARAMETERS AND NUMBER OF CHANNELS
 					sscanf( strLine_bkp, " %07d %d %07d %d %02d", &glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], &glbParam->Accum_Pulses[1]
 																, &glbParam->Laser_Frec[1]  , &glbParam->nCh ) ;
 				}
-				// else if ( nLineElements >5 ) // LICEL NEW (IE. GRANADA/MEDELLIN)
 				else if ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE_NEW" ) ==0 ) // LICEL NEW (IE. GRANADA/MEDELLIN)
 				{	// TREE LASER PARAMETERS, NUMBER OF CHANNELS, THIRD LASER PARAMETER AND 0000000 0000
 					sscanf( strLine_bkp, " %07d %d %07d %d %02d %07d %d 0000000 0000", &glbParam->Accum_Pulses[0], &glbParam->Laser_Frec[0], 
@@ -151,7 +143,6 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 						nLineElements++ ;
 						token = strtok(NULL, " ") ;
 					}
-					// if ( nLineElements == 16 )
 					if ( ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE_OLD" ) ==0 ) ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA)  || ( strcmp( glbParam->inputDataFileFormat, "LICEL_FILE_RAYMETRICS" ) ==0 )
 					{ // OLD LICEL DATAFILE 
 						if ( (strncmp(&strLine_bkp[3], "0", 1) ==0) || (strncmp(&strLine_bkp[3], "1", 1) ==0) )

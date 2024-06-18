@@ -45,16 +45,31 @@ void diffPr( const double *sig, int nBins, double *diffSig )
 
 void findIndxMin( double *vec, int indxInic, int indxEnd, int *indxMin, double *min )
 { // ALL INDEXES ARE REFERENCED TO [0-nBins] OF vec
-	*min = DBL_MAX ;
+	*min     = DBL_MAX ;
+    *indxMin = (int)-10 ;
 
 	for( int i=indxInic ; i<=indxEnd ; i++ )
 	{
-		if ( vec[i] < *min )
-		{
-			*min 	 = vec[i] ;
-			*indxMin = i 	  ; // REFERENCED TO [0-nBins] OF vec
-		}
+        if ( fpclassify(vec[i]) != FP_NAN )
+        {
+            if ( vec[i] < *min )
+            {
+                *min 	 = vec[i] ;
+                *indxMin = (int)i ; // REFERENCED TO [0-nBins] OF vec
+            }
+        }
 	}
+
+    if ( *indxMin > indxEnd )
+    {
+        printf("\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...", indxInic, *indxMin, indxEnd) ;
+        exit(1) ;
+    }
+    else if ( *indxMin <0 )
+    {
+        printf("\tfindIndxMin(error) --> indxMin<0 ... exiting program") ;
+        exit(1) ;
+    }
 }
 
 void findIndxFirstNeg( double *vec, int indxInic, int indxEnd, int *indxMin, double *min )

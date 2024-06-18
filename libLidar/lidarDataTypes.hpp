@@ -18,7 +18,7 @@
 #define VAOD_ERR			0
 #define VAOD_OK				0X0F
 // #define PHO_MAX_COUNT_MHz	250    // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
-#define MAX_MOL_RANGES		51
+#define MAX_MOL_RANGES		50
 #define NMAXCLOUDS 			10 		// MAX NUMBER OF CLOUDS TO BE DETECTED.
 
 /*
@@ -203,7 +203,7 @@ struct strcLidarDataFile
 struct strcLidarSignalSet
 { // FOR TAM METHOD
 	double 	*pr		 [2] ;
-	double 	*pr_noBkg[2] ;
+	double 	*pr_no_DarkCur[2] ;
 	double 	*pr2	 [2] ;
 	double 	*prFit	 [2] ;
 	double 	*pr2Fit	 [2] ;
@@ -214,7 +214,7 @@ struct strcLidarSignalSet
 struct strcLidarSignal
 {
 	double 	*pr		  =NULL	;
-	double 	*pr_noBkg =NULL	;
+	double 	*pr_no_DarkCur =NULL	;
 	double 	*pr_noBias=NULL	;
 	double 	*pr2	  =NULL	;
 	double 	*prFit	  =NULL	;

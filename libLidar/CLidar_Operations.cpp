@@ -27,7 +27,7 @@ CLidar_Operations::~CLidar_Operations()
 // MakeRangeCorrected() WITHOUT BACKGROUND NOISE FILE, USING 'MEAN', 'FIT', 'NO_BKG' OR 'AUTO' METHODS TO REMOVE BIAS.
 void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
-	if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) ) // BIAS REMOVAL ONLY FOR ANALOG SIGNALS || (glbParam->DAQ_Type[glbParam->chSel] ==1)
+	if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) ) // BIAS REMOVAL ONLY FOR ANALOG SIGNALS 
 		BiasCorrection( (strcLidarSignal*)evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 	else
 	{
@@ -35,7 +35,7 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 		for ( int i=0 ; i<glbParam->nBins_Ch[glbParam->chSel] ; i++ ) 	
 		{
 			evSig->pr_noBias[i] = (double)evSig->pr[i] ;
-			evSig->pr_noBkg [i] = (double)evSig->pr[i] ;
+			evSig->pr_no_DarkCur [i] = (double)evSig->pr[i] ;
 		}
 	}
 		for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBias[i] * pow(glbParam->r[i], 2) ;
@@ -47,7 +47,7 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 	if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
 	{
 		for (int i =0; i <glbParam->nBins; i++)
-			evSig->pr_noBkg[i] = (double)( evSig->pr[i] - data_Noise[glbParam->chSel][i] ) ;
+			evSig->pr_no_DarkCur[i] = (double)( evSig->pr[i] - data_Noise[glbParam->chSel][i] ) ;
 
 		BiasCorrection( (strcLidarSignal*)evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 	}
@@ -56,7 +56,7 @@ void CLidar_Operations::MakeRangeCorrected( strcLidarSignal *evSig, strcGlobalPa
 		for ( int i=0 ; i<glbParam->nBins ; i++ ) 	
 		{
 			evSig->pr_noBias[i] = (double)evSig->pr[i] ;
-			evSig->pr_noBkg [i] = (double)evSig->pr[i] ;
+			evSig->pr_no_DarkCur [i] = (double)evSig->pr[i] ;
 		}
 	}
 		for ( int i=0 ; i<glbParam->nBins ; i++ ) 	evSig->pr2[i] = evSig->pr_noBias[i] * pow(glbParam->r[i], 2) ;
@@ -70,8 +70,8 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 	{
 		for (int i =0; i <glbParam->nBins ; i++)
 		{
-			evSig->pr_noBias[i] = evSig->pr[i] ;
-			evSig->pr_noBkg[i]  = evSig->pr[i] ;
+			evSig->pr_noBias[i] 	= evSig->pr[i] ;
+			evSig->pr_no_DarkCur[i] = evSig->pr[i] ;
 		}
 
 		// int	indxMaxRange = Get_Max_Range( (double*)evSig->pr_noBias, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
@@ -79,16 +79,25 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 	}
 	else if ( (strcmp( glbParam->BkgCorrMethod, "MEAN" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "mean" ) ==0) )
 	{
-		Bias_Substraction_Mean( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+		if( glbParam->is_Noise_Data_Loaded ==true )
+			Bias_Substraction_Mean( (double*)evSig->pr_no_DarkCur, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+		else
+			Bias_Substraction_Mean( (double*)evSig->pr		     , (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
 	}
 	else if ( (strcmp( glbParam->BkgCorrMethod, "FIT" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "fit" ) ==0) )
 	{
-		Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+		if( glbParam->is_Noise_Data_Loaded ==true )
+			Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr_no_DarkCur, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
+		else
+			Bias_Substraction_MolFit( (strcMolecularData*)dataMol, (const double*)evSig->pr		 	  , (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias ) ;
 	}
 	else if ( (strcmp( glbParam->BkgCorrMethod, "AUTO" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "auto" ) ==0) )
 	{
 		double 	Bias_Pr ;
-			Bias_Substraction_Auto( (double*)evSig->pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
+		if( glbParam->is_Noise_Data_Loaded ==true )
+				Bias_Substraction_Auto( (double*)evSig->pr_no_DarkCur, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
+		else
+				Bias_Substraction_Auto( (double*)evSig->pr      	 , (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)evSig->pr_noBias, (double*)&Bias_Pr ) ;
 	}
 	else
 	{
@@ -157,7 +166,6 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 
 void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam, int *indxMaxRange )
 {
-	// int indxMax_ ;
 	smooth( (double*)pr, (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int)3, (double*)dummy ) ;
 
 	fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - 1  	 ;
@@ -173,7 +181,7 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		i = i+1 ;
 		fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - i       ;
 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
-	} while( (fitParam.indxInicFit >glbParam->indxInitSig) && (fitParam.R2 <0.1) ) ; //! TODO: CHANGE TO THE PEAK OF THE LIDAR SIGNAL
+	} while( (fitParam.indxInicFit >glbParam->indxInitSig) && (fitParam.R2 <0.2) ) ; //! TODO: CHANGE TO THE PEAK OF THE LIDAR SIGNAL
 
 	fitParam.indxEndFit  = fitParam.indxEndFit + 1       ;
 	fitParam.indxInicFit = fitParam.indxEndFit + glbParam->nBinsBkg 	 ;
@@ -293,7 +301,7 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 */
 
 // BIAS SUBSTRACTION METHODS
-void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBkg)
+void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_no_DarkCur)
 {
 	int 	indxMaxRange = Get_Max_Range( (double*)sig, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
 
@@ -319,11 +327,11 @@ void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *
 	for( int j=fitParam.indxInicFit ; j<fitParam.indxEndFit ; j++ ) bkgMean = bkgMean + sig[j] ;
 
 	bkgMean = bkgMean /fitParam.nFit ;
-	// for ( int i=0 ; i<glbParam->nBins ; i++ ) 	pr_noBkg[i] = (double)(sig[i] - bkgMean) ;
-	for ( int i=0 ; i<glbParam->nBins_Ch[glbParam->chSel] ; i++ ) 	pr_noBkg[i] = (double)(sig[i] - bkgMean) ;
+	// for ( int i=0 ; i<glbParam->nBins ; i++ ) 	pr_no_DarkCur[i] = (double)(sig[i] - bkgMean) ;
+	for ( int i=0 ; i<glbParam->nBins_Ch[glbParam->chSel] ; i++ ) 	pr_no_DarkCur[i] = (double)(sig[i] - bkgMean) ;
 }
 
-void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, const double *prEl, strcGlobalParameters *glbParam, double *pr_noBkg)
+void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, const double *prEl, strcGlobalParameters *glbParam, double *pr_no_DarkCur)
 {
 	int 	indxMaxRange = Get_Max_Range( (double*)prEl, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
 
@@ -335,13 +343,13 @@ void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, con
 		fitParam.nFit	   	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
 
 		Fit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
-			for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam.b) ; 
+			for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_no_DarkCur[i] = (double)(prEl[i] - fitParam.b) ; 
 	}
 	else
 	{
 		// printf("\n(ev= %d)Background substraction metod set is %s, but MEAN method is applied (nBins= %d \t indxMaxRange= %d).\n", glbParam->evSel, glbParam->BkgCorrMethod, glbParam->nBins, glbParam->indxEndSig_ev[glbParam->evSel] ) ;
 		printf("\n(ev= %d)Background substraction metod set is %s, but MEAN method is applied (nBins= %d \t indxMaxRange= %d).\n", glbParam->evSel, glbParam->BkgCorrMethod, glbParam->nBins_Ch[glbParam->chSel], glbParam->indxEndSig_ev[glbParam->evSel] ) ;
-		Bias_Substraction_Mean( (double*)prEl, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)pr_noBkg) ;
+		Bias_Substraction_Mean( (double*)prEl, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)pr_no_DarkCur) ;
 	}
 }
 
@@ -663,8 +671,17 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 		}
 	}
 
-	fitParam->var = (double)fitParam->squared_sum_fit / (fitParam->nFit -1) ;
-	fitParam->std = (double)sqrt(fitParam->var)  						;
+	if ( fpclassify(fitParam->squared_sum_fit) == FP_NAN )
+	{
+		fitParam->var = (double)DBL_MAX ;
+		fitParam->std = (double)DBL_MAX ;
+		// printf("\n\tFit(): a NAN value was obtained in the fit... \n") ;
+	}
+	else
+	{
+		fitParam->var = (double)fitParam->squared_sum_fit / (fitParam->nFit -1) ;
+		fitParam->std = (double)sqrt(fitParam->var)  							;
+	}
 
 	fitParam->mean_sig = (double) 0.0 ;
 	fitParam->s 		= (double) 0.0 ;

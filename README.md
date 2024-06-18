@@ -255,11 +255,11 @@ Temperature_at_Lidar_Station_K = 298.15
 Pressure_at_Lidar_Station_Pa = 94000.0
 
 # LAYER-MASK RETRIEVAL PARAMETERS
-COMPUTE_PBL_MASK = NO
+COMPUTE_PBL_MASK = YES
 COMPUTE_CLOUD_MASK = YES
 avg_Points_Cloud_Mask = 11
 stepScanCloud = 1
-nScanMax = 5000
+nScanMax = 5
 errFactor = 2.0
 thresholdFactor = 5.0
 CLOUD_MIN_THICK = 5
@@ -340,7 +340,7 @@ COMPUTE_PBL_MASK = NO
 COMPUTE_CLOUD_MASK = YES
 avg_Points_Cloud_Mask = 11
 stepScanCloud = 1
-nScanMax = 5000
+nScanMax = 5
 errFactor = 2.0
 thresholdFactor = 5.0
 CLOUD_MIN_THICK = 5

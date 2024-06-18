@@ -548,7 +548,7 @@ void GetMem_indxMol( strcIndexMol *indxMol, strcGlobalParameters *glbParam )
 void GetMem_evSig( strcLidarSignal *evSig, strcGlobalParameters *glbParam )
 {
     evSig->pr			= (double*) new double [glbParam->nBins] ; memset( evSig->pr	   , 0, ( sizeof(double) * glbParam->nBins ) ) ;
-    evSig->pr_noBkg 	= (double*) new double [glbParam->nBins] ; memset( evSig->pr_noBkg , 0, ( sizeof(double) * glbParam->nBins ) ) ;
+    evSig->pr_no_DarkCur 	= (double*) new double [glbParam->nBins] ; memset( evSig->pr_no_DarkCur , 0, ( sizeof(double) * glbParam->nBins ) ) ;
     evSig->pr_noBias 	= (double*) new double [glbParam->nBins] ; memset( evSig->pr_noBias, 0, ( sizeof(double) * glbParam->nBins ) ) ;
     evSig->pr2			= (double*) new double [glbParam->nBins] ; memset( evSig->pr2	   , 0, ( sizeof(double) * glbParam->nBins ) ) ;
     evSig->prFit		= (double*) new double [glbParam->nBins] ; memset( evSig->prFit	   , 0, ( sizeof(double) * glbParam->nBins ) ) ;
@@ -1063,14 +1063,14 @@ void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 }
 */
 
-// void bkgSubstractionMolFit (strcMolecularData *dataMol, const double *prEl, strcFitParam *fitParam, double *pr_noBkg)
+// void bkgSubstractionMolFit (strcMolecularData *dataMol, const double *prEl, strcFitParam *fitParam, double *pr_no_DarkCur)
 // {
 // 	// cout<<"----------- bkgSubstractionMolFit" ;
 // 	// printf("\n\nfitParam->indxInicFit: %d\nfitParam->indxEndFit: %d\nfitParam->nFit: %d\n\n", fitParam->indxInicFit, fitParam->indxEndFit, fitParam->nFit) ;
 
 // 	double *dummy = (double*) new double[dataMol->nBins] ; 
 // 	RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
-// 		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_noBkg[i] = (double)(prEl[i] - fitParam->b) ; 
+// 		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_no_DarkCur[i] = (double)(prEl[i] - fitParam->b) ; 
 
 // 	// printf( "\nbkgSubstractionMolFit() --> fitParam->b: %lf \nfitParam->indxInicFit: %d \nfitParam->indxInicFit: %d \n", fitParam->b, fitParam->indxInicFit, fitParam->indxEndFit ) ;
 
@@ -1103,7 +1103,7 @@ void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 // 	free(m_prMol) 		;
 // }
 
-// double bkgSubstractionMean( double *sig, int binInitMean, int binEndMean, int nBins, double *pr_noBkg)
+// double bkgSubstractionMean( double *sig, int binInitMean, int binEndMean, int nBins, double *pr_no_DarkCur)
 // {
 // 	int nFit = binEndMean - binInitMean ;
 
@@ -1113,7 +1113,7 @@ void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 
 // 	bkgMean = bkgMean /nFit ;
 
-// 	for ( int i=0 ; i<nBins ; i++ ) 	pr_noBkg[i] = (double)(sig[i] - bkgMean) ;
+// 	for ( int i=0 ; i<nBins ; i++ ) 	pr_no_DarkCur[i] = (double)(sig[i] - bkgMean) ;
 
 // 	// printf( "\n bkgMean: %lf \n", bkgMean ) ;
 

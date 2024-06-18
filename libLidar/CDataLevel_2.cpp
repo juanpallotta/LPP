@@ -75,6 +75,13 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)glbParam->avg_Points_Fernald ) ;
 
+	aeronet_file = (char*) new char [ 300 ] ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_FILE", (const char*)"string", (char*)aeronet_file ) ;
+    if ( strcmp(aeronet_file, "NOT_FOUND") ==0 )
+		printf("\nNo AERONET data set in the configuration file. Using fixed LRs\n") ;
+	else
+		printf("\nAERONET data file to use: %s\n", aeronet_file) ;
+
 	oLOp = (CLidar_Operations*) new CLidar_Operations( (strcGlobalParameters*)glbParam ) ;
 }
 	
@@ -83,18 +90,18 @@ CDataLevel_2::~CDataLevel_2()
 
 }
 
-void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int c, strcMolecularData *dataMol)
+void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecularData *dataMol)
 {
 	LRM = (double) dataMol->LR_mol ;
 
-	if ( glbParam->avg_Points_Fernald[c] >1 )
+	if ( glbParam->avg_Points_Fernald[glbParam->chSel] >1 )
 	{
-		smooth( (double*)&dataMol->alphaMol[0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->alphaMol_avg[0] ) ;
-		smooth( (double*)&dataMol->betaMol [0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->betaMol_avg [0] ) ;
-		smooth( (double*)&dataMol->pr2Mol  [0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->pr2Mol_avg  [0] ) ;
+		smooth( (double*)&dataMol->alphaMol[0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&dataMol->alphaMol_avg[0] ) ;
+		smooth( (double*)&dataMol->betaMol [0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&dataMol->betaMol_avg [0] ) ;
+		smooth( (double*)&dataMol->pr2Mol  [0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&dataMol->pr2Mol_avg  [0] ) ;
 
-		sum(glbParam->r, 0, glbParam->avg_Points_Fernald[c]-1, &glbParam->r_avg[0] ) ;
-		glbParam->r_avg[0] = glbParam->r_avg[0] /glbParam->avg_Points_Fernald[c] ;
+		sum(glbParam->r, 0, glbParam->avg_Points_Fernald[glbParam->chSel]-1, &glbParam->r_avg[0] ) ;
+		glbParam->r_avg[0] = glbParam->r_avg[0] /glbParam->avg_Points_Fernald[glbParam->chSel] ;
 		for (int i =1; i <glbParam->nBins; i++)
 			glbParam->r_avg[i] = glbParam->r_avg[0] + i*glbParam->dr ;
 	}
@@ -117,13 +124,13 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, int t, int 
 		indxRef_Fernald_Stop [glbParam->evSel] = (int)round( ( heightRef_Inversion_Stop_ASL  - glbParam->siteASL)/dzr ) ;
 	}
 	else
-		Find_Ref_Range( (strcGlobalParameters*)glbParam, (int)t ) ;
+		Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 
-printf("\tRef. ranges: %lf - %lf (%f)", glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], heightRef_Inversion_ASL) ;
+	printf("\tRef. ranges: %lf - %lf  - Ref. inversion: %f", glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], heightRef_Inversion_ASL) ;
 
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
 	{
-			sum( (double*)&pr2[t][c][0], (int)indxRef_Fernald_Start[glbParam->evSel], (int)indxRef_Fernald_Stop[glbParam->evSel], (double*)&pr2_Ref ) ;
+			sum( (double*)&pr2[glbParam->evSel][glbParam->chSel][0], (int)indxRef_Fernald_Start[glbParam->evSel], (int)indxRef_Fernald_Stop[glbParam->evSel], (double*)&pr2_Ref ) ;
 			pr2_Ref = pr2_Ref /(indxRef_Fernald_Stop[glbParam->evSel] - indxRef_Fernald_Start[glbParam->evSel] +1) ;
 	}
 	else if ( strcmp( reference_method.c_str(), "FIT" ) ==0 )
@@ -133,10 +140,10 @@ printf("\tRef. ranges: %lf - %lf (%f)", glbParam->dzr*indxRef_Fernald_Start[glbP
 		fitParam.indxInicFit = indxRef_Fernald_Start[glbParam->evSel] ;
 		fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1;
-			oLOp->Fit( (double*)&pr2[t][c][0], (double*)dataMol->pr2Mol_avg, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+			oLOp->Fit( (double*)&pr2[glbParam->evSel][glbParam->chSel][0], (double*)dataMol->pr2Mol_avg, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 		double *absDiff = (double*) new double[ fitParam.nFit ] ;
 		for (int i =0 ; i <fitParam.nFit ; i++)
-			absDiff[i] = fabs( pr2[t][c][fitParam.indxInicFit +i] - dummy[fitParam.indxInicFit +i] ) ;
+			absDiff[i] = fabs( pr2[glbParam->evSel][glbParam->chSel][fitParam.indxInicFit +i] - dummy[fitParam.indxInicFit +i] ) ;
 		
 		findIndxMin( (double*)absDiff, (int)0, (int)(fitParam.nFit -1), (int*)&indxMin_absDiff, (double*)&minDiff ) ;
 		indxRef_Fernald[glbParam->evSel] = fitParam.indxInicFit + indxMin_absDiff ;
@@ -144,31 +151,32 @@ printf("\tRef. ranges: %lf - %lf (%f)", glbParam->dzr*indxRef_Fernald_Start[glbP
 
 		delete absDiff ;
 	}
-		pr2[t][c][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
+		pr2[glbParam->evSel][glbParam->chSel][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
 
 	int indx_integral_max_range_for_AOD ;
 	int integral_max_range_for_AOD ;
 // ********************** FERNALD INVERSION **********************
 	for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 	{
-		FernaldInversion_Core( (strcGlobalParameters*)glbParam, (int)t, (int)c, (int)l, (strcMolecularData*)dataMol, (double)LR[l], (int)0, (int)glbParam->nBins ) ;
+		FernaldInversion_Core( (strcGlobalParameters*)glbParam, (int)l, (strcMolecularData*)dataMol, (double)LR[l], (int)0, (int)glbParam->nBins ) ;
 
 		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
 		indx_integral_max_range_for_AOD = (int)round( integral_max_range_for_AOD /glbParam->dr ) ;
 
-		smooth( (double*)&beta_Aer [t][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&beta_Aer [t][l][0] ) ;
-		smooth( (double*)&alpha_Aer[t][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&alpha_Aer[t][l][0] ) ;
-		sum(    (double*)&alpha_Aer[t][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[t][l] ) ;
-		AOD_LR[t][l] = AOD_LR[t][l] * glbParam->dr ;
-		printf("\nAOD@LR = %lf --> %lf", fabs(LR[l]), AOD_LR[t][l]) ;
+		smooth( (double*)&beta_Aer [glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&beta_Aer [glbParam->evSel][l][0] ) ;
+		smooth( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&alpha_Aer[glbParam->evSel][l][0] ) ;
+		sum(    (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[glbParam->evSel][l] ) ;
+		AOD_LR[glbParam->evSel][l] = AOD_LR[glbParam->evSel][l] * glbParam->dr ;
+		printf("\nAOD@LR = %lf --> %lf", fabs(LR[l]), AOD_LR[glbParam->evSel][l]) ;
 
 	} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs
 }
 
+// USED FOR MONTE CARLO ERROR ESTIMATION
 void CDataLevel_2::FernaldInversion( double *pr2_, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
 {
 	LRM = (double) dataMol->LR_mol ;
-/*
+/*    COPIAR DE VUELTA ESTE METODO (ESTA ARRIBA)
 	if ( glbParam->avg_Points_Fernald[c] >1 )
 	{
 		smooth( (double*)&dataMol->alphaMol[0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[c], (double*)&dataMol->alphaMol_avg[0] ) ;
@@ -252,7 +260,7 @@ printf("\tRef. ranges: %lf - %lf", glbParam->dzr*indxRef_Fernald_Start[glbParam-
 */
 }
 
-void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t, int c, int l, strcMolecularData *dataMol, double LR, int indxStart, int indxStop )
+void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l, strcMolecularData *dataMol, double LR, int indxStart, int indxStop )
 {
 	memset( (double*)phi		  , 0, sizeof(double)*glbParam->nBins ) ;
 	memset( (double*)p  		  , 0, sizeof(double)*glbParam->nBins ) ;
@@ -260,8 +268,8 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t,
 	memset( (double*)ipN		  , 0, sizeof(double)*glbParam->nBins ) ;
 	memset( (double*)betaT		  , 0, sizeof(double)*glbParam->nBins ) ;
 	memset( (double*)intAlphaMol_r, 0, sizeof(double)*glbParam->nBins ) ;
-	memset( (double*)alpha_Aer[t][l], 0, sizeof(double)*glbParam->nBins ) ;
-	memset( (double*)beta_Aer[t][l] , 0, sizeof(double)*glbParam->nBins ) ;
+	memset( (double*)alpha_Aer[glbParam->evSel][l], 0, sizeof(double)*glbParam->nBins ) ;
+	memset( (double*)beta_Aer[glbParam->evSel][l] , 0, sizeof(double)*glbParam->nBins ) ;
 
 	ka  = 1/fabs(LR) ;
 	KM_ = 1/dataMol->LR_mol ;
@@ -271,7 +279,7 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t,
 
 	for( int i=indxStart ; i <indxStop ; i++  )
 	{
-		pr2n[i] = pr2[t][c][i] /pr2_Ref ;
+		pr2n[i] = pr2[glbParam->evSel][glbParam->chSel][i] /pr2_Ref ;
 		phi[i]	= 2*((KM_-ka)/ka) * (intAlphaMol_r[i] - intAlphaMol_Ref) ;
 		p[i]   	= pr2n[i] * exp(-phi[i]) ;
 	}
@@ -295,52 +303,120 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int t,
 			LR = (double)fabs(LR) ;
 		// }
 		// else
-		// 	for (int i =0; i <glbParam->nBins_Ch[c]; i++)
+		// 	for (int i =0; i <glbParam->nBins_Ch[glbParam->chSel]; i++)
 		// 		betaMol_Fit[i] = dataMol->betaMol_avg[i] ;
 
 	for ( int i=indxStart ; i <indxStop ; i++ )
 	{
-		beta_Aer[t][l][i]  = betaT[i] - betaMol_Fit[i] ;
-		alpha_Aer[t][l][i] = beta_Aer[t][l][i] *LR ; // r
+		beta_Aer[glbParam->evSel][l][i]  = betaT[i] - betaMol_Fit[i] ;
+		alpha_Aer[glbParam->evSel][l][i] = beta_Aer[glbParam->evSel][l][i] *LR ; // r
 	}
 	for (int i =0 ; i <glbParam->indxInitSig; i++)
 	{
-		alpha_Aer[t][l][i] = alpha_Aer[t][l][glbParam->indxInitSig] ;
-		beta_Aer[t][l][i]  = beta_Aer [t][l][glbParam->indxInitSig] ;
+		alpha_Aer[glbParam->evSel][l][i] = alpha_Aer[glbParam->evSel][l][glbParam->indxInitSig] ;
+		beta_Aer[glbParam->evSel][l][i]  = beta_Aer [glbParam->evSel][l][glbParam->indxInitSig] ;
 	}
 }
 
-void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, int t )
+void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
 	int indx_Top_Cloud = 0 ;
 
 	// CHECK IF THERE ARE CLOUDS IN THE PROFILE ANALIZED
 	for ( int i= glbParam->indxEndSig_ev[glbParam->evSel] ; i >=0 ; i-- )
 	{
-		if ( layer_mask[t][i] ==1 )
+		if ( layer_mask[glbParam->evSel][i] ==1 )
 		{
 			indx_Top_Cloud = (int)i ;
 			break ;
 		}
 	}
 
-	if ( indx_Top_Cloud ==0 ) // NO CLOUDS --> REFERENCE RANGE DEFINED BETWEEN 5 AND 10 KM
-	{
-		indxRef_Fernald_Start[glbParam->evSel] = (int) round( 5000 /glbParam->dzr ) ;
-		indxRef_Fernald_Stop [glbParam->evSel] = (int) round( 10000/glbParam->dzr ) ;
-	}
+	int 	nWinSize ;
+	int 	nWin = (glbParam->indxEndSig_ev[glbParam->evSel] - indx_Top_Cloud) /500 ;
+	if ( nWin <=2 )
+		nWinSize = 500 ;
+	else if( nWin <=4 )
+		nWinSize= 1000 ;
+	else if( nWin <=8 )
+		nWinSize= 2000 ;
 	else
-	{ // THERE ARE CLOUDS
-		indxRef_Fernald_Start[glbParam->evSel] = (int) indx_Top_Cloud +100 	;
-		indxRef_Fernald_Stop [glbParam->evSel] = (int) indxRef_Fernald_Start[glbParam->evSel] + (int) round( 5000 /glbParam->dzr ) ;
-	}
+		nWinSize= 2000 ;
 
-	if ( indxRef_Fernald_Stop[glbParam->evSel] >= glbParam->indxEndSig_ev[glbParam->evSel] )
-		indxRef_Fernald_Stop[glbParam->evSel] = (int) glbParam->indxEndSig_ev[glbParam->evSel] ;
+	int 			nSteps			= glbParam->indxEndSig_ev[glbParam->evSel] - indx_Top_Cloud - nWinSize ;
+	printf("\nFind_Ref_Range(): ||| indx_Top_Cloud: %d ||| glbParam->indxEndSig_ev[glbParam->evSel]: %d  ||| nWinSize: %d ||| nSteps: %d\n", indx_Top_Cloud, glbParam->indxEndSig_ev[glbParam->evSel], nWinSize, nSteps ) ;
+ 
+	strcFitParam	fitParam 											;
+	double		 	*stdPr 			= (double*) new double	[nSteps] 	;
+	int		 		*indxRef_Start 	= (int*) 	new int		[nSteps] 	;
+	int		 		*indxRef_Stop  	= (int*) 	new int		[nSteps] 	;
+	double 			*prFit = (double*) new double[glbParam->nBins] 		;
 
-	heightRef_Inversion_ASL 			= (double) (glbParam->siteASL + glbParam->dzr*( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel] )/2) ;
-	// indxRef_Fernald[glbParam->evSel]	= (int)    round( ( heightRef_Inversion_ASL - glbParam->siteASL)/dzr ) ;
+	fitParam.indxInicFit = indx_Top_Cloud 									;
+	fitParam.indxEndFit  = fitParam.indxInicFit + nWinSize					;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1	;
+	int i 			  	 = 0 ;
+	do
+	{	oLOp->Fit( (double*)&dataMol->prMol[0], (double*)&pr[0], fitParam.nFit, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+
+		stdPr[i] 		 = sqrt( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
+		indxRef_Start[i] = fitParam.indxInicFit ;
+		indxRef_Stop [i] = fitParam.indxEndFit  ;
+
+		fitParam.indxInicFit = fitParam.indxInicFit +1							;
+		fitParam.indxEndFit  = fitParam.indxInicFit + nWinSize					;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1	;
+		i++ ;
+	} while( fitParam.indxEndFit < glbParam->indxEndSig_ev[glbParam->evSel] ) ;
+	delete  prFit ;	
+	
+	int indxMin_Std, minStd ;
+	findIndxMin( (double*)stdPr, (int)0, (int)(nSteps -1), (int*)(&indxMin_Std), (double*)(&minStd) ) ;
+
+	indxRef_Fernald_Start[glbParam->evSel] = indxRef_Start[indxMin_Std] ;
+	indxRef_Fernald_Stop [glbParam->evSel] = indxRef_Stop [indxMin_Std] ;
+	heightRef_Inversion_ASL = (double) (glbParam->siteASL + glbParam->dzr*( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel] )/2) ;
 }
+
+// BACKUP DE LA PRIMER VERSION
+// void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, int t )
+// {
+// 	int indx_Top_Cloud = 0 ;
+
+// 	// CHECK IF THERE ARE CLOUDS IN THE PROFILE ANALIZED
+// 	for ( int i= glbParam->indxEndSig_ev[glbParam->evSel] ; i >=0 ; i-- )
+// 	{
+// 		if ( layer_mask[t][i] ==1 )
+// 		{
+// 			indx_Top_Cloud = (int)i ;
+// 			break ;
+// 		}
+// 	}
+
+// 	if ( indx_Top_Cloud ==0 ) // NO CLOUDS --> REFERENCE RANGE DEFINED BETWEEN 5 AND 10 KM
+// 	{
+// 		indxRef_Fernald_Start[glbParam->evSel] = (int) round( 5000 /glbParam->dzr ) ;
+// 		indxRef_Fernald_Stop [glbParam->evSel] = (int) round( 10000/glbParam->dzr ) ;
+// 	}
+// 	else
+// 	{ // THERE ARE CLOUDS
+// 		indxRef_Fernald_Stop [glbParam->evSel] = (int) glbParam->indxEndSig_ev[glbParam->evSel] -10 ;
+// 		if ( (indxRef_Fernald_Stop [glbParam->evSel] - indx_Top_Cloud) >=1000 )
+// 			indxRef_Fernald_Start[glbParam->evSel] = (int) indxRef_Fernald_Stop[glbParam->evSel] -1000 ;
+// 		else
+// 			indxRef_Fernald_Start[glbParam->evSel] = (int) glbParam->indxEndSig_ev[glbParam->evSel] - (indxRef_Fernald_Stop [glbParam->evSel] - indx_Top_Cloud -20) ;
+// 		// indxRef_Fernald_Start[glbParam->evSel] = (int) indx_Top_Cloud +100 	;
+// 		// indxRef_Fernald_Stop [glbParam->evSel] = (int) indxRef_Fernald_Start[glbParam->evSel] + (int) round( 5000 /glbParam->dzr ) ;
+// 	}
+
+// 	if ( indxRef_Fernald_Stop[glbParam->evSel] >= glbParam->indxEndSig_ev[glbParam->evSel] )
+// 		indxRef_Fernald_Stop[glbParam->evSel] = (int) glbParam->indxEndSig_ev[glbParam->evSel] ;
+
+// 	heightRef_Inversion_ASL 			= (double) (glbParam->siteASL + glbParam->dzr*( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel] )/2) ;
+// 	// indxRef_Fernald[glbParam->evSel]	= (int)    round( ( heightRef_Inversion_ASL - glbParam->siteASL)/dzr ) ;
+// }
+
+
 
 void CDataLevel_2::MonteCarloRandomError( strcGlobalParameters *glbParam, strcMolecularData *dataMol)
 {
@@ -540,6 +616,38 @@ void CDataLevel_2::GetErrSetParam( char *FILE_PARAMETERS, int MonteCarlo_N_SigSe
 	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH1", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[1] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
 	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH2", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[2] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
 	ReadAnalisysParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH3", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[3] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
+}
+
+void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
+{
+	char 	line[100] 		;
+	i_Num_AERONET_data = 0 	;
+
+ 	FILE *fp = fopen( aeronet_file, "r");
+    if (!fp)
+        printf( "Can't open %s file... exit\nAERONET data is no used and saved in the output NetCDF file.", aeronet_file );
+	else
+	{
+		while( fgets(line, 100, fp)!= NULL )
+        	i_Num_AERONET_data++ ;
+		fseek(fp, 0, SEEK_SET) ;
+
+		AERONET_AOD  = (double*) new double [ i_Num_AERONET_data ] ;
+		AERONET_time = (int*   ) new int    [ i_Num_AERONET_data ] ;
+
+		// if ( i_Num_AERONET_data == glbParam->nEventsAVG )
+		// {
+			// for( int r=0 ; r <glbParam->nEventsAVG ; r++ )
+			for( int r=0 ; r <i_Num_AERONET_data ; r++ )
+			{
+				fscanf(fp, "%d,%lf", &AERONET_time[r], &AERONET_AOD[r] ) ;
+				// printf(  "\n%d \t %lf",  AERONET_time[r],  AERONET_AOD[r] ) ;
+			}
+		// }
+		// else
+		// 	printf("\nAERONET data not used due to error in the numbers of data in the file %s\n", aeronet_file) ;
+	}
+	fclose(fp);
 }
 
 /* 		BACKUP 

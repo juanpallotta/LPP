@@ -105,7 +105,7 @@ else if ( (strstr( glbParam.infoFile, "Zenith"  ) != NULL) && (strstr( glbParam.
 		if ( e < 2 )
 		{ // e=0, 1 --> DATA SET
 			evSig  [e].pr 	 	= (double*) malloc( glbParam.nBins * sizeof(double) ) ;
-			evSig  [e].pr_noBkg = (double*) malloc( glbParam.nBins * sizeof(double) ) ;
+			evSig  [e].pr_no_DarkCur = (double*) malloc( glbParam.nBins * sizeof(double) ) ;
 			evSig  [e].pr2		= (double*) malloc( glbParam.nBins * sizeof(double) ) ;
 			evSig  [e].prFit	= (double*) malloc( glbParam.nBins * sizeof(double) ) ;
 			evSig  [e].pr2Fit	= (double*) malloc( glbParam.nBins * sizeof(double) ) ;

@@ -13,14 +13,16 @@ class CDataLevel_2
 		CDataLevel_2( strcGlobalParameters* ) ;
 		~CDataLevel_2()  					  ;
 		// void 	Fernald_1983    ( strcGlobalParameters*, int, int, strcMolecularData* ) ;
-		void 	FernaldInversion( strcGlobalParameters*, int, int, strcMolecularData* ) ;
-		void 	FernaldInversion( double*, strcMolecularData*, strcGlobalParameters*  ) ;
-		void 	Find_Ref_Range  (strcGlobalParameters* , int    					  ) ;
+		void 	FernaldInversion( strcGlobalParameters*, strcMolecularData* 				) ;
+		void 	FernaldInversion( double*, strcMolecularData *, strcGlobalParameters *	 	) ;
+		void 	Find_Ref_Range  (strcGlobalParameters*, strcMolecularData*			  		) ;
 
 		void  	GetMemStrcErrorSigSet( strcErrorSignalSet*, int, int ) 						 ;
 		void 	MonteCarloRandomError( strcGlobalParameters*, strcMolecularData* ) ;
 		// void 	MonteCarloSystematicError	( double*,          strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
 		void 	GetErrSetParam				( char*, int, int, double, strcErrorSignalSet* ) ;
+
+		void 	Load_AERONET_Data( strcGlobalParameters* ) ;
 
 		CLidar_Operations 	*oLOp ;
 	    double  ***alpha_Aer					    ;
@@ -35,9 +37,14 @@ class CDataLevel_2
 		double  dzr									;
 		double  LRM, LR[100]						;
 		double  **AOD_LR 							;
+		char	*aeronet_file						;
 		int		nLRs 								;
 		int 	indxInitSig, indxEndSig, *indxRef_Fernald, *indxRef_Fernald_Start, *indxRef_Fernald_Stop ;
 		double  R_ref    							;
+
+		double 	*AERONET_AOD 						;
+		int		*AERONET_time						;
+		int		i_Num_AERONET_data					;
 
 		double 	pr2_Ref ;
 		int 	avg_Half_Points_Fernald_Ref ;
@@ -62,7 +69,7 @@ class CDataLevel_2
 
 	private:
 		// void FernaldInversion_Test_Ref_Value( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;
-		void FernaldInversion_Core( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;
+		void FernaldInversion_Core( strcGlobalParameters*, int, strcMolecularData*, double, int, int ) ;
 
 		const double DBL_EPS_COMP = 1 - DBL_EPSILON; // DBL_EPSILON is defined in <limits.h>.
 		inline double RandU()
