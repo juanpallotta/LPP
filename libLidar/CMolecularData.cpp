@@ -127,13 +127,23 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 	glbParam->dzr = dataMol.dzr ;
 
 	Mol_Low_To_High_Res() ; // RESAMPLED RadSondeData.nLR TO HIGH RESOLUTION (RadSondeData.nHR) AND IN THE SLANT PATH AT THE ZENITHAL ANGLE dataMol.zenith
-
+		// for (int i =0 ; i <glbParam->indxEndSig_ev[glbParam->evSel] ; i++)
+		// {
+		// 	if ( (fpclassify( dataMol.nMol[i] ) == FP_NAN) || (fpclassify( dataMol.alphaMol[i] ) == FP_NAN) || (fpclassify( dataMol.betaMol[i] ) == FP_NAN) )
+		// 		printf( "Fit(): dataMol.nMol[%d]= %e \t dataMol.alphaMol[%d]= %e \t dataMol.betaMol[%d]= %e \n", i, dataMol.nMol[i], i, dataMol.alphaMol[i], i, dataMol.betaMol[i] ) ;
+		// }
+	
 	// for ( i =0 ; i <glbParam->nBins ; i++ )
 	// 	dataMol.nMol[i] = RadSondeData.nHR[i] ;
 		// double N2_shift = 2331e2 ;
 		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
 
 	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
+		// for (int i =0 ; i <glbParam->indxEndSig_ev[glbParam->evSel] ; i++)
+		// {
+		// 	if ( (fpclassify( dataMol.prMol[i] ) == FP_NAN) || (fpclassify( dataMol.pr2Mol[i] ) == FP_NAN) )
+		// 		printf( "Fit(): dataMol.prMol[%d]= %e \t dataMol.pr2Mol[%d]= %e \n", i, dataMol.prMol[i], i, dataMol.pr2Mol[i] ) ;
+		// }
 }
 
 void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
@@ -157,8 +167,18 @@ void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
 	glbParam->dzr = dataMol.dzr ;
 
 	Molecular_Profile_Resampled_Zenithal( (strcGlobalParameters*)glbParam ) ; // RE-SAMPLE THE nMol PROFILE TO THE ZENITHAL ANGLE
+		// for (int i =0 ; i <glbParam->indxEndSig_ev[glbParam->evSel] ; i++)
+		// {
+		// 	if ( (fpclassify( dataMol.nMol[i] ) == FP_NAN) || (fpclassify( dataMol.alphaMol[i] ) == FP_NAN) || (fpclassify( dataMol.betaMol[i] ) == FP_NAN) )
+		// 		printf( "Fit(): dataMol.nMol[%d]= %e \t dataMol.alphaMol[%d]= %e \t dataMol.betaMol[%d]= %e \n", i, dataMol.nMol[i], i, dataMol.alphaMol[i], i, dataMol.betaMol[i] ) ;
+		// }
 
 	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
+		// for (int i =0 ; i <glbParam->indxEndSig_ev[glbParam->evSel] ; i++)
+		// {
+		// 	if ( (fpclassify( dataMol.prMol[i] ) == FP_NAN) || (fpclassify( dataMol.pr2Mol[i] ) == FP_NAN) )
+		// 		printf( "Fit(): dataMol.prMol[%d]= %e \t dataMol.pr2Mol[%d]= %e \n", i, dataMol.prMol[i], i, dataMol.pr2Mol[i] ) ;
+		// }
 }
 
 // void CMolecularData::Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters *glbParam )

@@ -181,15 +181,14 @@ void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalPar
 		i = i+1 ;
 		fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - i       ;
 		fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
-	} while( (fitParam.indxInicFit >glbParam->indxInitSig) && (fitParam.R2 <0.2) ) ; //! TODO: CHANGE TO THE PEAK OF THE LIDAR SIGNAL
+	} while( (fitParam.indxInicFit >glbParam->indxInitSig) && (fitParam.R2 <0.1) ) ; //! TODO: CHANGE TO THE PEAK OF THE LIDAR SIGNAL
 
 	fitParam.indxEndFit  = fitParam.indxEndFit + 1       ;
-	fitParam.indxInicFit = fitParam.indxEndFit + glbParam->nBinsBkg 	 ;
+	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg 	 ;
 
 	if ( fitParam.indxEndFit > (glbParam->nBins_Ch[glbParam->chSel]-1) )
 	{
-		printf( "*ERROR* CLidar_Operations::Find_Max_Range() -> fitParam.indxEndFit (%d) > (glbParam->nBins-1) (%d) --> fitParam.indxEndFit = (glbParam->nBins-1)\n", 
-				fitParam.indxEndFit, glbParam->nBins-1 ) ;
+		printf( "*ERROR* CLidar_Operations::Find_Max_Range() -> fitParam.indxEndFit (%d) > (glbParam->nBins-1) (%d) --> fitParam.indxEndFit = (glbParam->nBins-1)\n", fitParam.indxEndFit, glbParam->nBins-1 ) ;
 		fitParam.indxEndFit = glbParam->nBins_Ch[glbParam->chSel] -1 ;
 	}
 
@@ -616,6 +615,7 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
 		double *coeff = (double*) new double[2] ;
+
 		polyfitCoeff( (const double* const) &sigMol[fitParam->indxInicFit], // X DATA
 		  			  (const double* const) &sig[fitParam->indxInicFit], // Y DATA
 					  (unsigned int       ) fitParam->nFit,
@@ -675,7 +675,12 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 	{
 		fitParam->var = (double)DBL_MAX ;
 		fitParam->std = (double)DBL_MAX ;
-		// printf("\n\tFit(): a NAN value was obtained in the fit... \n") ;
+			// printf("\n\tFit(): a NAN value was obtained in the fit... (fitParam->indxInicFit= %d - fitParam->indxEndFit= %d) \n", fitParam->indxInicFit, fitParam->indxEndFit ) ;
+			// for (int i =fitParam->indxInicFit ; i <fitParam->indxEndFit ; i++)
+			// {
+			// 	if ( (fpclassify( sig[i] ) == FP_NAN) || (fpclassify( sigMol[i] ) == FP_NAN) )
+			// 		printf( "\t\tFit(): sig[%d]= %e \t sigMol[%d]= %e\n", i, sig[i], i, sigMol[i] ) ;
+			// }
 	}
 	else
 	{

@@ -227,10 +227,6 @@ int main( int argc, char *argv[] )
 
     printf("\n\n") ;
 
-//  SAVE THE LIDAR SIGNAL
-    // string  strCompCM ;
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"COMPUTE_CLOUD_MASK", (const char*)"string", (char*)strCompCM.c_str() ) ;
-
     if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
     {
         // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
@@ -286,8 +282,8 @@ int main( int argc, char *argv[] )
                             oDL1->oLOp->Find_Max_Range( (double*)&pr_corr[e][glbParam.indxWL_PDL1][0], (double*)oMolData->dataMol.prMol,
                                                         (strcGlobalParameters*)&glbParam, (int*)&indxMaxRange ) ;
 
-                printf("\t Max range channel %d AFTER gluing with channel %d: %lf\n", glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
-                                                                                    , glbParam.rEndSig_ev[e] ) ;
+// printf("\t Max range channel %d AFTER gluing with channel %d: %lf\n", glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
+//                                                                     , glbParam.rEndSig_ev[e] ) ;
                         }
                         else // glbParam.rEndSig >0
                         {

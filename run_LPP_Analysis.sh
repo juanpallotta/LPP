@@ -154,8 +154,8 @@ then
                 cd $PATH_TO_L1
                 ./lidarAnalysis_PDL1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF
 
-                echo -e "\n\nRunning make_CloudDB_LPP \n ./make_CloudDB_LPP "$PATH_FILE_OUT_L1" "$PATH_FILE_OUT_L1_CLOUD_DATA" "$FILE_CONF
-                ./make_CloudDB_LPP $PATH_FILE_OUT_L1 $PATH_FILE_OUT_L1_CLOUD_DATA $FILE_CONF
+                # echo -e "\n\nRunning make_CloudDB_LPP \n ./make_CloudDB_LPP "$PATH_FILE_OUT_L1" "$PATH_FILE_OUT_L1_CLOUD_DATA" "$FILE_CONF
+                # ./make_CloudDB_LPP $PATH_FILE_OUT_L1 $PATH_FILE_OUT_L1_CLOUD_DATA $FILE_CONF
 
                 #   PLOTTING
                 PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"LPP_Plots_L1.py"

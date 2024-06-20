@@ -124,7 +124,14 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		indxRef_Fernald_Stop [glbParam->evSel] = (int)round( ( heightRef_Inversion_Stop_ASL  - glbParam->siteASL)/dzr ) ;
 	}
 	else
-		Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+		{
+			for (int i =0 ; i <glbParam->nBins_Ch[glbParam->chSel] ; i++) // indxEndSig_ev[glbParam->evSel]
+			{
+				if ( (fpclassify( dataMol->prMol[i] ) == FP_NAN) || (fpclassify( dataMol->pr2Mol[i] ) == FP_NAN) )
+					printf( "Fit(): dataMol.prMol[%d]= %e \t dataMol.pr2Mol[%d]= %e \n", i, dataMol->prMol[i], i, dataMol->pr2Mol[i] ) ;
+			}
+			Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+		}
 
 	printf("\tRef. ranges: %lf - %lf  - Ref. inversion: %f", glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], heightRef_Inversion_ASL) ;
 
@@ -357,7 +364,14 @@ void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecular
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1	;
 	int i 			  	 = 0 ;
 	do
-	{	oLOp->Fit( (double*)&dataMol->prMol[0], (double*)&pr[0], fitParam.nFit, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+	{
+		for (int i =fitParam.indxInicFit ; i <fitParam.indxEndFit ; i++)
+		{
+			if ( (fpclassify( pr[glbParam->chSel][i] ) == FP_NAN) || (fpclassify( dataMol->prMol[i] ) == FP_NAN) )
+				printf( "\t\tFind_Ref_Range(): pr[%d]= %e \t dataMol->prMol[%d]= %e\n", i, pr[glbParam->chSel][i], i, dataMol->prMol[i] ) ;
+		}
+
+		oLOp->Fit( (double*)&dataMol->prMol[0], (double*)&pr[glbParam->chSel][0], fitParam.nFit, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 
 		stdPr[i] 		 = sqrt( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
 		indxRef_Start[i] = fitParam.indxInicFit ;

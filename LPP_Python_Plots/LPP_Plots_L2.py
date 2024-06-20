@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 2000
+indx_Max = 3000
 minFactor = 0.00
 maxFactor = 1.00
 
@@ -45,9 +45,9 @@ AOD_LR    = np.array(fh["/L2_Data/AOD_LR"]).transpose()
 time_L2   = np.array(fh["/L2_Data/Start_Time_AVG_L2"][:])
 time_L2   = np.array(time_L2, dtype='datetime64[s]')
 
-# AOD_AERO    = np.array(fh["/L2_Data/AERONET_AOD"]).transpose()
-# AERONET_TIME= np.array(fh["/L2_Data/AERONET_time"][:])
-# AERONET_TIME= np.array(AERONET_TIME, dtype='datetime64[s]')
+AOD_AERO    = np.array(fh["/L2_Data/AERONET_AOD"]).transpose()
+AERONET_TIME= np.array(fh["/L2_Data/AERONET_time"][:])
+AERONET_TIME= np.array(AERONET_TIME, dtype='datetime64[s]')
 
 # time_L1    = np.array(fh["/L1_Data/Start_Time_AVG_L1"][:])
 # AOD_Aeronet = [0.40482,0.40504, 0.40922, 0.40922, 0.41612, 0.40242, 0.40242, 0.40454, 0.46024, 0.46024, 0.51445, 0.54434, 0.54434, 0.56323, 0.54509, 0.54509, 0.54375, 0.56074, 0.56074, 0.58241, 0.60262, 0.60262, 0.60262]
@@ -55,7 +55,7 @@ time_L2   = np.array(time_L2, dtype='datetime64[s]')
 plt.figure(num=4,figsize=(12,3),clear=True)
 for l in np.arange(len(LRs), step=2):
   plt.scatter( time_L2, AOD_LR[l,:], linestyle=':', label=str(LRs[l]) + ' sr')
-  # plt.scatter( AERONET_TIME, AOD_AERO[:], linestyle=':', label='AOD AERONET' )
+  plt.scatter( AERONET_TIME, AOD_AERO[:], linestyle=':', label='AOD AERONET' )
 # plt.scatter( time_L2[0:23], AOD_Aeronet, color='black', marker="o", label=' Aeronet') # , linestyle='dotted'
 
 # PLOT AOD vs TIME vs LR

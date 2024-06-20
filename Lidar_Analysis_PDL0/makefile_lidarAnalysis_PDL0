@@ -1,5 +1,4 @@
 
-
 OBJS = lidarAnalysis_PDL0.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o CLicel_DataFile_Handling.o
 NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include
 

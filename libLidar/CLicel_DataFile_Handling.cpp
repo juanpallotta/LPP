@@ -147,12 +147,13 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 					{ // OLD LICEL DATAFILE 
 						if ( (strncmp(&strLine_bkp[3], "0", 1) ==0) || (strncmp(&strLine_bkp[3], "1", 1) ==0) )
 						{ // THE OLD DATAFILE ONLY CONTAIN DATASET TYPE EQUAL TO 0 (ANALOG) OR 1 (PHOTONCOUNTING)
-							sscanf( strLine_bkp, " %c %d %d %05d 1 %04d %lf %05d.%s 0 0 00 000 %d %06d %lf %s", 
-									&cAct, &glbParam->DAQ_Type[c], &glbParam->Laser_Src[c], &glbParam->nBins_Ch[c], &glbParam->PMT_Voltage[c], &glbParam->dr, &glbParam->iLambda[c],
-									&glbParam->sPol[c], &glbParam->iADCbits[c], &glbParam->nShots[c], &glbParam->iMax_mVLic[c], lidarHeaderData.sDescrp[c] ) ;
-	// printf( "\nread_licel_line() --> %c %d %d %d 1 %d %1.2lf %05d.%c 0 0 00 000 %2d %06d %0.3lf \n", cAct, /*2*/glbParam->DAQ_Type[c], glbParam->Laser_Src[c], glbParam->nBins_Ch[c], 
-	// 								/*6*/glbParam->PMT_Voltage[c], glbParam->dr, glbParam->iLambda[c], glbParam->sPol[c], /*0 0 00 000*/ glbParam->iADCbits[c], 
-	// 								glbParam->nShots[c], glbParam->iMax_mVLic[c] ) ;
+							sscanf( strLine_bkp, " %c %d %d %05d %1d %04d %lf %05d.%s 0 0 %02d 000 %2d %06d %lf %s", 
+									&cAct, &glbParam->DAQ_Type[c], &glbParam->Laser_Src[c], &glbParam->nBins_Ch[c], &glbParam->iPol[c], &glbParam->PMT_Voltage[c], &glbParam->dr, &glbParam->iLambda[c],
+									&glbParam->sPol[c],/*0 0*/ &glbParam->bin_shift_whole[c], /*000*/ &glbParam->iADCbits[c], &glbParam->nShots[c], &glbParam->iMax_mVLic[c], lidarHeaderData.sDescrp[c] ) ;
+
+	// printf( "\n\nread_licel_line() --> %c %d %d %d 1 %d %1.2lf %05d.%c 0 0 %02d 000 %2d %06d %0.3lf \n", cAct, /*2*/glbParam->DAQ_Type[c], glbParam->Laser_Src[c], 
+	// 		glbParam->nBins_Ch[c], /*1*/ /*6*/glbParam->PMT_Voltage[c], glbParam->dr, glbParam->iLambda[c], glbParam->sPol[c], /*0 0*/ glbParam->bin_shift_whole[c], /*000*/
+	// 		glbParam->iADCbits[c], glbParam->nShots[c], glbParam->iMax_mVLic[c] ) ;
 						}
 					}
 					else
@@ -251,13 +252,13 @@ void CLicel_DataFile_Handling::ReadLicel_GlobalParameters( char *lidarFile, strc
 		glbParam->PMT_Voltage 		= (int*)    new int 	 [ glbParam->nCh ] ;
 		glbParam->iLambda     		= (int*)    new int 	 [ glbParam->nCh ] ;
 		glbParam->iADCbits    		= (int*)    new int 	 [ glbParam->nCh ] ;
-		glbParam->nShots	  		= (int*) 	  new int 	 [ glbParam->nCh ] ;
-		glbParam->indxOffset  		= (int*) 	  new int 	 [ glbParam->nCh ] ;
-		glbParam->bin_shift_whole 	= (int*) 	  new int 	 [ glbParam->nCh ] ;
-		glbParam->bin_shift_decimal = (int*) 	  new int 	 [ glbParam->nCh ] ;
+		glbParam->nShots	  		= (int*)	new int 	 [ glbParam->nCh ] ;
+		glbParam->indxOffset  		= (int*) 	new int 	 [ glbParam->nCh ] ; memset( (int*)glbParam->indxOffset       , 0, (sizeof(int)*glbParam->nCh) ) ;
+		glbParam->bin_shift_whole 	= (int*) 	new int 	 [ glbParam->nCh ] ; memset( (int*)glbParam->bin_shift_whole  , 0, (sizeof(int)*glbParam->nCh) ) ;
+		glbParam->bin_shift_decimal = (int*) 	new int 	 [ glbParam->nCh ] ; memset( (int*)glbParam->bin_shift_decimal, 0, (sizeof(int)*glbParam->nCh) ) ;
 		glbParam->sPol        		= (char*)   new char	 [ glbParam->nCh ] ;
 		glbParam->iPol        		= (int*)    new int 	 [ glbParam->nCh ] ;
-		glbParam->iMax_mVLic  		= (double*) new double [ glbParam->nCh ] ;
+		glbParam->iMax_mVLic  		= (double*) new double   [ glbParam->nCh ] ;
 
 		glbParam->sChDescription = (char**) new char*[glbParam->nCh] ;
 		glbParam->sChInformation = (char**) new char*[glbParam->nCh] ;
@@ -273,7 +274,7 @@ void CLicel_DataFile_Handling::ReadLicel_GlobalParameters( char *lidarFile, strc
 		// {
 		// 	printf( "ReadLicel_GlobalParameters(): dataset n° %d\n \t 1 %d %d %05d %d %04d %1.2lf %05d.%c 0 0 %02d 000 %02d %06d %1.3lf \n", c, glbParam->DAQ_Type[c], 
 		// 			glbParam->Laser_Src[c], glbParam->nBins_Ch[c], glbParam->iPol[c], glbParam->PMT_Voltage[c], glbParam->dr, glbParam->iLambda[c], glbParam->sPol[c],
-		// 			 /*0 0*/ glbParam->indxOffset[c], /* 000 */glbParam->iADCbits[c], glbParam->nShots[c], glbParam->iMax_mVLic[c] ) ;
+		// 			 /*0 0*/ glbParam->bin_shift_whole[c], /* 000 */glbParam->iADCbits[c], glbParam->nShots[c], glbParam->iMax_mVLic[c] ) ;
 		// }
 	} // if ( strncmp( glbParam->inputDataFileFormat, "LICEL_FILE", 10 ) ==0 )
 

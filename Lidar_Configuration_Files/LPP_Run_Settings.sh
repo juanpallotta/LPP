@@ -3,8 +3,8 @@
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no"
 L0="yes"
-L1="yes"
-L2="yes"
+L1="no"
+L2="no"
 
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
@@ -14,7 +14,8 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220413/RS/"
-PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220927/RS/"
+# PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220927/RS/"
+PATH_IN="/mnt/Disk-1_8TB/Colombia/Cali/20180816/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/21/01/test/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/02/test/"
@@ -41,8 +42,9 @@ PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220927/RS/"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pappalardo.conf"
 # ! CHILE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_ChileSN.conf"
-# ! COLOMBIA - MEDELLIN
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Medellin.conf"
+# ! COLOMBIA 
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Medellin.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Cali.conf"
 # ! BRAZIL
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_04_dt.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_04_nt.conf"
