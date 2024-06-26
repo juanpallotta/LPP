@@ -17,7 +17,7 @@ print("\n")
 
 fh = Dataset( nc_file, mode='r' )
 
-nbins      = fh.dimensions['points'].size
+nbins      = fh.dimensions['range'].size
 resolution = fh.getncattr('Range_Resolution')
 indx_Ch_L1 = int(fh.groups['L1_Data'].getncattr('indxChannel_for_Cloud_Mask'))
 

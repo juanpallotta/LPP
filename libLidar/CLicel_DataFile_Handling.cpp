@@ -67,11 +67,11 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 
 				if ( strcmp( token, "Sao" ) ==0 )
 				{
-					strcpy( glbParam->site, "Sao Paul" ) ;
+					strcpy( glbParam->siteName, "Sao Paul" ) ;
 					token = (char*)strtok(NULL, " ") ; // GET THE POINTER TO THE NEXT WORD
 				}
 				else
-					strcpy( glbParam->site, token ) ;
+					strcpy( glbParam->siteName, token ) ;
 
 				nLineElements++ ;
 				token = (char*)strtok(NULL, " ") ; // GET THE POINTER TO THE NEXT WORD
@@ -86,23 +86,27 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 				if ( nLineElements ==9 ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA)
 				{	// LAST VALUE= ZENITH
 					sprintf( glbParam->inputDataFileFormat, "LICEL_FILE_OLD" ) ;
-					if ( strcmp( glbParam->site, "Sao Paul" ) ==0 )
+					if ( strcmp( glbParam->siteName, "Sao Paul" ) ==0 )
 					{   // ONLY FOR SAO PAULO
 						char strDump[20] ;
 						sscanf( strLine_bkp, "%s %s %10s %08s %10s %08s %lf %lf %lf %lf ", glbParam->siteName, strDump, glbParam->StartDate, 
 											glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, 
-											&glbParam->siteLong, &glbParam->aZenith[0] ) ;
+											&glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
 					}
 					else
 						sscanf( strLine_bkp, "%s %10s %08s %10s %08s %lf %lf %lf %lf ", glbParam->siteName, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, 
-											glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[0] ) ;
+											glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, &glbParam->aZenith[glbParam->evSel] ) ;
 				}
 				else if ( nLineElements ==10 ) // LICEL NEW (IE. GRANADA/MEDELLIN)
 				{	// LAST VALUES= ZENITH AZIMUTH
 					sprintf( glbParam->inputDataFileFormat, "LICEL_FILE_NEW" ) ;
 					sscanf( strLine_bkp, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf ", glbParam->siteName, glbParam->StartDate, glbParam->StartTime, 
 											glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, 
-											&glbParam->aZenith[0], &glbParam->aAzimuth[0] ) ;
+											&glbParam->aZenith[glbParam->evSel], &glbParam->aAzimuth[0] ) ;
+
+					if ( strcmp( glbParam->siteName, "Medellin" ) ==0 )
+						glbParam->aZenith[glbParam->evSel] = glbParam->aZenith[glbParam->evSel] -90 ;
+
 				}
 				else if( nLineElements ==12 ) // RAYMETRIC
 				{	// LAST VALUES: ZENITH AZIMUTH TEMPERATURE PRESSURE
@@ -110,7 +114,7 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 					printf("\n glbParam->inputDataFileFormat= %s \n", glbParam->inputDataFileFormat) ;
 					sscanf( strLine_bkp, "%s %10s %08s %10s %08s %lf %lf %lf %lf %lf %lf %lf", glbParam->siteName, glbParam->StartDate, 
 												glbParam->StartTime, glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat,
-												&glbParam->siteLong, &glbParam->aZenith[0], &glbParam->aAzimuth[0], &glbParam->temp_K_agl[0], 
+												&glbParam->siteLong, &glbParam->aZenith[glbParam->evSel], &glbParam->aAzimuth[0], &glbParam->temp_K_agl[0], 
 												&glbParam->pres_Pa_agl[0] ) ;
 				}
 				else

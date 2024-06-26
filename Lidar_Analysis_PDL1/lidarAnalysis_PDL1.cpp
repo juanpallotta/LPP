@@ -279,11 +279,11 @@ int main( int argc, char *argv[] )
                         {   // FIND THE MAX RANGE OF THE GLUED SIGNALS
                             int indxMaxRange ;
                             glbParam.chSel = glbParam.indxWL_PDL1 ;
+                            oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
+
                             oDL1->oLOp->Find_Max_Range( (double*)&pr_corr[e][glbParam.indxWL_PDL1][0], (double*)oMolData->dataMol.prMol,
                                                         (strcGlobalParameters*)&glbParam, (int*)&indxMaxRange ) ;
-
-// printf("\t Max range channel %d AFTER gluing with channel %d: %lf\n", glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
-//                                                                     , glbParam.rEndSig_ev[e] ) ;
+// printf("\t Max range channel %d AFTER gluing with channel %d: %lf\n", glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c], glbParam.rEndSig_ev[e] ) ;
                         }
                         else // glbParam.rEndSig >0
                         {

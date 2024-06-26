@@ -566,7 +566,7 @@ void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParame
     DefineVariable( (int)ncid, (char*)strNameVars[13].c_str(), (const char*)"int"   , (int)2, (int*)&dim_ids_StartEnd_time[0], (int*)&var_ids[13] ) ;
     DefineVariable( (int)ncid, (char*)strNameVars[14].c_str(), (const char*)"int"   , (int)2, (int*)&dim_ids_StartEnd_time[0], (int*)&var_ids[14] ) ;
     string strAttListName[5], strAttList[5] ;
-    strAttListName[0] = "System"                ;   strcpy ( (char*)strAttList[0].c_str(), glbParam->site )   ;
+    strAttListName[0] = "System"                ;   strcpy ( (char*)strAttList[0].c_str(), glbParam->siteName )   ;
     strAttListName[1] = "Measurement_ID"        ;   strAttList[1].assign( Raw_Data_Start_Time_str[0], 0, 8)  ; strAttList[1].append("arge") ;
     strAttListName[2] = "RawData_Start_Date"    ;   strAttList[2].assign( Raw_Data_Start_Time_str[0], 0, 8)  ;
     strAttListName[3] = "RawData_Start_Time_UT" ;   strAttList[3].assign( Raw_Data_Start_Time_str[0], 8, 6)  ;
@@ -676,7 +676,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
 // printf("\n Save_LALINET_NCDF_PDL0 --> \n") ;
     // TEXT GLOBAL ATTRIBUTES
     string strAttListName[10], strAttList ;
-    strAttListName[0] = "Site_Name"             ;   strcpy ( (char*)strAttList.c_str(), glbParam->site )  ;
+    strAttListName[0] = "Site_Name"             ;   strcpy ( (char*)strAttList.c_str(), glbParam->siteName )  ;
         Putt_Bulk_Att_Text( (int)ncid, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)&strAttList ) ;
 
     // DOUBLE GLOBAL ATTRIBUTES
@@ -786,7 +786,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
 
     // TEXT GLOBAL ATTRIBUTES
     string strAttListName[10], strAttList ;
-    strAttListName[0] = "Site_Name"             ;   strcpy ( (char*)strAttList.c_str(), glbParam->site )  ;
+    strAttListName[0] = "Site_Name"             ;   strcpy ( (char*)strAttList.c_str(), glbParam->siteName )  ;
         Putt_Bulk_Att_Text( (int)ncid, (int)NC_GLOBAL, (int)1, (string*)strAttListName, (string*)&strAttList ) ;
 
     // DOUBLE GLOBAL ATTRIBUTES

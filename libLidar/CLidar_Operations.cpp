@@ -440,7 +440,7 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
     for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
     {
         glbParam->evSel = e ;
-printf("\n\n\nApplying corrections to the lidar event number: %d/%d -------------------------------------------------------------------------------------------------", e, (glbParam->nEventsAVG -1) ) ;
+		printf("\n\n\nApplying corrections to the lidar event number: %d/%d -------------------------------------------------------------------------------------------------", e, (glbParam->nEventsAVG -1) ) ;
         for ( int c=0 ; c <glbParam->nCh ; c++ )
         {
             glbParam->chSel = (int)c ;
@@ -612,6 +612,17 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 {
 	fitParam->squared_sum_fit = (double)0.0  ; // RSS
 
+
+			// for (int i =fitParam->indxInicFit ; i <fitParam->indxEndFit ; i++)
+			// {
+			// 	if ( (fpclassify( sig[i] ) == FP_NAN) || (fpclassify( sigMol[i] ) == FP_NAN) )
+			// 	{
+			// 		printf( "\n\t Fit() al inicio --> sig[%d]= %e \t sigMol[%d]= %e\n", i, sig[i], i, sigMol[i] ) ;
+			// 		break;
+			// 	}
+			// }
+
+
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
 		double *coeff = (double*) new double[2] ;
@@ -675,11 +686,14 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 	{
 		fitParam->var = (double)DBL_MAX ;
 		fitParam->std = (double)DBL_MAX ;
-			// printf("\n\tFit(): a NAN value was obtained in the fit... (fitParam->indxInicFit= %d - fitParam->indxEndFit= %d) \n", fitParam->indxInicFit, fitParam->indxEndFit ) ;
+			printf("\n\tFit(): a NAN value was obtained in the fit... (fitParam->indxInicFit= %d - fitParam->indxEndFit= %d) ", fitParam->indxInicFit, fitParam->indxEndFit ) ;
 			// for (int i =fitParam->indxInicFit ; i <fitParam->indxEndFit ; i++)
 			// {
 			// 	if ( (fpclassify( sig[i] ) == FP_NAN) || (fpclassify( sigMol[i] ) == FP_NAN) )
-			// 		printf( "\t\tFit(): sig[%d]= %e \t sigMol[%d]= %e\n", i, sig[i], i, sigMol[i] ) ;
+			// 	{
+			// 		printf( "\t\t --> sig[%d]= %e \t sigMol[%d]= %e\n", i, sig[i], i, sigMol[i] ) ;
+			// 		break;
+			// 	}
 			// }
 	}
 	else

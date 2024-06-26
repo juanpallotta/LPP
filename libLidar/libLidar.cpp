@@ -877,7 +877,7 @@ int GetBinOffset( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam )
 // 	char 	strSearch[50] ;
 // 	int		used_channel  ;
 
-// 	sprintf( strSearch, "%s.%d.used_channel", glbParam->site, glbParam->year ) ;
+// 	sprintf( strSearch, "%s.%d.used_channel", glbParam->siteName, glbParam->year ) ;
 // 	// printf("\n ReadChannelSelected() --> strSearch: %s \n", strSearch) ;
 // 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "int" , (int*)&used_channel ) ;
 // 	// printf("\n ReadChannelSelected() --> used_channel: %d \n", used_channel) ;

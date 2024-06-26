@@ -127,7 +127,6 @@ struct strcGlobalParameters
 	int		*bin_shift_decimal		;
 	char	fileName[200] 			;
 	char	infoFile[100] 			;
-	char 	site[20] 				;
 	int 	Laser_Frec[3] 			;
 	int		Accum_Pulses[3]			;
 	int		*Laser_Src				; // int		Laser_Src[MAX_CH_LICEL]	;
@@ -135,7 +134,8 @@ struct strcGlobalParameters
 	double 	siteASL 				;
 	double 	siteLat 				;
 	double 	siteLong 				;
-	char 	siteName[10]			;
+	char 	siteName[20]			;
+	char 	site[20] 				;
 	double  *temp_K_agl				;
 	double  *pres_Pa_agl			;
 	double  *temp_K_agl_AVG			;

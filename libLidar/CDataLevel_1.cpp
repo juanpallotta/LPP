@@ -116,11 +116,13 @@ do
 		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
 	errRefBkg = sqrt ( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
-} while( (fitParam.m <0) || (biasRef <0) ) ;
+} while( ((fitParam.m <0) || (biasRef <0)) ) ; // && (fitParam.indxInicFit>=glbParam->indxInitSig)
+// } while( (fitParam.m <0) ) ;
 
 	if ( fitParam.indxInicFit < glbParam->indxInitSig )
 	{
 		printf("\n ScanCloud_RayleighFit(...):  fitParam.indxInicFit < glbParam->indxInitSig while finidng the reference range... bye \n") ;
+		printf(" ScanCloud_RayleighFit(...):  fitParam.m= %lf \t fitParam.b= %lf \n", fitParam.m, fitParam.b ) ;
 		exit(1) ;
 	}
 
