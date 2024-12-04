@@ -25,6 +25,7 @@ void    trapz				( double , double*, int, int, double* 			) ;
 double  sum				( double*, int, int, double* 					) ;
 void    smooth	    		( double*, int, int, int, double* 				) ;
 void    cumtrapz			( double, double*, int, int, double* 			) ;
+void    cumtrapz_norm		( double, double*, int, int, int, double* 		) ;
 void    diffPr				( const double*, int, double*			 		) ;
 void    findIndxMin		( double*, int, int, int*, double* 				) ;
 void    findIndxFirstNeg   ( double*, int, int, int*, double* 				) ;

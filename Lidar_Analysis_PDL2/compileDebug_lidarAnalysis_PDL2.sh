@@ -15,6 +15,8 @@ g++ -g ${LIDAR_MAIN_FILE} ${LIDAR_LIBS_FILES} ${NETCDF_LIB} -Wall -O -o ${LIDAR_
 gdb lidarAnalysis_PDL2
 # set disable-randomization off
 # b lidarAnalysis_PDL1.cpp:82
+# r lidarAnalysis_PDL2 /mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/test/LPP_OUT/test_L0_L1.nc /mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/test/LPP_OUT/test_L0_L1_L2.nc /home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf
+
 # r "/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/24/OUT/24_L0_L1.nc" "/mnt/Disk-1_8TB/Brazil/Manaus/2011/10/24/OUT/24_L0_L1_L2.nc" analysisParameters_Brazil.conf 
 # r ../signalsTest/Brazil/SPU/20210730/OUT/20210730_L0.nc ../signalsTest/Brazil/SPU/20210730/OUT/20210730_L0_L1.nc analysisParameters_Brazil.conf 
 # r /mnt/Disk-1_8TB/Brazil/SPU/20210730/OUT/20210730_L0.nc /mnt/Disk-1_8TB/Brazil/SPU/20210730/OUT/20210730_L0_L1.nc analysisParameters_Brazil.conf 

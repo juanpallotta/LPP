@@ -69,7 +69,7 @@ void CMolecularData_USStd::ReadUSSTDfile( const char *radFile, strcGlobalParamet
 		sscanf(lineaRad, "%lf,%lf,%lf,%s", &zLR[l], &tLR[l], &pLR[l], strDump ) ; // a-t-p
 	}
 // SITE INDEX ALTITUDE (indxMin)
-// FIND THE INDEX OF zLR WHERE zLR=siteASL AND WHEN zLR=glbParam->rEndSig
+// FIND THE INDEX OF zLR WHERE zLR=siteASL
 	double  diff ;
 	double  diffMin    ; // , diffMax ;
 	int 	indxMin =0 ; // , indxMax =0 ;

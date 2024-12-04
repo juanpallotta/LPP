@@ -107,8 +107,8 @@ int main( int argc, char *argv[] )
             oLDH.ReadLicel_GlobalParameters( (char*)inputFilesInTime[0], (strcGlobalParameters*)&glbParam ) ;
         glbParam.r     = (double*) new double[glbParam.nBins] ;
         for( int i=0 ; i <glbParam.nBins ; i++ )
-            glbParam.r[i]     = (i+1)*glbParam.dr - glbParam.dr /2 ; // glbParam->r[0] = 3.75 (ie)
-        
+            glbParam.r[i]     = (i+1)*glbParam.dr - glbParam.dr /2 ; // glbParam->r[0] = 3.75 (ie) IF DR = 7.5 M --> LPP & PAPALARDO 2004 ET AL
+            // glbParam.r[i]     = (i+1)*glbParam.dr ; // glbParam->r[0] = 7.5 (ie) IF DR = 7.5 M --> GFATPY
     }
     // else if( (strcmp( glbParam.inputDataFileFormat, "LALINET_NETCDF" ) ==0) )
     //     cout << "\n\t Input data file: " << glbParam.inputDataFileFormat << " still NOT implemented" ;
@@ -191,13 +191,13 @@ int main( int argc, char *argv[] )
 
     if ( strcmp(glbParam.outputDataFileFormat, "SCC_NETCDF") ==0 )
     {
-        printf("\n\nOutput datafile: SCC_NETCDF\n") ;
+        printf("\n\tOutput datafile: SCC_NETCDF\n") ;
         oNCL->Save_SCC_NCDF_Format( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave, 
                                    (long*)Raw_Data_Start_Time, (string*)Raw_Data_Start_Time_str, (long*)Raw_Data_Stop_Time, (string*)Raw_Data_Stop_Time_str ) ;
     }
     else if ( strcmp(glbParam.outputDataFileFormat, "LALINET_NETCDF") ==0 )
     {
-        printf("\n\nOutput datafile: LALINET_NETCDF\n") ;
+        printf("\n\tOutput datafile: LALINET_NETCDF\n") ;
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time, (char**)inputFilesInTime ) ;
 

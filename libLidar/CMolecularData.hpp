@@ -21,6 +21,7 @@ class CMolecularData
 		void Get_Mol_Data_L2( strcGlobalParameters* ) ;
 	    void GetMem_dataMol( int ) ;
 		void Fill_dataMol_L1( strcGlobalParameters* ) ;
+		// void Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters* ) ;
 		void Fill_dataMol_L2( strcGlobalParameters* ) ;
 		// void Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters* ) ;
 		void Elastic_Rayleigh_Lidar_Signal ( double* ) ;
@@ -30,7 +31,7 @@ class CMolecularData
     	strcRadioSoundingData RadSondeData ;
 
 	private:
-		void Mol_Low_To_High_Res() 	;
+		void Mol_Low_To_High_Res( strcGlobalParameters* ) 	;
 		void Tem_Pres_to_HR() 		;
 		void Molecular_Profile_Resampled_Zenithal( strcGlobalParameters* ) ;
 };

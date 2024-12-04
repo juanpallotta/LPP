@@ -14,27 +14,53 @@ double sum( double *y, int binInic, int binEnd, double *sumOut )
     }
     else
     {
-        printf("\n\n Wrong call to sum() function (binInic > binEnd) \n\n") ;
+        printf("\n\n Wrong call to sum() function (binInic > binEnd)... exit \n\n") ;
         exit(1) ;
     }
-}
-
-
-void trapz( double dx, double *y, int binInic, int binEnd, double *integral )
-{
-	double sum = 0 ;
-
-	for ( int i = (binInic+1) ; i <= binEnd ; i++ )
-        sum = sum + (y[i-1] + y[i])/2 ;
-
-    *integral = sum * dx ;
 }
 
 void cumtrapz ( double dx, double *y, int binInic, int binEnd, double *intFunc )
 {
 	intFunc[binInic] = 0 ;
-	for ( int i=(binInic+1) ; i <= binEnd ; i++ )
-        trapz( dx, y, binInic, i, &intFunc[i] ) ; // trapz( dx, y, 0, i, &intFunc[i] ) ;
+    if ( binInic < binEnd )
+    {   // binInic > binEnd
+        for ( int i=(binInic+1) ; i <= binEnd ; i++ )
+            trapz( dx, y, binInic, i, &intFunc[i] ) ;
+    }
+    else
+    {   // binEnd < binInic
+        printf("\nWrong call to cumtrapz (binEnd < binInic)\n") ;
+    }
+}
+
+void trapz( double dx, double *y, int binInic, int binEnd, double *integral )
+{
+	double sum_ = 0 ;
+
+    if ( binInic < binEnd )
+    {
+        // for ( int i = binInic ; i <=(binEnd-1) ; i++ )
+        for ( int i = binInic ; i <=binEnd ; i++ )
+            sum_ = sum_ + (y[i] + y[i+1])/2 ;
+    }
+    else
+    {   // binEnd < binInic
+        printf("\nWrong call to trapz (binEnd < binInic)\n") ;
+    }
+    *integral = sum_ * dx ;
+}
+
+void cumtrapz_norm ( double dx, double *y, int binInic, int binRef, int binEnd, double *intFunc_Norm )
+{
+    for ( int i =binRef; i < (binEnd-1); i++ )
+    {   // FORWARD INVERSION
+        trapz( dx, y, binRef, i+1, &intFunc_Norm[i] ) ;
+    }
+    for ( int i =binRef ; i >binInic ; i-- )
+    {   // BACKWARD INVERSION
+        trapz( -dx, y, i-1, binRef, &intFunc_Norm[i] ) ;
+    }
+    // printf("\n cumtrapz_norm --> intFunc_Norm[binEnd]= %lf \n", intFunc_Norm[binEnd-1]) ;
 }
 
 void diffPr( const double *sig, int nBins, double *diffSig )
@@ -58,16 +84,18 @@ void findIndxMin( double *vec, int indxInic, int indxEnd, int *indxMin, double *
                 *indxMin = (int)i ; // REFERENCED TO [0-nBins] OF vec
             }
         }
+        else
+            printf("\n findIndxMin --> vec[%d] = %lf (NAN)\n", i, vec[i]) ;
 	}
-
-    if ( *indxMin > indxEnd )
+    
+    if ( (*indxMin) > indxEnd )
     {
-        printf("\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...", indxInic, *indxMin, indxEnd) ;
+        printf("\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n", indxInic, *indxMin, indxEnd) ;
         exit(1) ;
     }
-    else if ( *indxMin <0 )
+    else if ( (*indxMin) <0 )
     {
-        printf("\tfindIndxMin(error) --> indxMin<0 ... exiting program") ;
+        printf("\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n", indxInic, *indxMin, indxEnd) ;
         exit(1) ;
     }
 }

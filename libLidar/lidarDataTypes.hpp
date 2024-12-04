@@ -86,28 +86,30 @@ struct strcGlobalParameters
 	int 	nBinsRaw				;
 	int 	nBins_in_File			;
 	int 	nBinsBkg 				;
+	double 	range_Bkg_Start			;
+	double	range_Bkg_Stop 			;
+	int 	indx_range_Bkg_Start	;
+	int		indx_range_Bkg_Stop 	;
 	int 	nBins					;
 	double 	rInitSig				;
-	double 	rEndSig					;
 	int 	indxInitSig				;
-	int 	indxEndSig				;
-	double 	*rEndSig_ev				;
-	int 	*indxEndSig_ev			;
+	double 	**rEndSig_ev_ch			;
+	int 	**indxEndSig_ev_ch		;
 	int 	indxInitErr				;
 	int 	indxInitInversion   	;
 	double 	tBin_us					;
 	int 	*nShots				 	;
 	int		lambda					;
-	int		*iLambda			  	; //	int		iLambda[MAX_CH_LICEL]  	;
+	int		*iLambda			  	;
 	int		indxWL_PDL1				;
-	int		indxWL_PDL2				;
+	int		indxWL_PDL2				; // TIENE QUE SER UN VECTOR 
 	int 	nLambda					;
-	char	*sPol			    	; // char	sPol[MAX_CH_LICEL]    	;
-	int		*iPol			    	; // char	sPol[MAX_CH_LICEL]    	;
-	int 	*DAQ_Type				; // int 	DAQ_Type[MAX_CH_LICEL]   ;
-	double 	*iMax_mVLic				; // double 	iMax_mVLic[MAX_CH_LICEL];
-	int 	*iADCbits 				; // int 	iADCbits[MAX_CH_LICEL] 	;
-	int 	*PMT_Voltage   			;  // int 	PMT_Voltage[MAX_CH_LICEL];
+	char	*sPol			    	;
+	int		*iPol			    	;
+	int 	*DAQ_Type				;
+	double 	*iMax_mVLic				;
+	int 	*iADCbits 				;
+	int 	*PMT_Voltage   			;
 	int 	nAnCh 					;
 	int 	nPhotCh 				;
 	double 	ScaleFactor_Analog 		;
@@ -131,11 +133,11 @@ struct strcGlobalParameters
 	int		Accum_Pulses[3]			;
 	int		*Laser_Src				; // int		Laser_Src[MAX_CH_LICEL]	;
 	char	scanType[5]				;
-	double 	siteASL 				;
+	int 	siteASL 				;
 	double 	siteLat 				;
 	double 	siteLong 				;
 	char 	siteName[20]			;
-	char 	site[20] 				;
+	// char 	site[20] 				;
 	double  *temp_K_agl				;
 	double  *pres_Pa_agl			;
 	double  *temp_K_agl_AVG			;
@@ -190,6 +192,13 @@ struct strcMolecularData
 	double 	dzr		  				;
 	double  MOD_REF					;
 	double  LR_mol					;
+	int  	z_Mol_Max				;
+
+	int		last_Indx_Mol_Low  =-1	;
+	int		last_Indx_Mol_High =-1	;
+	int		last_Indx_Bkg_Low  =-1	;
+	int		last_Indx_Bkg_High =-1	;
+	double	heightRef_Inversion_ASL ;
 } ;
 
 struct strcLidarDataFile
@@ -255,7 +264,6 @@ struct strcFernaldInversion
 	double 	*pr2Fit 		;
 	double 	*prFit	 		;
 	double 	ipNref  		;
-	double 	intAlphaMol_Ref ;
 	double 	*intAlphaMol_r  ;
 } ;
 
@@ -352,20 +360,20 @@ struct strcErrorSignalSet
 
 struct strcRadioSoundingData
 {
-    // bool    radSoundingDataLOADED = false ;
-	double  *zLR 	;
-	double	*pLR 	;
-	double 	*tLR 	;
-	double 	*nLR 	;
+	double  *zHR 	; // HR (HIGH RESOLUTION) USED IN L2 WHEN THE PROFILES ARE READ FROM L1
+	double  *zLR 	; // LR (LOW  RESOLUTION) USED IN L1 WHEN THE PROFILES ARE READ FROM RADIOSOUNDES
+	double	*pLR 	; // LR (LOW  RESOLUTION) USED IN L1 WHEN THE PROFILES ARE READ FROM RADIOSOUNDES
+	double 	*tLR 	; // LR (LOW  RESOLUTION) USED IN L1 WHEN THE PROFILES ARE READ FROM RADIOSOUNDES
+	double 	*nLR 	; // LR (LOW  RESOLUTION) USED IN L1 WHEN THE PROFILES ARE READ FROM RADIOSOUNDES
+	int 	nBinsLR ; // LR (LOW  RESOLUTION) USED IN L1 WHEN THE PROFILES ARE READ FROM RADIOSOUNDES
 	double 	*nHR 	;
-	double 	*alpha_mol ;
-	double 	*beta_mol  ;
-	int 	nBinsLR ;
+	double 	*alpha_mol ; // HR
+	double 	*beta_mol  ; // HR
 } ;
 
 struct strcFitParam
 { // FITTING DATA USED IN FUNCTIONS WHERE RAYLEIGH-FIT IS APPLIED.
-	int 	indxInicFit  ;
+	int 	indxInitFit  ;
 	int 	indxEndFit   ;
 	int 	nFit		 ;
 // PARAMETERS OF THE FIT TO REDUCE THE RMS ERROR
@@ -376,6 +384,7 @@ struct strcFitParam
 	double  var     ;
 	double  std     ;
 	double  R2	    ;
+	double  F	    ;
 
 	//INTERMEDIATE VARIABLES FOR R2
 	double s  				   ;

@@ -33,15 +33,15 @@ make -f makefile_lidarAnalysis_PDL1 $1
 
 sleep 1
 
-echo ""
-echo ""
-echo ""
-echo ""
-echo "Building make_cloudDB_LPP..."
-echo ""
-make -f makefile_make_CloudDB_LPP $1
+# echo ""
+# echo ""
+# echo ""
+# echo ""
+# echo "Building make_cloudDB_LPP..."
+# echo ""
+# make -f makefile_make_CloudDB_LPP $1
 
-sleep 1
+# sleep 1
 
 echo ""
 echo ""

@@ -1,4 +1,8 @@
-/* * cfernald.cpp * Copyright 2018 Juan V. Pallotta <Juan V. Pallotta@JUAN> */
+/*
+ * cfernald.cpp
+ * Copyright 2018 Juan V. Pallotta <Juan V. Pallotta@JUAN>
+ */
+
 #include "cfernald.h"
 
 CFernald::CFernald()
@@ -43,9 +47,9 @@ void CFernald::FreeMemVectorsFernaldInversion()
 void CFernald::FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGlobalParameters *glbParam, int indxRef, double ka, strcFernaldInversion *fernaldVectors, strcAerosolData *dataAer )
 { /*
 	cumtrapz( glbParam->dr, dataMol->alphaMol, 0, (dataMol->nBins-1),  fernaldVectors->intAlphaMol_r   ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
-	trapz	( glbParam->dr, dataMol->alphaMol, 0, indxRef		      , &fernaldVectors->intAlphaMol_Ref ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
+	fitParam.indxInitFit, dataMol->alphaMol, 0, indxRef		      , &fernaldVectors->intAlphaMol_Ref ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
 
-// REFERENCE POINT CALCULATION
+// REFERENCE POINT CALCULATIONfitParam.indxInitFit
 	strcFitParam	fitParam ;
 	fitParam.indxInicFit = indxRef - 100 ;
 	fitParam.indxEndFit  = indxRef + 100 ;

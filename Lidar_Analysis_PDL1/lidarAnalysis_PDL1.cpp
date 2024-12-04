@@ -201,6 +201,7 @@ int main( int argc, char *argv[] )
 
     // MOLECULAR DATA READOUT FOR EACH CHANNEL (MUST BE FOR EACH LAMBDA)
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
+    glbParam.evSel = -10 ;
     oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
 
     double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
@@ -225,13 +226,20 @@ int main( int argc, char *argv[] )
 
     oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)data_File_L1, (double***)pr_corr, (double***)pr2 ) ;
 
+    // for (int e = 0; e < glbParam.nEventsAVG; e++)
+    // {
+    //     for ( int c = 0; c < glbParam.nCh ; c++)
+    //         printf("\n glbParam.indxEndSig_ev_ch[%d][%d]= %d  ", e, c, glbParam.indxEndSig_ev_ch[e][c] ) ;
+    // }
+    // exit(0) ;
+
     printf("\n\n") ;
 
     if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
     {
         // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
         if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
-            printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog. The performance could not be good!!!\n", glbParam.indxWL_PDL1 ) ;
+            printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog\n", glbParam.indxWL_PDL1 ) ;
 
         oDL1->pr_for_cloud_mask = (double**) new double*[ glbParam.nEventsAVG ] ;
         for (int e=0 ; e <glbParam.nEventsAVG ; e++)
@@ -257,7 +265,7 @@ int main( int argc, char *argv[] )
           ( (glbParam.MAX_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ < glbParam.MAX_TOGGLE_RATE_MHZ) )
         )
     {
-        printf("Gluing:") ;
+        printf("========================================> Gluing <================================================================================") ;
         for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
         {
             if ( ( glbParam.iLambda [glbParam.indx_gluing_Low_AN[c]  ]   == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
@@ -275,21 +283,10 @@ int main( int argc, char *argv[] )
 
                     if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL1 )
                     {
-                        if ( glbParam.rEndSig <0 )
-                        {   // FIND THE MAX RANGE OF THE GLUED SIGNALS
-                            int indxMaxRange ;
-                            glbParam.chSel = glbParam.indxWL_PDL1 ;
-                            oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
+                        glbParam.chSel = glbParam.indxWL_PDL1 ;
+                        oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 
-                            oDL1->oLOp->Find_Max_Range( (double*)&pr_corr[e][glbParam.indxWL_PDL1][0], (double*)oMolData->dataMol.prMol,
-                                                        (strcGlobalParameters*)&glbParam, (int*)&indxMaxRange ) ;
-// printf("\t Max range channel %d AFTER gluing with channel %d: %lf\n", glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c], glbParam.rEndSig_ev[e] ) ;
-                        }
-                        else // glbParam.rEndSig >0
-                        {
-                            glbParam.indxEndSig_ev[glbParam.evSel] = (int) glbParam.indxEndSig ;
-                            glbParam.rEndSig_ev   [glbParam.evSel] = glbParam.indxEndSig_ev[glbParam.evSel] * glbParam.dr ;
-                        }
+                        oDL1->oLOp->Find_Max_Range( (double*)&pr_corr[e][glbParam.indxWL_PDL1][0], (strcMolecularData*)&(oMolData->dataMol), (strcGlobalParameters*)&glbParam ) ;
                     } // if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL1 )
                 }
             }
@@ -323,7 +320,7 @@ int main( int argc, char *argv[] )
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
-    printf("\nLayer detection algorithm:") ;
+    printf("\n========================================> Layer detection algorithm <================================================================================") ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         glbParam.evSel = t ;
@@ -361,23 +358,19 @@ int main( int argc, char *argv[] )
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
-    glbParam.evSel = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
-    glbParam.chSel = glbParam.indxWL_PDL1 ;
-    oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
+    // glbParam.evSel = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
+    // glbParam.chSel = glbParam.indxWL_PDL1 ;
+    // oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
-
-    // for ( int e=0; e <glbParam.nEventsAVG ; e++  )
-    //     delete [] Cloud_Profiles[e] ;
-    // delete [] Cloud_Profiles ;
 
     delete Raw_Data_Start_Time      ;
     delete Raw_Data_Stop_Time       ;
     delete Raw_Data_Start_Time_AVG  ;
     delete Raw_Data_Stop_Time_AVG   ;
 
-    cout << endl << endl << "\tLidar Analisys PDL1 Done" << endl << endl ;
+    printf("\n\n\tLidar Analisys PDL1 Done\n\n") ;
     printf("\n\n---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\n\n") ;
     
 	return 0 ;

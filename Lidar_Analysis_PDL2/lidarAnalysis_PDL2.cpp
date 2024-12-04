@@ -74,10 +74,9 @@ int main( int argc, char *argv[] )
     assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
     glbParam.chSel  = glbParam.indxWL_PDL2 ;
 
-	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method", "string", (char*)oDL2->reference_method.c_str() ) ;
+	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method"             , "string", (char*)oDL2->reference_method.c_str()         ) ;
 	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Start_ASL", "double", (double*)&oDL2->heightRef_Inversion_Start_ASL ) ;
 	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL" , "double", (double*)&oDL2->heightRef_Inversion_Stop_ASL  ) ;
-
 // LOADING LIDAR DATA  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // READ DATA FROM L0 DATA LEVEL AND AVERAGE TO L2 DATA LEVEL
     {
@@ -90,22 +89,20 @@ int main( int argc, char *argv[] )
 
        oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
     }
-    else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2
-    {   // LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED --> COPY TO L2 OBJECT
+    else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2 ===> LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED --> COPY TO L2 OBJECT
         oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
-    }
-// LIDAR DATA LOADED IN oDL2->data_File_L2 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    // AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam ) ;
-    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Temperature_K", (double*)&oMolData->dataMol.tK[0]  ) ;
-    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Pressure_Pa"  , (double*)&oMolData->dataMol.pPa[0] ) ;
+    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Temperature_K", (double*)&oMolData->dataMol.tK[0]     ) ;
+    oNCL.ReadVar( (int)ncid_L1_Data, (const char*)"Pressure_Pa"  , (double*)&oMolData->dataMol.pPa[0]    ) ;
+    if ( ( retval = nc_get_att_int(	(int)ncid_L1_Data, (int)NC_GLOBAL, (const char*)"Max_Mol_Range", (int*)&oMolData->dataMol.z_Mol_Max ) ) )
+        ERR(retval);
 
+    glbParam.evSel = -10 ;
     oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam ) ;
 
-    // for (int i =0; i <glbParam.nBins; i++)
-    //     oDL2->nMol[i] = oMolData->dataMol.nMol[i] ;
-
-    printf("\n\n") ;
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0 --> CORRECTIONS
     {
         oDL2->layer_mask = (int**) new int*[ glbParam.nEventsAVG ] ; // TIME DIMENSION
@@ -123,7 +120,7 @@ int main( int argc, char *argv[] )
                 {
                     pr2[e][c]     = (double*) new double[glbParam.nBins] ;
                     pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
-                }        
+                }
         }
 
         double  **ovlp ;
@@ -186,19 +183,40 @@ int main( int argc, char *argv[] )
                         if ( (retval = nc_close(ncid)) )
                             ERR(retval) ;
 
-    glbParam.chSel = glbParam.indxWL_PDL2 ;
+    // for ( int i =0 ; i < nCh_to_invert; i++)
+    // {
+        glbParam.chSel = glbParam.indxWL_PDL2 ;
+    // }
 
     if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") ==0 )
-		printf("\nNo AERONET data set in the configuration file. Using fixed LRs\n") ;
+    {   // TRY TO DOWNLOAD AND LOAD THE AERONET DATA
+        printf("\nNo AERONET file set in the configuration file (AERONET_FILE variable). Trying to download it...\n") ;
+
+        if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_path, "NOT_FOUND") ==0) )
+            printf("*** Since AERONET_FILE is not set, both AERONET_PATH, AERONET_SITE_NAME and AERONET_DATA_LEVEL *must* be set in the configuration file to download the data. ***\n*** No AERONET data will be used in the run. ***") ;
+
+        else if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_path, "NOT_FOUND") !=0) )
+            oDL2->Download_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
+    }
 	else
     {
-        printf("\nLoading AERONET data file  (%s)\n", oDL2->aeronet_file ) ;
-        oDL2->Load_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
-    }
+        printf("\nLoading AERONET data file: %s...", oDL2->aeronet_file ) ;
 
+        if ( oDL2->Check_AERONET_Data( (char*)oDL2->aeronet_file) ==1 )
+            oDL2->Load_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
+        else
+        {
+            printf("\nError in the AERONET data file set in the configuration file. Check %s\n", oDL2->aeronet_file) ;
+            sprintf( oDL2->aeronet_file, "NOT_FOUND") ;
+        }
+
+        printf("done\n") ;
+    }
+// INVERSION THROUGH ALL THE AVERAGED LIDAR PROFILES
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
     {
         glbParam.evSel = t ;
+
         oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
         if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 )
         {
@@ -214,27 +232,31 @@ int main( int argc, char *argv[] )
         }
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
-
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MonteCarlo_N_SigSet_Err", (const char*)"int", (int*)&glbParam.MonteCarlo_N_SigSet_Err ) ;
-
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
             if ( glbParam.MonteCarlo_N_SigSet_Err >=1 )
             {
-                printf("\nInverting w/Error Analysis:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[c], glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
-                oDL2->MonteCarloRandomError( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                printf("\nInverting w/Error Analysis:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[t], glbParam.chSel, glbParam.iLambda[glbParam.chSel]) ;
+                    oDL2->MonteCarloRandomError( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
             }
             else
             {
-                printf("\nInverting:\t Event: %d (%d) \t Channel: %d \t Wavelenght: %d ", t, oDL2->Start_Time_AVG_L2[c], glbParam.indxWL_PDL2, glbParam.iLambda[glbParam.indxWL_PDL2]) ;
+                printf("\nInverting:\t Event: %d/%d (%d) \t Channel: %d \t Wavelenght: %d nm \t Zenith: %lf", t, (glbParam.nEventsAVG-1) , oDL2->Start_Time_AVG_L2[t], glbParam.chSel, glbParam.iLambda[glbParam.chSel], oMolData->dataMol.zenith ) ;
                     oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                // for (int i = 0; i < glbParam.nBins ; i++)
+                // {
+                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.nMol[i] ;
+                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.alphaMol[i] ;
+                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.pr2Mol[i] ;
+                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.prMol[i] ;
+                // }
             }
         } // for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
     printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", Path_File_Out.c_str() ) ;
 
     oNCL.Save_LALINET_NCDF_PDL2( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
-
     printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
 	return 0 ;
 }

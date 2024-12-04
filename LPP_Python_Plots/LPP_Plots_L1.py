@@ -1,7 +1,7 @@
 
-# python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/LPP_OUT/14_L0_L1.nc
+# python LPP_Plots_L1.py /mnt/Disk-1_8TB/Argentina/Cordoba/20240902/LPP_OUT/20240902_L0_L1.nc
 
-# python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/SPU/20170409/day/LPP_OUT/day_L0_L1.nc
+# python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/LPP_OUT/14_L0_L1.nc
 
 # python LPP_Plots_L1.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0_L1.nc
 # python LPP_Plots_L1.py /mnt/Disk-1_8TB/Argentina/Cordoba/Paper_Celeste/20190927/LPP_OUT/20190927_L0_L1.nc
@@ -17,7 +17,7 @@ import sys
 
 minFactor = 0.00
 maxFactor = 1.00
-maxRange  = 25000
+maxRange  = 10000
 
 nc_file = sys.argv[1]
 print("\nName of NetCDF file:", nc_file )
@@ -70,7 +70,8 @@ yy, xx = np.meshgrid(r, time_L1)
 
 # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 10))
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(24, 10))
-ax1.pcolor(xx, yy, RCLS_L1, vmin=minRCLS, vmax=maxRCLS, cmap='jet')
+# ax1.pcolor(xx, yy, RCLS_L1, vmin=minRCLS, vmax=maxRCLS, cmap='jet')
+ax1.pcolor(xx, yy, RCLS_L1, cmap='jet')
 ax2.pcolor(xx, yy, CM)
 
 ax1.set_title('RCLS')

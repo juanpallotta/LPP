@@ -28,7 +28,8 @@ then # PATH_IN is a directory, so L0=yes must be set
         echo -e "\nPATH_IN: $PATH_IN  --> is a DIRECTORY, so L0 must be set as 'yes' in LPP_Run_Settings.sh"
         exit 0
     else # L0="yes" and PATH_IN is a directory
-        PATH_IN_LIST=`find $PATH_IN -type d -links 2`  # SEARCH FOR THE LAST SUB-FOLDERS INSIDE THE INPUT PATH
+        # PATH_IN_LIST=`find $PATH_IN -type d -links 2`  # SEARCH FOR THE LAST SUB-FOLDERS INSIDE THE INPUT PATH
+        PATH_IN_LIST=`find $PATH_IN -type d`  # (WINDOWS - WSL) SEARCH FOR THE LAST SUB-FOLDERS INSIDE THE INPUT PATH
         echo -e "\nPATH_IN_LIST:\n$PATH_IN_LIST"
         if [[ "${L2,,}" == "yes" ]] && [[ "${L1,,}" == "no" ]]
         then
@@ -159,7 +160,7 @@ then
 
                 #   PLOTTING
                 PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"LPP_Plots_L1.py"
-                echo -e "\n\nGenerating plots for L1...\npython3 "$PATH_FILE_TO_PLOT" "$PATH_FILE_OUT_L1
+                echo -e "\n\nGenerating plots for L1...\npython "$PATH_FILE_TO_PLOT" "$PATH_FILE_OUT_L1
                 python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L1
             else # if [[ -f $PATH_FILE_IN_L1 ]]
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_Run_Settings.sh file"

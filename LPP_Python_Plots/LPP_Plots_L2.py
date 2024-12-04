@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 3000
+indx_Max = 1500
 minFactor = 0.00
 maxFactor = 1.00
 
@@ -36,8 +36,10 @@ resolution = fh.getncattr('Range_Resolution')
 indx_Ch_L2 = int(fh.groups['L2_Data'].getncattr('indxChannel_for_Fernald_inv'))
 r          = (np.arange(nbins)+1) *resolution*1e-3 - (resolution*1e-3)/2        # r = (np.arange(nbins)+1) *resolution*1e-3 
 
-alpha_Aer = fh["/L2_Data/Aerosol_Extinction"][:]
-beta_Aer  = fh["/L2_Data/Aerosol_Backscattering"][:]
+# alpha_Aer = fh["/L2_Data/Aerosol_Extinction_355nm"][:]
+# beta_Aer  = fh["/L2_Data/Aerosol_Backscattering_355nm"][:]
+alpha_Aer = fh["/L2_Data/Aerosol_Extinction_532nm"][:]
+beta_Aer  = fh["/L2_Data/Aerosol_Backscattering_532nm"][:]
 RCLS_L2   = fh["/L2_Data/Range_Corrected_Lidar_Signal_L2"][:]
 
 LRs       = fh["/L2_Data/LRs"]
@@ -60,6 +62,7 @@ for l in np.arange(len(LRs), step=2):
 
 # PLOT AOD vs TIME vs LR
 plt.xlabel('UTC Time [h]')
+# plt.ylabel('AOD @ 355 nm')
 plt.ylabel('AOD @ 532 nm')
 # plt.ylim(-0.01, 2)
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
@@ -135,7 +138,8 @@ maxAlpha = max(map(max, alpha_a)) *maxFactor
 
 yy, xx = np.meshgrid(r[0:indx_Max], time_L2[0:indx_Max])
 plt.figure(num=1,figsize=(8,6),clear=True)
-plt.pcolor(xx, yy, alpha_a, vmin=minAlpha, vmax=maxAlpha, cmap='jet')
+plt.pcolor(xx, yy, alpha_a, cmap='jet')
+# plt.pcolor(xx, yy, alpha_a, vmin=minAlpha, vmax=maxAlpha, cmap='jet')
 
 # plt.set_title('Alpha Aer')
 # plt.set(xlabel='Range [m]', ylabel='Alpha Aer [1/m]')

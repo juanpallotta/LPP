@@ -413,9 +413,7 @@ void ReadGlobalParamROOT( char *strLidarFile, strcGlobalParameters *glbParam )
 
 		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBinsBkg", "int"   , &glbParam->nBinsBkg ) ;
 		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rInitSig", "double", (double*)&glbParam->rInitSig ) ;
-		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "rEndSig" , "double", (double*)&glbParam->rEndSig  ) ;
 		glbParam->indxInitSig = (int) round( glbParam->rInitSig / (glbParam->dr) ) -1 ;
-		glbParam->indxEndSig  = (int) round( glbParam->rEndSig  / (glbParam->dr) ) -1 ;
 		glbParam->indxEndSigEvnt = (int*) new int[glbParam->nEvents] ;
 		for (int i =0; i <glbParam->nEvents; i++)
 			glbParam->indxEndSigEvnt[i] = glbParam->indxEndSig ;
@@ -1065,7 +1063,8 @@ void saveCloudsInfoDB( strcGlobalParameters *glbParam, strcCloudInfoDB *cloudInf
 	double  cloudCoverage = cloudInfoDB->cloudCoverage / dataToSave->nEventsSaved ;
 	double	lowestCloudHeight_ASL 	=999.999 ;
 	double 	lowestCloudThickness 	=999.999 ;
-	double  lidarMaxHeight = round( glbParam->rEndSig /1000 ) ;
+	// OJO EN LA SIGUIENTE LINEA QUE ELIMINE LA VARIABLE rEndSig
+	double  lidarMaxHeight = round( glbParam->rEndSig_ev_ch[glbParam->evSel][glbParam->chSel] /1000 ) ;
 
 	if ( cloudCoverage >0 )
 	{

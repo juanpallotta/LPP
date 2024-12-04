@@ -194,13 +194,12 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
     }
     else 
 	{
-		cout << endl << "ReadAnalisysParameter() --> Unable to open file " << fileName << endl ; 
+		printf("\nReadAnalisysParameter() --> Unable to open file %s \n", fileName) ;
 		return 0 ;
 	}
     if ( found == false)
     {
-		// printf("\n\n*** ReadAnalisysParameter() --> variable %s not found or commented in setting file %s *** \n\n", varToFind, fileName ) ;
-		printf("\n Variable *%s* not found or commented in setting file *%s*  \n\n", varToFind, fileName ) ;
+		// printf("\n Variable *%s* not found or commented in setting file *%s*  \n\n", varToFind, fileName ) ;
         if ( strcmp( varType, "string" ) == 0 )
             strcpy( ((char*)var), "NOT_FOUND") ;
         else if ( strcmp( varType, "int" ) == 0 )
@@ -268,8 +267,8 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 	if ( strcmp( modeBkg, "wB" ) == 0 )
 	{
 		double *coeff = (double*) new double[2] ;
-		polyfitCoeff( (const double* const) &sigMol[fitParam->indxInicFit], // X DATA
-		  			  (const double* const) &sig[fitParam->indxInicFit], // Y DATA
+		polyfitCoeff( (const double* const) &sigMol[fitParam->indxInitFit], // X DATA
+		  			  (const double* const) &sig[fitParam->indxInitFit], // Y DATA
 					  (unsigned int       ) fitParam->nFit,
 					  (unsigned int		  ) 1,
 					  (double*			  ) coeff	 ) ;
@@ -287,7 +286,7 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 		}
 		else
 		{ // "NOTall"
-			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
+			for ( int i=fitParam->indxInitFit ; i <=fitParam->indxEndFit ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m + fitParam->b ) ;
 				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
@@ -297,7 +296,7 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 	else if ( strcmp( modeBkg, "wOutB" ) == 0 )
 	{
 		double	mNum=0, mDen=0 ;
-		for ( int i=fitParam->indxInicFit ; i <= fitParam->indxEndFit ; i++ )
+		for ( int i=fitParam->indxInitFit ; i <= fitParam->indxEndFit ; i++ )
 		{
 			mNum = mNum + sig   [i]*sigMol[i] ;
 			mDen = mDen + sigMol[i]*sigMol[i] ;
@@ -315,7 +314,7 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 		}
 		else
 		{
-			for ( int i=fitParam->indxInicFit ; i <=fitParam->indxEndFit ; i++ )
+			for ( int i=fitParam->indxInitFit ; i <=fitParam->indxEndFit ; i++ )
 			{
 				sigFil[i] = (double) ( sigMol[i] * fitParam->m ) ;
 				fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sigFil[i] - sig[i]), 2 ) ;
@@ -354,9 +353,9 @@ int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double *
 	while( !feof(fid) )
 	{
 		fgets(line, 1024, fid) ;
-		nRows_ovlpFile++     ;
+		nRows_ovlpFile++       ;
 	}
-	nRows_ovlpFile--;
+	nRows_ovlpFile--; // REMOVE THE HEADER
 // GET THE NUMBER OF COLUMNS (CHANNELS) IN THE OVERLAP FILE
 	v = strtok( line, ",") ;
 	while(v)
@@ -364,7 +363,7 @@ int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double *
 		v = strtok(NULL, ",") ;
 		nCols_ovlpFile++ ;
 	}
-	nCols_ovlpFile--;
+	nCols_ovlpFile--; // REMOVE THE RANGE COLUMN
 
 	if ( (nRows_ovlpFile !=glbParam->nBins ) || ( nCols_ovlpFile !=glbParam->nCh ) )
 	{
@@ -376,128 +375,32 @@ int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double *
 
 	// READ THE HEADER
 	fgets(line, 1024, fid) ;
-	int c=0, i=0 ;
+	int 	c=0, i=0 ;
+	// char	*endptr ;
 	while( fgets(line, 1024, fid ) )
 	{
 		v = strtok( line, "," ) ; // TOKENIZE THE READ LINE
 		v = strtok( NULL, "," ) ; // JUMP THE FIRST ELEMENT (RANGE)
 		while(v)
 		{
-			ovlp[c][i] = atof(v)  ;
+			ovlp[c][i] = (double)atof(v)  ;
 			v = strtok(NULL, ",") ; // JUMP TO THE NEXT ELEMENT (CHANNEL)
 			c++ ;
 		}
 		c =0 ;
 		i++  ;
 	}
+
+	for ( c =0; c < glbParam->nCh; c++)
+	{
+		for (i = 0; i < glbParam->nBins_Ch[c]; i++)
+		{
+			if ( (ovlp[c][i] ==0) && (i >=1) && (i <=glbParam->nBins_Ch[c]) )
+				ovlp[c][i] = (ovlp[c][i-1] + ovlp[c][i+1]) /2 ;
+		}
+	}
 	return 10 ;
 }
-
-
-
-
-
-
-
-
-
-// void Mol_Low_To_High_Res( int nLR, double *xLR, double *yLR, int nHR, double *xHR, double *yHR )
-// {
-// 	double *coeff = (double*) new double[3 +1] ;
-	
-// 	polyfitCoeff( (const double* const) xLR, // X DATA
-// 			    (const double* const  ) yLR, // Y DATA
-// 			    (unsigned int         ) nLR,
-// 			    (unsigned int		  ) 3,
-// 			    (double*			  ) coeff	 ) ;
-
-// 	for (int i =0 ; i <nHR ; i++ )
-// 	{
-// 		yHR[i] = pow(xHR[i], 3) *coeff[3] + pow(xHR[i], 2) *coeff[2] + xHR[i]*coeff[1] + coeff[0] ;
-// 	}
-// 	delete coeff ;	
-// }
-
-// void ReadUsSTDfile( const char *radFile, strcRadioSoundingData *RadData, strcMolecularData *dataMol )
-// {
-// 	char 	ch ;
-// 	int 	lines=0 ;
-// 	char 	lineaRad[100], strDump[100] ;
-
-// 	FILE *fid = fopen(radFile, "r");
-// 	if ( fid == NULL )
-// 		printf("\n ReadUsSTDfile(...): No se puede abrir el archivo %s \n", radFile) ;
-
-// OBTENGO LA CANTIDAD DE FILAS, O CANTIDAD DE BINES DEL RADIOSONDEO (BAJA RESOLUCION).
-// 	while( !feof(fid) )
-// 	{
-// 	  ch = fgetc(fid);
-// 	  if(ch == '\n')	lines++ ;
-// 	}
-// 	fseek( fid, 0, 0 ) ; // RESET THE POINTER
-
-// // READ RADIOSONDE DATA REFERENCED AT *ASL* AND LOW RESOLUTION (LR)
-// 	double *zLR = (double*) new double [lines] ;
-// 	double *pLR = (double*) new double [lines] ;
-// 	double *tLR = (double*) new double [lines] ;
-// 	double *nLR = (double*) new double [lines] ;
-// 	for ( int l=0 ; l<lines ; l++ ) // BARRO LAS LINEAS.
-// 	{
-// 		fgets(lineaRad, 100, fid) ;
-// 		sscanf(lineaRad, "%lf,%lf,%lf,%s", &zLR[l], &tLR[l], &pLR[l], strDump ) ; // a-t-p
-// 	}
-// // SITE INDEX ALTITUDE (indxMin)
-// // FIND THE INDEX OF zLR WHERE zLR=siteASL AND WHEN zLR=glbParam->rEndSig
-// 	double  diff ;
-// 	double  diffMin, diffMax ;
-// 	int 	indxMin =0, indxMax =0 ;
-// 	for ( int i=0 ; i<lines ; i++ )
-// 	{
-// 		diff = fabs( dataMol->zr[0] - zLR[i] ) ;
-// 		if ( i==0 )
-// 		{	
-// 			diffMin	= diff 	;
-// 			indxMin = i		;
-// 		}
-// 		else if ( diff < diffMin )
-// 		{	
-// 			diffMin = diff 	;
-// 			indxMin = i 	;
-// 		}
-// 		diff = fabs( float(dataMol->zr[dataMol->nBins-1]) - zLR[i] ) ;
-// 		if ( i==0 )
-// 		{	
-// 			diffMax	= diff 	;
-// 			indxMax = i		;
-// 		}
-// 		else if ( diff < diffMax )
-// 		{	
-// 			diffMax = diff 	;
-// 			indxMax = i 	;
-// 		}
-// 	}
-// 	RadData->nBinsLR = indxMax - indxMin +1 ; // lines - indxMin ;
-// 	RadData->zLR = (double*) new double [RadData->nBinsLR] ;
-// 	RadData->pLR = (double*) new double [RadData->nBinsLR] ;
-// 	RadData->tLR = (double*) new double [RadData->nBinsLR] ;
-// 	RadData->nLR = (double*) new double [RadData->nBinsLR] ;
-
-// 	for ( int b=0 ; b<RadData->nBinsLR ; b++ ) // BARRO LAS LINEAS.
-// 	{ // RadData->xLR[0] CORRESPOND TO THE POINT OF THE SITE ALTITUDE ASL.
-// 		RadData->zLR[b] = zLR[b+indxMin] ; // RadData->zLR --> ASL
-// 		RadData->tLR[b] = tLR[b+indxMin] ; // RadData->tLR --> ASL
-// 		RadData->pLR[b] = pLR[b+indxMin] ; // RadData->pLR --> ASL
-// 	}
-// 	// PARA EL SPLINE, INICIO Y FIN DE LA ALTURA TIENEN QUE SER IGUALES
-// 	RadData->zLR[0] = dataMol->zr[0] ;
-// 	RadData->zLR[RadData->nBinsLR-1] = dataMol->zr[dataMol->nBins-1] ;
-
-// 	fclose(fid) ;
-// 	delete zLR ;
-// 	delete pLR ;
-// 	delete tLR ;
-// 	delete nLR ;
-// }
 
 void GetMem_DataFile( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam )
 {
@@ -637,7 +540,8 @@ int CheckLidarDataBaseIntegrity( strcLidarDataFile *dataFile, strcGlobalParamete
 		for ( int i=round(glbParam->indxInitSig/2) ; i<(round(glbParam->indxInitSig/2)+nBinsMean) ; i++ )	meanA = meanA + s[i] ;
 		meanA = meanA /nBinsMean ;
 
-		for ( int i=(glbParam->indxEndSig-nBinsMean) ; i < (glbParam->indxEndSig-1) ; i++ ) meanB = meanB + s[i] ;
+		for ( int i=(glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]-nBinsMean) ; i < (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]-1) ; i++ ) 
+			meanB = meanB + s[i] ;
 		meanB = meanB /nBinsMean ;
 
 		if ( meanA < (1.1*meanB) ) // IF BOTH VALUES ARE TOO CLOSE ---> NOISE --> FLUSH THE EVENT
@@ -701,8 +605,8 @@ void checkUnderShoot( double *pr, strcGlobalParameters *glbParam, strcMolecularD
 
 SET_NEW_INDX_END_SIG:	
 	fitParam.indxEndFit  = glbParam->indxEndSig -stepIndxEnd;
-	fitParam.indxInicFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit ;
+	fitParam.indxInitFit = fitParam.indxEndFit - glbParam->nBinsBkg ; //glbParam->nBins - 1 - ; //  glbParam->nBins - 1
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit ;
 		RayleighFit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;	
 	if( fitParam.m <0 )
 	{
@@ -711,7 +615,7 @@ SET_NEW_INDX_END_SIG:
 	}
 	else
 	{
-		if ( fitParam.indxInicFit > (int)round(15000/glbParam->dr) ) // if ( fitParam.indxEndFit > (int)round(15000/glbParam->dr) )
+		if ( fitParam.indxInitFit > (int)round(15000/glbParam->dr) ) // if ( fitParam.indxEndFit > (int)round(15000/glbParam->dr) )
 		{ // EVENT PROBABLY WITH UNDERSHOOT, BUT STILL USEFULL...
 			glbParam->indxEndSig_ev[glbParam->evSel] = (int)round(fitParam.indxEndFit *nBinsFactor) ;
 			glbParam->rEndSig    	 = (double)(glbParam->indxEndSig_ev[glbParam->evSel] * glbParam->dr) ;
@@ -941,9 +845,9 @@ void FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGlobalParame
 	else
 	{
 		strcFitParam	fitParam ;
-		fitParam.indxInicFit = indxRef - 10 ;
+		fitParam.indxInitFit = indxRef - 10 ;
 		fitParam.indxEndFit  = indxRef + 10 ;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 			RayleighFit   ( (double*)pr2, (double*)dataMol->pr2Mol, dataMol->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)fernaldVectors->pr2Fit ) ;
 		pr2RefValue = fernaldVectors->pr2Fit[indxRef] ;
 	}
@@ -998,9 +902,9 @@ void FernaldInversion_pr( double *pr, strcMolecularData *dataMol, strcGlobalPara
 	else
 	{
 		strcFitParam	fitParam ;
-		fitParam.indxInicFit = indxRef - 10 ;
+		fitParam.indxInitFit = indxRef - 10 ;
 		fitParam.indxEndFit  = indxRef + 10 ;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInicFit +1 ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 			RayleighFit( (double*)pr, (double*)dataMol->prMol, dataMol->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)fernaldVectors->prFit ) ;
 		prRefValue = fernaldVectors->prFit[indxRef] ;
 	}
@@ -1066,13 +970,13 @@ void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 // void bkgSubstractionMolFit (strcMolecularData *dataMol, const double *prEl, strcFitParam *fitParam, double *pr_no_DarkCur)
 // {
 // 	// cout<<"----------- bkgSubstractionMolFit" ;
-// 	// printf("\n\nfitParam->indxInicFit: %d\nfitParam->indxEndFit: %d\nfitParam->nFit: %d\n\n", fitParam->indxInicFit, fitParam->indxEndFit, fitParam->nFit) ;
+// 	// printf("\n\nfitParam->indxInitFit: %d\nfitParam->indxEndFit: %d\nfitParam->nFit: %d\n\n", fitParam->indxInitFit, fitParam->indxEndFit, fitParam->nFit) ;
 
 // 	double *dummy = (double*) new double[dataMol->nBins] ; 
 // 	RayleighFit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)fitParam, (double*)dummy ) ;
 // 		for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_no_DarkCur[i] = (double)(prEl[i] - fitParam->b) ; 
 
-// 	// printf( "\nbkgSubstractionMolFit() --> fitParam->b: %lf \nfitParam->indxInicFit: %d \nfitParam->indxInicFit: %d \n", fitParam->b, fitParam->indxInicFit, fitParam->indxEndFit ) ;
+// 	// printf( "\nbkgSubstractionMolFit() --> fitParam->b: %lf \nfitParam->indxInitFit: %d \nfitParam->indxInitFit: %d \n", fitParam->b, fitParam->indxInitFit, fitParam->indxEndFit ) ;
 
 // 	delete dummy ;
 // }
@@ -1170,11 +1074,11 @@ void LowRangeCorrection( strcGlobalParameters *glbParam, double *sig )
 // {
 // // GET m AND b WITH A LINEAR FIT IN (CORRELATED)
 
-// 	int binInitFit = (int) fitParam->indxInicFit ;
+// 	int binInitFit = (int) fitParam->indxInitFit ;
 // 	int nFit = fitParam->nFit ;
 
 // 	gsl_fit_linear( &r[binInitFit], 1, &prEl[binInitFit], 1, nFit, &fitParam->b, &fitParam->m, &fitParam->cov00, &fitParam->cov01, &fitParam->cov11, &fitParam->squared_sum_fit ) ;
-// 	// RayleighFit( (double*)&dataMol->prMol[fitParam->indxInicFit], (double*)&prEl[fitParam->indxInicFit], dataMol->nBins, "wB", "NOTall", (strcFitParam*)fitParam, (double*)pr ) ;
+// 	// RayleighFit( (double*)&dataMol->prMol[fitParam->indxInitFit], (double*)&prEl[fitParam->indxInitFit], dataMol->nBins, "wB", "NOTall", (strcFitParam*)fitParam, (double*)pr ) ;
 
 // 		for ( int i=0 ; i<nBins ; i++ ) 	pr[i] = (double)(prEl[i] - ( fitParam->m * r[i] + fitParam->b ) ) ;
 // }
@@ -1198,9 +1102,9 @@ for ( int idrf = 0 ; idrf<(int)NUMELEM(dNfit) ; idrf++ )
 {
 	for( int i=indxInitErr ; i<=indxEndErr ; i++ )
 	{
-		fitParam.indxInicFit = i ;
-		fitParam.indxEndFit  = fitParam.indxInicFit + dNfit[idrf] ;
-		fitParam.nFit		 = fitParam.indxEndFit  - fitParam.indxInicFit ;
+		fitParam.indxInitFit = i ;
+		fitParam.indxEndFit  = fitParam.indxInitFit + dNfit[idrf] ;
+		fitParam.nFit		 = fitParam.indxEndFit  - fitParam.indxInitFit ;
 			RayleighFit( (double*)pr2, (double*)dataMol->pr2Mol, dataMol->nBins, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)pr2Fil ) ;
 
 		indxMol->errRMS[i]   = fitParam.squared_sum_fit ; // r
@@ -1288,10 +1192,10 @@ for ( int idrf = 0 ; idrf<(int)NUMELEM(dNfit) ; idrf++ )
 void RayleighFit_Factor( double *sig, double *sigMol, strcFitParam *fitParam, double *sigFil_Factor )
 { // PASTE MOLECULAR PROFILE IN THE RANGES DEFINED BY fitParam (DOES'T NOT FIT!!)
 
-	fitParam->f = (double)sig[fitParam->indxInicFit]/sigMol[fitParam->indxInicFit] ;
+	fitParam->f = (double)sig[fitParam->indxInitFit]/sigMol[fitParam->indxInitFit] ;
 	fitParam->squared_sum_fit = 0 ;
 
-	for ( int i=fitParam->indxInicFit ; i <= fitParam->indxEndFit ; i++ )
+	for ( int i=fitParam->indxInitFit ; i <= fitParam->indxEndFit ; i++ )
 	{
 		sigFil_Factor[i] = (double) (sigMol[i] * fitParam->f ) ;
 		fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow( (sig[i] - sigFil_Factor[i]), 2 ) ;

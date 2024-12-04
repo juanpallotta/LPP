@@ -104,10 +104,10 @@ int main( int argc, char *argv[] )
     if ( ( retval = nc_get_att_double( (int)ncid, NC_GLOBAL, "Range_Resolution", (double*)&glbParam.dr ) ) )
         ERR(retval);
 
-    if ( ( retval = nc_get_att_double( (int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (double*)&glbParam.siteASL ) ) )
+    if ( ( retval = nc_get_att_int( (int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (int*)&glbParam.siteASL ) ) )
         ERR(retval);
 
-    if ( ( retval = nc_get_att_text( (int)ncid, NC_GLOBAL, "Site_Name", (char*)glbParam.site ) ) )
+    if ( ( retval = nc_get_att_text( (int)ncid, NC_GLOBAL, "Site_Name", (char*)glbParam.siteName ) ) )
         ERR(retval);
     
     //* START READ "Raw_Lidar_Data_L1" VARIABLE FROM DE NETCDF FILE //////////////////////////////////////////////////////////////////////////////////
