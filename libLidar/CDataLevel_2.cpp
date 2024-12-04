@@ -436,7 +436,7 @@ void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecular
 			break ;
 		}
 	}
-// printf("\n\nFind_Ref_Range(): indx_Top_Cloud: %d \tMax Range Detected: %d\n", indx_Top_Cloud, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ) ;
+// printf( "\n\nFind_Ref_Range(): indx_Top_Cloud: %d \tMax Range Detected: %d\n", indx_Top_Cloud, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ) ;
 
 	// double	sum_diff = 0.0 ;
 	// double  stdRef 	 = 0.0 ;
@@ -1032,41 +1032,28 @@ void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
 			// printf("\n\t%s - %s (%d) -- %lf - %lf", strDate_AERONET, strTime_AERONET, AERONET_time[r], AERONET_AOD[r], AERONET_Angs[r] ) ;
 		} // for (int r =0; r <i_Num_AERONET_data ; r++)
 
-		if ( (Start_Time_AVG_L2[0] > AERONET_time[i_Num_AERONET_data-1]) || (Start_Time_AVG_L2[glbParam->nEventsAVG-1] < AERONET_time[0]) )
+		double *err = new double [i_Num_AERONET_data] ;
+		double 	min_err			;
+		double 	lambda, lambda1, lambda2, lambda3	;
+		int 	indx_err_min 	;
+		int 	indx_time_AERO_after, indx_time_AERO_before 	;
+		int 	mean_lidar_Time_AVG_L2 ;
+		for (int t =0; t <glbParam->nEventsAVG ; t++)
 		{
-			printf("\n\nIt seems that the AERONET data does not correspond to the lidar measurement day. Lidar inversion versus AERONET data won't be computed.") ;
-			printf("\n Start_Time_AVG_L2[0]= %d \t Start_Time_AVG_L2[glbParam->nEventsAVG-1]= %d", Start_Time_AVG_L2[0], Start_Time_AVG_L2[glbParam->nEventsAVG-1]) ;
-			printf("\n AERONET_time[0]= %d \t AERONET_time[i_Num_AERONET_data-1]= %d", AERONET_time[0], AERONET_time[i_Num_AERONET_data-1] ) ;
-			printf("\n strTime_AERONET= %s \n", strTime_AERONET ) ;
-			sprintf( aeronet_file, "NOT_FOUND") ;
-		}
-		else
-		{
-			double *err = new double [i_Num_AERONET_data] ;
-			double 	min_err			;
-			double 	lambda, lambda1, lambda2, lambda3	;
-			int 	indx_err_min 	;
-			int 	indx_time_AERO_after, indx_time_AERO_before 	;
-			int 	mean_lidar_Time_AVG_L2 ;
-			for (int t =0; t <glbParam->nEventsAVG ; t++)
+			mean_lidar_Time_AVG_L2 = (int) round( Start_Time_AVG_L2[t]/2 + Stop_Time_AVG_L2[t]/2 ) ;
+
+			if ( (mean_lidar_Time_AVG_L2 > AERONET_time[0]) || ( mean_lidar_Time_AVG_L2  <AERONET_time[i_Num_AERONET_data-1]) )
 			{
-				mean_lidar_Time_AVG_L2 = (int) round( Start_Time_AVG_L2[t]/2 + Stop_Time_AVG_L2[t]/2 ) ;
 // printf("\n Start_Time_AVG_L2/Stop_Time_AVG_L2 = %d / %d ", Start_Time_AVG_L2[t], Stop_Time_AVG_L2[t] ) ;
-// printf("\n AERONET_time before / after= %d / %d", AERONET_time[indx_time_AERO_before], AERONET_time[indx_time_AERO_after]) ;
-// printf("\n mean_lidar_Time_AVG_L2= %d \n", mean_lidar_Time_AVG_L2 ) ;
 				// FIND THE CLOSEST AERONET TIME FOR Start_Time_AVG_L2[t]
-				// for (int at =0; at <i_Num_AERONET_data; at++)	err[at] = fabs(Start_Time_AVG_L2[t] - AERONET_time[at]) ;
 				for (int at =0; at <i_Num_AERONET_data; at++)	err[at] = fabs(mean_lidar_Time_AVG_L2 - AERONET_time[at]) ;
 				findIndxMin( (double*)&err[0], (int)0, (int)(i_Num_AERONET_data-1), (int*)&indx_err_min, (double*)&min_err ) ;
-				// if ( (indx_err_min ==0) && (Start_Time_AVG_L2[t]<AERONET_time[0]) )
 				if ( (indx_err_min ==0) && (mean_lidar_Time_AVG_L2<AERONET_time[0]) ) // IF LIDAR TIME IS BEFORE AERONET DATA MEASUREMENT TIME
 					AOD_Lidar_Time[t] = -1 ;
-				// else if ( (indx_err_min == (i_Num_AERONET_data-1)) && ( Start_Time_AVG_L2[t] > AERONET_time[i_Num_AERONET_data-1] ) )
 				else if ( (indx_err_min == (i_Num_AERONET_data-1)) && ( mean_lidar_Time_AVG_L2 > AERONET_time[i_Num_AERONET_data-1] ) ) // IF LIDAR TIME IS AFTER AERONET DATA MEASUREMENT TIME
 					AOD_Lidar_Time[t] = -1 ;
 				else
 				{
-					// if ( Start_Time_AVG_L2[t] < AERONET_time[indx_err_min] )
 					if ( mean_lidar_Time_AVG_L2 < AERONET_time[indx_err_min] )
 					{
 						indx_time_AERO_before  = indx_err_min -1  ;
@@ -1077,21 +1064,29 @@ void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
 						indx_time_AERO_before = indx_err_min   	;
 						indx_time_AERO_after  = indx_err_min +1	;
 					}
-					// lambda1 = (double)(Start_Time_AVG_L2[t] - AERONET_time[indx_time_AERO_before]) ;
+// printf("\n AERONET_time before / after= %d / %d", AERONET_time[indx_time_AERO_before], AERONET_time[indx_time_AERO_after]) ;
+// printf("\n mean_lidar_Time_AVG_L2= %d \n", mean_lidar_Time_AVG_L2 ) ;
 					lambda1 = (double)(AERONET_time[indx_time_AERO_after] - AERONET_time[indx_time_AERO_before]) ;
 					lambda2 = (double)( AERONET_AOD[indx_time_AERO_after] - AERONET_AOD[indx_time_AERO_before]) ;
 					lambda  = (double)(lambda2 / lambda1) ;
 					AOD_Lidar_Time[t] = lambda * ( mean_lidar_Time_AVG_L2 - AERONET_time[indx_time_AERO_before] ) + AERONET_AOD[indx_time_AERO_before] ;
-// printf("\t AOD_Lidar_Time= %lf (%lf)\n", AOD_Lidar_Time[t], AERONET_Angs[t] ) ;
 					lambda1 = (double)(glbParam->iLambda[glbParam->chSel]/500.0) ;
 					lambda2 = (double) pow( (double)lambda1, double(-AERONET_Angs[t]) ) ;
 					lambda3 = (double) AOD_Lidar_Time[t] * lambda2 ;
 					AOD_Lidar_Time[t] = double( lambda3 ) ;
+// printf("\n AERONET_AOD before / after= %lf / %lf", AERONET_AOD[indx_time_AERO_before], AERONET_AOD[indx_time_AERO_after]) ;
+// printf("\n AOD_Lidar_Time= %lf \n", AOD_Lidar_Time[t] ) ;
 				}
-			} // for (int t =0; t <glbParam->nEventsAVG ; t++)
-		} // else-if ( (Start_Time_AVG_L2[0] > AERONET_time[i_Num_AERONET_data-1]) || (Start_Time_AVG_L2[glbParam->nEventsAVG-1] < AERONET_time[0]) )
-		// sprintf( aeronet_file,"NOT_FOUND" ) ;
-	}
+			} // if ( (mean_lidar_Time_AVG_L2 > AERONET_time[0]) || ( mean_lidar_Time_AVG_L2  <AERONET_time[i_Num_AERONET_data-1]) )
+			else
+			{
+				printf("\n\nThere is no AERONET data around the lidar profile, synergy won't be computed.") ;
+				printf("\n mean_lidar_Time_AVG_L2= %d", mean_lidar_Time_AVG_L2 ) ;
+				printf("\n AERONET_time[0]= %d \t AERONET_time[end]= %d", AERONET_time[0], AERONET_time[i_Num_AERONET_data-1] ) ;
+				sprintf( aeronet_file, "NOT_FOUND") ;
+			}
+		} // for (int t =0; t <glbParam->nEventsAVG ; t++)
+	} // else-if (!fp)
 	fclose(fp);
 }
 

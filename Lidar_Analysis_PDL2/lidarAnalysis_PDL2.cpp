@@ -242,7 +242,12 @@ int main( int argc, char *argv[] )
             }
             else
             {
-                printf("\nInverting:\t Event: %d/%d (%d) \t Channel: %d \t Wavelenght: %d nm \t Zenith: %lf", t, (glbParam.nEventsAVG-1) , oDL2->Start_Time_AVG_L2[t], glbParam.chSel, glbParam.iLambda[glbParam.chSel], oMolData->dataMol.zenith ) ;
+                time_t tt = (time_t)oDL2->Start_Time_AVG_L2[t] ;
+                struct tm *utc_tm = gmtime( (const time_t*)(&tt) ) ;
+                char formatted_time[50];
+                strftime(formatted_time, sizeof(formatted_time), "%Y-%m-%d %H:%M:%S", utc_tm);
+
+                printf("\nInverting:\t Event: %d/%d (%s) \t Channel: %d \t Wavelenght: %d nm \t Zenith: %lf", t, (glbParam.nEventsAVG-1) , formatted_time, glbParam.chSel, glbParam.iLambda[glbParam.chSel], oMolData->dataMol.zenith ) ;
                     oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 // for (int i = 0; i < glbParam.nBins ; i++)
                 // {

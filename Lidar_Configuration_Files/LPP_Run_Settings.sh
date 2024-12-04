@@ -39,9 +39,9 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20210730/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals_20200914/"
 
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/20190929/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/20230802/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/20190920/"
-PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/0_Paper_Celeste/20190906/"
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/0_Paper_Celeste/20190920/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Bariloche/20150504/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Calbuco/BAR/20150426/"

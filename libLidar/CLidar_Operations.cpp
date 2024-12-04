@@ -237,9 +237,9 @@ void CLidar_Operations::Find_Max_Range( double *pr, strcMolecularData *dataMol, 
 	glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] = dataMol->last_Indx_Mol_High ;
 	glbParam->rEndSig_ev_ch   [glbParam->evSel][glbParam->chSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] * glbParam->dr ;
 
-printf( "CLidar_Operations::Find_Max_Range() --> ev: %d \n\t\t\t dataMol->last_Indx_Mol_Low[m]= %lf \t dataMol->last_Indx_Mol_High[m]= %lf \n\t\t\t dataMol->last_Indx_Bkg_Low[m]= %lf \t dataMol->last_Indx_Bkg_High[m]= %lf \n", 
-										glbParam->evSel, dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr,
-										dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
+// printf( "CLidar_Operations::Find_Max_Range() --> ev: %d \n\t\t\t dataMol->last_Indx_Mol_Low[m]= %lf \t dataMol->last_Indx_Mol_High[m]= %lf \n\t\t\t dataMol->last_Indx_Bkg_Low[m]= %lf \t dataMol->last_Indx_Bkg_High[m]= %lf \n", 
+// 										glbParam->evSel, dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr,
+// 										dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
 } // void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam )
 
 void CLidar_Operations::Remove_Cloud_Mol_Range( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
@@ -390,7 +390,7 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 				{
 					dataFile_AVG[fC][c][b] = (double) dataFile_AVG[fC][c][b] + dataFile[ fC *glbParam->numEventsToAvg +t ][c][b] ;
 					if( (b==0) && (c==0) )
-					{	// TIME IS *NOT* AVERAGED!!!!
+					{	// TIME IS *NOT* AVERAGED, ITS SAVED THE START AND END TIME OF EACH CLUSTER
 						if ( t ==0 )
 							Raw_Data_Start_Time_AVG[fC]	  = (long)Raw_Data_Start_Time[ fC *glbParam->numEventsToAvg ] ;
 						if ( t ==(glbParam->numEventsToAvg -1) )
@@ -520,8 +520,11 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 					printf("| Dark-Current and bias |  ") ;
 					if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
 					{
+						memset( dummy, 0, ( sizeof(double) * glbParam->nBins_Ch[glbParam->chSel] ) ) ;
+						smooth( (double*)data_Noise[glbParam->chSel], (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int)11, (double*)dummy ) ;	
 						for (int i =0; i <glbParam->nBins; i++)
-							evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - data_Noise[glbParam->chSel][i] ) ;
+							evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - dummy[i] ) ;
+							// evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - data_Noise[glbParam->chSel][i] ) ;
 
 						BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 					}
