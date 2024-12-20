@@ -521,7 +521,7 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 					if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
 					{
 						memset( dummy, 0, ( sizeof(double) * glbParam->nBins_Ch[glbParam->chSel] ) ) ;
-						smooth( (double*)data_Noise[glbParam->chSel], (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int)11, (double*)dummy ) ;	
+						smooth( (double*)data_Noise[glbParam->chSel], (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int)5, (double*)dummy ) ;	
 						for (int i =0; i <glbParam->nBins; i++)
 							evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - dummy[i] ) ;
 							// evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - data_Noise[glbParam->chSel][i] ) ;

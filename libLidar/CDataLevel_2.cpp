@@ -1070,12 +1070,12 @@ void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
 					lambda2 = (double)( AERONET_AOD[indx_time_AERO_after] - AERONET_AOD[indx_time_AERO_before]) ;
 					lambda  = (double)(lambda2 / lambda1) ;
 					AOD_Lidar_Time[t] = lambda * ( mean_lidar_Time_AVG_L2 - AERONET_time[indx_time_AERO_before] ) + AERONET_AOD[indx_time_AERO_before] ;
+// printf("\n AERONET_AOD before / after= %lf / %lf", AERONET_AOD[indx_time_AERO_before], AERONET_AOD[indx_time_AERO_after]) ;
+// printf("\n AOD_Lidar_Time= %lf \t lambda= %lf \t lambda1= %lf \t lambda2= %lf \n", AOD_Lidar_Time[t], lambda, lambda1, lambda2 ) ;
 					lambda1 = (double)(glbParam->iLambda[glbParam->chSel]/500.0) ;
 					lambda2 = (double) pow( (double)lambda1, double(-AERONET_Angs[t]) ) ;
 					lambda3 = (double) AOD_Lidar_Time[t] * lambda2 ;
 					AOD_Lidar_Time[t] = double( lambda3 ) ;
-// printf("\n AERONET_AOD before / after= %lf / %lf", AERONET_AOD[indx_time_AERO_before], AERONET_AOD[indx_time_AERO_after]) ;
-// printf("\n AOD_Lidar_Time= %lf \n", AOD_Lidar_Time[t] ) ;
 				}
 			} // if ( (mean_lidar_Time_AVG_L2 > AERONET_time[0]) || ( mean_lidar_Time_AVG_L2  <AERONET_time[i_Num_AERONET_data-1]) )
 			else
