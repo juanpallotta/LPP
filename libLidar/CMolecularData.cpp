@@ -80,22 +80,26 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temp_column_index_in_File" , (const char*)"int", (int*)&indx_Temp  ) ;
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pres_column_index_in_File" , (const char*)"int", (int*)&indx_Pres  ) ;
 
+	double hPa2Pa = 100.0 ;
 	for ( int l=0 ; l<RadSondeData.nBinsLR ; l++ ) // READ LINE BY LINE
 	{
 		fgets(lineaRad, 100, fid) ;
 		sscanf(lineaRad, "%lf,%lf,%lf,%s", &rad_Data_file[0], &rad_Data_file[1], &rad_Data_file[2], strDump ) ;
 		RadSondeData.zLR[l] = (double)rad_Data_file[indx_range] ;
 		RadSondeData.tLR[l] = (double)rad_Data_file[indx_Temp]  ;
-		RadSondeData.pLR[l] = (double)rad_Data_file[indx_Pres]  ;
-		if ( RadSondeData.pLR[0] <3000 ) // PRESSURE IS IN hPa --> MOVE IT TO Pa
-			RadSondeData.pLR[l] = (double)rad_Data_file[indx_Pres] *100  ; 
+		// RadSondeData.pLR[l] = (double)rad_Data_file[indx_Pres]  ;
+		if ( (l==0) && (RadSondeData.pLR[0] >3000) ) // PRESSURE IS IN Pa --> DONT TOUCH IT
+			hPa2Pa = 1.0 ;
+		else // PRESSURE IS IN hPa --> MOVE IT TO Pa
+			hPa2Pa = 100.0 ;
+		RadSondeData.pLR[l] = (double)rad_Data_file[indx_Pres] * hPa2Pa ;
 	}
 	dataMol.z_Mol_Max = round(RadSondeData.zLR[RadSondeData.nBinsLR-1]) ;
 	if ( dataMol.z_Mol_Max > 30000 )
 		dataMol.z_Mol_Max = 30000 ;
 
 	double co2_ppmv = 392 ;
-	// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF p AND t PASSED AS THE FIRST AND SECOND ARGUMENTS (LR)
+	// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF RadSondeData.pLR AND RadSondeData.tLR PASSED AS THE FIRST AND SECOND ARGUMENTS (LR)
 	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9, (double)co2_ppmv,
 									  (int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 
@@ -111,7 +115,7 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		// RESAMPLE dataMol.pPa AND dataMol.tK IN HIGH RESOLUTION TO BE SAVED LATER
 		Tem_Pres_to_HR( ) ;
 	// }
-
+// printf( "\n\nGet_Mol_Data_L1() despues de Tem_Pres_to_HR() --> RadSondeData.tLR[l]= %lf \t dataMol.tPa[0]= %lf \n", RadSondeData.tLR[0], dataMol.tK [0] ) ;
 	fclose(fid) ;
 }
 
@@ -124,7 +128,7 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam )
 	RadSondeData.beta_mol  	= (double*) new double [dataMol.nBins] ; // BACKSCATTERING IN HIGHT RESOLUTION, VERTICAL AND ASL OBTAINED FROM T&P FROM THE L1 DATASET.
 	RadSondeData.zHR	  	= (double*) new double [dataMol.nBins] ; // ALTITUDO IN HIGHT RESOLUTION, VERTICAL AND ASL
 
-	// dataMol.pPa AND dataMol.tK ALREADY IN HIGH RESOLUTION AND ASL, SINCE THEY WERE READ FROM THE NETCDF FILE
+	// dataMol.pPa AND dataMol.tK ALREADY IN HIGH RESOLUTION AND ASL, SINCE THEY WERE READ FROM THE NETCDF FILE. HERE ALL THE PROFILES ARE IN THE VERTICAL
 	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->chSel]*1e-9, (double)co2_ppmv, (int) dataMol.nBins, 
   									  (double*)RadSondeData.nHR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 
@@ -134,6 +138,7 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam )
 	Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ; // ZENITHAL CORRECTION AND dataMol FILLING
 }
 
+// FILL dataMol FROM LOW TO HIGH RESOLUTION AND ZENITHAL ANGLE
 void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 {
 	if ( glbParam->evSel <0 )
@@ -155,6 +160,7 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
  	// RESAMPLED RadSondeData.nLR, RadSondeData.alpha_mol y RadSondeData.beta_mol TO HIGH RESOLUTION: dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol
 	// AND IN THE SLANT PATH DEFINED BY THE ZENITHAL ANGLE dataMol.zenith
 	Mol_Low_To_High_Res( (strcGlobalParameters*)glbParam ) ;
+// printf( "\n Fill_dataMol_L1: dataMol.zenith= %f \t dataMol.alphaMol[1000]= %e", dataMol.zenith, dataMol.alphaMol[1000] ) ;
 
 	// for ( i =0 ; i <glbParam->nBins ; i++ )
 	// 	dataMol.nMol[i] = RadSondeData.nHR[i] ;
@@ -162,7 +168,6 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
 
 	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
-
 }
 
 // void CMolecularData::Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters *glbParam )
@@ -237,12 +242,7 @@ void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
 	glbParam->dzr = dataMol.dzr ;
 
 	if ( dataMol.zenith != 0 )
-	{
-		for ( i=0 ; i < dataMol.nBins ; i++ )
-			dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180)) ; // zr = ASL
-
 		Molecular_Profile_Resampled_Zenithal( (strcGlobalParameters*)glbParam ) ; // RE-SAMPLE THE dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol PROFILE TO THE ZENITHAL ANGLE
-	}
 	else
 	{
 		for ( i=0 ; i < dataMol.nBins ; i++ )
@@ -342,7 +342,7 @@ void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // US
 
 	for (int i =0 ; i <dataMol.nBins ; i++ )
 	{
-		dataMol.nMol    [i] = (double)( pow(dataMol.zr[i], 3) *coeff_N	  [3] + pow(dataMol.zr[i], 2) *coeff_N   [2]  + dataMol.zr[i]*coeff_N    [1] + coeff_N    [0] ) ;
+		dataMol.nMol    [i] = (double)( pow(dataMol.zr[i], 3) *coeff_N	  [3] + pow(dataMol.zr[i], 2) *coeff_N    [2] + dataMol.zr[i]*coeff_N    [1] + coeff_N    [0] ) ;
 		dataMol.alphaMol[i] = (double)( pow(dataMol.zr[i], 3) *coeff_alpha[3] + pow(dataMol.zr[i], 2) *coeff_alpha[2] + dataMol.zr[i]*coeff_alpha[1] + coeff_alpha[0] ) ;
 		dataMol.betaMol [i] = (double)( pow(dataMol.zr[i], 3) *coeff_beta [3] + pow(dataMol.zr[i], 2) *coeff_beta [2] + dataMol.zr[i]*coeff_beta [1] + coeff_beta [0] ) ;
 	}
@@ -353,19 +353,20 @@ void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // US
 
 void CMolecularData::Tem_Pres_to_HR() // USED IN lidarAnalysis_PDL1.cpp
 {
-	double *coeff_Temp   = (double*) new double[3 +1] ;
-	double *coeff_Pres   = (double*) new double[3 +1] ;
+	int 	orden = 3 ;
+	double *coeff_Temp   = (double*) new double[orden +1] ;
+	double *coeff_Pres   = (double*) new double[orden +1] ;
 
 	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
 			      (const double* const) RadSondeData.tLR, // Y DATA
 			      (unsigned int       ) RadSondeData.nBinsLR,
-			      (unsigned int		  ) 3,
+			      (unsigned int		  ) orden,
 			      (double*			  ) coeff_Temp	 ) ;
 
 	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
 			      (const double* const) RadSondeData.pLR, // Y DATA
 			      (unsigned int       ) RadSondeData.nBinsLR,
-			      (unsigned int		  ) 3,
+			      (unsigned int		  ) orden,
 			      (double*			  ) coeff_Pres	 ) ;
 
 	for (int i =0 ; i <dataMol.nBins ; i++ )
@@ -373,7 +374,6 @@ void CMolecularData::Tem_Pres_to_HR() // USED IN lidarAnalysis_PDL1.cpp
 		dataMol.tK[i]  = (double)( pow(dataMol.zr[i], 3) *coeff_Temp[3] + pow(dataMol.zr[i], 2) *coeff_Temp[2] + dataMol.zr[i]*coeff_Temp[1] + coeff_Temp[0] ) ;
 		dataMol.pPa[i] = (double)( pow(dataMol.zr[i], 3) *coeff_Pres[3] + pow(dataMol.zr[i], 2) *coeff_Pres[2] + dataMol.zr[i]*coeff_Pres[1] + coeff_Pres[0] ) ;
 	}
-
 	delete coeff_Temp     ;
 	delete coeff_Pres ;
 }

@@ -13,7 +13,9 @@ public:
     ~CLidar_Operations();
 
     strcFitParam    fitParam            ;
-    double          *dummy, *dummy1   ;
+    double          *dummy, *dummy1     ;
+    int 	        nBiasRes_Auto =5    ; 
+    int 	        nLoopFindBias =5    ;
 
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
@@ -42,8 +44,6 @@ public:
 private:
     double  *pr_NObkg_i, *pr2_i ;
     // double  *errRMS_mol, *errRMS_k, *rate, *k_ones, *R2_array;
-    int 	nBiasRes_Auto ; 
-    int 	nLoopFindBias =5 ;
 
 	double 	*errRMS_Bias, *coeff ;
 	double  *b_i                 ;

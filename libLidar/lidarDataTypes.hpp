@@ -77,6 +77,9 @@ struct strcGlobalParameters
 	int 	nCh 					;
 	int 	*indx_gluing_Low_AN		;
 	int 	*indx_gluing_High_PHO	;
+	int 	*indx_Ch_Pol_S			;
+	int 	*indx_Ch_Pol_P			;
+	double 	*Pol_Cal_Constant		;
 	int 	nPair_Ch_to_Glue		; // = lenght(indx_gluing_Low_AN) = = lenght(indx_gluing_High_PHO)
 	double  MIN_TOGGLE_RATE_MHZ		;
 	double  MAX_TOGGLE_RATE_MHZ 	;

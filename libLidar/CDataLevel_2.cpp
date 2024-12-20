@@ -186,7 +186,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		pr2[glbParam->evSel][glbParam->chSel][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
 
 	printf("\n FernaldInversion()--> \nMax. Range= %lf ---- Ref. ranges: %lf - %lf m - Inversion range value: %f m \t Pr2(ref)= %lf", 
-				glbParam->dr * glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel], glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], 
+				glbParam->rEndSig_ev_ch[glbParam->evSel][glbParam->chSel], glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], 
 				glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], indxRef_Fernald[glbParam->evSel] *glbParam->dzr, pr2_Ref ) ;
 
 	int indx_integral_max_range_for_AOD ;
@@ -201,7 +201,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 
 			// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
 			// indx_integral_max_range_for_AOD = (int)round( integral_max_range_for_AOD /glbParam->dr ) ;
-			indx_integral_max_range_for_AOD = (int)round((indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel]) /2) ;
+			indx_integral_max_range_for_AOD = (int)round( indxRef_Fernald_Start[glbParam->evSel]/2 + indxRef_Fernald_Stop[glbParam->evSel]/2) ;
 
 			smooth( (double*)&beta_Aer [glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&beta_Aer [glbParam->evSel][l][0] ) ;
 			smooth( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&alpha_Aer[glbParam->evSel][l][0] ) ;
@@ -221,7 +221,6 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 					double	min_diff_AOD 		; 
 					for ( int l=0 ; l <nLRs ; l++ )
 						diff_AOD[l] = fabs( AOD_Lidar_Time[glbParam->evSel] - AOD_LR[glbParam->evSel][l] ) ;
-
 					findIndxMin( (double*)diff_AOD, (int)0, (int)(nLRs-1), (int*)&indxMin_diff_AOD, (double*)&min_diff_AOD ) ;
 					LR_inv[glbParam->evSel] = (double) LR[indxMin_diff_AOD] ;
 					// printf("Closest lidar's AOD to AERONET's AOD ==> AOD LIDAR(best LR: %lf) =%lf \t AOD AERONET =%lf  ", LR_inv[glbParam->evSel], AOD_LR[glbParam->evSel][indxMin_diff_AOD], AOD_Lidar_Time[glbParam->evSel] ) ;
@@ -393,25 +392,25 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l,
 			betaT[i] = (double)DBL_MAX ;
 	}
 
-		// // FIT beta_mol TO betaT FOR A MORE CONSISTENT RETRIEVAL OF beta_Aer
-		// 	// double sumOut =0;
-		// 	// int    s =0 ;
-		// 	strcFitParam fitParam ;
-		// 	fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
-		// 	// do
-		// 	// {
-		// 		fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel]    ;
-		// 		// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] -s*100 ;
-		// 		// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] -s*100 ;
-		// 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
-		// 		oLOp->Fit( (double*)&betaT[0], (double*)&dataMol->betaMol_avg[0], glbParam->nBins , "wOutB", "all", (strcFitParam*)&fitParam, (double*)betaMol_Fit ) ;
-		// 		// LR = (double)fabs(LR) ;
+		// FIT beta_mol TO betaT FOR A MORE CONSISTENT RETRIEVAL OF beta_Aer
+			// // double sumOut =0;
+			// // int    s =0 ;
+			// strcFitParam fitParam ;
+			// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
+			// // do
+			// // {
+			// 	fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel]    ;
+			// 	// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] -s*100 ;
+			// 	// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] -s*100 ;
+			// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
+			// 	oLOp->Fit( (double*)&betaT[0], (double*)&dataMol->betaMol_avg[0], glbParam->nBins , "wOutB", "all", (strcFitParam*)&fitParam, (double*)betaMol_Fit ) ;
+			// 	// LR = (double)fabs(LR) ;
 
-		// 		// sumOut =0;
-		// 		// for (int i =(fitParam.indxInitFit - round(fitParam.indxInitFit *0.10)) ; i <fitParam.indxInitFit ; i++)
-		// 			// sumOut = sumOut + betaT[i] - betaMol_Fit[i] ;
-		// 		// s++ ;
-		// 	// } while( (sumOut <0) && (fitParam.indxInitFit >glbParam->indxInitSig) ) ;
+			// 	// sumOut =0;
+			// 	// for (int i =(fitParam.indxInitFit - round(fitParam.indxInitFit *0.10)) ; i <fitParam.indxInitFit ; i++)
+			// 		// sumOut = sumOut + betaT[i] - betaMol_Fit[i] ;
+			// 	// s++ ;
+			// // } while( (sumOut <0) && (fitParam.indxInitFit >glbParam->indxInitSig) ) ;
 
 	for ( int i=indxStart ; i <indxStop ; i++ )
 	{
@@ -817,7 +816,7 @@ int CDataLevel_2::Download_AERONET_Data( strcGlobalParameters *glbParam )
 	}
 
 	// FORMATING THE COMMAND TO RUN
-	sprintf(path, "python3 download_aeronet/aeraod.py \"%s\" \"%s\" \"%s\" \"Aerosol Optical Depth (AOD) with Precipitable Water and Angstrom Parameter\" \"All points\" \"%s\" \"%s\"", aeronet_site_name, date_initial, date_final, aeronet_data_level, aeronet_path) ;
+	sprintf(path, "python3 ./download_aeronet/aeraod.py \"%s\" \"%s\" \"%s\" \"Aerosol Optical Depth (AOD) with Precipitable Water and Angstrom Parameter\" \"All points\" \"%s\" \"%s\"", aeronet_site_name, date_initial, date_final, aeronet_data_level, aeronet_path) ;
 
 	// Open the command for reading 
 	fp = popen(path, "r");
@@ -905,6 +904,7 @@ int CDataLevel_2::Check_AERONET_Data( char *aeronet_file )
 
 void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
 {
+	printf("\nLoading AERONET data...\n") ;
 	char 	line[3000] ;
 	char	sAOD_Aero[20], sHeader_Angstrom[50] ; // = {"440-675_Angstrom_Exponent"} 
 	int		nAero_col =1 ;
@@ -1010,11 +1010,13 @@ void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
 				}
 				else if( c == indx_Time_AERONET )
 				{
-					// int i =0;
-						sprintf( strTime_AERONET, "%s", l) ; // READ AND FORMAT THE TIME
-						sscanf ( strTime_AERONET, "%2d:%2d:%2d", &tm_Time_Aeronet.tm_hour, &tm_Time_Aeronet.tm_min, &tm_Time_Aeronet.tm_sec ) ;
-						AERONET_time[r] =(int)((int)timegm( (tm*)&tm_Time_Aeronet ) - (int)round(glbParam->Time_Zone *60*60)) ; // SECONDS IN UTC TIME CONVERSION
-					// printf("\nAERONET TIME:i= %d\ntm_Time_Aeronet.tm_mon= %d\ntm_Time_Aeronet.tm_year= %d\n", i, tm_Time_Aeronet.tm_mon, tm_Time_Aeronet.tm_year ) ;
+					sprintf( strTime_AERONET, "%s", l) ; // READ AND FORMAT THE TIME
+					sscanf ( strTime_AERONET, "%2d:%2d:%2d", &tm_Time_Aeronet.tm_hour, &tm_Time_Aeronet.tm_min, &tm_Time_Aeronet.tm_sec ) ;
+					AERONET_time[r] =(int)( (int)timegm( (tm*)&tm_Time_Aeronet ) ) ; // SECONDS IN UTC
+					if ( r==0 )
+						printf("Start AERONET TIME= %s (%d) \n", strTime_AERONET, AERONET_time[r] ) ;
+					if ( r==i_Num_AERONET_data-1 )
+						printf("Stop AERONET TIME= %s (%d) \n", strTime_AERONET, AERONET_time[r] ) ;
 				}
 				else if( c == indx_AOD_AERONET )
 				{

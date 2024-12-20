@@ -109,8 +109,7 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 	oLOp->Find_Max_Range( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
 	fitParam.indxInitFit = dataMol->last_Indx_Mol_Low  ;
 	fitParam.indxEndFit  = dataMol->last_Indx_Mol_High ;
-	// fitParam.indxEndFit  = glbParam->nBins - 1 ;
-	// fitParam.indxInitFit = (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] + glbParam->nBins-1)/2 ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
 do
 { // TODO
 		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
@@ -118,8 +117,7 @@ do
 	errRefBkg = sqrt ( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
 
 	fitParam.indxEndFit  = fitParam.indxEndFit -1 ;
-	fitParam.indxInitFit = fitParam.indxEndFit - glbParam->nBinsBkg ;
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
+	fitParam.indxInitFit = fitParam.indxEndFit - fitParam.nFit ; // ALREADY DEFINED IN THE Find_Max_Range()
 } while( (fitParam.m <0) ) ;
 // } while( ((fitParam.m <0) || (biasRef <0)) ) ; // && (fitParam.indxInitFit>=glbParam->indxInitSig)
 

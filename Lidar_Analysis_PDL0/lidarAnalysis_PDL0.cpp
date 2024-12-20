@@ -162,11 +162,11 @@ int main( int argc, char *argv[] )
 
             sprintf( strTimeMerged, "%s%s", glbParam.StartDate, glbParam.StartTime ) ;
             Raw_Data_Start_Time_str[f].assign(strTimeMerged) ;
-                Raw_Data_Start_Time[f] = (time_t)timegm( (tm*)tmFile_start ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
+                Raw_Data_Start_Time[f] = (time_t)timegm( (tm*)tmFile_start ) ; // - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
             sprintf( strTimeMerged, "%s%s", glbParam.StopDate, glbParam.StopTime ) ;
             Raw_Data_Stop_Time_str[f].assign(strTimeMerged) ;
-                Raw_Data_Stop_Time[f] = (time_t)timegm( (tm*)tmFile_stop ) - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
+                Raw_Data_Stop_Time[f] = (time_t)timegm( (tm*)tmFile_stop ) ; // - (int)round(glbParam.Time_Zone *60*60) ; // SECONDS IN UTC TIME CONVERSION
 
                 mkdir  ( Path_Out.c_str(), 0777 ) ;
                 sprintf( strTimeMerged, "%c%04d%01x%02d%02d.%02d%02d00.dat", dumpChar, tmFile_start->tm_year +1900, tmFile_start->tm_mon, tmFile_start->tm_mday, tmFile_start->tm_hour, tmFile_start->tm_min, tmFile_start->tm_sec ) ;

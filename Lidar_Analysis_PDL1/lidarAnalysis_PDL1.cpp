@@ -217,6 +217,7 @@ int main( int argc, char *argv[] )
                 pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
             }
     }
+
     // LIDAR SIGNAL CORRECTIONS:
     // - OFFSET
     // - PHOTON COUNTING DESATURATION
@@ -249,6 +250,34 @@ int main( int argc, char *argv[] )
                 oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
         }
     }
+
+// START DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	glbParam.indx_Ch_Pol_S    = (int*)    new int   [ glbParam.nCh ] ;
+	glbParam.indx_Ch_Pol_P    = (int*)    new int   [ glbParam.nCh ] ;
+	glbParam.Pol_Cal_Constant = (double*) new double[ glbParam.nCh ] ;
+	int nS = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_S"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_S ) ;
+	int nP = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_P"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_P ) ;
+	int nCal = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pol_Cal_Constant", (const char*)"double", (double*)glbParam.Pol_Cal_Constant ) ;
+
+    // CHECK IF THE DEPOLARIZATION INFORMATION IS CORRECTLY SET
+    if  ( (nS == nP) && (nCal >0) && (nCal == nS) )
+    {
+        for (int e =0; e <glbParam.nEventsAVG ; e++)
+        {
+            for (int i =0; i <glbParam.nBins_Ch[glbParam.indx_Ch_Pol_P[0]]; i++)
+            {
+                pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] = pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] + glbParam.Pol_Cal_Constant[0] * pr_corr[e][glbParam.indx_Ch_Pol_S[0]][i] ;
+            }
+        }
+    }
+    else
+    {
+        printf("\n\nDepolarization setting: the information is not correctly set in the configuration file. Total lidar signals are not computed.\n\n") ;
+    }
+
+// STOP DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // START GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
@@ -358,9 +387,7 @@ int main( int argc, char *argv[] )
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
 
-    // glbParam.evSel = (int) -10; // TO RETRIEVE THE MOLECULAR PROFILE IN A ZENITHAL=0
-    // glbParam.chSel = glbParam.indxWL_PDL1 ;
-    // oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
+    printf("\n\n FIN oMolData->dataMol.pPa[0]= %lf \n", oMolData->dataMol.pPa[0]) ;
 
     oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
