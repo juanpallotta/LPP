@@ -10,7 +10,7 @@ L2="yes"
 #* DO NOT USE SPACES!!!! 
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Brazil/SPU/20210730/"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Holger_Sim/Original/"
-PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/lpp_sim_L0_L1.nc/"
+# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/lpp_sim_L0_L1.nc/"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
@@ -23,7 +23,7 @@ PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/lpp_sim_L0_L1.nc/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/02/test/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/08/15/"
 
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
+PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_04_dt/LPP_2017_09_04_dt/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_04_nt/LPP_2017_09_04_nt/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_25_nt/LPP_2017_09_25_nt/"
@@ -34,7 +34,7 @@ PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/lpp_sim_L0_L1.nc/"
 # CONFIGURATION FILES
 # ! SIMULATIONS
 # ! LPP SIMULATION
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_LPP_simulation.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_LPP_simulation.conf"
 # ! HOLGER
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Holger.conf"
 # ! PAPPALARDO 2004
@@ -52,7 +52,7 @@ FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisPa
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil_Rio.conf"
 
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_PaperComparison.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"

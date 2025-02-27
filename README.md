@@ -142,9 +142,7 @@ It is worth mentioning that there is no rule for the order of the variables set 
 ##########################################################################################
 
 # INITIAL RANGE OF ANALYSIS: rInitSig
-# END RANGE OF ANALYSIS: rEndSig
 rInitSig = 800
-rEndSig = 30000
 ```
 
 Where:
@@ -152,7 +150,6 @@ Where:
 <!-- - `maxZthAngle`: Maximum zenithal angle (in degrees) to be used in the analysis. -->
 
 * `rInitSig`: Initial range of the analysis (in meters from the lidar line of sight). It is preferable to set this value to the first point where the full overlap is achieved.
-* `rEndSig`: End range of analysis (in meters from the lidar line of sight). It is preferable to set this value to the last processable point in the acquired signal. **If this value is negative, the maximum range is calculated automatically.**
 
 The following sections describe each module and the variables that must be configured for a correct run. We highly encourage you to run the examples shown and play with its variables to feel comfortable with the uses of the modules.
 
