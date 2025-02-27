@@ -21,11 +21,12 @@ class CMolecularData
 		void Get_Mol_Data_L2( strcGlobalParameters* ) ;
 	    void GetMem_dataMol( int ) ;
 		void Fill_dataMol_L1( strcGlobalParameters* ) ;
-		// void Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters* ) ;
+		void Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters* ) ;
 		void Fill_dataMol_L2( strcGlobalParameters* ) ;
 		// void Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters* ) ;
 		void Elastic_Rayleigh_Lidar_Signal ( double* ) ;
 		void TemK_PresPa_to_N_Alpha_Beta_MOL ( double*, double*, double, double, int, double*, double*, double*, double* ) ;
+		void TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( double*, double*, double, int, double*, double*, double*, double* ) ;
 		void Nmol_Ref_ASL_Site( strcGlobalParameters* ) ;
 
     	strcRadioSoundingData RadSondeData ;

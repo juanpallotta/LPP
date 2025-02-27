@@ -177,8 +177,9 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 					// ss >> var_name >> eq ;
 					// for ( int e =0 ; e <nElemVec ; e++ )
 					// {
-					// 	ss >> var_string >> dump ;
-					// 	memcpy( (char*)var +e, (char*)var_string.c_str(), var_string.size() ) ;
+						// ss >> var_string >> dump ;
+						// memcpy( (char*)var, (char*)var_string.c_str(), var_string.size() ) ;
+						// memcpy( (char*)var +e, (char*)var_string.c_str(), var_string.size() ) ;
 					// }
 					// printf("\n ReadAnalisysParameter() tokenize string variable \n") ;
 					// string token ;
@@ -324,19 +325,19 @@ void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, c
 }
 */
 
-void Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData *dataMol, double *r )
-{
-	double *MOD = (double*) new double[ dataMol->nBins ] ;
+// void Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData *dataMol, double *r )
+// {
+// 	double *MOD = (double*) new double[ dataMol->nBins ] ;
 
-	cumtrapz( (r[1]-r[0]), dataMol->alphaMol, 0, dataMol->nBins-1, (double*)MOD ) ;
+// 	cumtrapz( (r[1]-r[0]), dataMol->alphaMol, 0, dataMol->nBins-1, (double*)MOD ) ;
 
-	for ( int b=0 ; b < dataMol->nBins  ; b++ )
-	{
-		dataMol->pr2Mol[b] 	= (double)  dataMol->betaMol[b] * exp( -2*MOD[b] ) ;
-		dataMol->prMol [b] 	= (double) ( dataMol->pr2Mol[b]/(r[b]*r[b]) ) ;
-	}
-	delete MOD ;
-}
+// 	for ( int b=0 ; b < dataMol->nBins  ; b++ )
+// 	{
+// 		dataMol->pr2Mol[b] 	= (double)  dataMol->betaMol[b] * exp( -2*MOD[b] ) ;
+// 		dataMol->prMol [b] 	= (double) ( dataMol->pr2Mol[b]/(r[b]*r[b]) ) ;
+// 	}
+// 	delete MOD ;
+// }
 
 
 int Read_Overlap_File( char *ovlp_File, strcGlobalParameters *glbParam, double **ovlp )

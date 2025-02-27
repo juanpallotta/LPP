@@ -65,6 +65,8 @@ struct strcGlobalParameters
 	char 	FILE_PARAMETERS[500] 		; //! MAKE IT string CLASS!!!!!
 	// char 	Measurement_Att_File[500] 	;
 	char    inputDataFileFormat[50]	;
+	char	*Path_File_In  			;
+	char	*Path_File_Out 			;
 	char    exeFile[50]				;
 	char    outputDataFileFormat[50];
 	char 	BkgCorrMethod[10]    	;
@@ -153,6 +155,7 @@ struct strcGlobalParameters
 	char	**sChInformation		;
 	float	Time_Zone				;
     long    *event_gps_sec  		; // GPS TIME
+    long    *event_gps_sec_AVG 		; // GPS TIME AVERAGED
 	time_t	start_time_secs			; // UNIX TIME
 	time_t	stop_time_secs			; // UNIX TIME
 	int 	year 					;
@@ -387,6 +390,7 @@ struct strcFitParam
 	double  var     ;
 	double  std     ;
 	double  R2	    ;
+	double  R2_adj  ;
 	double  F	    ;
 
 	//INTERMEDIATE VARIABLES FOR R2

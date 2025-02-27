@@ -16,9 +16,9 @@ fi
 
 # GETTING THE ABSOLUTE PATHS TO EACH EXECUTABLE MODULE
 PATH_TO_LPP=`pwd`'/'
-PATH_TO_L0=`dirname $(realpath $(find . -name lidarAnalysis_PDL0.cpp))`'/'
-PATH_TO_L1=`dirname $(realpath $(find . -name lidarAnalysis_PDL1.cpp))`'/'
-PATH_TO_L2=`dirname $(realpath $(find . -name lidarAnalysis_PDL2.cpp))`'/'
+PATH_TO_L0=`dirname $(realpath $(find . -name lpp0.cpp))`'/'
+PATH_TO_L1=`dirname $(realpath $(find . -name lpp1.cpp))`'/'
+PATH_TO_L2=`dirname $(realpath $(find . -name lpp2.cpp))`'/'
 PATH_TO_LPP_PLOT=`dirname $(realpath $(find .. -name LPP_Plots_L1.py))`'/'
 
 if [[ -d $PATH_IN ]]
@@ -133,9 +133,9 @@ if [ $PROCES_SENTRY == 1 ]
 then
         if [[ "${L0,,}" == "yes" ]] 
         then
-            echo -e "\n\nRunning PDL0: \n ./lidarAnalysis_PDL0 "$PATH_IN_L0" "$PATH_FILE_OUT_L0" "$FILE_CONF"\n\n"
+            echo -e "\n\nRunning PDL0: \n ./lpp0 "$PATH_IN_L0" "$PATH_FILE_OUT_L0" "$FILE_CONF"\n\n"
             cd $PATH_TO_L0
-            ./lidarAnalysis_PDL0 $PATH_IN_L0 $PATH_FILE_OUT_L0 $FILE_CONF 
+            ./lpp0 $PATH_IN_L0 $PATH_FILE_OUT_L0 $FILE_CONF 
         fi
 
         if [[ "${L1,,}" == "yes" ]]
@@ -151,9 +151,9 @@ then
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L1 ]]
             then
-                echo -e "\n\nRunning PDL1 \n ./lidarAnalysis_PDL1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF
+                echo -e "\n\nRunning PDL1 \n ./lpp1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF
                 cd $PATH_TO_L1
-                ./lidarAnalysis_PDL1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF
+                ./lpp1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF
 
                 # echo -e "\n\nRunning make_CloudDB_LPP \n ./make_CloudDB_LPP "$PATH_FILE_OUT_L1" "$PATH_FILE_OUT_L1_CLOUD_DATA" "$FILE_CONF
                 # ./make_CloudDB_LPP $PATH_FILE_OUT_L1 $PATH_FILE_OUT_L1_CLOUD_DATA $FILE_CONF
@@ -181,9 +181,9 @@ then
             then
                 #!  AERONET DOWNLOADER HERE.
 
-                echo -e "\n\nRunning PDL2 \n ./lidarAnalysis_PDL2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF
+                echo -e "\n\nRunning PDL2 \n ./lpp2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF
                 cd $PATH_TO_L2
-                ./lidarAnalysis_PDL2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF
+                ./lpp2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF
 
                 #   PLOTTING
                 echo -e "\n\nGenerating plots for L2..."

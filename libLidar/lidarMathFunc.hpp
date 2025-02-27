@@ -21,7 +21,7 @@
 #define	 NUMELEM(x) (sizeof(x)/sizeof(*x))
 
 //void linearPieceWiceFit	( int, double*, double*, int, double*, double* 	) ;
-void    trapz				( double , double*, int, int, double* 			) ;
+// void    trapz				( double , double*, int, int, double* 			) ;
 double  sum				( double*, int, int, double* 					) ;
 void    smooth	    		( double*, int, int, int, double* 				) ;
 void    cumtrapz			( double, double*, int, int, double* 			) ;

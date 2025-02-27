@@ -21,46 +21,75 @@ double sum( double *y, int binInic, int binEnd, double *sumOut )
 
 void cumtrapz ( double dx, double *y, int binInic, int binEnd, double *intFunc )
 {
-	intFunc[binInic] = 0 ;
-    if ( binInic < binEnd )
-    {   // binInic > binEnd
-        for ( int i=(binInic+1) ; i <= binEnd ; i++ )
-            trapz( dx, y, binInic, i, &intFunc[i] ) ;
-    }
-    else
-    {   // binEnd < binInic
-        printf("\nWrong call to cumtrapz (binEnd < binInic)\n") ;
-    }
-}
 
-void trapz( double dx, double *y, int binInic, int binEnd, double *integral )
-{
-	double sum_ = 0 ;
+    intFunc[0] = 0.0; // First element is always zero
 
     if ( binInic < binEnd )
     {
-        // for ( int i = binInic ; i <=(binEnd-1) ; i++ )
-        for ( int i = binInic ; i <=binEnd ; i++ )
-            sum_ = sum_ + (y[i] + y[i+1])/2 ;
+        for (int i =(binInic+1); i <=binEnd; i++)
+            intFunc[i] = intFunc[i - 1] + 0.5 * dx * (y[i] + y[i - 1]);
     }
     else
     {   // binEnd < binInic
-        printf("\nWrong call to trapz (binEnd < binInic)\n") ;
+        printf("\nWrong call to cumtrapz (binEnd < binInic) (%d < %d)\n", binEnd, binInic) ;
     }
-    *integral = sum_ * dx ;
+
+    // intFunc[binInic] = 0 ;
+    // if ( binInic < binEnd )
+    // {   // binInic > binEnd
+    //     for ( int i=binInic ; i <= binEnd ; i++ )
+    //         trapz( dx, y, binInic, i, &intFunc[i] ) ;
+    // }
+    // else
+    // {   // binEnd < binInic
+    //     printf("\nWrong call to cumtrapz (binEnd < binInic) (%d < %d)\n", binEnd, binInic) ;
+    // }
 }
 
-void cumtrapz_norm ( double dx, double *y, int binInic, int binRef, int binEnd, double *intFunc_Norm )
+// void trapz( double dx, double *y, int binInic, int binEnd, double *integral )
+// {
+// 	double sum_ = 0 ;
+
+//     if ( binInic < binEnd )
+//     {
+//         for ( int i = binInic ; i <=(binEnd-1) ; i++ )
+//             sum_ = (double) (sum_ + dx * 0.5 *(y[i] + y[i+1])) ;
+//     }
+//     else
+//     {   // binEnd < binInic
+//         printf("\nWrong call to trapz (binEnd < binInic)\n (%d < %d)\n", binEnd, binInic) ;
+//     }
+//     *integral = sum_ ;
+// }
+
+void cumtrapz_norm ( double dx, double *y, int indxInic, int indxRef, int indxEnd, double *intFunc_Norm )
 {
-    for ( int i =binRef; i < (binEnd-1); i++ )
-    {   // FORWARD INVERSION
-        trapz( dx, y, binRef, i+1, &intFunc_Norm[i] ) ;
+    if ( indxRef < indxInic || indxRef >= indxEnd) 
+    {
+        printf("Error cumtrapz_norm: Normalization index out of bounds.\n");
+        return;
     }
-    for ( int i =binRef ; i >binInic ; i-- )
-    {   // BACKWARD INVERSION
-        trapz( -dx, y, i-1, binRef, &intFunc_Norm[i] ) ;
+
+    // Forward integration
+    intFunc_Norm[indxRef] = 0.0;
+    for (int i =(indxRef+1) ; i <indxEnd ; i++)
+        intFunc_Norm[i] = intFunc_Norm[i - 1] + 0.5 * dx * (y[i] + y[i - 1]);
+
+    // Backward integration
+    for (int i =(indxRef-1) ; i >= indxInic ; i--) 
+    {
+        intFunc_Norm[i] = intFunc_Norm[i+1] - 0.5 * dx * (y[i + 1] + y[i]);
     }
-    // printf("\n cumtrapz_norm --> intFunc_Norm[binEnd]= %lf \n", intFunc_Norm[binEnd-1]) ;
+
+    // for ( int i =indxRef ; i <(indxEnd-1) ; i++ )
+    // {   // FORWARD INVERSION
+    //     trapz( dx, y, indxRef, i+1, &intFunc_Norm[i] ) ;
+    // }
+    // for ( int i =indxRef ; i >indxInic ; i-- )
+    // {   // BACKWARD INVERSION
+    //     trapz( -dx, y, i-1, indxRef, &intFunc_Norm[i] ) ;
+    // }
+    // printf("\n cumtrapz_norm --> intFunc_Norm[indxEnd]= %lf \n", intFunc_Norm[indxEnd-1]) ;
 }
 
 void diffPr( const double *sig, int nBins, double *diffSig )
@@ -90,7 +119,7 @@ void findIndxMin( double *vec, int indxInic, int indxEnd, int *indxMin, double *
     
     if ( (*indxMin) > indxEnd )
     {
-        printf("\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n", indxInic, *indxMin, indxEnd) ;
+        printf("\n\n\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n", indxInic, *indxMin, indxEnd) ;
         exit(1) ;
     }
     else if ( (*indxMin) <0 )

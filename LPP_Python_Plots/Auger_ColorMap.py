@@ -8,8 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-minFactor = 0.00
-maxFactor = 0.03
+minFactor = 1.00
+maxFactor = 1.00
 
 nc_file = sys.argv[1]
 print("\nName of NetCDF file:", nc_file )

@@ -87,13 +87,13 @@ void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *d
 	{	// FIRST BIAS GUESS OBTAINED FROM THE MEAN VALUE OF THE LAST BINS
 		fitParam.indxInitFit = dataMol->last_Indx_Bkg_Low  ;
 		fitParam.indxEndFit  = dataMol->last_Indx_Bkg_High ;
-		fitParam.nFit	  	 =  fitParam.indxEndFit - fitParam.indxInitFit +1			;
+		fitParam.nFit	  	 =  fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 	}
 	else if( (dataMol->last_Indx_Mol_Low >0) && (dataMol->last_Indx_Mol_High >0) )
 	{	// FIRST BIAS GUESS OBTAINED FROM THE FIT IN THE MOLECULAR RANGES
 		fitParam.indxInitFit = dataMol->last_Indx_Mol_Low  ;
 		fitParam.indxEndFit  = dataMol->last_Indx_Mol_High ;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 	}
 	else
 	{	// LIDAR SIGNAL CORRUPTED, ALL DATA FILLED WITH ZEROS
@@ -233,11 +233,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, strcMolecularData *dataMol, 
 	dataMol->last_Indx_Bkg_Low  =-1 ;
 	dataMol->last_Indx_Bkg_High =-1 ;
 
-	double R2_Max_Range = 0.06  	;
-	double R2_NO_Signal = 0.01 		;
-	int	   count_R2_Max_Range = 0 	;
-	int	   count_R2_NO_Signal = 0 	;
-	int winSize = (int)round(4000/dataMol->dzr) ;
+	double R2_Max_Range = 0.20  	; // winzize = 2000 m --> este es el valor que se usa en el programa de matlab para SNR=1
+	int winSize = (int)round(2000/dataMol->dzr) ;
 
 	int indxInit_Search ;
 	if ( dataMol->z_Mol_Max > glbParam->r[glbParam->nBins_Ch[glbParam->chSel]] )
@@ -249,66 +246,66 @@ void CLidar_Operations::Find_Max_Range( double *pr, strcMolecularData *dataMol, 
 	for ( int i = indxInit_Search ; i >=(glbParam->indxInitSig +winSize) ; i-- )
 	{
 		fitParam.indxEndFit  = i       ;
-		fitParam.indxInitFit = fitParam.indxEndFit - winSize ; // glbParam->nBinsBkg 	 ;
+		fitParam.indxInitFit = fitParam.indxEndFit - winSize ;
 		fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 			Fit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins_Ch[glbParam->chSel] , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 			// if ( i== (glbParam->nBins_Ch[glbParam->chSel] -1) )
 			// 	printf("\n Find_Max_Range(1) --> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
 
-		if ( (fitParam.R2 >R2_NO_Signal) && (dataMol->last_Indx_Bkg_Low <0) && (fitParam.m >0) )
-		{
-			count_R2_NO_Signal++ ;
-			if ( count_R2_NO_Signal ==1 )
-			{
-				dataMol->last_Indx_Bkg_Low  = fitParam.indxInitFit 						;
-				dataMol->last_Indx_Bkg_High = glbParam->nBins_Ch[glbParam->chSel] -1 	;
-				// printf("\n Find_Max_Range(2) setting dataMol->last_Indx_Bkg_Low -> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
-			}
-		}
+		// if ( (fitParam.R2 >R2_NO_Signal) && (dataMol->last_Indx_Bkg_Low <0) && (fitParam.m >0) )
+		// {
+		// 	count_R2_NO_Signal++ ;
+		// 	if ( count_R2_NO_Signal ==1 )
+		// 	{
+		// 		dataMol->last_Indx_Bkg_Low  = fitParam.indxInitFit 						;
+		// 		dataMol->last_Indx_Bkg_High = glbParam->nBins_Ch[glbParam->chSel] -1 	;
+		// 		// printf("\n Find_Max_Range(2) setting dataMol->last_Indx_Bkg_Low -> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
+		// 	}
+		// }
 		
-		if ( (fitParam.R2 >R2_Max_Range) && (dataMol->last_Indx_Mol_Low <0) && (fitParam.m >0) )
+		if ( (fitParam.R2_adj >R2_Max_Range) && (dataMol->last_Indx_Mol_Low <0) && (fitParam.m >0) )
 		{
-			count_R2_Max_Range++ ;
-			if ( count_R2_Max_Range ==1 )
-			{
 				dataMol->last_Indx_Mol_Low  = fitParam.indxInitFit	;
-				dataMol->last_Indx_Mol_High = fitParam.indxInitFit +winSize ;
-				// printf("\n Find_Max_Range(3) setting dataMol->last_Indx_Mol_Low -> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
-			}
+				dataMol->last_Indx_Mol_High = fitParam.indxEndFit   ;
+				dataMol->last_Indx_Bkg_Low  = round( (dataMol->last_Indx_Mol_High + glbParam->nBins_Ch[glbParam->chSel]) /2 ) ;
+				dataMol->last_Indx_Bkg_High = glbParam->nBins_Ch[glbParam->chSel] -1 ;
+// printf("\n Find_Max_Range(3) setting dataMol->last_Indx_Mol_Low -> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
+
+				// IF THE BACKGROUND RANGE IS TOO SMALL, THEN IT IS NOT CONSIDERED
+				if ( (dataMol->last_Indx_Bkg_High - dataMol->last_Indx_Bkg_Low) < winSize )
+				{
+					dataMol->last_Indx_Bkg_Low  = -1 ;
+					dataMol->last_Indx_Bkg_High = -1 ;
+				}
 		}
 
-		if ( (dataMol->last_Indx_Mol_Low == dataMol->last_Indx_Bkg_Low) && (dataMol->last_Indx_Mol_Low >0) )
-		{   // IF THE FIRST FIT PRODUCE A R2 >R2_Max_Range (ALSO R2 >R2_NO_Signal) ==> IT ALREADY WENT INTO THE LAST TWO if()...
-			dataMol->last_Indx_Mol_Low  = fitParam.indxInitFit 	;
-			dataMol->last_Indx_Mol_High = fitParam.indxEndFit  	;
-			dataMol->last_Indx_Bkg_Low  = -1 					;
-			dataMol->last_Indx_Bkg_High = -1 					;
-			// printf("\n Find_Max_Range(4) -> dataMol->last_Indx_Mol_Low == dataMol->last_Indx_Bkg_Low \n") ;
-		}
+		// if ( (dataMol->last_Indx_Mol_Low == dataMol->last_Indx_Bkg_Low) && (dataMol->last_Indx_Mol_Low >0) )
+		// {   // IF THE FIRST FIT PRODUCE A R2 >R2_Max_Range (ALSO R2 >R2_NO_Signal) ==> IT ALREADY WENT INTO THE LAST TWO if()...
+		// 	dataMol->last_Indx_Mol_Low  = fitParam.indxInitFit 	;
+		// 	dataMol->last_Indx_Mol_High = fitParam.indxEndFit  	;
+		// 	dataMol->last_Indx_Bkg_Low  = -1 					;
+		// 	dataMol->last_Indx_Bkg_High = -1 					;
+		// 	// printf("\n Find_Max_Range(4) -> dataMol->last_Indx_Mol_Low == dataMol->last_Indx_Bkg_Low \n") ;
+		// }
 
 		if( dataMol->last_Indx_Mol_Low >0 )
 		{
-			// printf("\n Find_Max_Range(5) ==> exiting with fitparam.R2= %lf \n", fitParam.R2 ) ;
+			// printf("\n Find_Max_Range(5) ==> exiting with fitparam.R2_adj= %lf -- Max Range: %lf \n", fitParam.R2_adj, dataMol->last_Indx_Mol_High *glbParam->dzr ) ;
 			break;
 		}
-	}
-	// dataMol->last_Indx_Mol_Low  = dataMol->last_Indx_Mol_Low - winSize ;
+	} // for ( int i = indxInit_Search ; i >=(glbParam->indxInitSig +winSize) ; i-- )
 
 	// if (dataMol->last_Indx_Mol_Low <round(glbParam->indxInitSig /glbParam->dzr) )
 	// 	dataMol->last_Indx_Mol_Low = *indxMaxRange ;
 
-	// dataMol->last_Indx_Mol_High = dataMol->last_Indx_Mol_Low + winSize 	;
-	// if ( dataMol->last_Indx_Mol_High > (glbParam->nBins_Ch[glbParam->chSel] -1) )
-	// 	dataMol->last_Indx_Mol_High = glbParam->nBins_Ch[glbParam->chSel] -1 ;
+	// if( (dataMol->last_Indx_Mol_Low >0) && (dataMol->last_Indx_Mol_High>0) )
+	// {
+	// 	Remove_Cloud_Mol_Range( (double*)pr, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
 
-	if( (dataMol->last_Indx_Mol_Low >0) && (dataMol->last_Indx_Mol_High>0) )
-	{
-		Remove_Cloud_Mol_Range( (double*)pr, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
-
-		dataMol->last_Indx_Mol_High = dataMol->last_Indx_Mol_Low + winSize 	;
-		if ( dataMol->last_Indx_Mol_High > (glbParam->nBins_Ch[glbParam->chSel] -1) )
-			dataMol->last_Indx_Mol_High = glbParam->nBins_Ch[glbParam->chSel] -1 ;
-	}
+	// 	dataMol->last_Indx_Mol_High = dataMol->last_Indx_Mol_Low + winSize 	;
+	// 	if ( dataMol->last_Indx_Mol_High > (glbParam->nBins_Ch[glbParam->chSel] -1) )
+	// 		dataMol->last_Indx_Mol_High = glbParam->nBins_Ch[glbParam->chSel] -1 ;
+	// }
 
 	glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] = dataMol->last_Indx_Mol_High ;
 	glbParam->rEndSig_ev_ch   [glbParam->evSel][glbParam->chSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] * glbParam->dr ;
@@ -317,6 +314,98 @@ void CLidar_Operations::Find_Max_Range( double *pr, strcMolecularData *dataMol, 
 // 										glbParam->evSel, dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr,
 // 										dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
 } // void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam )
+
+// void CLidar_Operations::Find_Max_Range( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+// {
+// 	dataMol->last_Indx_Mol_Low  =-1 ;
+// 	dataMol->last_Indx_Mol_High =-1 ;
+// 	dataMol->last_Indx_Bkg_Low  =-1 ;
+// 	dataMol->last_Indx_Bkg_High =-1 ;
+
+// 	double R2_Max_Range = 0.06  	;
+// 	double R2_NO_Signal = 0.01 		;
+// 	int	   count_R2_Max_Range = 0 	;
+// 	int	   count_R2_NO_Signal = 0 	;
+// 	int winSize = (int)round(4000/dataMol->dzr) ;
+
+// 	int indxInit_Search ;
+// 	if ( dataMol->z_Mol_Max > glbParam->r[glbParam->nBins_Ch[glbParam->chSel]] )
+// 		indxInit_Search = glbParam->nBins_Ch[glbParam->chSel] -1 ;
+// 	else
+// 		indxInit_Search = round(dataMol->z_Mol_Max/glbParam->dr) ;
+
+// 	printf("\n") ;
+// 	for ( int i = indxInit_Search ; i >=(glbParam->indxInitSig +winSize) ; i-- )
+// 	{
+// 		fitParam.indxEndFit  = i       ;
+// 		fitParam.indxInitFit = fitParam.indxEndFit - winSize ; // glbParam->nBinsBkg 	 ;
+// 		fitParam.nFit		 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
+// 			Fit( (double*)pr, (double*)dataMol->prMol, glbParam->nBins_Ch[glbParam->chSel] , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+// 			// if ( i== (glbParam->nBins_Ch[glbParam->chSel] -1) )
+// 			// 	printf("\n Find_Max_Range(1) --> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
+
+// 		if ( (fitParam.R2 >R2_NO_Signal) && (dataMol->last_Indx_Bkg_Low <0) && (fitParam.m >0) )
+// 		{
+// 			count_R2_NO_Signal++ ;
+// 			if ( count_R2_NO_Signal ==1 )
+// 			{
+// 				dataMol->last_Indx_Bkg_Low  = fitParam.indxInitFit 						;
+// 				dataMol->last_Indx_Bkg_High = glbParam->nBins_Ch[glbParam->chSel] -1 	;
+// 				// printf("\n Find_Max_Range(2) setting dataMol->last_Indx_Bkg_Low -> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
+// 			}
+// 		}
+		
+// 		if ( (fitParam.R2 >R2_Max_Range) && (dataMol->last_Indx_Mol_Low <0) && (fitParam.m >0) )
+// 		{
+// 			count_R2_Max_Range++ ;
+// 			if ( count_R2_Max_Range ==1 )
+// 			{
+// 				dataMol->last_Indx_Mol_Low  = fitParam.indxInitFit	;
+// 				dataMol->last_Indx_Mol_High = fitParam.indxInitFit +winSize ;
+// 				// printf("\n Find_Max_Range(3) setting dataMol->last_Indx_Mol_Low -> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
+// 			}
+// 		}
+
+// 		if ( (dataMol->last_Indx_Mol_Low == dataMol->last_Indx_Bkg_Low) && (dataMol->last_Indx_Mol_Low >0) )
+// 		{   // IF THE FIRST FIT PRODUCE A R2 >R2_Max_Range (ALSO R2 >R2_NO_Signal) ==> IT ALREADY WENT INTO THE LAST TWO if()...
+// 			dataMol->last_Indx_Mol_Low  = fitParam.indxInitFit 	;
+// 			dataMol->last_Indx_Mol_High = fitParam.indxEndFit  	;
+// 			dataMol->last_Indx_Bkg_Low  = -1 					;
+// 			dataMol->last_Indx_Bkg_High = -1 					;
+// 			// printf("\n Find_Max_Range(4) -> dataMol->last_Indx_Mol_Low == dataMol->last_Indx_Bkg_Low \n") ;
+// 		}
+
+// 		if( dataMol->last_Indx_Mol_Low >0 )
+// 		{
+// 			// printf("\n Find_Max_Range(5) ==> exiting with fitparam.R2= %lf \n", fitParam.R2 ) ;
+// 			break;
+// 		}
+// 	}
+// 	// dataMol->last_Indx_Mol_Low  = dataMol->last_Indx_Mol_Low - winSize ;
+
+// 	// if (dataMol->last_Indx_Mol_Low <round(glbParam->indxInitSig /glbParam->dzr) )
+// 	// 	dataMol->last_Indx_Mol_Low = *indxMaxRange ;
+
+// 	// dataMol->last_Indx_Mol_High = dataMol->last_Indx_Mol_Low + winSize 	;
+// 	// if ( dataMol->last_Indx_Mol_High > (glbParam->nBins_Ch[glbParam->chSel] -1) )
+// 	// 	dataMol->last_Indx_Mol_High = glbParam->nBins_Ch[glbParam->chSel] -1 ;
+
+// 	if( (dataMol->last_Indx_Mol_Low >0) && (dataMol->last_Indx_Mol_High>0) )
+// 	{
+// 		Remove_Cloud_Mol_Range( (double*)pr, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;
+
+// 		dataMol->last_Indx_Mol_High = dataMol->last_Indx_Mol_Low + winSize 	;
+// 		if ( dataMol->last_Indx_Mol_High > (glbParam->nBins_Ch[glbParam->chSel] -1) )
+// 			dataMol->last_Indx_Mol_High = glbParam->nBins_Ch[glbParam->chSel] -1 ;
+// 	}
+
+// 	glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] = dataMol->last_Indx_Mol_High ;
+// 	glbParam->rEndSig_ev_ch   [glbParam->evSel][glbParam->chSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] * glbParam->dr ;
+
+// // printf( "CLidar_Operations::Find_Max_Range() --> ev: %d \n\t\t\t dataMol->last_Indx_Mol_Low[m]= %lf \t dataMol->last_Indx_Mol_High[m]= %lf \n\t\t\t dataMol->last_Indx_Bkg_Low[m]= %lf \t dataMol->last_Indx_Bkg_High[m]= %lf \n", 
+// // 										glbParam->evSel, dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr,
+// // 										dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
+// } // void CLidar_Operations::Find_Max_Range( double *pr, double *prMol, strcGlobalParameters *glbParam )
 
 void CLidar_Operations::Remove_Cloud_Mol_Range( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
@@ -391,17 +480,18 @@ void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *
 	if ( (glbParam->range_Bkg_Start <0) || (glbParam->range_Bkg_Stop <0) || ( glbParam->range_Bkg_Start > glbParam->range_Bkg_Stop ) )
 		Find_Max_Range( (double*)sig, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
 	else
-	{
+	{  	// BACKGROUND RANGE IS SET BY THE USER
 		dataMol->last_Indx_Bkg_Low  = (int) round(glbParam->range_Bkg_Start /glbParam->dr) ;
 		dataMol->last_Indx_Bkg_High = (int) round(glbParam->range_Bkg_Stop  /glbParam->dr) ;
 	}
 
 	double 	bkgMean = 0 ;
 
+	// IF Find_Max_Range() DOES NOT FIND A GOOD RANGE, THEN THE BIAS IS OBTAINED FROM THE AUTOMATIC METHOD
 	if ( (dataMol->last_Indx_Bkg_Low <0) || (dataMol->last_Indx_Bkg_High <0) || (dataMol->last_Indx_Bkg_Low >dataMol->last_Indx_Bkg_High) )
 		Bias_Substraction_Auto( (double*)sig, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (double*)pr_noBias, (double*)&bkgMean ) ;
 	else
-	{
+	{	// CALCULATE THE MEAN VALUE OF THE BACKGROUND AND SUBSTRACT IT FROM THE SIGNAL.
 		for( int j=dataMol->last_Indx_Bkg_Low ; j<dataMol->last_Indx_Bkg_High ; j++ ) bkgMean = bkgMean + sig[j] ;
 
 		bkgMean = bkgMean /( dataMol->last_Indx_Bkg_High - dataMol->last_Indx_Bkg_Low ) ;
@@ -415,7 +505,7 @@ void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, con
 	if ( (glbParam->range_Bkg_Start <0) || (glbParam->range_Bkg_Stop <0) || ( glbParam->range_Bkg_Start > glbParam->range_Bkg_Stop ) )
 		Find_Max_Range( (double*)prEl, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
 	else
-	{
+	{	// BACKGROUND RANGE IS SET BY THE USER
 		dataMol->last_Indx_Mol_Low  = (int) round(glbParam->range_Bkg_Start /glbParam->dr) ;
 		dataMol->last_Indx_Mol_High = (int) round(glbParam->range_Bkg_Stop  /glbParam->dr) ;
 	}
@@ -429,7 +519,7 @@ void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, con
 		fitParam.indxInitFit = dataMol->last_Indx_Mol_Low  ;
 		fitParam.indxEndFit  = dataMol->last_Indx_Mol_High ;
 		fitParam.nFit	   	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
-		printf("\nBias_Substraction_MolFit() ==> fitParam.indxInitFit[m]= %lf \t fitParam.indxEndFit[m]= %lf \n", fitParam.indxInitFit *glbParam->dzr, fitParam.indxEndFit*glbParam->dzr ) ;
+		// printf("\nBias_Substraction_MolFit() ==> fitParam.indxInitFit[m]= %lf \t fitParam.indxEndFit[m]= %lf \n", fitParam.indxInitFit *glbParam->dzr, fitParam.indxEndFit*glbParam->dzr ) ;
 
 			Fit( (double*)prEl, (double*)dataMol->prMol, dataMol->nBins , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
 				for ( int i=0 ; i<dataMol->nBins ; i++ ) 	pr_no_DarkCur[i] = (double)(prEl[i] - fitParam.b) ; 
@@ -583,9 +673,9 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 				// DARK-CURRENT AND RANGE CORRECTION
 				if ( glbParam->is_Noise_Data_Loaded == true )
 				{
-						if ( strcmp( glbParam->exeFile, "./lidarAnalysis_PDL1" ) ==0 )
+						if ( strcmp( glbParam->exeFile, "./lpp1" ) ==0 )
 							oMolData->Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
-						else if ( strcmp( glbParam->exeFile, "./lidarAnalysis_PDL2" ) ==0 )
+						else if ( strcmp( glbParam->exeFile, "./lpp2" ) ==0 )
 							oMolData->Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
 						else
 						{
@@ -623,13 +713,13 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 						}
 					}
 				}
-				else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lidarAnalysis_PDL2
+				else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lpp2
 				{
 					printf("| Bias |  ") ;
 
-						if ( strcmp( glbParam->exeFile, "./lidarAnalysis_PDL1" ) ==0 )
+						if ( strcmp( glbParam->exeFile, "./lpp1" ) ==0 )
 							oMolData->Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
-						else if ( strcmp( glbParam->exeFile, "./lidarAnalysis_PDL2" ) ==0 )
+						else if ( strcmp( glbParam->exeFile, "./lpp2" ) ==0 )
 							oMolData->Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
 						else
 						{
@@ -817,8 +907,14 @@ void CLidar_Operations::Fit( double *sig, double *sigMol, int nBins, const char 
 		// R2: COEFFICIENT OF DETERMINATION = 1 - RSS/TSS
 		// RSS = Residuals Squared Sum  = ( sig - sigFit   )^2 --> SQUARED SUM OF THE ERROR OF THE MODEL
 		// TSS = Total Squares Sum      = ( sig - mean_sig )^2 --> SQUARED SUM OF THE ERROR OF THE MEAN
-		fitParam->R2  = (double) ( fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_sig_vs_Mean ;
-		fitParam->F   = (double) ( fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_fit		  ;
+		// dfTSS = nFit -1
+		// dfRSS = nFit -2 -1
+		// R2_adj = 1 - ( RSS / (nFit -2) ) / ( TSS / (nFit -1) )
+		double dfTSS = (double)fitParam->nFit -1 	;
+		double dfRSS = (double)fitParam->nFit -2 -1 ;
+		fitParam->R2  	 = (double) ( fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_sig_vs_Mean ;
+		fitParam->R2_adj = (double) 1- ( (fitParam->squared_sum_fit /dfRSS) / (fitParam->squared_sum_sig_vs_Mean /dfTSS) ) ;
+		fitParam->F  	 = (double) ( fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_fit		  ;
 	}
 	else
 	{

@@ -15,10 +15,10 @@ echo ""
 echo ""
 echo ""
 echo ""
-echo "Building lidarAnalysisPDL0..."
+echo "Building LPP L0..."
 echo ""
-cd ./Lidar_Analysis_PDL0/
-make -f makefile_lidarAnalysis_PDL0 $1
+cd ./LPP_L0/
+make -f makefile_lpp0 $1
 
 sleep 1
 
@@ -26,10 +26,10 @@ echo ""
 echo ""
 echo ""
 echo ""
-echo "Building lidarAnalysisPDL1..."
+echo "Building LPP L1..."
 echo ""
-cd ../Lidar_Analysis_PDL1
-make -f makefile_lidarAnalysis_PDL1 $1
+cd ../LPP_L1/
+make -f makefile_lpp1 $1
 
 sleep 1
 
@@ -47,10 +47,10 @@ echo ""
 echo ""
 echo ""
 echo ""
-echo "Building lidarAnalysisPDL2..."
+echo "Building LPP L2..."
 echo ""
-cd ../Lidar_Analysis_PDL2
-make -f makefile_lidarAnalysis_PDL2 $1
+cd ../LPP_L2/
+make -f makefile_lpp2 $1
 
 echo ""
 echo ""

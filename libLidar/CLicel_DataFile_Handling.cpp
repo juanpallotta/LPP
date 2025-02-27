@@ -130,6 +130,8 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 					printf("\n\n void read_Licel_Header_Line()--> file %s is not compatible \nNumber of elements (%d) in line number 2... exit\n", glbParam->fileName, nLineElements ) ;
 					exit(1) ;
 				}
+				glbParam->aZenithAVG [glbParam->evSel] = glbParam->aZenith [glbParam->evSel] ;
+				glbParam->aAzimuthAVG[glbParam->evSel] = glbParam->aAzimuth[glbParam->evSel] ;
 				break ;
 
 		case 3 : // LINE NUMBER 3
@@ -251,11 +253,11 @@ void CLicel_DataFile_Handling::ReadLicel_GlobalParameters( char *lidarFile, strc
 	glbParam->nPhotCh = 0 ;
 
 	glbParam->aAzimuth 	   		= (double*) new double[glbParam->nEvents] 	 ; memset( (double*)glbParam->aAzimuth    	 , 0, (sizeof(double)*glbParam->nEvents) 	) ;
+	glbParam->aAzimuthAVG  		= (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aAzimuthAVG	 , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;	
 	glbParam->aZenith      		= (double*) new double[glbParam->nEvents] 	 ; memset( (double*)glbParam->aZenith     	 , 0, (sizeof(double)*glbParam->nEvents) 	) ;
+	glbParam->aZenithAVG   		= (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aZenithAVG     , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->temp_K_agl 		= (double*) new double[glbParam->nEvents] 	 ; memset( (double*)glbParam->temp_K_agl	 , 0, (sizeof(double)*glbParam->nEvents) 	) ;
 	glbParam->pres_Pa_agl   	= (double*) new double[glbParam->nEvents] 	 ; memset( (double*)glbParam->pres_Pa_agl    , 0, (sizeof(double)*glbParam->nEvents) 	) ;
-	glbParam->aAzimuthAVG  		= (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aAzimuthAVG	 , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;	
-	glbParam->aZenithAVG   		= (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->aZenithAVG     , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->temp_K_agl_AVG 	= (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->temp_K_agl_AVG , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	glbParam->pres_Pa_agl_AVG   = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_Pa_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	// glbParam->indxEndSig_ev   	= (int*   ) new int   [glbParam->nEventsAVG] ;

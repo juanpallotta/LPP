@@ -48,7 +48,7 @@ int 	ReadAnalisysParameter	   	( const char*, const char*, const char*, void* ) 
 // int 	ReadAnalisysParameter_template ( const char*, const char*, const char*, T& ) ;
 int 	findLastCharInString		( char*, const char ) ;
 
-void 	Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData*, double* ) ;
+// void 	Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData*, double* ) ;
 
 // MEMORY GETTERS 
 void    GetMem_DataFile             	( strcLidarDataFile*, strcGlobalParameters* ) ;

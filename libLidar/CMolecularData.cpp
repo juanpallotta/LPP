@@ -99,22 +99,22 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		dataMol.z_Mol_Max = 30000 ;
 
 	double co2_ppmv = 392 ;
-	// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF RadSondeData.pLR AND RadSondeData.tLR PASSED AS THE FIRST AND SECOND ARGUMENTS (LR)
+	// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF RadSondeData.pLR AND RadSondeData.tLR PASSED AS THE FIRST AND SECOND ARGUMENTS (LR=Low Resolution)
 	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9, (double)co2_ppmv,
 									  (int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 
 	// CHECK IF THE RADIOSONDE RESOLUTION IS THE SAME AS THE LIDAR. IF YES, SO THERE IS NO NEED TO RESAMPLE
-	//! SACAR ESTO
-	// if ( (RadSondeData.zLR[2] - RadSondeData.zLR[1] ) == glbParam->dr )
-	// 	Fill_dataMol_L1_from_RadSondeData( (strcGlobalParameters*)glbParam ) ;
-	// else
-	// {
+	//! VERIFICAR ESTO
+	if ( (RadSondeData.zLR[2] - RadSondeData.zLR[1] ) == glbParam->dr )
+		Fill_dataMol_L1_from_RadSondeData( (strcGlobalParameters*)glbParam ) ;
+	else
+	{
 		// RESAMPLE dataMol IN HIGH RESOLUTION AND AT ZENITHAL ANGLE
 		Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
 
 		// RESAMPLE dataMol.pPa AND dataMol.tK IN HIGH RESOLUTION TO BE SAVED LATER
 		Tem_Pres_to_HR( ) ;
-	// }
+	}
 // printf( "\n\nGet_Mol_Data_L1() despues de Tem_Pres_to_HR() --> RadSondeData.tLR[l]= %lf \t dataMol.tPa[0]= %lf \n", RadSondeData.tLR[0], dataMol.tK [0] ) ;
 	fclose(fid) ;
 }
@@ -128,10 +128,21 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam )
 	RadSondeData.beta_mol  	= (double*) new double [dataMol.nBins] ; // BACKSCATTERING IN HIGHT RESOLUTION, VERTICAL AND ASL OBTAINED FROM T&P FROM THE L1 DATASET.
 	RadSondeData.zHR	  	= (double*) new double [dataMol.nBins] ; // ALTITUDO IN HIGHT RESOLUTION, VERTICAL AND ASL
 
-	// dataMol.pPa AND dataMol.tK ALREADY IN HIGH RESOLUTION AND ASL, SINCE THEY WERE READ FROM THE NETCDF FILE. HERE ALL THE PROFILES ARE IN THE VERTICAL
-	TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->chSel]*1e-9, (double)co2_ppmv, (int) dataMol.nBins, 
-  									  (double*)RadSondeData.nHR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
-
+// search in the char* glbParam.Path_In if the string "holger" is found. If yes, then the data is from Holger Baars
+	if ( (strstr(glbParam->Path_File_In, "holger") != NULL) || (strstr(glbParam->Path_File_In, "lpp_sim") != NULL)  )
+	{
+		// GET RadSondeData.nHR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN HIGH RESOLUTION AND AT THE ZENITHAL ANGLE dataMol.zenith
+		// dataMol.pPa AND dataMol.tK ALREADY IN HIGH RESOLUTION AND ASL, SINCE THEY WERE READ FROM THE NETCDF FILE. HERE ALL THE PROFILES ARE IN THE VERTICAL
+		TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->chSel]*1e-9, (int) dataMol.nBins, 
+										(double*)RadSondeData.nHR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
+	}
+	else
+	{
+		// GET RadSondeData.nHR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN HIGH RESOLUTION AND AT THE ZENITHAL ANGLE dataMol.zenith
+		// dataMol.pPa AND dataMol.tK ALREADY IN HIGH RESOLUTION AND ASL, SINCE THEY WERE READ FROM THE NETCDF FILE. HERE ALL THE PROFILES ARE IN THE VERTICAL
+		TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->chSel]*1e-9, (double)co2_ppmv, (int) dataMol.nBins, 
+										(double*)RadSondeData.nHR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
+	}
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
 		RadSondeData.zHR[i] = (double) glbParam->siteASL + glbParam->r[i] ;
 
@@ -170,54 +181,54 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
 }
 
-// void CMolecularData::Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters *glbParam )
-// {
-// 	if ( glbParam->evSel <0 )
-// 		dataMol.zenith = (int)0 ;
-// 	else
-// 	{
-// 		dataMol.zenith = (int)glbParam->aZenithAVG[glbParam->evSel] ;
-// 		if ( dataMol.zenith == -90 )
-// 			dataMol.zenith = (int) 0 ;
-// 	}
+void CMolecularData::Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters *glbParam )
+{
+	if ( glbParam->evSel <0 )
+		dataMol.zenith = (int)0 ;
+	else
+	{
+		dataMol.zenith = (int)glbParam->aZenithAVG[glbParam->evSel] ;
+		if ( dataMol.zenith == -90 )
+			dataMol.zenith = (int) 0 ;
+	}
 
-// 	// VALUES FROM ASL
-// 	dataMol.nBins = glbParam->nBins ;
-// 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-// 		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
-// 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
-// 	glbParam->dzr = dataMol.dzr ;
+	// VALUES FROM ASL
+	dataMol.nBins = glbParam->nBins ;
+	for ( int i=0 ; i < glbParam->nBins ; i++ )
+		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
+	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
+	glbParam->dzr = dataMol.dzr ;
 
-//  	// RESAMPLED RadSondeData.nLR, RadSondeData.alpha_mol y RadSondeData.beta_mol TO HIGH RESOLUTION: dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol
-// 	// AND IN THE SLANT PATH DEFINED BY THE ZENITHAL ANGLE dataMol.zenith
-// 	// Mol_Low_To_High_Res( (strcGlobalParameters*)glbParam ) ;
+ 	// RESAMPLED RadSondeData.nLR, RadSondeData.alpha_mol y RadSondeData.beta_mol TO HIGH RESOLUTION: dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol
+	// AND IN THE SLANT PATH DEFINED BY THE ZENITHAL ANGLE dataMol.zenith
+	// Mol_Low_To_High_Res( (strcGlobalParameters*)glbParam ) ;
 
-// 	for ( int i =0 ; i <RadSondeData.nBinsLR ; i++ )
-// 	{
-// 		dataMol.nMol    [i] = (double) RadSondeData.nLR[i] 	     ;
-// 		dataMol.alphaMol[i] = (double) RadSondeData.alpha_mol[i] ;
-// 		dataMol.betaMol [i] = (double) RadSondeData.beta_mol[i]  ;
+	for ( int i =0 ; i <RadSondeData.nBinsLR ; i++ )
+	{
+		dataMol.nMol    [i] = (double) RadSondeData.nLR[i] 	     ;
+		dataMol.alphaMol[i] = (double) RadSondeData.alpha_mol[i] ;
+		dataMol.betaMol [i] = (double) RadSondeData.beta_mol[i]  ;
 
-// 		dataMol.tK[i]  = (double) RadSondeData.tLR[i] ;
-// 		dataMol.pPa[i] = (double) RadSondeData.pLR[i] ;
-// 	}
-// 	for (int i =RadSondeData.nBinsLR ; i <dataMol.nBins ; i++ )
-// 	{
-// 		dataMol.nMol    [i] = (double) dataMol.nMol    [RadSondeData.nBinsLR-1] ;
-// 		dataMol.alphaMol[i] = (double) dataMol.alphaMol[RadSondeData.nBinsLR-1] ;
-// 		dataMol.betaMol [i] = (double) dataMol.betaMol [RadSondeData.nBinsLR-1] ;
+		dataMol.tK[i]  = (double) RadSondeData.tLR[i] ;
+		dataMol.pPa[i] = (double) RadSondeData.pLR[i] ;
+	}
+	for (int i =RadSondeData.nBinsLR ; i <dataMol.nBins ; i++ )
+	{
+		dataMol.nMol    [i] = (double) dataMol.nMol    [RadSondeData.nBinsLR-1] ;
+		dataMol.alphaMol[i] = (double) dataMol.alphaMol[RadSondeData.nBinsLR-1] ;
+		dataMol.betaMol [i] = (double) dataMol.betaMol [RadSondeData.nBinsLR-1] ;
 
-// 		dataMol.tK[i]  = (double) dataMol.tK [RadSondeData.nBinsLR-1] ;
-// 		dataMol.pPa[i] = (double) dataMol.pPa[RadSondeData.nBinsLR-1] ;
-// 	}
+		dataMol.tK[i]  = (double) dataMol.tK [RadSondeData.nBinsLR-1] ;
+		dataMol.pPa[i] = (double) dataMol.pPa[RadSondeData.nBinsLR-1] ;
+	}
 
-// 	// for ( i =0 ; i <glbParam->nBins ; i++ )
-// 	// 	dataMol.nMol[i] = RadSondeData.nHR[i] ;
-// 		// double N2_shift = 2331e2 ;
-// 		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
+	// for ( i =0 ; i <glbParam->nBins ; i++ )
+	// 	dataMol.nMol[i] = RadSondeData.nHR[i] ;
+		// double N2_shift = 2331e2 ;
+		// double N2_XS_BS = 3.5e-34 * pow( ( (1/glbParam->iLambda)-N2_shift ), 4) / pow( (1e9/337.1-N2_shift), 4 ) ;
 
-// 	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
-// }
+	Elastic_Rayleigh_Lidar_Signal ( (double*)glbParam->r ) ;
+}
 
 // FILL dataMol STRUCTURE IN HIGH RESOLUTION AND AT THE ZENITHAL ANGLE SELECTED.
 void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
@@ -281,7 +292,7 @@ void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
 	// delete MOD ;
 }
 
-// void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // USED IN lidarAnalysis_PDL1.cpp
+// void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // USED IN lpp1.cpp
 // {
 // 	double *coeff_N     = (double*) new double[5 +1] ;
 // 	double *coeff_alpha = (double*) new double[5 +1] ;
@@ -316,7 +327,7 @@ void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
 // 	delete coeff_beta  ;
 // }
 
-void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // USED IN lidarAnalysis_PDL1.cpp
+void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // USED IN lpp1.cpp
 {
 	double *coeff_N     = (double*) new double[3 +1] ;
 	double *coeff_alpha = (double*) new double[3 +1] ;
@@ -351,7 +362,7 @@ void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // US
 	delete coeff_beta  ;
 }
 
-void CMolecularData::Tem_Pres_to_HR() // USED IN lidarAnalysis_PDL1.cpp
+void CMolecularData::Tem_Pres_to_HR() // USED IN lpp1.cpp
 {
 	int 	orden = 3 ;
 	double *coeff_Temp   = (double*) new double[orden +1] ;
@@ -378,7 +389,7 @@ void CMolecularData::Tem_Pres_to_HR() // USED IN lidarAnalysis_PDL1.cpp
 	delete coeff_Pres ;
 }
 
-void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters *glbParam ) // USED IN lidarAnalysis_PDL2.cpp
+void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters *glbParam ) // USED IN lpp2.cpp
 {
 	double *coeff_N     = (double*) new double[3 +1] ;
 	double *coeff_alpha = (double*) new double[3 +1] ;
@@ -647,3 +658,18 @@ for( int i=0 ; i<nBins ; i++ )
 	beta_mol[i] = alpha_mol[i] /(*LR_mol) ;       // molecular backscatter [m^-1]
 
 }
+
+void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( double *pres_PA, double *temp_K, double lambda_m, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
+{
+	double kboltz=1.3807e-23 ;
+	*LR_mol = 8*M_PI/3 		 ;
+	
+	lambda_m = lambda_m / 1e-9 ; // [m] to [nm]
+	for (int i = 0; i < nBins; i++)
+	{
+		N_mol[i]     = pres_PA[i] / (temp_K[i] *kboltz) ; // PRESSURE IN PASCALS. TEMPERATURE IN KELVIN.
+		beta_mol[i]  = N_mol[i] * pow((550/lambda_m), 4.09) * 5.45*pow(10, -32) ; // [m^-1*sr^-1]
+		alpha_mol[i] = beta_mol[i] * (*LR_mol) ;
+	}
+}
+
