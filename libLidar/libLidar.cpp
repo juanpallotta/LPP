@@ -202,7 +202,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
     {
 		// printf("\n Variable *%s* not found or commented in setting file *%s*  \n\n", varToFind, fileName ) ;
         if ( strcmp( varType, "string" ) == 0 )
-            strcpy( ((char*)var), "NOT_FOUND") ;
+			strcpy( ((char*)var), "NOT_FOUND") ;
         else if ( strcmp( varType, "int" ) == 0 )
             *((int*)var) = -2000 ;
         else if ( strcmp( varType, "float" ) == 0 )

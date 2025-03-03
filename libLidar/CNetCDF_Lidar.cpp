@@ -382,6 +382,7 @@ void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glb
             glbParam->indxEndSig_ev_ch[e][c]   = (int)round(glbParam->rEndSig_ev_ch[e][c] /glbParam->dr) ;
     }
     
+    // Cloud_Mask VARIABLE IS ALWAY PRESENT IN THE L1 DATA GROUP.
     int id_var_lm ;
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)"Cloud_Mask", (int*)&id_var_lm ) ) )
         ERR(retval) ;
@@ -951,11 +952,11 @@ void CNetCDF_Lidar::Add_Overlap_LALINET_NCDF_PDL0( string *Path_File_Out, strcGl
 
 }
 
-void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalParameters *glbParam, double **RMSElay, double *RMSerr_Ref, int **Cloud_Profiles, 
+void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParameters *glbParam, double **RMSElay, double *RMSerr_Ref, int **Cloud_Profiles, 
                                             double ***pr_corr, int *Start_Time_AVG, int *Stop_Time_AVG, CMolecularData *oMolData )
 {
     int retval, nc_id ;
-    if ( ( retval = nc_open( Path_File_Out->c_str(), NC_WRITE, &nc_id ) ) )
+    if ( ( retval = nc_open( Path_File_Out, NC_WRITE, &nc_id ) ) )
     {
         ERR(retval) ;
     }
@@ -1082,7 +1083,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( string *Path_File_Out, strcGlobalPar
 void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )
 {
     int retval, nc_id ;
-    // if ( ( retval = nc_open( Path_File_Out->c_str(), NC_WRITE, &nc_id ) ) )
     if ( ( retval = nc_open( Path_File_Out, NC_WRITE, &nc_id ) ) )
         ERR(retval);
     if ( ( retval = nc_redef( (int)nc_id ) ) )

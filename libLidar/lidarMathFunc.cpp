@@ -46,21 +46,21 @@ void cumtrapz ( double dx, double *y, int binInic, int binEnd, double *intFunc )
     // }
 }
 
-// void trapz( double dx, double *y, int binInic, int binEnd, double *integral )
-// {
-// 	double sum_ = 0 ;
+void trapz( double dx, double *y, int binInic, int binEnd, double *integral )
+{
+	double sum_ = 0 ;
 
-//     if ( binInic < binEnd )
-//     {
-//         for ( int i = binInic ; i <=(binEnd-1) ; i++ )
-//             sum_ = (double) (sum_ + dx * 0.5 *(y[i] + y[i+1])) ;
-//     }
-//     else
-//     {   // binEnd < binInic
-//         printf("\nWrong call to trapz (binEnd < binInic)\n (%d < %d)\n", binEnd, binInic) ;
-//     }
-//     *integral = sum_ ;
-// }
+    if ( binInic < binEnd )
+    {
+        for ( int i = binInic ; i <=(binEnd-1) ; i++ )
+            sum_ = (double) (sum_ + dx * 0.5 *(y[i] + y[i+1])) ;
+    }
+    else
+    {   // binEnd < binInic
+        printf("\nWrong call to trapz (binEnd < binInic)\n (%d < %d)\n", binEnd, binInic) ;
+    }
+    *integral = sum_ ;
+}
 
 void cumtrapz_norm ( double dx, double *y, int indxInic, int indxRef, int indxEnd, double *intFunc_Norm )
 {
@@ -72,12 +72,13 @@ void cumtrapz_norm ( double dx, double *y, int indxInic, int indxRef, int indxEn
 
     // Forward integration
     intFunc_Norm[indxRef] = 0.0;
-    for (int i =(indxRef+1) ; i <indxEnd ; i++)
+    for (int i =(indxRef+1) ; i <=indxEnd ; i++)
         intFunc_Norm[i] = intFunc_Norm[i - 1] + 0.5 * dx * (y[i] + y[i - 1]);
 
     // Backward integration
     for (int i =(indxRef-1) ; i >= indxInic ; i--) 
     {
+        // intFunc_Norm[i] = intFunc_Norm[i+1] + 0.5 * dx * (y[i + 1] + y[i]);
         intFunc_Norm[i] = intFunc_Norm[i+1] - 0.5 * dx * (y[i + 1] + y[i]);
     }
 

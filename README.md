@@ -44,7 +44,7 @@
 
 The LPP is a collection of tools developed in C/C++ and Linux script, planned to handle all the steps of lidar analysis. In the present version of LPP, only elastic lidar signals are analyzed, but it is planned to manage depolarization and Raman signals in the future.
 LPP is comprised of 3 main modules: `lpp0`, `lpp1`, and `lpp2`, each one producing a different data level. The first module converts the raw lidar data files into a single NetCDF file, including detailed information about the instrument and acquisition setup (product data level 0 or PDL0). The produced NetCDF files are then processed by the next module which applies the necessary corrections to the raw lidar signals and computes the layer-mask (product data level 1 or PDL1). The final step is the elastic retrieval of aerosol parameters (product data level 2 or PDL2), and for this first release of LPP, only elastic lidar signals are processed.
-The development of LPP is based on the existing analysis routines developed by individual LALINET groups and hence takes advantage of previous efforts for algorithm comparison within the scope of the LALINET network. The code presented in this repository was tested on Linux Ubuntu 20.04.3 LTS and GCC 9.4.0.
+The development of LPP is based on the existing analysis routines developed by individual LALINET groups and hence takes advantage of previous efforts for algorithm comparison within the scope of the LALINET network. The code presented in this repository was tested on Linux Ubuntu 22.04.5 LTS and GCC 11.4.0.
 
 # Overall concept of the LPP tools
 
@@ -436,8 +436,6 @@ heightRef_Inversion_Start_ASL = 7000
 heightRef_Inversion_Stop_ASL  = 8000
 # LIDAR SIGNAL NORMALIZATION METHOD: MEAN/FIT
 reference_method = FIT
-# MAXIMUM RANGE TO ITEGRATE THE EXTINCTION PROFILE TO OBTAIN THE AOD (IN METERS)
-integral_max_range_for_AOD = 6000
 # BACKSCATTERING RATIO = R_ref = BetaTot(rRef) / BetaMol(rRef) >1
 R_ref = 1
 
@@ -465,7 +463,6 @@ A description of each of these parameters is described below:
 * `LR`: Lidar ratio used for the inversion. The current version of LPP invert the elastic lidar signals using a constant LR (non-range dependant). Nonetheless, it can be more than one value, each one sepparated by `,`, with a space before and after `,` (see the example array in the previous lines: `LR = 50 , 60 , 70 , 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
 * `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`: Initial and end reference altitude above sea level (in meters). These ranges are used to calculate the reference height during the inversion procedure. If one of these values is negative, or `heightRef_Inversion_Start_ASL > heightRef_Inversion_Stop_ASL`, the reference range is obtained automatically based on the layer-mask. If `COMPUTE_CLOUD_MASK = NO` in the data level 1 settings, the layer mask is computed anyway in data level 2.
-  `integral_max_range_for_AOD`: Maximum range to integrate the extinction profile to obtain the aerosol optical depth.
 * `reference_method`: Used to define how the reference value is obtained from the lidar signal, having two values to adopt: MEAN and FIT. If MEAN option is set, a mean value is taken between the altitudes `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`. If FIT option is set, a Rayleigh-Fit is done within the same ranges and its middle point is taken from the fitted profile.
 * `R_ref`: Backscatter ratio at reference altitude, being the ratio for the total to the molecular backscatter. This parameter can control the turbidity of the reference altitude, being `R_ref=1` completely molecular, and higher values mean a more polluted reference altitude.
 

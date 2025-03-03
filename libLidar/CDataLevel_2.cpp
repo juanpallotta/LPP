@@ -30,7 +30,6 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	betaT  			= (double*) new double[glbParam->nBins ] ;
 	betaMol_Fit		= (double*) new double[glbParam->nBins ] ;
 	intAlphaMol_Ref_r = (double*) new double[glbParam->nBins] ;
-	// pr2Fit 		= (double*) new double[glbParam->nBins] ;
 
 	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
 	{
@@ -98,28 +97,26 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	indxRef_Fernald_Start = (int*) new int [ glbParam->nEventsAVG ] ;
 	indxRef_Fernald_Stop  = (int*) new int [ glbParam->nEventsAVG ] ;
 
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)glbParam->avg_Points_Fernald ) ;
+ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
+ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)glbParam->avg_Points_Fernald ) ;
 
 // 	AERONET VARIABLES
-	aeronet_file = (char*) new char [ 400 ] ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_FILE", (const char*)"string", (char*)aeronet_file ) ;
-    // if ( strcmp(aeronet_file, "NOT_FOUND") ==0 )
+aeronet_file = (char*) new char [ 400 ] ;
+ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_FILE", (const char*)"string", (char*)aeronet_file ) ;
+	// if ( strcmp(aeronet_file, "NOT_FOUND") ==0 )
 	// 	printf("\nNo AERONET data set in the configuration file. ") ;
 	// else
 	// 	printf("\nAERONET data file to use: %s\n", aeronet_file) ;
 
-	aeronet_path = (char*) new char [ 300 ] ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_PATH", (const char*)"string", (char*)aeronet_path ) ;
+aeronet_path = (char*) new char [ 300 ] ;
+ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_PATH", (const char*)"string", (char*)aeronet_path ) ;
 
 	aeronet_data_level = (char*) new char [ 10 ] ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_DATA_LEVEL", (const char*)"string", (char*)aeronet_data_level ) ;
-
 	aeronet_site_name = (char*) new char [ 30 ] ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_SITE_NAME", (const char*)"string", (char*)aeronet_site_name ) ;
 
-
-	oLOp = (CLidar_Operations*) new CLidar_Operations( (strcGlobalParameters*)glbParam ) ;
+oLOp = (CLidar_Operations*) new CLidar_Operations( (strcGlobalParameters*)glbParam ) ;
 }
 	
 CDataLevel_2::~CDataLevel_2()
@@ -194,11 +191,12 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 			// } while ( (pr2_Ref <=0) && (fitParam.nFit >10) ) ;
 		}
 	}
-		pr2[glbParam->evSel][glbParam->chSel][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
+	pr2[glbParam->evSel][glbParam->chSel][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
 
-	printf("\n FernaldInversion()--> \nMax. Range= %lf ---- Ref. ranges: %lf - %lf m - Inversion range value: %f m \t Pr2(%d)= %lf", 
+	printf("\n FernaldInversion()--> \nMax. Range= %lf ---- Ref. ranges: %lf - %lf m - Inversion range value: %f m \t Pr2(%d)= %lf\n", 
 				glbParam->rEndSig_ev_ch[glbParam->evSel][glbParam->chSel], glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], 
-				glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], indxRef_Fernald[glbParam->evSel] *glbParam->dzr, indxRef_Fernald[glbParam->evSel], pr2_Ref ) ;
+				glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], indxRef_Fernald[glbParam->evSel] *glbParam->dzr, 
+				indxRef_Fernald[glbParam->evSel], pr2_Ref ) ;
 
 	int indx_integral_max_range_for_AOD ;
 	// int integral_max_range_for_AOD ;
@@ -210,12 +208,12 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		{
 			FernaldInversion_Core( (strcGlobalParameters*)glbParam, (int)l, (strcMolecularData*)dataMol, (int)glbParam->indxInitSig, (int)glbParam->nBins_Ch[glbParam->chSel]-1 ) ;
 
-			// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "integral_max_range_for_AOD", "int", (int*)&integral_max_range_for_AOD ) ;
-			// indx_integral_max_range_for_AOD = (int)round( integral_max_range_for_AOD /glbParam->dr ) ;
-			indx_integral_max_range_for_AOD = (int)round( indxRef_Fernald_Start[glbParam->evSel]/2 + indxRef_Fernald_Stop[glbParam->evSel]/2) ;
-
-			smooth( (double*)&beta_Aer [glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&beta_Aer [glbParam->evSel][l][0] ) ;
-			smooth( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&alpha_Aer[glbParam->evSel][l][0] ) ;
+			if ( glbParam->avg_Points_Fernald[glbParam->chSel] >1 )
+			{
+				smooth( (double*)&beta_Aer [glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&beta_Aer [glbParam->evSel][l][0] ) ;
+				smooth( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&alpha_Aer[glbParam->evSel][l][0] ) ;
+			}
+			indx_integral_max_range_for_AOD = (int)round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
 			sum(    (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[glbParam->evSel][l] ) ;
 			AOD_LR[glbParam->evSel][l] = AOD_LR[glbParam->evSel][l] * glbParam->dr ;
 			// printf("\nAOD@LR = %lf --> %lf", fabs(LR[l]), AOD_LR[glbParam->evSel][l]) ;
@@ -403,201 +401,156 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l,
 		if ( fpclassify(betaT[i]) == FP_NAN )
 			betaT[i] = (double)DBL_MAX ;
 	}
-
 		// FIT beta_mol TO betaT FOR A MORE CONSISTENT RETRIEVAL OF beta_Aer
-			// double sumOut =0;
-			// int    s =0 ;
-			// strcFitParam fitParam ;
-			// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
-			// // do
-			// // {
-			// 	fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel]    ;
-			// 	// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] -s*100 ;
-			// 	// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] -s*100 ;
-			// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
-			// 	oLOp->Fit( (double*)&betaT[0], (double*)&dataMol->betaMol_avg[0], glbParam->nBins , "wOutB", "all", (strcFitParam*)&fitParam, (double*)betaMol_Fit ) ;
-				// LR = (double)fabs(LR) ;
+// 			double sumOut =0;
+// 			int    s =0 ;
+// 			strcFitParam fitParam ;
+// 			fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
+// 			do
+// 			{
+// 				// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel]    ;
+// 				fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] -s*100 ;
+// 				// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] -s*100 ;
+// 				fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
+// 				oLOp->Fit( (double*)&betaT[0], (double*)&dataMol->betaMol_avg[0], glbParam->nBins , "wOutB", "all", (strcFitParam*)&fitParam, (double*)betaMol_Fit ) ;
+// 				// LR = (double)fabs(LR) ;
 
-				// sumOut =0;
-				// for (int i =(fitParam.indxInitFit - round(fitParam.indxInitFit *0.10)) ; i <fitParam.indxInitFit ; i++)
-					// sumOut = sumOut + betaT[i] - betaMol_Fit[i] ;
-				// s++ ;
-			// } while( (sumOut <0) && (fitParam.indxInitFit >glbParam->indxInitSig) ) ;
+// 				sumOut =0;
+// 				for (int i =(fitParam.indxInitFit - round(fitParam.indxInitFit *0.10)) ; i <fitParam.indxInitFit ; i++)
+// 					sumOut = sumOut + betaT[i] - betaMol_Fit[i] ;
+// 				s++ ;
+// 			} while( (sumOut <0) && (fitParam.indxInitFit >glbParam->indxInitSig) ) ;
+// 			s = s-2 ;
+// 			fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] -s*100 ;
+// 			oLOp->Fit( (double*)&betaT[0], (double*)&dataMol->betaMol_avg[0], glbParam->nBins , "wOutB", "all", (strcFitParam*)&fitParam, (double*)betaMol_Fit ) ;
+// printf("\nBeta Mol fitted across: %lf - %lf \n", fitParam.indxInitFit * glbParam->dr, fitParam.indxEndFit * glbParam->dr) ;
 
 	for ( int i=indxStart ; i <=indxStop ; i++ )
 	{
-		beta_Aer [glbParam->evSel][l][i] = betaT[i] - dataMol->betaMol_avg[i] ; // p[i]   ; // betaMol_Fit[i] ; // 
-		alpha_Aer[glbParam->evSel][l][i] = beta_Aer[glbParam->evSel][l][i] *LR[l] ; // phi[i] ; // r
+		beta_Aer [glbParam->evSel][l][i] = betaT[i] - dataMol->betaMol_avg[i] ; // phi[i] ; //  betaMol_Fit[i] ; // p[i] ; // ipN[i] ; // 
+		alpha_Aer[glbParam->evSel][l][i] = beta_Aer[glbParam->evSel][l][i] *LR[l] ; // p[i] ; // 
 	}
 	for (int i =0 ; i <=indxStart; i++)
 	{
 		alpha_Aer[glbParam->evSel][l][i] = alpha_Aer[glbParam->evSel][l][indxStart+1] ;
 		beta_Aer [glbParam->evSel][l][i] = beta_Aer [glbParam->evSel][l][indxStart+1] ;
 	}
+	// printf( "\nalpha_Aer[glbParam->evSel][l][indxRef_Fernald[glbParam->evSel]]= %e\nalpha_Aer[glbParam->evSel][l][indxRef_Fernald[glbParam->evSel]-1]= %e\nalpha_Aer[glbParam->evSel][l][indxRef_Fernald[glbParam->evSel]+1]= %e",
+	// 		   alpha_Aer[glbParam->evSel][l][indxRef_Fernald[glbParam->evSel]],     alpha_Aer[glbParam->evSel][l][indxRef_Fernald[glbParam->evSel]-1],     alpha_Aer[glbParam->evSel][l][indxRef_Fernald[glbParam->evSel]+1] ) ;
 }
 
 void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
-	// CHECK IF THERE ARE CLOUDS IN THE PROFILE ANALIZED
-	for ( int i= glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ; i >=0 ; i-- )
-	{
-		if ( layer_mask[glbParam->evSel][i] ==1 )
-		{
-			indx_Top_Cloud = (int)i ;
-			break ;
-		}
-	}
-	// indx_Top_Cloud = glbParam->indxInitSig ;
-// printf( "\n\nFind_Ref_Range(): Range Top Cloud: %lf \tMax Range Detected: %lf\n", indx_Top_Cloud*glbParam->dr, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]*glbParam->dr ) ;
+	indxRef_Fernald_Start[glbParam->evSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - round( 1000/glbParam->dr ) ;
+	indxRef_Fernald_Stop [glbParam->evSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ;
+	indxRef_Fernald      [glbParam->evSel] = (int)round( ( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
+	heightRef_Inversion_ASL = (double) ( glbParam->siteASL + glbParam->dzr* indxRef_Fernald[glbParam->evSel] ) ;
+	// indxRef_Fernald_Start[glbParam->evSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ;
+	// indxRef_Fernald_Stop [glbParam->evSel] = indxRef_Fernald_Start[glbParam->evSel] + round( 1000/glbParam->dr ) ;
+	// indxRef_Fernald      [glbParam->evSel] = (int)round( ( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
+	// heightRef_Inversion_ASL = (double) ( glbParam->siteASL + glbParam->dzr* indxRef_Fernald[glbParam->evSel] ) ;
 
-	// double	sum_diff = 0.0 ;
-	// double  stdRef 	 = 0.0 ;
-	int 	nWinSize ; // SIZE OF THE SCANNING WINDOWS
-	int 	nWin = (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud) *glbParam->dr /3750 ; // NUMBER OF WINDOWS IN THE LAST MOLECULAR RANGE
-	if ( nWin <1 )
-		nWinSize = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud +1 ;
-	else if ( nWin <=2 )
-		nWinSize = 500 ;
-	else if( nWin <=4 )
-		nWinSize= 1000 ;
-	else if( nWin <=8 )
-		nWinSize= 2000 ;
-	else
-		nWinSize= 2000 ;
+// printf("\nFind_Ref_Range(): ||| indxRef_Fernald_Start[%d]: %d  ||| indxRef_Fernald_Stop[%d]: %d \n",  glbParam->evSel, indxRef_Fernald_Start[glbParam->evSel], 
+																									//   glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
+}
 
-	nWinSize = round(2000/glbParam->dr) ;
-	int nSteps = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud +1 - nWinSize ; // +1;
-	// printf("\nFind_Ref_Range(): ||| indx_Top_Cloud: %d ||| glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]: %d  ||| nWinSize: %d ||| nSteps: %d\n", indx_Top_Cloud, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel], nWinSize, nSteps ) ;
+// BACKUP
+// void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
+// {
+// 	// CHECK IF THERE ARE CLOUDS IN THE PROFILE ANALIZED
+// 	for ( int i= glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ; i >=0 ; i-- )
+// 	{
+// 		if ( layer_mask[glbParam->evSel][i] ==1 )
+// 		{
+// 			indx_Top_Cloud = (int)i ;
+// 			break ;
+// 		}
+// 	}
+// 	// indx_Top_Cloud = glbParam->indxInitSig ;
+// // printf( "\n\nFind_Ref_Range(): Range Top Cloud: %lf \tMax Range Detected: %lf\n", indx_Top_Cloud*glbParam->dr, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]*glbParam->dr ) ;
+
+// 	// double	sum_diff = 0.0 ;
+// 	// double  stdRef 	 = 0.0 ;
+// 	int 	nWinSize ; // SIZE OF THE SCANNING WINDOWS
+// 	int 	nWin = (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud) *glbParam->dr /3750 ; // NUMBER OF WINDOWS IN THE LAST MOLECULAR RANGE
+// 	if ( nWin <1 )
+// 		nWinSize = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud +1 ;
+// 	else if ( nWin <=2 )
+// 		nWinSize = 500 ;
+// 	else if( nWin <=4 )
+// 		nWinSize= 1000 ;
+// 	else if( nWin <=8 )
+// 		nWinSize= 2000 ;
+// 	else
+// 		nWinSize= 2000 ;
+
+// 	nWinSize = round(2000/glbParam->dr) ;
+// 	int nSteps = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud +1 - nWinSize ; // +1;
+// 	// printf("\nFind_Ref_Range(): ||| indx_Top_Cloud: %d ||| glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]: %d  ||| nWinSize: %d ||| nSteps: %d\n", indx_Top_Cloud, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel], nWinSize, nSteps ) ;
  
-	strcFitParam	fitParam 											;
-	double		 	*stdPr 			= (double*) new double	[nSteps] 	; // for (int i =0; i <nSteps; i++) stdPr[i] = (double)DBL_MAX ;
-	int		 		*indxRef_Start 	= (int*) 	new int		[nSteps] 	;
-	int		 		*indxRef_Stop  	= (int*) 	new int		[nSteps] 	;
-	double 			*prFit = (double*) new double[glbParam->nBins] 		;
-	fitParam.indxInitFit = indx_Top_Cloud 									;
-	fitParam.indxEndFit  = fitParam.indxInitFit + nWinSize					;
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
+// 	strcFitParam	fitParam 											;
+// 	double		 	*stdPr 			= (double*) new double	[nSteps] 	; // for (int i =0; i <nSteps; i++) stdPr[i] = (double)DBL_MAX ;
+// 	int		 		*indxRef_Start 	= (int*) 	new int		[nSteps] 	;
+// 	int		 		*indxRef_Stop  	= (int*) 	new int		[nSteps] 	;
+// 	double 			*prFit = (double*) new double[glbParam->nBins] 		;
+// 	fitParam.indxInitFit = indx_Top_Cloud 									;
+// 	fitParam.indxEndFit  = fitParam.indxInitFit + nWinSize					;
+// 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
 
-	int indxMin_Std, minStd ;
-	// do
-	// {
-		for( int i=0 ; i <nSteps ; i++ )
-		{
-			oLOp->Fit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], fitParam.nFit, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
-			stdPr[i] 		 = fitParam.std			;
-			indxRef_Start[i] = fitParam.indxInitFit ;
-			indxRef_Stop [i] = fitParam.indxEndFit  ;
-			fitParam.indxInitFit = fitParam.indxInitFit +1							;
-			fitParam.indxEndFit  = fitParam.indxInitFit + nWinSize 					;
-			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
-		}
-		// stdRef = stdPr[nSteps-1] ;
+// 	int indxMin_Std, minStd ;
+// 	// do
+// 	// {
+// 		for( int i=0 ; i <nSteps ; i++ )
+// 		{
+// 			oLOp->Fit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], fitParam.nFit, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+// 			stdPr[i] 		 = fitParam.std			;
+// 			indxRef_Start[i] = fitParam.indxInitFit ;
+// 			indxRef_Stop [i] = fitParam.indxEndFit  ;
+// 			fitParam.indxInitFit = fitParam.indxInitFit +1							;
+// 			fitParam.indxEndFit  = fitParam.indxInitFit + nWinSize 					;
+// 			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
+// 		}
+// 		// stdRef = stdPr[nSteps-1] ;
 
-		findIndxMin( (double*)stdPr, (int)0, (int)(nSteps -1), (int*)(&indxMin_Std), (double*)(&minStd) ) ;
+// 		findIndxMin( (double*)stdPr, (int)0, (int)(nSteps -1), (int*)(&indxMin_Std), (double*)(&minStd) ) ;
 
-			indxRef_Fernald_Start[glbParam->evSel] = indxRef_Start[indxMin_Std] ;
-			indxRef_Fernald_Stop [glbParam->evSel] = indxRef_Stop [indxMin_Std] ;
-			indxRef_Fernald      [glbParam->evSel] = (int)round( ( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
-			heightRef_Inversion_ASL = (double) ( glbParam->siteASL + glbParam->dzr* indxRef_Fernald[glbParam->evSel] ) ;
+// 			indxRef_Fernald_Start[glbParam->evSel] = indxRef_Start[indxMin_Std] ;
+// 			indxRef_Fernald_Stop [glbParam->evSel] = indxRef_Stop [indxMin_Std] ;
+// 			indxRef_Fernald      [glbParam->evSel] = (int)round( ( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
+// 			heightRef_Inversion_ASL = (double) ( glbParam->siteASL + glbParam->dzr* indxRef_Fernald[glbParam->evSel] ) ;
 	
-		// CHECK IF THE REFERENCE RANGES SELECTED ARE OK FOR THE REST OF THE LIDAR SIGNAL
-			// CHECK IF THE FITTED SIGNAL IS *HIGHER* THAN THE LIDAR SIGNAL
-			// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] 			;
-			// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] 			;
-			// fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
-			// oLOp->Fit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], fitParam.nFit, "wOutB", "all", (strcFitParam*)&fitParam, (double*)prFit ) ;
-			// for (int j =0; j <glbParam->nBins_Ch[glbParam->evSel]; j++)
-			// 	dummy[j] = pr[glbParam->evSel][j] - prFit[j] ;
-			// sum( (double*)&dummy[0], (int)indx_Top_Cloud, (int)indxRef_Fernald_Start[glbParam->evSel], (double*)&sum_diff ) ;
+// 		// CHECK IF THE REFERENCE RANGES SELECTED ARE OK FOR THE REST OF THE LIDAR SIGNAL
+// 			// CHECK IF THE FITTED SIGNAL IS *HIGHER* THAN THE LIDAR SIGNAL
+// 			// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] 			;
+// 			// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] 			;
+// 			// fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
+// 			// oLOp->Fit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], fitParam.nFit, "wOutB", "all", (strcFitParam*)&fitParam, (double*)prFit ) ;
+// 			// for (int j =0; j <glbParam->nBins_Ch[glbParam->evSel]; j++)
+// 			// 	dummy[j] = pr[glbParam->evSel][j] - prFit[j] ;
+// 			// sum( (double*)&dummy[0], (int)indx_Top_Cloud, (int)indxRef_Fernald_Start[glbParam->evSel], (double*)&sum_diff ) ;
 
-			// CHECK IF THE FITTED SIGNAL IS *LOWER* THAN THE LIDAR SIGNAL
-			// fitParam.indxInitFit = indx_Top_Cloud 									;
-			// fitParam.indxEndFit  = indxRef_Fernald_Start[glbParam->evSel] 			;
-			// fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
-			// oLOp->Fit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], fitParam.nFit, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+// 			// CHECK IF THE FITTED SIGNAL IS *LOWER* THAN THE LIDAR SIGNAL
+// 			// fitParam.indxInitFit = indx_Top_Cloud 									;
+// 			// fitParam.indxEndFit  = indxRef_Fernald_Start[glbParam->evSel] 			;
+// 			// fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
+// 			// oLOp->Fit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], fitParam.nFit, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 
-		// SET THE PARAMETERS FOR THE NEXT SEARCH
-		// fitParam.indxInitFit = indx_Top_Cloud																		;
-		// fitParam.indxEndFit  = (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel]) /2 	;
-		// fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1										;
-	// } while ( ((sum_diff <0) ) && ( fitParam.indxEndFit >round(5000/glbParam->dr) ) ) ; // || (fitParam.std >(3*stdRef))
+// 		// SET THE PARAMETERS FOR THE NEXT SEARCH
+// 		// fitParam.indxInitFit = indx_Top_Cloud																		;
+// 		// fitParam.indxEndFit  = (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel]) /2 	;
+// 		// fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1										;
+// 	// } while ( ((sum_diff <0) ) && ( fitParam.indxEndFit >round(5000/glbParam->dr) ) ) ; // || (fitParam.std >(3*stdRef))
 
-// printf("\n\nFind_Ref_Range(): parametros del fiteo minimo ==> indxRef_Start[%d]: %d \t indxRef_Stop[%d]: %d\n", indxMin_Std, indxRef_Start[indxMin_Std], indxMin_Std, indxRef_Stop[indxMin_Std] ) ;
-// printf("Index Min stdPr[%d]= %2.3e - Num of elements of stdPr= %d\n", indxMin_Std, stdPr[indxMin_Std], nSteps ) ;
+// // printf("\n\nFind_Ref_Range(): parametros del fiteo minimo ==> indxRef_Start[%d]: %d \t indxRef_Stop[%d]: %d\n", indxMin_Std, indxRef_Start[indxMin_Std], indxMin_Std, indxRef_Stop[indxMin_Std] ) ;
+// // printf("Index Min stdPr[%d]= %2.3e - Num of elements of stdPr= %d\n", indxMin_Std, stdPr[indxMin_Std], nSteps ) ;
 
-	delete  prFit ;
-// printf("\nFind_Ref_Range(): ||| indxRef_Fernald_Start[%d]: %d  ||| indxRef_Fernald_Stop[%d]: %d \n",  glbParam->evSel, indxRef_Fernald_Start[glbParam->evSel], 
-// 																									  glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
-}
+// 	delete  prFit ;
+// // printf("\nFind_Ref_Range(): ||| indxRef_Fernald_Start[%d]: %d  ||| indxRef_Fernald_Stop[%d]: %d \n",  glbParam->evSel, indxRef_Fernald_Start[glbParam->evSel], 
+// // 																									  glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
+// }
 
-/* BACKUP
-void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
-{
-	int indx_Top_Cloud = 0 ;
 
-	// CHECK IF THERE ARE CLOUDS IN THE PROFILE ANALIZED
-	for ( int i= glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ; i >=0 ; i-- )
-	{
-		if ( layer_mask[glbParam->evSel][i] ==1 )
-		{
-			indx_Top_Cloud = (int)i ;
-			break ;
-		}
-	}
-printf("\n\nFind_Ref_Range(): indx_Top_Cloud: %d \tMax Range Detected: %d\n", indx_Top_Cloud, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ) ;
 
-	int 	nWinSize ; // SIZE OF THE SCANNING WINDOWS
-	int 	nWin = (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud) *glbParam->dr /3750 ; // NUMBER OF WINDOWS IN THE LAST MOLECULAR RANGE
-	if ( nWin <1 )
-		nWinSize = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud +1 ;
-	else if ( nWin <=2 )
-		nWinSize = 500 ;
-	else if( nWin <=4 )
-		nWinSize= 1000 ;
-	else if( nWin <=8 )
-		nWinSize= 2000 ;
-	else
-		nWinSize= 2000 ;
-
-	int nSteps = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - indx_Top_Cloud +1 - nWinSize ; // +1;
-	// printf("\nFind_Ref_Range(): ||| indx_Top_Cloud: %d ||| glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]: %d  ||| nWinSize: %d ||| nSteps: %d\n", indx_Top_Cloud, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel], nWinSize, nSteps ) ;
- 
-	strcFitParam	fitParam 											;
-	double		 	*stdPr 			= (double*) new double	[nSteps] 	; // for (int i =0; i <nSteps; i++) stdPr[i] = (double)DBL_MAX ;
-	int		 		*indxRef_Start 	= (int*) 	new int		[nSteps] 	;
-	int		 		*indxRef_Stop  	= (int*) 	new int		[nSteps] 	;
-	double 			*prFit = (double*) new double[glbParam->nBins] 		;
-	fitParam.indxInitFit = indx_Top_Cloud 									;
-	fitParam.indxEndFit  = fitParam.indxInitFit + nWinSize					;
-	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
-	// int i=0 ;
-	// do
-	for( int i=0 ; i <nSteps ; i++ )
-	{
-		oLOp->Fit( (double*)&pr[glbParam->evSel][0], (double*)&dataMol->prMol[0], fitParam.nFit, "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
-		stdPr[i] 		 = fitParam.std			;
-		indxRef_Start[i] = fitParam.indxInitFit ;
-		indxRef_Stop [i] = fitParam.indxEndFit  ;
-		fitParam.indxInitFit = fitParam.indxInitFit +1							;
-		fitParam.indxEndFit  = fitParam.indxInitFit + nWinSize 					;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1	;
-		// i++ ;
-	} // while( fitParam.indxEndFit <= glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ) ;
-	delete  prFit ;
-
-	int indxMin_Std, minStd ;
-	findIndxMin( (double*)stdPr, (int)0, (int)(nSteps -1), (int*)(&indxMin_Std), (double*)(&minStd) ) ;
-
-	indxRef_Fernald_Start[glbParam->evSel] = indxRef_Start[indxMin_Std] ;
-	indxRef_Fernald_Stop [glbParam->evSel] = indxRef_Stop [indxMin_Std] ;
-
-printf("\n\nFind_Ref_Range(): parametros del fiteo minimo ==> indxRef_Start[%d]: %d \t indxRef_Stop[%d]: %d\n", indxMin_Std, indxRef_Start[indxMin_Std], indxMin_Std, indxRef_Stop[indxMin_Std] ) ;
-printf("Index Min stdPr[%d]= %2.3e - Num of elements of stdPr= %d\n", indxMin_Std, stdPr[indxMin_Std], nSteps ) ;
-
-	heightRef_Inversion_ASL = (double) (glbParam->siteASL + glbParam->dzr*( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel] )/2) ;
-// printf("\nFind_Ref_Range(): ||| indxRef_Fernald_Start[%d]: %d  ||| indxRef_Fernald_Stop[%d]: %d \n",  glbParam->evSel, indxRef_Fernald_Start[glbParam->evSel], 
-// 																									  glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
-}*/
 
 void CDataLevel_2::MonteCarloRandomError( strcGlobalParameters *glbParam, strcMolecularData *dataMol)
 {

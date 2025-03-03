@@ -259,7 +259,8 @@ int main( int argc, char *argv[] )
                 // {
                     // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.nMol[i] ;
                     // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.alphaMol[i] ;
-                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.pr2Mol[i] ;
+                    // oDL2->beta_Aer [t][0][i] = oMolData->dataMol.betaMol [i] ;
+                    // oDL2->beta_Aer[t][0][i]  = oMolData->dataMol.pr2Mol[i] ;
                     // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.prMol[i] ;
                 // }
             }

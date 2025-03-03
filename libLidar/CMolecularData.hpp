@@ -22,6 +22,7 @@ class CMolecularData
 	    void GetMem_dataMol( int ) ;
 		void Fill_dataMol_L1( strcGlobalParameters* ) ;
 		void Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters* ) ;
+		void Fill_dataMol_L2_from_RadSondeData( strcGlobalParameters* ) ;
 		void Fill_dataMol_L2( strcGlobalParameters* ) ;
 		// void Alpha_Beta_Mol_from_N_Mol( strcGlobalParameters* ) ;
 		void Elastic_Rayleigh_Lidar_Signal ( double* ) ;

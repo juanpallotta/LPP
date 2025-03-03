@@ -66,8 +66,8 @@ class CNetCDF_Lidar
 		void Save_LALINET_NCDF_PDL0			( string, strcGlobalParameters*, double***, long*, long*, char** ) ;
 		// void Save_LALINET_NCDF_PDL0			( string, strcGlobalParameters*, double***, long*, long*		 ) ;
 		void Add_Noise_LALINET_NCDF_PDL0	( string*, strcGlobalParameters*, double** ) ;
-		void Add_Overlap_LALINET_NCDF_PDL0	( string *Path_File_Out, strcGlobalParameters *glbParam, double **ovlp ) ;
-		void Save_LALINET_NCDF_PDL1  		( string*, strcGlobalParameters*, double**, double*, int**, double***, 	  	   int*, int*, CMolecularData* ) ;
+		void Add_Overlap_LALINET_NCDF_PDL0	( string*, strcGlobalParameters *glbParam, double **ovlp ) ;
+		void Save_LALINET_NCDF_PDL1  		( char*, strcGlobalParameters*, double**, double*, int**, double***, 	  	   int*, int*, CMolecularData* ) ;
 		void Save_LALINET_NCDF_PDL2		 	( char*  , strcGlobalParameters*, CDataLevel_2* ) ;
 		void CloseFile( int ) ;
 };

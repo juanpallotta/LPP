@@ -34,25 +34,24 @@ int main( int argc, char *argv[] )
 	sprintf( glbParam.FILE_PARAMETERS , "%s", argv[3] ) ;
 	sprintf( glbParam.exeFile         , "%s", argv[0] ) ;
 
-	string	Path_File_In  ;
-	string	Path_File_Out ;
+    glbParam.Path_File_In  = (char*) new char[500] ;
+    glbParam.Path_File_Out = (char*) new char[500] ;
+    sprintf( glbParam.Path_File_In,  "%s", argv[1] ) ;
+    sprintf( glbParam.Path_File_Out, "%s", argv[2] ) ;
 
-	Path_File_In.assign  ( argv[1] ) ;
-	Path_File_Out.assign ( argv[2] ) ;
-
-    printf("\n Path_File_In --> %s ", Path_File_In.c_str()  ) ;
-    printf("\n Path_File_Out --> %s", Path_File_Out.c_str() ) ;
+    printf("\n Path_File_In --> %s ", glbParam.Path_File_In ) ;
+    printf("\n Path_File_Out --> %s", glbParam.Path_File_Out ) ;
     printf("\n Settings File --> %s\n", glbParam.FILE_PARAMETERS ) ;
 
     char cmdCopy[500] ;
-    sprintf( cmdCopy, "cp %s %s", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
+    sprintf( cmdCopy, "cp %s %s", glbParam.Path_File_In, glbParam.Path_File_Out ) ;
     system(cmdCopy) ;
 
 // NETCDF FILE STUFF
     int  ncid   ;
     int  retval ;
     
-    if ( ( retval = nc_open( Path_File_In.c_str(), NC_NOWRITE, &ncid ) ) )
+    if ( ( retval = nc_open( glbParam.Path_File_In, NC_NOWRITE, &ncid ) ) )
         ERR(retval);
 
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
@@ -389,7 +388,7 @@ int main( int argc, char *argv[] )
 
     // printf("\n\n FIN oMolData->dataMol.pPa[0]= %lf \n", oMolData->dataMol.pPa[0]) ;
 
-    oNCL.Save_LALINET_NCDF_PDL1( (string*)&Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
+    oNCL.Save_LALINET_NCDF_PDL1( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
     if ( glbParam.nEventsAVG >1 )
