@@ -77,20 +77,7 @@ void cumtrapz_norm ( double dx, double *y, int indxInic, int indxRef, int indxEn
 
     // Backward integration
     for (int i =(indxRef-1) ; i >= indxInic ; i--) 
-    {
-        // intFunc_Norm[i] = intFunc_Norm[i+1] + 0.5 * dx * (y[i + 1] + y[i]);
         intFunc_Norm[i] = intFunc_Norm[i+1] - 0.5 * dx * (y[i + 1] + y[i]);
-    }
-
-    // for ( int i =indxRef ; i <(indxEnd-1) ; i++ )
-    // {   // FORWARD INVERSION
-    //     trapz( dx, y, indxRef, i+1, &intFunc_Norm[i] ) ;
-    // }
-    // for ( int i =indxRef ; i >indxInic ; i-- )
-    // {   // BACKWARD INVERSION
-    //     trapz( -dx, y, i-1, indxRef, &intFunc_Norm[i] ) ;
-    // }
-    // printf("\n cumtrapz_norm --> intFunc_Norm[indxEnd]= %lf \n", intFunc_Norm[indxEnd-1]) ;
 }
 
 void diffPr( const double *sig, int nBins, double *diffSig )

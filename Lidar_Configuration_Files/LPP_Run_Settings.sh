@@ -9,9 +9,7 @@ L2="yes"
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Brazil/SPU/20210730/"
-# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Holger_Sim/Original/"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/lpp_sim_L0.nc"
-# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/"
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20230830/RS_20230830_0846/"
@@ -29,7 +27,6 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_04_nt/LPP_2017_09_04_nt/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_25_nt/LPP_2017_09_25_nt/"
 PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_28_dt/LPP_2017_09_28_dt/"
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/Rio/"
 
 # CONFIGURATION FILES
 # ! SIMULATIONS

@@ -217,6 +217,7 @@ int main( int argc, char *argv[] )
         glbParam.evSel = t ;
 
         oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
+
         if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 )
         {
             if ( t == 0 )
@@ -229,7 +230,6 @@ int main( int argc, char *argv[] )
                 oDL2->layer_mask[t][b] = oDL1->cloudProfiles[t].clouds_ON[b] ;
                 // COPIAR TAMBIEN LOS DATOS DE LOS INDICES MOLECULARES
         }
-
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MonteCarlo_N_SigSet_Err", (const char*)"int", (int*)&glbParam.MonteCarlo_N_SigSet_Err ) ;

@@ -676,7 +676,7 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 							oMolData->Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
 						else
 						{
-							printf("Error: Unknown executable file name: %s\n", glbParam->exeFile) ;
+							printf("Lidar_Signals_Corrections(...): Error: Unknown executable file name: %s\n", glbParam->exeFile) ;
 							exit(1) ;
 						}
 
@@ -696,11 +696,11 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 
 						for (int i =0; i <glbParam->nBins; i++)
 							evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - dummy[i] ) ;
-							// evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - dummy1[i] ) ;
-							// evSig.pr_no_DarkCur[i] = (double)( evSig.pr[i] - data_Noise[glbParam->chSel][i] ) ;
 
 						BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-					}
+						if ( glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] <0 )
+							Find_Max_Range( (double*)evSig.pr_noBias, (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)glbParam) ;
+					} // if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
 					else
 					{
 						for ( int i=0 ; i<glbParam->nBins ; i++ ) 	
@@ -710,7 +710,7 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 						}
 					}
 				}
-				else // BIAS REMOVAL BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lpp2
+				else // ONLY BIAS REMOVAL (WHITOUT DARK FILES) BASED ON VARIABLE BkgCorrMethod SET IN FILE THE SETTING FILE PASSED AS ARGUMENT TO lpp2
 				{
 					printf("| Bias |  ") ;
 
@@ -724,8 +724,12 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 							exit(1) ;
 						}
 
-					if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) ) // BIAS REMOVAL ONLY FOR ANALOG SIGNALS 
+					if ( (glbParam->DAQ_Type[glbParam->chSel] ==0) || (glbParam->DAQ_Type[glbParam->chSel] ==1) )
+					{
 						BiasCorrection( (strcLidarSignal*)&evSig, (strcGlobalParameters*)glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+						if ( glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] <0 )
+							Find_Max_Range( (double*)evSig.pr_noBias, (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)glbParam) ;
+					}
 					else
 					{
 						for ( int i=0 ; i<glbParam->nBins_Ch[glbParam->chSel] ; i++ ) 	

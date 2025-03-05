@@ -192,7 +192,6 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		}
 	}
 	pr2[glbParam->evSel][glbParam->chSel][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
-
 	printf("\n FernaldInversion()--> \nMax. Range= %lf ---- Ref. ranges: %lf - %lf m - Inversion range value: %f m \t Pr2(%d)= %lf\n", 
 				glbParam->rEndSig_ev_ch[glbParam->evSel][glbParam->chSel], glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], 
 				glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], indxRef_Fernald[glbParam->evSel] *glbParam->dzr, 
@@ -441,6 +440,12 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l,
 
 void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
+	if ( glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] <0 )
+	{
+		glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] = round( (glbParam->nBins -1) /2 ) ;
+		glbParam->rEndSig_ev_ch[glbParam->evSel][glbParam->chSel]    = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] * glbParam->dr ;
+	}
+
 	indxRef_Fernald_Start[glbParam->evSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - round( 1000/glbParam->dr ) ;
 	indxRef_Fernald_Stop [glbParam->evSel] = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ;
 	indxRef_Fernald      [glbParam->evSel] = (int)round( ( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;

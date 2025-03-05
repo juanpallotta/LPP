@@ -267,8 +267,8 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 
         for (int c =0 ; c <glbParam->nCh ; c++)
         {
-            glbParam->rEndSig_ev_ch   [e][c] = (double) (glbParam->nBins-1) * glbParam->dr  ;
-            glbParam->indxEndSig_ev_ch[e][c] = (int)     glbParam->nBins-1                  ;
+            glbParam->rEndSig_ev_ch   [e][c] = (double) -1.0 ; // (glbParam->nBins-1) * glbParam->dr  ;
+            glbParam->indxEndSig_ev_ch[e][c] = (int)    -1   ; // glbParam->nBins-1                  ;
         }
     }
 
