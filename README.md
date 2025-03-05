@@ -160,10 +160,7 @@ This module is used to merge the raw lidar files located in a folder (passed as 
 An example of how to run this module using the sample signals included in this repository is shown below:
 
 ```
-./lpp0 
-/mnt/Disk-1_8TB/Brazil/SPU/20210730/ 
-/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
-/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
+./lpp0 /mnt/Disk-1_8TB/Brazil/SPU/20210730/ /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
 ```
 
 Where:
@@ -217,10 +214,7 @@ This module receives the NetCDF file produced by the previous module (`lpp0`) as
 An example of how to run this module can be:
 
 ```
-./lpp1 
-/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc 
-/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc 
-/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
+./lpp1 /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0.nc /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.nc /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
 ```
 
 The configuration file (in this case, `/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf`) could be the same file used in module L0, or use another one. The only thing that matters is the defined variables inside the file passed as a third argument.
@@ -403,10 +397,7 @@ This module receives the NetCDF file produced by the previous module (`lpp1`) as
 An example of how to run this module can be:
 
 ```
-./lpp2
-/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.n
-/mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc 
-/home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
+./lpp2 /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1.n /mnt/Disk-1_8TB/Brazil/SPU/20210730/LPP_OUT/20210730_L0_L1_L2.nc /home/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil.conf
 ```
 
 An example of the variables contained in the configuration file needed for data level 2 can be seen in the next code:

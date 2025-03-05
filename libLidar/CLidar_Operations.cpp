@@ -473,8 +473,8 @@ void CLidar_Operations::Bias_Substraction_Mean( double *sig, strcMolecularData *
 	if ( (glbParam->range_Bkg_Start <0) || (glbParam->range_Bkg_Stop <0) || ( glbParam->range_Bkg_Start > glbParam->range_Bkg_Stop ) )
 	{	
 		Find_Max_Range( (double*)sig, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
-		printf( "\nBias_Substraction_Mean() ====> \n dataMol->last_Indx_Mol_Low[m]= %lf\n dataMol->last_Indx_Mol_High[m]= %lf\n dataMol->last_Indx_Bkg_Low[m]= %lf\n dataMol->last_Indx_Bkg_High[m]= %lf\n", 
-							dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr, dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
+		// printf( "\nBias_Substraction_Mean() ====> \n dataMol->last_Indx_Mol_Low[m]= %lf\n dataMol->last_Indx_Mol_High[m]= %lf\n dataMol->last_Indx_Bkg_Low[m]= %lf\n dataMol->last_Indx_Bkg_High[m]= %lf\n", 
+		// 					dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr, dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
 	}
 	else
 	{  	// BACKGROUND RANGE IS SET BY THE USER
