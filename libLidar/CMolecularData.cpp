@@ -308,9 +308,14 @@ void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
 	dataMol.nBins = glbParam->nBins ;
 
 	for ( i=0 ; i < dataMol.nBins ; i++ )
-		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180)) ; // zr = ASL
+		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith)) ; // zr = ASL
+		// dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
+
+	// printf( "\n ev= %d\tzenith= %lf\t glbParam->r[1000]= %lf \tzr[1000]= %lf\n", glbParam->evSel, dataMol.zenith, glbParam->r[1000], dataMol.zr[1000]) ;
+	// printf( " dataMol.zenith *M_PI/180= %lf \t cos(dataMol.zenith *M_PI/180)= %lf\n", dataMol.zenith *M_PI/180, cos(dataMol.zenith *M_PI/180) ) ;
+	// printf( " dataMol.zenith= %lf \t cos(dataMol.zenith)= %lf\n", dataMol.zenith, cos(dataMol.zenith) ) ;
 
 	if ( dataMol.zenith != 0 )
 		Molecular_Profile_Resampled_Zenithal( (strcGlobalParameters*)glbParam ) ; // RE-SAMPLE THE dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol PROFILE TO THE ZENITHAL ANGLE
@@ -481,8 +486,8 @@ void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters 
 	}
 		// printf("\nMolecular_Profile_Resampled_Zenithal() ==> coeff_N= %e  coeff_alpha= %e  coeff_beta= %e", coeff_N[3], coeff_alpha[3], coeff_beta[3]) ;
 		// printf("\nMolecular_Profile_Resampled_Zenithal() ==> dataMol.nMol[1000]     = %e \t dataMol.zenith= %lf \t dataMol.dzr= %f \t dataMol.nBins= %d", dataMol.nMol[1000], dataMol.zenith, dataMol.dzr, dataMol.nBins ) ;
-		// printf("\nMolecular_Profile_Resampled_Zenithal() ==> dataMol.betaMol[1000]  = %e", dataMol.betaMol[1000]  ) ;
-		// printf("\nMolecular_Profile_Resampled_Zenithal() ==> dataMol.alphaMol[1000] = %e\n", dataMol.alphaMol[1000] ) ;
+		// printf("\nMolecular_Profile_Resampled_Zenithal() == %d ==> dataMol.betaMol [1000(%lf)]  = %e" , glbParam->evSel, dataMol.zr[1000], dataMol.betaMol[1000]  ) ;
+		// printf("\nMolecular_Profile_Resampled_Zenithal() == %d ==> dataMol.alphaMol[1000(%lf)] = %e\n", glbParam->evSel, dataMol.zr[1000], dataMol.alphaMol[1000] ) ;
 
 	delete coeff_N 		;
 	delete coeff_alpha 	;

@@ -118,9 +118,9 @@ There are a few prerequisites to be installed prior to building LPP. This job ca
 ## Building the code
 
 To compile all the modules, just run the Linux shell script named `compile_All.sh`. This is a simple Linux script that produces the executables of each module inside their folders. Remember to set `compile_All.sh` with executable attributes before running it: `chmod +x compile_All.sh`.
-For a clean build, the parameter `clean` can be passed as an argument to the script in this way: `compileAll.sh clean`. This will remove the previous pre-compiled objects. 
-1°: Execute `./compileAll.sh clean`
-2°: Execute `compileAll.sh`
+For a clean build, the parameter `clean` can be passed as an argument to the script in this way: `compileAll.sh clean`. This will remove the previous pre-compiled objects. So, the steps for a clean compilation is:  
+1°: Execute `./compileAll.sh clean`  
+2°: Execute `compileAll.sh`  
 After that, a new set of executables files will be available.
 At the moment, the compiler output may show some warnings during the compiling time. All of them will be solved in future versions.
 

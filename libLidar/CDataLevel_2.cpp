@@ -135,7 +135,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		dataMol->pr2Mol_avg [i]  = dataMol->pr2Mol  [i] ;
 		glbParam->r_avg[i] 		 = glbParam->r[i]		;
 	}
-
+	
 	if ( (heightRef_Inversion_Start_ASL >0) && (heightRef_Inversion_Stop_ASL >0) && (heightRef_Inversion_Stop_ASL >= heightRef_Inversion_Start_ASL) )
 	{
 		indxRef_Fernald_Start[glbParam->evSel] = (int)round( ( heightRef_Inversion_Start_ASL - glbParam->siteASL)/dzr ) ;

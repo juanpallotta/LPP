@@ -75,27 +75,28 @@ void CLidar_Operations::BiasCorrection( strcLidarSignal *evSig, strcGlobalParame
 void CLidar_Operations::Bias_Substraction_Auto( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBias, double *Bias_Pr )
 {
 	Find_Max_Range( (double*)pr, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam) ;
-
-printf( "\nBias_Substraction_Auto() ====> \n dataMol->last_Indx_Mol_Low[m]= %lf\n dataMol->last_Indx_Mol_High[m]= %lf\n dataMol->last_Indx_Bkg_Low[m]= %lf\n dataMol->last_Indx_Bkg_High[m]= %lf\n", 
-							dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr, dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
-
-	double 	b_ref_max = 0.0 ;
-	double 	b_ref_min = 0.0 ;
-	double 	b_step    = 0.0 ;
+	// printf( "\nBias_Substraction_Auto() ====> \n dataMol->last_Indx_Mol_Low[m]= %lf\n dataMol->last_Indx_Mol_High[m]= %lf\n dataMol->last_Indx_Bkg_Low[m]= %lf\n dataMol->last_Indx_Bkg_High[m]= %lf\n", 
+	// 		dataMol->last_Indx_Mol_Low *glbParam->dzr, dataMol->last_Indx_Mol_High *glbParam->dzr, dataMol->last_Indx_Bkg_Low *glbParam->dzr, dataMol->last_Indx_Bkg_High *glbParam->dzr ) ;
 
 	if 	( 	(dataMol->last_Indx_Bkg_Low >0) && (dataMol->last_Indx_Bkg_High >0) &&
 			(dataMol->last_Indx_Mol_Low >0) && (dataMol->last_Indx_Mol_High >0)
 		)
-	{	// FIRST BIAS GUESS OBTAINED FROM THE MEAN VALUE OF THE LAST BINS
-		fitParam.indxInitFit = dataMol->last_Indx_Mol_Low  ;
-		fitParam.indxEndFit  = dataMol->last_Indx_Mol_High ;
-		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
-
+	{	// FIRST BIAS GUESS OBTAINED FROM THE MEAN IN THE RANGES dataMol->last_Indx_Bkg_Low - dataMol->last_Indx_Bkg_High
+		// AND dataMol->last_Indx_Mol_Low - dataMol->last_Indx_Mol_High ARE USED FOR THE FITTING.
+		printf("\n CLidar_Operations::Bias_Substraction_Auto() - MEAN METHOD IS USED.\n") ;
+		
 		*Bias_Pr = 0.0 ;
 		for( int j=dataMol->last_Indx_Bkg_Low ; j<=dataMol->last_Indx_Bkg_High ; j++ ) 
 			*Bias_Pr = *Bias_Pr + pr[j] ;
 		*Bias_Pr = *Bias_Pr /( dataMol->last_Indx_Bkg_High - dataMol->last_Indx_Bkg_Low +1) ;
+/*
+		double 	b_ref_max = 0.0 ;
+		double 	b_ref_min = 0.0 ;
+		double 	b_step    = 0.0 ;
 
+		fitParam.indxInitFit = dataMol->last_Indx_Mol_Low  ;
+		fitParam.indxEndFit  = dataMol->last_Indx_Mol_High ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 		b_ref_max = 1.5* *Bias_Pr ;
 		b_ref_min = 0.5* *Bias_Pr ;
 		b_step	  = (b_ref_max - b_ref_min) /nBiasRes_Auto ;
@@ -129,7 +130,33 @@ printf( "\nBias_Substraction_Auto() ====> \n dataMol->last_Indx_Mol_Low[m]= %lf\
 				for ( int b =0; b <nBiasRes_Auto; b++ )
 					b_i[b] = (double) b_ref_min + b *b_step ;
 		} // for( int l=0 ; l< nLoopFindBias ; l++ )
+*/
 	} // if 	( 	(dataMol->last_Indx_Bkg_Low >0) && (dataMol->last_Indx_Bkg_High >0) &&
+	else if ( 	(dataMol->last_Indx_Bkg_Low <0) && (dataMol->last_Indx_Bkg_High <0) &&
+				(dataMol->last_Indx_Mol_Low >0) && (dataMol->last_Indx_Mol_High >0)
+			)
+	{	// IF ONLY MOLECULAR PROFILES WERE DETECTED: THE BIAS IS OBTAINED FROM THE PRE-TRIGGER OR RAYLEIGH FIT
+		if ( glbParam->indxOffset[glbParam->chSel] >30 )
+		{
+			printf("\n CLidar_Operations::Bias_Substraction_Auto() -> PRE-TRIGGER METHOD IS USED.\n") ;
+			bias_pre_trigger = 0.0 ;
+			int nBins_pre_trigger = round( glbParam->indxOffset[glbParam->chSel] - glbParam->indxOffset[glbParam->chSel]*0.1 ) ;
+			for (int i =0 ; i <nBins_pre_trigger ; i++)
+				bias_pre_trigger = bias_pre_trigger + (double)pr[i] ;
+			bias_pre_trigger = bias_pre_trigger /nBins_pre_trigger ;
+			*Bias_Pr = fitParam.b ;
+		}
+		else
+		{
+			printf("\n CLidar_Operations::Bias_Substraction_Auto() -> RAYLEIGH-FIT METHOD IS USED FOR BIAS DETECTION.\n") ;
+			fitParam.indxInitFit = dataMol->last_Indx_Mol_Low  ;
+			fitParam.indxEndFit  = dataMol->last_Indx_Mol_High ;
+			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
+
+			Fit( (double*)pr, (double*)dataMol->pr2Mol, glbParam->nBins , "wOutB", "NOTall", (strcFitParam*)&fitParam, (double*)dummy ) ;
+			*Bias_Pr = fitParam.b ;
+		}		
+	}
 	else
 	{	// LIDAR SIGNAL CORRUPTED, ALL DATA FILLED WITH ZEROS
 		*Bias_Pr = 0.0 	;
@@ -264,7 +291,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, strcMolecularData *dataMol, 
 				dataMol->last_Indx_Bkg_High = glbParam->nBins_Ch[glbParam->chSel] -1 ;
 // printf("\n Find_Max_Range(3) setting dataMol->last_Indx_Mol_Low -> fitParam.indxInitFit= %d  fitParam.indxEndFit= %d  fitParam.R2= %lf", fitParam.indxInitFit, fitParam.indxEndFit, fitParam.R2 ) ;
 
-				// IF THE BACKGROUND RANGE IS TOO SMALL, THEN IT IS NOT CONSIDERED
+				// IF THE BACKGROUND RANGE IS TOO SMALL, THEN IT IS NOT CONSIDERED.
+				// THIS HAPPENS WHEN THE MOLECULAR SIGNAL IS TOO CLOSE TO THE END OF THE RANGE AND NO CONSTANT BACKGROUND IS FOUND.
 				if ( (dataMol->last_Indx_Bkg_High - dataMol->last_Indx_Bkg_Low) < winSize )
 				{
 					dataMol->last_Indx_Bkg_Low  = -1 ;
@@ -525,6 +553,7 @@ void CLidar_Operations::Bias_Substraction_MolFit(strcMolecularData *dataMol, con
 
 void CLidar_Operations::Bias_Substraction_Pre_Trigger( double *sig, strcGlobalParameters *glbParam, double *pr_noBias)
 {
+/*
 	fitParam.indxInitFit = round(glbParam->range_Bkg_Start /glbParam->dr)  ;
 	fitParam.indxEndFit  = round(glbParam->range_Bkg_Stop  /glbParam->dr) ;
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
@@ -535,6 +564,8 @@ void CLidar_Operations::Bias_Substraction_Pre_Trigger( double *sig, strcGlobalPa
 
 	bkgMean = bkgMean /fitParam.nFit ;
 	for ( int i=0 ; i<glbParam->nBins_Ch[glbParam->chSel] ; i++ ) 	pr_noBias[i] = (double)(sig[i] - bkgMean) ;
+	*/
+	for ( int i=0 ; i<glbParam->nBins_Ch[glbParam->chSel] ; i++ ) 	pr_noBias[i] = (double)(sig[i] - bias_pre_trigger ) ;
 }
 
 void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***dataFile, double ***dataFile_AVG, 
@@ -620,6 +651,16 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 			printf("| Offset | ") ;
             if ( glbParam->indxOffset[c] >=0 ) 
             {
+				if ( (strcmp( glbParam->BkgCorrMethod, "PRE_TRIGGER" ) ==0) || (strcmp( glbParam->BkgCorrMethod, "pre_trigger" ) ==0) )
+				{
+					bias_pre_trigger = 0.0 ;
+					int nBins_pre_trigger = round( glbParam->indxOffset[c] - glbParam->indxOffset[c]*0.1 ) ;
+					for (int i =0 ; i <nBins_pre_trigger ; i++)
+						bias_pre_trigger = bias_pre_trigger + (double)data_File_Lx[e][c][i] ;
+					bias_pre_trigger = bias_pre_trigger /nBins_pre_trigger ;
+					printf("| bias Pre-Trigger | = %lf |", bias_pre_trigger ) ;
+				}
+
                 for(int b =0; b <(glbParam->nBins_Ch[glbParam->chSel] -glbParam->indxOffset[c]); b++)
 					pr_corr[e][c][b] = (double)data_File_Lx[e][c][b +glbParam->indxOffset[c]] ;
                 for ( int b=(glbParam->nBins_Ch[glbParam->chSel] -2*glbParam->indxOffset[c]) ; b <(glbParam->nBins_Ch[glbParam->chSel]-glbParam->indxOffset[c]) ; b++ )
@@ -676,7 +717,7 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 							oMolData->Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
 						else
 						{
-							printf("Lidar_Signals_Corrections(...): Error: Unknown executable file name: %s\n", glbParam->exeFile) ;
+							printf("\n\nLidar_Signals_Corrections(...): Error: Unknown executable file name: %s\n", glbParam->exeFile) ;
 							exit(1) ;
 						}
 

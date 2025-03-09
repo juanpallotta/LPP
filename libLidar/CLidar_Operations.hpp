@@ -12,10 +12,11 @@ public:
     CLidar_Operations( strcGlobalParameters* ) ;
     ~CLidar_Operations();
 
-    strcFitParam    fitParam            ;
-    double          *dummy, *dummy1     ;
-    int 	        nBiasRes_Auto =5    ; 
-    int 	        nLoopFindBias =5    ;
+    strcFitParam    fitParam                ;
+    double          *dummy, *dummy1         ;
+    int 	        nBiasRes_Auto =5        ; 
+    double          bias_pre_trigger = 0.0  ;
+    int 	        nLoopFindBias =5        ;
 
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;

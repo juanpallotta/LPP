@@ -60,8 +60,8 @@ int main( int argc, char *argv[] )
     if ( S_ISDIR(pathFileInput_stat.st_mode) )
     { // A *FOLDER* WAS PASSED AS AN ARGUMENT --> analyze all the files within the time bin set in analysisParameter.dat
         int     nFilesInInputFolder =0 ;
-        DIR *d;
-        struct dirent *dir;
+        DIR *   d;
+        struct  dirent *dir;
         // GET THE NUMBER OF FILES IN THE INPUT FOLDER
         d = opendir(Path_In.c_str()) ;
         while ( (dir = readdir(d)) != NULL )
@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
         // printf("\n nFilesInInputFolder: %d \n", nFilesInInputFolder) ;
         if ( nFilesInInputFolder ==0 )
         {
-            printf("\n There are not Licel files in the folder (see dirFile.sh) \nBye...") ;
+            printf("\n There are not Licel files in the folder \nBye...") ;
             return -1 ;
         }
         rewinddir(d) ;
@@ -85,7 +85,7 @@ int main( int argc, char *argv[] )
     } // if ( S_ISDIR(pathFileInput_stat.st_mode) )
     else
     {
-        cout << endl << "A folder must be passed as first argument (check dirFile.sh file)" << endl ;
+        cout << endl << "A folder must be passed as first argument." << endl ;
         return -1 ;
     }
     if ( glbParam.nEvents ==0 )

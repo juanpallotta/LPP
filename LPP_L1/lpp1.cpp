@@ -391,14 +391,6 @@ int main( int argc, char *argv[] )
     oNCL.Save_LALINET_NCDF_PDL1( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
-    if ( glbParam.nEventsAVG >1 )
-    {
-        delete Raw_Data_Start_Time      ;
-        delete Raw_Data_Stop_Time       ;
-        delete Raw_Data_Start_Time_AVG  ;
-        delete Raw_Data_Stop_Time_AVG   ;
-    }
-
     printf("\n\n\tLidar Analisys PDL1 Done\n\n") ;
     printf("\n\n---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\n\n") ;
     
