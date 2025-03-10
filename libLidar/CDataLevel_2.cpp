@@ -192,9 +192,10 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		}
 	}
 	pr2[glbParam->evSel][glbParam->chSel][indxRef_Fernald[glbParam->evSel]] = pr2_Ref ;
+
 	printf("\n FernaldInversion()--> \nMax. Range= %lf ---- Ref. ranges: %lf - %lf m - Inversion range value: %f m \t Pr2(%d)= %lf\n", 
-				glbParam->rEndSig_ev_ch[glbParam->evSel][glbParam->chSel], glbParam->dzr*indxRef_Fernald_Start[glbParam->evSel], 
-				glbParam->dzr*indxRef_Fernald_Stop[glbParam->evSel], indxRef_Fernald[glbParam->evSel] *glbParam->dzr, 
+				glbParam->rEndSig_ev_ch[glbParam->evSel][glbParam->chSel], glbParam->dr*indxRef_Fernald_Start[glbParam->evSel], 
+				glbParam->dr*indxRef_Fernald_Stop[glbParam->evSel], indxRef_Fernald[glbParam->evSel] *glbParam->dr, 
 				indxRef_Fernald[glbParam->evSel], pr2_Ref ) ;
 
 	int indx_integral_max_range_for_AOD ;
@@ -455,8 +456,9 @@ void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam, strcMolecular
 	// indxRef_Fernald      [glbParam->evSel] = (int)round( ( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
 	// heightRef_Inversion_ASL = (double) ( glbParam->siteASL + glbParam->dzr* indxRef_Fernald[glbParam->evSel] ) ;
 
-// printf("\nFind_Ref_Range(): ||| indxRef_Fernald_Start[%d]: %d  ||| indxRef_Fernald_Stop[%d]: %d \n",  glbParam->evSel, indxRef_Fernald_Start[glbParam->evSel], 
-																									//   glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
+// printf("\nFind_Ref_Range(): ||| indxEndSig_ev_ch[%d]: %d  \n",  glbParam->evSel, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ) ;
+// printf("Find_Ref_Range(): ||| indxRef_Fernald_Start[%d]: %d  ||| indxRef_Fernald_Stop[%d]: %d \n", glbParam->evSel, indxRef_Fernald_Start[glbParam->evSel], 
+// 		 																						   glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
 }
 
 // BACKUP
