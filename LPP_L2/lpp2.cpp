@@ -174,7 +174,6 @@ int main( int argc, char *argv[] )
                 oDL2->pr[e][i] = (double)oDL2->data_File_L2[e][glbParam.indxWL_PDL2][i]  ; // oDL2->data_File_L2 == Raw_Lidar_Data_L1
         }
     }
-
     printf("\nDone\n") ;
 
                         if ( (retval = nc_close(ncid)) )

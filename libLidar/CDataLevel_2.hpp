@@ -39,7 +39,9 @@ class CDataLevel_2
 		double  *dummy, *pr2_s			 			;
 		// double  *pr2Fit						; // *prFit, 
 		double  dzr									;
-		double  LRM, LR[100]						;
+		double  LRM									;	
+		double  *LR									;
+		// double  LR[100]								;
 		int		LR_loop_Max							;	
 		double  **AOD_LR 							;
 		char	*aeronet_file						;
@@ -47,7 +49,7 @@ class CDataLevel_2
 		char	*aeronet_path						;
 		char	*aeronet_site_name					;
 		int		nLRs 								;
-		int 	indxInitSig, indxEndSig, *indxRef_Fernald, *indxRef_Fernald_Start, *indxRef_Fernald_Stop ;
+		int 	indxInitSig, indxEndSig, *indxRef_Fernald;
 		double  R_ref    							;
 		int indx_Top_Cloud = 0 						;
 
@@ -80,7 +82,8 @@ class CDataLevel_2
 
 	private:
 		// void FernaldInversion_Test_Ref_Value( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;
-		void FernaldInversion_Core( strcGlobalParameters*, int, strcMolecularData*, int, int ) ;
+		void 	FernaldInversion_Core( strcGlobalParameters*, int, strcMolecularData*, int, int ) ;
+		int 	*indxRef_Fernald_Start, *indxRef_Fernald_Stop ;
 
 		const double DBL_EPS_COMP = 1 - DBL_EPSILON; // DBL_EPSILON is defined in <limits.h>.
 		inline double RandU()

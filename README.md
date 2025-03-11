@@ -30,6 +30,16 @@
     - [Dimensions](#dimensions-2)
     - [Variables](#variables-2)
     - [Group Attributes](#group-attributes-1)
+- [Using LPP in Windows 10/11 OS:](#using-lpp-in-windows-1011-os)
+  - [Step 1: Install Windows Subsystem for Linux (WSL)](#step-1-install-windows-subsystem-for-linux-wsl)
+  - [Step 2: Install Visual Studio Code](#step-2-install-visual-studio-code)
+    - [On Windows](#on-windows)
+  - [On Linux](#on-linux)
+    - [For Debian/Ubuntu-based systems:](#for-debianubuntu-based-systems)
+    - [For Red Hat/Fedora-based systems:](#for-red-hatfedora-based-systems)
+    - [Manual Installation](#manual-installation)
+    - [On macOS](#on-macos)
+  - [Step 3: Install WSL extension in Visual Studio Code](#step-3-install-wsl-extension-in-visual-studio-code)
 
 # Credits & contributions
 <u>**Juan Pallotta:**</u> Software development, methods, and algorithms.  
@@ -704,6 +714,88 @@ The essential constants needed for applying the Fernald inversion are stored.
 * `indxChannel_for_Fernald_inv`: Index number (started from 0) of the channel used to process Fernald inversion. This value is taken from the configuration file and passed as a third argument to `lpp2` in the variable `indxWL_PDL2`.
 * `Wavelength_Inverted`: Wavelength inverted in nanometers.
 * `Ref_Range`: Range used as a reference in the Fernald inversion. It must be located in the purest molecular range. This is the distance from the lidar line of sight (not altitude).
-* `R_ref`: Backscatter ratio at reference altitude (`Ref_Range`) used in the inversion. This value is taken from the configuration file and passed as a third argument to this module in the variable `R_ref`.
+* `R_ref`: Backscatter ratio at reference altitude (`Ref_Range`) used in the inversion. This value is taken from the configuration file and passed as a third argument to this module in the variable `R_ref`.  
+  
+# Using LPP in Windows 10/11 OS:
+In this section, you will find the steps for using LPP under the Windows 10/11 OS.  
+## Step 1: Install Windows Subsystem for Linux (WSL)
+The easiest way to install it is via the Microsoft Play Store. Open it and search for the Ubuntu 22.04.5 LTS version. By typing “Ubuntu 22” in its search bar, you will see something like the next figure:
+
+![Microsoft_Store_Ubuntu_22](./Docs/Figures/Microsoft_Store_Ubuntu_22.PNG "Microsoft_Store_Ubuntu_22")
+
+Select **Ubuntu 22.04.5 LTS** and then, on the next page, press the installation button.
+This will create an Ubuntu environment inside the Windows OS, and you will be able to use all its capabilities like they were native. Once installed, you can check if there is a virtual partition visible in the Windows file explorer. It will show like in the next figure:
+
+![WSL_en_Explorador](./Docs/Figures/WSL_en_Explorador.PNG "WSL_en_Explorador")
+
+LPP must be copied into this partition in order to run correctly, so once you download from the GitHub web page (https://github.com/juanpallotta/LPP), uncompress it and copy the LPP folder into this virtual partition. For the sake of simplicity, it is highly recommended to copy the LPP folder inside your user folder, located at ``/home/<USER_NAME>``. For instance, in the previous image, LPP can be copied to the folder ``/home/juan/LPP/``.
+
+Running LPP is about modifying the configuration file (a plain text file) and executing it in a terminal. You can use the text editor of your preference for configuring LPP and the WLS for running it. 
+Here we’ll explain how to accomplish this but using only one software named Visual Studio Code (VSCode). This is a very powerful tool in which you can do all the tasks in only one place in a highly configurable environment.
+
+## Step 2: Install Visual Studio Code
+### On Windows  
+1. Visit the Visual Studio Code download page: https://code.visualstudio.com/
+2. Download the installer for Windows (64-bit or 32-bit based on your system).
+3. Run the downloaded .exe file.
+4. Follow the installation wizard:
+5. Accept the license agreement.
+6. Select the installation location.
+7. Choose additional options (e.g., creating a desktop shortcut, adding to PATH).
+8. Click Install and wait for the process to complete.
+8. Launch VSCode after installation or via the desktop shortcut.
+
+## On Linux
+Open your terminal and run the following commands based on your distribution:
+
+### For Debian/Ubuntu-based systems:
+``sudo apt update
+sudo apt install software-properties-common apt-transport-https wget
+wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+sudo apt update
+sudo apt install code ``
+
+### For Red Hat/Fedora-based systems:
+``sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+sudo dnf check-update
+sudo dnf install code``
+
+### Manual Installation
+1. Download the .deb or .rpm package from Visual Studio Code's website.
+2. Install it using your package manager
+3. Run in a terminal:
+``sudo dpkg -i <file>.deb  # Debian-based systems
+sudo rpm -i <file>.rpm   # Red Hat-based systems``
+
+### On macOS
+1. Download the latest .dmg file from the Visual Studio Code website.
+2. Open the .dmg file and drag the Visual Studio Code icon into the Applications folder.
+3. Open VSCode from the Applications folder or via Spotlight search.
+
+## Step 3: Install WSL extension in Visual Studio Code
+Go to the extension tab on the right panel in Visual Studio Code (mark 1 in the image below).
+
+![VSCode_install_WSL_extension](./Docs/Figures/VSCode_install_WSL_extension.PNG "VSCode_install_WSL_extension")
+
+Find the search bar and type "WLS" into it. From the results, select the first option. It should match what you see in the previous image. Once selected, find and click the "Install" button (mark 3 of the previous figure). Done.
+This extension permits access to the WSL environment installed in Step 1 of this section, where the LPP files must be copied.
+The next step is to open the folder of LPP with VSCode. This is done by pressing the “><Connect to…” in the welcome page of VSCode (see next figure).
+
+
+![VSCode_Connect_to](./Docs/Figures/VSCode_Connect_to.PNG "VSCode_Connect_to")
+
+A pop-up panel will appear in the upper middle area of the screen with various connection options. Click on the “Connect to WSL” option (see next figure).
+
+![VSCode_Connect_to_WSL](./Docs/Figures/VSCode_Connect_to_WSL.png "VSCode_Connect_to_WSL")
+
+After a few seconds, VSCode will be connected to the WSL partition. The lower-left corner will look like what is shown in the next figure:
+
+![VSCode_WSL_connected](./Docs/Figures/VSCode_WSL_Connected.png "VSCode_WSL_connected")
+
+The next and last step is just to press “Open Folder…” from the main page, and the WSL partition with the /LPP/ folder will be able to be opened.
+
+![VSCode_open_WSL_Folder](./Docs/Figures/VSCode_open_WSL_Folder.png "VSCode_open_WSL_Folder")
 
 

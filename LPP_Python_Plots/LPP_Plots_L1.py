@@ -17,7 +17,7 @@ import sys
 
 minFactor = 0.00
 maxFactor = 1.00
-maxRange  = 20000
+maxRange  = 8000
 
 nc_file = sys.argv[1]
 print("\nName of NetCDF file:", nc_file )

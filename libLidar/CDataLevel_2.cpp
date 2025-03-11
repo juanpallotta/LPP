@@ -14,6 +14,7 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
     dummy      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)dummy  , 0, sizeof(double)*glbParam->nBins 	 ) ;
     pr2_s      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)pr2_s  , 0, sizeof(double)*glbParam->nBins 	 ) ;
 	LR_inv	   = (double*)   new double  [glbParam->nEventsAVG] ;	
+	LR		   = (double*)   new double  [100] 					;	
 	AOD_inv	   = (double*)   new double  [glbParam->nEventsAVG] ;	
 	for (int i=0; i<glbParam->nEventsAVG; i++)
 	{
@@ -214,6 +215,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 				smooth( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&alpha_Aer[glbParam->evSel][l][0] ) ;
 			}
 			indx_integral_max_range_for_AOD = (int)round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
+
 			sum(    (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[glbParam->evSel][l] ) ;
 			AOD_LR[glbParam->evSel][l] = AOD_LR[glbParam->evSel][l] * glbParam->dr ;
 			// printf("\nAOD@LR = %lf --> %lf", fabs(LR[l]), AOD_LR[glbParam->evSel][l]) ;
@@ -394,14 +396,14 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l,
 	}
 
 	cumtrapz_norm( (double)glbParam->dr, (double*)p, (int)indxStart, (int)indxRef_Fernald[glbParam->evSel], (int)indxStop, (double*)ipN ) ;
-
 	for ( int i=indxStart ; i <=indxStop ; i++ )
 	{
 		betaT[i] = p[i] / ( (1/(R_ref * dataMol->betaMol_avg[indxRef_Fernald[glbParam->evSel]])) - (2/ka) * ipN[i] ) ;
 		if ( fpclassify(betaT[i]) == FP_NAN )
-			betaT[i] = (double)DBL_MAX ;
+		betaT[i] = (double)DBL_MAX ;
 	}
-		// FIT beta_mol TO betaT FOR A MORE CONSISTENT RETRIEVAL OF beta_Aer
+
+	// FIT beta_mol TO betaT FOR A MORE CONSISTENT RETRIEVAL OF beta_Aer
 // 			double sumOut =0;
 // 			int    s =0 ;
 // 			strcFitParam fitParam ;
