@@ -160,7 +160,8 @@ then
 
                 #   PLOTTING
                 PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"LPP_Plots_L1.py"
-                echo -e "\n\nGenerating plots for L1...\npython "$PATH_FILE_TO_PLOT" "$PATH_FILE_OUT_L1
+                echo -e "\n\nGenerating plots for L1...\n "
+                echo -e "\n\npython3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L1"
                 python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L1
             else # if [[ -f $PATH_FILE_IN_L1 ]]
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_Run_Settings.sh file"
@@ -188,6 +189,7 @@ then
                 #   PLOTTING
                 echo -e "\n\nGenerating plots for L2..."
                 PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"LPP_Plots_L2.py"
+                echo -e "\n\npython3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 0"
                 python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 0
 
             else # if [[ -f $PATH_FILE_IN_L2 ]]

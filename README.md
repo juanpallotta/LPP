@@ -717,7 +717,7 @@ The essential constants needed for applying the Fernald inversion are stored.
 * `R_ref`: Backscatter ratio at reference altitude (`Ref_Range`) used in the inversion. This value is taken from the configuration file and passed as a third argument to this module in the variable `R_ref`.  
   
 # Using LPP in Windows 10/11 OS:
-In this section, you will find the steps for using LPP under the Windows 10/11 OS.  
+In this section, you will find step-by-step instructions for using LPP on Windows 10/11.
 ## Step 1: Install Windows Subsystem for Linux (WSL)
 The easiest way to install it is via the Microsoft Play Store. Open it and search for the Ubuntu 22.04.5 LTS version. By typing “Ubuntu 22” in its search bar, you will see something like the next figure:
 

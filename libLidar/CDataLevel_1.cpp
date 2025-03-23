@@ -112,7 +112,8 @@ void CDataLevel_1::ScanCloud_RayleighFit ( const double *pr, strcGlobalParameter
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
 do
 { // TODO
-		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+	//  oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+		oLOp->Fit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins_Ch[glbParam->indxWL_PDL1], "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	biasRef = fitParam.b ;
 	errRefBkg = sqrt ( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
 

@@ -115,8 +115,8 @@ int main( int argc, char *argv[] )
 
                 for ( int c=0 ; c <glbParam.nCh ; c++ )
                 {
-                    pr2[e][c]     = (double*) new double[glbParam.nBins] ;
-                    pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
+                    pr2[e][c]     = (double*) new double[glbParam.nBins] ; memset( pr2    [e][c], 0, glbParam.nBins*sizeof(double) ) ;
+                    pr_corr[e][c] = (double*) new double[glbParam.nBins] ; memset( pr_corr[e][c], 0, glbParam.nBins*sizeof(double) ) ;
                 }
         }
 

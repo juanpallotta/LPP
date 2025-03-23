@@ -38,8 +38,7 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 		for ( int c=0 ; c <glbParam->nCh ; c++ )
 		{
 			pr2[e][c] 		= (double*) new double[glbParam->nBins] ;
-			for(int b =0 ; b <glbParam->nBins ; b++)
-				pr2      [e][c][b] = (double)0 ;
+			memset( pr2[e][c], 0, glbParam->nBins*sizeof(double) ) ;
 		}
 	}
 
@@ -174,15 +173,15 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 			// {
 				oLOp->Fit( (double*)&(pr2[glbParam->evSel][glbParam->chSel][0]), (double*)&(dataMol->pr2Mol_avg[0]), fitParam.nFit , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)&dummy[0] ) ;
 
-				double *absDiff = (double*) new double[ fitParam.nFit ] ;
-				for (int i =0 ; i <fitParam.nFit ; i++)
-					absDiff[i] = fabs( pr2[glbParam->evSel][glbParam->chSel][fitParam.indxInitFit +i] - dummy[fitParam.indxInitFit +i] ) ;
+				// double *absDiff = (double*) new double[ fitParam.nFit ] ;
+				// for (int i =0 ; i <fitParam.nFit ; i++)
+				// 	absDiff[i] = fabs( pr2[glbParam->evSel][glbParam->chSel][fitParam.indxInitFit +i] - dummy[fitParam.indxInitFit +i] ) ;
+				// findIndxMin( (double*)absDiff, (int)0, (int)(fitParam.nFit -1), (int*)&indxMin_absDiff, (double*)&minDiff ) ;
+				// indxRef_Fernald[glbParam->evSel] = fitParam.indxInitFit + indxMin_absDiff ;
+				// delete absDiff ;
 
-				findIndxMin( (double*)absDiff, (int)0, (int)(fitParam.nFit -1), (int*)&indxMin_absDiff, (double*)&minDiff ) ;
-				indxRef_Fernald[glbParam->evSel] = fitParam.indxInitFit + indxMin_absDiff ;
-				// indxRef_Fernald[glbParam->evSel] = round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
+				indxRef_Fernald[glbParam->evSel] = round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
 				pr2_Ref = dummy[indxRef_Fernald[glbParam->evSel]] ;
-				delete absDiff ;
 			// 	if ( pr2_Ref <=0 )
 			// 	{
 			// 		fitParam.indxInitFit++ ;
@@ -794,6 +793,7 @@ int CDataLevel_2::Download_AERONET_Data( strcGlobalParameters *glbParam )
 
 	// FORMATING THE COMMAND TO RUN
 	sprintf(path, "python3 ./download_aeronet/aeraod.py \"%s\" \"%s\" \"%s\" \"Aerosol Optical Depth (AOD) with Precipitable Water and Angstrom Parameter\" \"All points\" \"%s\" \"%s\"", aeronet_site_name, date_initial, date_final, aeronet_data_level, aeronet_path) ;
+	printf("\nRuning AERONET DOWNLOADER:\n%s\n", path) ;
 
 	// Open the command for reading 
 	fp = popen(path, "r");

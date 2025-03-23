@@ -184,7 +184,7 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
+		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL     *PI/180
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
@@ -215,7 +215,7 @@ void CMolecularData::Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters *gl
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
+		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL     *PI/180
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
@@ -264,7 +264,7 @@ void CMolecularData::Fill_dataMol_L2_from_RadSondeData( strcGlobalParameters *gl
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *PI/180) ; // zr = ASL
+		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL    *PI/180
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
@@ -679,6 +679,7 @@ double rhoAir = (6*fAir-6) /(3+7*fAir);
 // or Bucholtz (1995), eqs (12) and (13)
 double gammaAir = rhoAir /(2-rhoAir);
 double Pf_mol = 0.75*( (1+3 *gammaAir) + (1-gammaAir) * (cos(M_PI)*cos(M_PI)) ) / (1 + 2*gammaAir) ;
+// double Pf_mol = 0.75*( (1+3 *gammaAir) + (1-gammaAir) * (cos(180)*cos(180)) ) / (1 + 2*gammaAir) ;
 
 //% -----------------------------------------------------------------------
 //  RAYLEIGH TOTAL SCATERING CROSS SECTION

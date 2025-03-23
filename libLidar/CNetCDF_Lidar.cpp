@@ -191,11 +191,24 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
             ERR(retval);
         // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
     }
+
     glbParam->nEvents  = size_dim[0] ; glbParam->nEventsAVG = glbParam->nEvents ; // 'time' DIMENSION
     glbParam->evSel    = -1 ; // DEFAULT VALUE, IF <0, ANALYZE VERTICAL PROFILE
     glbParam->nCh      = size_dim[1] ; glbParam->nLambda    = glbParam->nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
+
+    glbParam->indxOffset = (int*) new int [ glbParam->nCh ] ;
+    int num_Ch = ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)    glbParam->indxOffset ) ;
+    if ( num_Ch != glbParam->nCh )
+    {
+        printf( "\n ERROR: indxOffset MUST have the same number of elemenst as the number of channels (%d)... bye", glbParam->nCh) ;
+        exit(1) ;
+    }
     glbParam->nBins    = size_dim[2] ; // 'range' DIMENSION
     glbParam->nBins_Ch = (int*) new int[ glbParam->nCh ] ;
+
+    ReadVar( (int)ncid, (const char*)"nBins_Ch", (int*)&glbParam->nBins_Ch[0] ) ;
+    for (int c =0; c <glbParam->nCh; c++)
+        glbParam->nBins_Ch[c] = (int)glbParam->nBins_Ch[c] - abs(glbParam->indxOffset[c]) -1 ;
 
     glbParam->nEventsAVG     = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
 // printf("\n PDL1: glbParam->nEvents= %d \t glbParam->numEventsToAvg= %d \t glbParam->nEventsAVG= %d \n", glbParam->nEvents, glbParam->numEventsToAvg, glbParam->nEventsAVG) ;
@@ -227,19 +240,12 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_2"      , (int*)&glbParam->Laser_Frec[1]) ) )
         ERR(retval);
 
-    glbParam->indxOffset = (int*) new int [ glbParam->nCh ] ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg"        , (const char*)"int"   , (int*)   &glbParam->nBinsBkg        ) ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"range_Bkg_Start" , (const char*)"double", (double*)&glbParam->range_Bkg_Start ) ;
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"range_Bkg_Stop"  , (const char*)"double", (double*)&glbParam->range_Bkg_Stop  ) ;
     glbParam->indx_range_Bkg_Start = (int)round( glbParam->range_Bkg_Start /glbParam->dr ) ;
     glbParam->indx_range_Bkg_Stop  = (int)round( glbParam->range_Bkg_Stop  /glbParam->dr ) ;
-
-    int num_Ch = ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)    glbParam->indxOffset ) ;
-    if ( num_Ch != glbParam->nCh )
-    {
-        printf( "\n ERROR: indxOffset MUST have the same number of elemenst as the number of channels (%d)... bye", glbParam->nCh) ;
-        exit(1) ;
-    }
+    
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam->rInitSig   ) ;
 
     ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam->indxWL_PDL1 ) ;
@@ -255,8 +261,6 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     ReadVar( (int)ncid, (const char*)"DAQ_Range", (double*)glbParam->iMax_mVLic ) ;
     glbParam->nShots = (int*) new int [glbParam->nCh] ;
     ReadVar( (int)ncid, (const char*)"Accumulated_Pulses", (int*)&glbParam->nShots[0] ) ;
-
-    ReadVar( (int)ncid, (const char*)"nBins_Ch", (int*)&glbParam->nBins_Ch[0] ) ;
 
     glbParam->indxEndSig_ev_ch = (int**)    new int*    [ glbParam->nEventsAVG ] ;
     glbParam->rEndSig_ev_ch    = (double**) new double* [ glbParam->nEventsAVG ] ;

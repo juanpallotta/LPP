@@ -98,8 +98,7 @@ int main( int argc, char *argv[] )
         for ( int c=0 ; c <glbParam.nCh ; c++ )
         {
             data_File_L1[e][c] = (double*) new double[glbParam.nBins] ;
-            for(int b =0 ; b <glbParam.nBins ; b++)
-                data_File_L1[e][c][b] = (double)0.0 ;
+            memset( (double*)data_File_L1[e][c], 0, (sizeof(double)*glbParam.nBins) ) ;
         }
     }
     int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
@@ -180,6 +179,7 @@ int main( int argc, char *argv[] )
             data_Noise[c] = (double*) new double[glbParam.nBins] ;
 
         oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
+        glbParam.is_Noise_Data_Loaded = true ;
     }
 
     double  **ovlp ;
@@ -212,8 +212,11 @@ int main( int argc, char *argv[] )
 
             for ( int c=0 ; c <glbParam.nCh ; c++ )
             {
-                pr2[e][c]     = (double*) new double[glbParam.nBins] ;
-                pr_corr[e][c] = (double*) new double[glbParam.nBins] ;
+                pr2[e][c]     = (double*) new double[glbParam.nBins] ;  memset( pr2    [e][c], 0, sizeof(double)*glbParam.nBins ) ;
+                pr_corr[e][c] = (double*) new double[glbParam.nBins] ;  //memset( pr_corr[e][c], 0, sizeof(double)*glbParam.nBins ) ;
+
+                for ( int i=0 ; i <glbParam.nBins ; i++ )
+                    pr_corr[e][c][i] = data_File_L1[e][c][i] ;
             }
     }
 
@@ -244,9 +247,12 @@ int main( int argc, char *argv[] )
         oDL1->pr_for_cloud_mask = (double**) new double*[ glbParam.nEventsAVG ] ;
         for (int e=0 ; e <glbParam.nEventsAVG ; e++)
         {
-            oDL1->pr_for_cloud_mask[e] = (double*) new double[ glbParam.nBins_Ch[glbParam.indxWL_PDL1] ] ;
-            for ( int i =0 ; i < glbParam.nBins_Ch[glbParam.indxWL_PDL1] ; i++ )
+            oDL1->pr_for_cloud_mask[e] = (double*) new double[ glbParam.nBins ] ;
+            for ( int i =0 ; i < glbParam.nBins ; i++ )
                 oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
+            // oDL1->pr_for_cloud_mask[e] = (double*) new double[ glbParam.nBins_Ch[glbParam.indxWL_PDL1] ] ;
+            // for ( int i =0 ; i < glbParam.nBins_Ch[glbParam.indxWL_PDL1] ; i++ )
+            //     oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
         }
     }
 
@@ -264,10 +270,10 @@ int main( int argc, char *argv[] )
     {
         for (int e =0; e <glbParam.nEventsAVG ; e++)
         {
-            for (int i =0; i <glbParam.nBins_Ch[glbParam.indx_Ch_Pol_P[0]]; i++)
-            {
+            for (int i =0; i <glbParam.nBins; i++)
                 pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] = pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] + glbParam.Pol_Cal_Constant[0] * pr_corr[e][glbParam.indx_Ch_Pol_S[0]][i] ;
-            }
+            // for (int i =0; i <glbParam.nBins_Ch[glbParam.indx_Ch_Pol_P[0]]; i++)
+            //     pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] = pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] + glbParam.Pol_Cal_Constant[0] * pr_corr[e][glbParam.indx_Ch_Pol_S[0]][i] ;
         }
     }
     else
@@ -341,9 +347,11 @@ int main( int argc, char *argv[] )
 
     int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+        // Cloud_Profiles[e] = (int*) new int[glbParam.nBins_Ch[glbParam.indxWL_PDL1]] ;
         Cloud_Profiles[e] = (int*) new int[glbParam.nBins] ;
     double  **RMSE_lay = (double**) new double*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+        // RMSE_lay[e] = (double*) new double[glbParam.nBins_Ch[glbParam.indxWL_PDL1]] ;
         RMSE_lay[e] = (double*) new double[glbParam.nBins] ;
 
     double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
