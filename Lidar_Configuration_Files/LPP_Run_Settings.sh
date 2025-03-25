@@ -10,12 +10,13 @@ L2="yes"
 #* DO NOT USE SPACES!!!! 
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/Vertical/lpp_sim_L0.nc"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/MultiAngle/lpp_sim_multiangle_L0.nc"
-# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Brazil/SPU/20210730/"
+# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Brazil/SPU/2017_09_28/signals/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20230214_nCh62/RS_20230214_0925/"
-PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0846/"
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20240603_nCh60/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240527/2024_05_27_HR0913_A90_data_2CH_L0.nc"
 
@@ -34,7 +35,7 @@ PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_04_dt/LPP_2017_09_04_dt/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_04_nt/LPP_2017_09_04_nt/"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_25_nt/LPP_2017_09_25_nt/"
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_28_dt/LPP_2017_09_28_dt/"
+PATH_IN="/mnt/Disk-1_8TB/Brazil/SPU/2017_09_28_dt/LPP_2017_09_28_dt/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Rio/20250307/"
 
@@ -59,10 +60,10 @@ PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil_Rio.conf"
 
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_PaperComparison.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
 # ! ARGENTINA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"

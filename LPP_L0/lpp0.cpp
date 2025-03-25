@@ -44,10 +44,7 @@ int main( int argc, char *argv[] )
         Path_In.push_back('/') ;
 
     printf("\n lpp0: Path_In:\t%s \t", Path_In.c_str() ) ;
-    // printf("\n Path_Out:\t%s", Path_Out.c_str() ) ;
-    // printf("\n File_Out: \t%s", File_Out.c_str() ) ;
     printf("\n lpp0: Path_File_Out: %s", Path_File_Out.c_str() ) ;
-    // printf("\n Configuration File (glbParam.FILE_PARAMETERS): \t%s", glbParam.FILE_PARAMETERS ) ;
 
 	char	strTimeMerged[70] ; // PathMergedFiles[70], PathFile_OUT_FULL[100], merged_NCDF_FileName[70], 
     char    **inputFilesInTime ;
@@ -179,16 +176,15 @@ int main( int argc, char *argv[] )
                 // cout << endl << "Raw_Data_Stop_Time[f]: "  << Raw_Data_Stop_Time[f] << endl ;
                 // cout << endl << "Raw_Data_Start_Time_str[f]: " << Raw_Data_Start_Time_str[f] ;
                 // cout << endl << "Raw_Data_Stop_Time_str[f]: "  << Raw_Data_Stop_Time_str[f] << endl ;
-                    for ( int c=0 ; c <glbParam.nCh ; c++ )
-                    {
-                        for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
-                            dataToSave[f][c][b] = (double) dataFile[f].db_ADC[c][b] ;
-                    }
+                for ( int c=0 ; c <glbParam.nCh ; c++ )
+                {
+                    for ( int b=0 ; b <glbParam.nBinsRaw ; b++ )
+                    dataToSave[f][c][b] = (double) dataFile[f].db_ADC[c][b] ;
+                }
     } // for ( int f=0 ; f <glbParam.nEventsAVG ; f++ )
 
 // NETCDF FILE STUFF
     CNetCDF_Lidar   *oNCL = (CNetCDF_Lidar*) new CNetCDF_Lidar() ;
-
     if ( strcmp(glbParam.outputDataFileFormat, "SCC_NETCDF") ==0 )
     {
         printf("\n\tOutput datafile: SCC_NETCDF\n") ;
@@ -200,7 +196,6 @@ int main( int argc, char *argv[] )
         printf("\n\tOutput datafile: LALINET_NETCDF\n") ;
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time, (char**)inputFilesInTime ) ;
-
         char *path_dark_files = (char*) new char[100] ;
         ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"PATH_DARK_FILES", (const char*)"string", (char*)path_dark_files ) ;
         if ( strcmp(path_dark_files, "NOT_FOUND") !=0 ) // DARK FILES FOUND

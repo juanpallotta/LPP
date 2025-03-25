@@ -213,7 +213,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 				smooth( (double*)&beta_Aer [glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&beta_Aer [glbParam->evSel][l][0] ) ;
 				smooth( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&alpha_Aer[glbParam->evSel][l][0] ) ;
 			}
-			indx_integral_max_range_for_AOD = (int)round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
+			// indx_integral_max_range_for_AOD = (int)round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
+			indx_integral_max_range_for_AOD = (int) glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ;
 
 			sum(    (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[glbParam->evSel][l] ) ;
 			AOD_LR[glbParam->evSel][l] = AOD_LR[glbParam->evSel][l] * glbParam->dr ;
@@ -379,7 +380,7 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l,
 	memset( (double*)intAlphaMol_Ref_r, 0, sizeof(double)*glbParam->nBins ) ;
 	memset( (double*)alpha_Aer[glbParam->evSel][l], 0, sizeof(double)*glbParam->nBins ) ;
 	memset( (double*)beta_Aer [glbParam->evSel][l], 0, sizeof(double)*glbParam->nBins ) ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
+	// ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
 
 	ka  = 1/fabs(LR[l]) ;
 	KM_ = 1/dataMol->LR_mol ;
@@ -393,13 +394,12 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l,
 		phi[i]	= 2*((KM_-ka)/ka) * intAlphaMol_Ref_r[i]  ;
 		p[i]   	= pr2n[i] * exp(-phi[i]) ;
 	}
-
 	cumtrapz_norm( (double)glbParam->dr, (double*)p, (int)indxStart, (int)indxRef_Fernald[glbParam->evSel], (int)indxStop, (double*)ipN ) ;
 	for ( int i=indxStart ; i <=indxStop ; i++ )
 	{
 		betaT[i] = p[i] / ( (1/(R_ref * dataMol->betaMol_avg[indxRef_Fernald[glbParam->evSel]])) - (2/ka) * ipN[i] ) ;
 		if ( fpclassify(betaT[i]) == FP_NAN )
-		betaT[i] = (double)DBL_MAX ;
+			betaT[i] = (double)DBL_MAX ;
 	}
 
 	// FIT beta_mol TO betaT FOR A MORE CONSISTENT RETRIEVAL OF beta_Aer
