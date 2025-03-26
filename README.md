@@ -120,10 +120,16 @@ Start by downloading the repository from GitHub <https://www.github.com/juanpall
 # Setting up the code
 
 The first steps after downloading/cloning the LPP's source code are described in this section. After these steps, LPP will be ready to be used.
+These procedures are performed by a set of Linux shell scripts. To prepare them for use, the scripts must be given executable permissions. This can be accomplished by running the following command in the command line while located in the downloaded LPP folder:
+
+```bash
+find . -type f -name "*.sh" -exec chmod +x {} \;
+```
+After this, all the scripts will be able to be executed.
 
 ## Installing dependencies
 
-There are a few prerequisites to be installed prior to building LPP. This job can be done by running the Linux shell script named `install_Lidar_Dependencies.sh`. It is a simple Linux shell script to install the basic packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials. Remember to set `install_Lidar_Dependencies.sh` with executable attributes: `chmod +x install_Lidar_Dependencies.sh`.
+There are a few prerequisites to be installed prior to building LPP. This job can be done by running the Linux shell script named `install_Lidar_Dependencies.sh`. It is a simple Linux shell script to install the basic packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials.
 
 ## Building the code
 
