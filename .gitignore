@@ -58,7 +58,6 @@ libLidar/CMolecularDataAuger.*
 
 
 # LIDAR DATA PRODUCTS IGNORED DUE TO ITS SIZE
-*.nc
 Lidar_Analysis_PDL0/lpp0
 Lidar_Analysis_PDL1/lpp1
 Lidar_Analysis_PDL2/lpp2
