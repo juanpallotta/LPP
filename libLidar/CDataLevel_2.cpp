@@ -213,8 +213,9 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 				smooth( (double*)&beta_Aer [glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&beta_Aer [glbParam->evSel][l][0] ) ;
 				smooth( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)(glbParam->nBins-1), (int)glbParam->avg_Points_Fernald[glbParam->chSel], (double*)&alpha_Aer[glbParam->evSel][l][0] ) ;
 			}
+			indx_integral_max_range_for_AOD = (int) indxRef_Fernald[glbParam->evSel] ;
 			// indx_integral_max_range_for_AOD = (int)round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
-			indx_integral_max_range_for_AOD = (int) glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ;
+			// indx_integral_max_range_for_AOD = (int) glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ;
 
 			sum(    (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[glbParam->evSel][l] ) ;
 			AOD_LR[glbParam->evSel][l] = AOD_LR[glbParam->evSel][l] * glbParam->dr ;
