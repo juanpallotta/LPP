@@ -137,8 +137,10 @@ It is a simple Linux shell script to install the basic packages (make, g++, and 
 
 ## Building the code
 
-To compile all the modules, just run the Linux shell script named `compile_All.sh`. This is a simple Linux script that produces the executables of each module inside their folders. Remember to set `compile_All.sh` with executable attributes before running it: `chmod +x compile_All.sh`.
-For a clean build, the parameter `clean` can be passed as an argument to the script in this way: `compileAll.sh clean`. This will remove the previous pre-compiled objects. So, the steps for a clean compilation is:  
+To compile all the modules, just run the Linux shell script named `compile_All.sh`. This is a simple Linux script that produces the executables of each module inside their folders.
+
+
+For a clean build, the parameter `clean` must be passed as an argument to the script in this way: `compileAll.sh clean`. This will remove the previous pre-compiled objects. So, the steps for a clean compilation is:  
 1°: Remove the previous compilation data by performing:
 ```bash
 ./compileAll.sh clean
