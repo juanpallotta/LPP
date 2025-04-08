@@ -131,7 +131,7 @@ After this, all the scripts will be able to be executed.
 
 There are a few prerequisites to be installed prior to building LPP. This job can be done by running the Linux shell script:
 ```bash
-install_Lidar_Dependencies.sh 
+./install_Lidar_Dependencies.sh 
 ```
 It is a simple Linux shell script to install the basic packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials.
 
