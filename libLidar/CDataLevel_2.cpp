@@ -410,12 +410,12 @@ void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l,
 // 			fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] ;
 // 			do
 // 			{
-// 				// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel]    ;
+// // 				// fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel]    ;
 // 				fitParam.indxInitFit = indxRef_Fernald_Start[glbParam->evSel] -s*100 ;
-// 				// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] -s*100 ;
+// // 				// fitParam.indxEndFit  = indxRef_Fernald_Stop [glbParam->evSel] -s*100 ;
 // 				fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 // 				oLOp->Fit( (double*)&betaT[0], (double*)&dataMol->betaMol_avg[0], glbParam->nBins , "wOutB", "all", (strcFitParam*)&fitParam, (double*)betaMol_Fit ) ;
-// 				// LR = (double)fabs(LR) ;
+// // 				// LR = (double)fabs(LR) ;
 
 // 				sumOut =0;
 // 				for (int i =(fitParam.indxInitFit - round(fitParam.indxInitFit *0.10)) ; i <fitParam.indxInitFit ; i++)

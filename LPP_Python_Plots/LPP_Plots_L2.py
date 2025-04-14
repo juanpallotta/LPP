@@ -1,14 +1,6 @@
 
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Argentina/Cordoba/20220908/LPP_OUT  
 
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/Manaus/2011/8/14/LPP_OUT/14_L0_L1_L2.nc 54
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/lidar_signals/LPP_OUT/lidar_signals_L0_L1_L2.nc 5
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Brazil/SPU/20200914/test/LPP_OUT/test_L0_L1_L2.nc 5
-# python LPP_Plots_L2.py /home/juan/LidarAnalysisCode/LPP/signalsTest/Pappalardo_2004/LPP_OUT/Pappalardo_2004_L0_L1_L2.nc 0
-
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Granada/20230214/RS_20230214_0925/test/LPP_OUT/test_L0_L1_L2.nc 0
-
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Auger/LidarData/CO/2023/05/18/LPP_OUT/lidar-ch-20230518-014231-R128282.root_L0_L1_L2.nc 20
+# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Bolivia/20240826/2024_08_26_HR0935_A90_data_2CH_L0_L1_L2.nc 0  
 
 from netCDF4 import Dataset
 import numpy as np
@@ -16,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 4000
+indx_Max = 1000
 minFactor = 0.00
 maxFactor = 1.00
 
@@ -46,6 +38,17 @@ LRs       = fh["/L2_Data/LRs"]
 AOD_LR    = np.array(fh["/L2_Data/AOD_LR"]).transpose()
 time_L2   = np.array(fh["/L2_Data/Start_Time_AVG_L2"][:])
 time_L2   = np.array(time_L2, dtype='datetime64[s]')
+
+# AERONET_AOD_at_LidarTime   = fh["/L2_Data/AERONET_Data/AERONET_AOD_532nm_at_LidarTime"]
+# AOD_Lidar_532nm_vs_AERONET = fh["/L2_Data/LIDAR_AERONET_synergy/AOD_Lidar_532nm_vs_AERONET"]
+# plt.figure(num=4,figsize=(12,3),clear=True)
+# plt.scatter( time_L2, AERONET_AOD_at_LidarTime  , linestyle=':', label='AOD AERONET' )
+# plt.scatter( time_L2, AOD_Lidar_532nm_vs_AERONET, linestyle=':', label='AOD LIDAR' )
+# plt.xlabel('UTC Time [h]')
+# plt.ylabel('AOD @ 532 nm')
+# plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+# plt.legend( loc='upper right', bbox_to_anchor=(1.12, 1.0) )
+# plt.grid()
 
 # AOD_AERO    = np.array(fh["/L2_Data/AERONET_AOD"]).transpose()
 # AERONET_TIME= np.array(fh["/L2_Data/AERONET_time"][:])
