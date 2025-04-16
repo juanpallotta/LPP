@@ -9,8 +9,8 @@ L2="yes"
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/Vertical/lpp_sim_L0.nc"
-# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Brazil/SPU/20170928/signals/"
-PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Argentina/20240930/"
+PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Brazil/SPU/20170928/signals/"
+# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Argentina/20240930/"
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Argentina/20241002/"
 
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/MultiAngle/lpp_sim_multiangle_L0.nc"
@@ -29,14 +29,8 @@ PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Argentina/20240930/"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Medellin.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Cali.conf"
 # ! BRAZIL
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_04_dt.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_04_nt.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_25_nt.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_2017_09_28_dt.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil_Rio.conf"
-
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU_PaperComparison.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
@@ -46,7 +40,7 @@ PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/Argentina/20240930/"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_COMR.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar_2019_AgoSep.conf"
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Hector.conf"
 
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR_CALBUCO.conf"
