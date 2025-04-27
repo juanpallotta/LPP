@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 1000
+indx_Max = 2000
 minFactor = 0.00
 maxFactor = 1.00
 
