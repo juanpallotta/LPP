@@ -1,6 +1,5 @@
 
-
-# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Bolivia/20240826/2024_08_26_HR0935_A90_data_2CH_L0_L1_L2.nc 0  
+# python LPP_Plots_L2.py /mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/LPP_OUT/RS_20230830_0315_L0_L1_L2.nc 0  
 
 from netCDF4 import Dataset
 import numpy as np
@@ -8,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 2000
+indx_Max = 4000
 minFactor = 0.00
 maxFactor = 1.00
 

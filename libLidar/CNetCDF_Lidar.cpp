@@ -281,7 +281,8 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 
     for( int i=0 ; i <glbParam->nBins ; i++ )
     {
-        glbParam->r[i]     = (i+1)*glbParam->dr - glbParam->dr /2 ; // glbParam->r[0] = 3.75 (ie)
+        glbParam->r[i]     = (i+1)*glbParam->dr - glbParam->dr /2 ; // glbParam->r[0] = 3.75 (ie)   --> LPP & PAPALARDO 2004 ET AL
+        // glbParam->r[i]     = (i+1)*glbParam->dr ; // glbParam->r[0] = 7.5 (ie) IF DR = 7.5 M          --> GFATPY
         glbParam->r_avg[i] = glbParam->r[i] ;
     }
     glbParam->tBin_us = pow(10, 6) * 2*glbParam->dr /(3*pow(10, 8)) ; // uSec

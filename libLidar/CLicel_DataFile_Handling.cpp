@@ -104,8 +104,8 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 											glbParam->StopDate, glbParam->StopTime, &glbParam->siteASL, &glbParam->siteLat, &glbParam->siteLong, 
 											&glbParam->aZenith[glbParam->evSel], &glbParam->aAzimuth[0] ) ;
 
-					if ( strcmp( glbParam->siteName, "Medellin" ) ==0 )
-						glbParam->aZenith[glbParam->evSel] = glbParam->aZenith[glbParam->evSel] -90 ;
+					// if ( strcmp( glbParam->siteName, "Medellin" ) ==0 )
+					// 	glbParam->aZenith[glbParam->evSel] = glbParam->aZenith[glbParam->evSel] -90 ;
 				}
 				else if ( nLineElements ==11 ) // LICEL NEW (IE. GRANADA/MEDELLIN) WITH INFO STRING AT THE END OF LINE 2 BETWEEN INVERTED COMMAS
 				{	// LAST VALUES= ZENITH AZIMUTH

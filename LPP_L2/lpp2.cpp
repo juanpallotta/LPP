@@ -265,9 +265,13 @@ int main( int argc, char *argv[] )
             }
         } // for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
     } // for ( int t=0 ; t <glbParam.nEvents ; t++ )
-    printf( "\n\nDone inverting.\n Saving the NetCDF file %s\n", glbParam.Path_File_Out ) ;
+    
+    printf("\n\n\t \033[34m Lidar Analisys PDL2 Done\033[0m\n\n") ;  // BLUE
+    
+    printf( "\n\n\033[32mSaving the NetCDF file\033[0m %s\n", glbParam.Path_File_Out ) ;  // GREEN
 
     oNCL.Save_LALINET_NCDF_PDL2( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
-    printf("\n\n---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\n\n") ;
+
+    printf("\n\n\033[34m---- lidarAnalisys_PDL2 (END) -----------------------------------------------------------------------------\033[0m\n\n") ; // BLUE
 	return 0 ;
 }

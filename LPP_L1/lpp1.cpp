@@ -396,11 +396,21 @@ int main( int argc, char *argv[] )
 
     // printf("\n\n FIN oMolData->dataMol.pPa[0]= %lf \n", oMolData->dataMol.pPa[0]) ;
 
+    printf("\n\n\t\033[34m Lidar Analisys PDL1 Done\033[0m\n\n") ; // BLUE
+
+    printf( "\n\n\033[32mSaving the NetCDF file\033[0m %s\n", glbParam.Path_File_Out ) ;  // GREEN
+
     oNCL.Save_LALINET_NCDF_PDL1( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
-    printf("\n\n\tLidar Analisys PDL1 Done\n\n") ;
-    printf("\n\n---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\n\n") ;
+    printf("\n\n\033[34m---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\033[0m\n\n") ;  // BLUE
     
 	return 0 ;
 }
+/*
+    printf("\033[31mRed text\033[0m\n");
+    printf("\033[32mGreen text\033[0m\n");
+    printf("\033[33mYellow text\033[0m\n");
+    printf("\033[34mBlue text\033[0m\n");
+    printf("\033[0mNormal text\n");
+*/

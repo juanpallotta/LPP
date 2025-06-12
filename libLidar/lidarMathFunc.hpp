@@ -38,10 +38,5 @@ int     polyfitCoeff   	(const double* const, const double* const, unsigned int,
 float   correlationCoefficient_int( int*, int*, int ) ;
 double  correlationCoefficient_dbl( double*, double*, int ) ;
 
-// bool polynomialfit		( int, int, double*, double*, double *			) ;
-// void smoothGSL			( double*, int, int, double*	 				) ;
-// void splineGSL			( int, double*, double*, int, double*, double*  ) ;
-// void polyfitGSL			( int, double*, double*, int, int, double*, double* ) ;
-
 #endif
 #endif

@@ -245,8 +245,8 @@ void CLidar_Operations::Find_Max_Range( double *pr, strcMolecularData *dataMol, 
 	dataMol->last_Indx_Bkg_Low  =-1 ;
 	dataMol->last_Indx_Bkg_High =-1 ;
 
-	double R2_Max_Range = 0.20  	; // winzize = 2000 m --> este es el valor que se usa en el programa de matlab para SNR=1
-	int winSize = (int)round(2000/glbParam->dr) ;
+	double R2_Max_Range = 0.15  	; // winzize = 3000 m --> este es el valor que se usa en el programa de matlab para SNR=1
+	int winSize = (int)round(3000/glbParam->dr) ;
 
 	int indxInit_Search ;
 	if ( dataMol->z_Mol_Max > glbParam->r[glbParam->nBins_Ch[glbParam->chSel]] )
