@@ -143,8 +143,8 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		indxRef_Fernald_Stop [glbParam->evSel] = (int)round( ( heightRef_Inversion_Stop_ASL  - glbParam->siteASL)/fabs(dataMol->dzr) ) ;
 		indxRef_Fernald      [glbParam->evSel] = (int)round( ( indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
 		heightRef_Inversion_ASL = (double) ( glbParam->siteASL + glbParam->dzr* indxRef_Fernald[glbParam->evSel] ) ;
-		printf("\n\nheightRef_Inversion_Start_ASL: %lf m - heightRef_Inversion_Stop_ASL: %lf", heightRef_Inversion_Start_ASL, heightRef_Inversion_Stop_ASL ) ;
-		printf("\ndataMol->dzr: %lf - glbParam->siteASL: %d - indxRef_Fernald_Start: %d - indxRef_Fernald_Stop: %d \n\n", dataMol->dzr, glbParam->siteASL, indxRef_Fernald_Start[glbParam->evSel], indxRef_Fernald_Stop[glbParam->evSel] ) ;
+		// printf("\n\nheightRef_Inversion_Start_ASL: %lf m - heightRef_Inversion_Stop_ASL: %lf", heightRef_Inversion_Start_ASL, heightRef_Inversion_Stop_ASL ) ;
+		// printf("\ndataMol->dzr: %lf - glbParam->siteASL: %d - indxRef_Fernald_Start: %d - indxRef_Fernald_Stop: %d \n\n", dataMol->dzr, glbParam->siteASL, indxRef_Fernald_Start[glbParam->evSel], indxRef_Fernald_Stop[glbParam->evSel] ) ;
 	}
 	else
 		Find_Ref_Range( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ;

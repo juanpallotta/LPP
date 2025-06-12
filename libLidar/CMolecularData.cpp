@@ -184,7 +184,8 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL     *PI/180
+		// dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL     *PI/180
+		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
@@ -215,7 +216,8 @@ void CMolecularData::Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters *gl
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL     *PI/180
+		// dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL     *PI/180
+		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
@@ -264,7 +266,8 @@ void CMolecularData::Fill_dataMol_L2_from_RadSondeData( strcGlobalParameters *gl
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-		dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL    *PI/180
+		// dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL    *PI/180
+		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
@@ -308,8 +311,8 @@ void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
 	dataMol.nBins = glbParam->nBins ;
 
 	for ( i=0 ; i < dataMol.nBins ; i++ )
-		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith)) ; // zr = ASL
-		// dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
+		// dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith)) ; // zr = ASL
+		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
