@@ -38,5 +38,15 @@ int     polyfitCoeff   	(const double* const, const double* const, unsigned int,
 float   correlationCoefficient_int( int*, int*, int ) ;
 double  correlationCoefficient_dbl( double*, double*, int ) ;
 
+// Structure to hold spline coefficients for each interval
+// S_i(x) = a + b*(x-x_i) + c*(x-x_i)^2 + d*(x-x_i)^3
+typedef struct
+    {
+        double a, b, c, d, x_i;
+    } Spline;
+// Forward declarations
+void    create_natural_cubic_spline(double x[], double y[], int n, Spline spl[]);
+double  evaluate_spline(Spline spl[], int n, double x);
+
 #endif
 #endif

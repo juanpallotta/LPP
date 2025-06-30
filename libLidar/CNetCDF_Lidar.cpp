@@ -1002,6 +1002,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
 
     DefineVariable( (int)nc_id_group_L1, (char*)"range"                   , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[11] ) ; // range (ex points)
 
+    DefineVariable( (int)nc_id_group_L1, (char*)"alpha_mol"               , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[13] ) ; // range (ex points)
+    DefineVariable( (int)nc_id_group_L1, (char*)"beta_mol"                , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[14] ) ; // range (ex points)
+
     int dim_ids_CM[2] ;
     dim_ids_CM[0] = dim_ids[0] ; // TIME
     dim_ids_CM[1] = dim_ids[2] ; // POINTS
@@ -1035,8 +1038,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     PutVar( (int)nc_id_group_L1, (int)var_ids[8], (const char*)"double", (double*)&oMolData->dataMol.pPa[0] ) ;
     // PutVar( (int)nc_id_group_L1, (int)var_ids[7], (const char*)"double", (double*)&oMolData->dataMol.prMol[0] ) ;
     // PutVar( (int)nc_id_group_L1, (int)var_ids[8], (const char*)"double", (double*)&oMolData->dataMol.pr2Mol[0] ) ;
-    // PutVar( (int)nc_id_group_L1, (int)var_ids[7], (const char*)"double", (double*)&oMolData->dataMol.betaMol[0] ) ;
-    // PutVar( (int)nc_id_group_L1, (int)var_ids[8], (const char*)"double", (double*)&oMolData->dataMol.alphaMol[0] ) ;
+    PutVar( (int)nc_id_group_L1, (int)var_ids[13], (const char*)"double", (double*)&oMolData->dataMol.betaMol[0] ) ;
+    PutVar( (int)nc_id_group_L1, (int)var_ids[14], (const char*)"double", (double*)&oMolData->dataMol.alphaMol[0] ) ;
 
     size_t start_CM[2], count_CM[2];
     size_t start_ES[2], count_ES[2];

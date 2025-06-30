@@ -80,6 +80,8 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temp_column_index_in_File" , (const char*)"int", (int*)&indx_Temp  ) ;
 	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pres_column_index_in_File" , (const char*)"int", (int*)&indx_Pres  ) ;
 
+// printf("\n glbParam.temp_K_agl_AVG[0]= %lf \t glbParam.pres_Pa_agl_AVG[0]= %lf \n", glbParam->temp_K_agl_AVG[0], glbParam->pres_Pa_agl_AVG[0] ) ;
+
 	double hPa2Pa = 1.0 ;
 	for ( int l=0 ; l<RadSondeData.nBinsLR ; l++ ) // READ LINE BY LINE
 	{
@@ -91,7 +93,11 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		if ( (l==0) && (RadSondeData.pLR[0] >500) && (RadSondeData.pLR[0] <3000) ) // PRESSURE IS IN hPa --> MOVE IT TO Pa
 			hPa2Pa = 100 ;
 		RadSondeData.pLR[l] = (double)RadSondeData.pLR[l] * hPa2Pa ;
+
+		RadSondeData.tLR[l] = (double) ( glbParam->temp_K_agl_AVG [0] * RadSondeData.tLR[l]/RadSondeData.tLR[0] ) ;
+		RadSondeData.pLR[l] = (double) ( glbParam->pres_Pa_agl_AVG[0] * RadSondeData.pLR[l]/RadSondeData.pLR[0] ) ;
 	}
+
 	dataMol.z_Mol_Max = round(RadSondeData.zLR[RadSondeData.nBinsLR-1]) ;
 	if ( dataMol.z_Mol_Max > 30000 )
 		dataMol.z_Mol_Max = 30000 ;
@@ -128,9 +134,11 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
 
 		// RESAMPLE dataMol.pPa AND dataMol.tK IN HIGH RESOLUTION TO BE SAVED LATER
-		Tem_Pres_to_HR( ) ;
+		// Tem_Pres_to_HR() ;
+		Tem_Pres_to_HR_pw() ;
 	}
-// printf( "\n\nGet_Mol_Data_L1() despues de Tem_Pres_to_HR() --> RadSondeData.tLR[l]= %lf \t dataMol.tPa[0]= %lf \n", RadSondeData.tLR[0], dataMol.tK [0] ) ;
+		// printf( "\n\nGet_Mol_Data_L1() despues de Tem_Pres_to_HR() --> RadSondeData.tLR[0]= %lf \t dataMol.tK[0]= %lf \n", RadSondeData.tLR[0], dataMol.tK [0] ) ;
+
 	fclose(fid) ;
 }
 
@@ -360,43 +368,28 @@ void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
 	// delete MOD ;
 }
 
-// void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // USED IN lpp1.cpp
-// {
-// 	double *coeff_N     = (double*) new double[5 +1] ;
-// 	double *coeff_alpha = (double*) new double[5 +1] ;
-// 	double *coeff_beta  = (double*) new double[5 +1] ;
-
-// 	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-// 			      (const double* const) RadSondeData.nLR, // Y DATA
-// 			      (unsigned int       ) RadSondeData.nBinsLR,
-// 			      (unsigned int		  ) 5,
-// 			      (double*			  ) coeff_N	 ) ;
-
-// 	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-// 			      (const double* const) RadSondeData.alpha_mol, // Y DATA
-// 			      (unsigned int       ) RadSondeData.nBinsLR,
-// 			      (unsigned int		  ) 5,
-// 			      (double*			  ) coeff_alpha	 ) ;
-
-// 	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-// 			      (const double* const) RadSondeData.beta_mol, // Y DATA
-// 			      (unsigned int       ) RadSondeData.nBinsLR,
-// 			      (unsigned int		  ) 5,
-// 			      (double*			  ) coeff_beta	 ) ;
-
-// 	for (int i =0 ; i <dataMol.nBins ; i++ )
-// 	{
-// 		dataMol.nMol    [i] = (double)( pow(dataMol.zr[i], 5) *coeff_N    [5] + pow(dataMol.zr[i], 4) *coeff_N    [4] + pow(dataMol.zr[i], 3) *coeff_N    [3] + pow(dataMol.zr[i], 2) *coeff_N    [2] + dataMol.zr[i]*coeff_N    [1] + coeff_N    [0] ) ;
-// 		dataMol.alphaMol[i] = (double)( pow(dataMol.zr[i], 5) *coeff_alpha[5] + pow(dataMol.zr[i], 4) *coeff_alpha[4] + pow(dataMol.zr[i], 3) *coeff_alpha[3] + pow(dataMol.zr[i], 2) *coeff_alpha[2] + dataMol.zr[i]*coeff_alpha[1] + coeff_alpha[0] ) ;
-// 		dataMol.betaMol [i] = (double)( pow(dataMol.zr[i], 5) *coeff_beta [5] + pow(dataMol.zr[i], 4) *coeff_beta [4] + pow(dataMol.zr[i], 3) *coeff_beta [3] + pow(dataMol.zr[i], 2) *coeff_beta [2] + dataMol.zr[i]*coeff_beta [1] + coeff_beta [0] ) ;
-// 	}
-// 	delete coeff_N     ;
-// 	delete coeff_alpha ;
-// 	delete coeff_beta  ;
-// }
-
 void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // USED IN lpp1.cpp
 {
+	Spline *spl_n 			= (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
+	Spline *spl_alpha_mol 	= (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
+	Spline *spl_beta_mol 	= (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
+
+	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.nLR		, RadSondeData.nBinsLR, spl_n		  ) ;
+	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.alpha_mol, RadSondeData.nBinsLR, spl_alpha_mol ) ;
+	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.beta_mol	, RadSondeData.nBinsLR, spl_beta_mol  ) ;
+
+	for (int i =0 ; i <dataMol.nBins ; i++ )
+	{
+		dataMol.nMol [i] 	= evaluate_spline( spl_n		, RadSondeData.nBinsLR, dataMol.zr[i] );
+		dataMol.alphaMol[i] = evaluate_spline( spl_alpha_mol, RadSondeData.nBinsLR, dataMol.zr[i] );
+		dataMol.betaMol [i] = evaluate_spline( spl_beta_mol	, RadSondeData.nBinsLR, dataMol.zr[i] );
+	}
+
+	free(spl_n);
+	free(spl_alpha_mol);
+	free(spl_beta_mol);
+
+/*
 	double *coeff_N     = (double*) new double[3 +1] ;
 	double *coeff_alpha = (double*) new double[3 +1] ;
 	double *coeff_beta  = (double*) new double[3 +1] ;
@@ -428,37 +421,47 @@ void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // US
 	delete coeff_N     ;
 	delete coeff_alpha ;
 	delete coeff_beta  ;
+*/
 }
 
-void CMolecularData::Tem_Pres_to_HR() // USED IN lpp1.cpp
+void CMolecularData::Tem_Pres_to_HR_pw() // USED IN lpp1.cpp
 {
-	int 	orden = 3 ;
-	double *coeff_Temp   = (double*) new double[orden +1] ;
-	double *coeff_Pres   = (double*) new double[orden +1] ;
+	Spline *spl_t = (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
+	Spline *spl_p = (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
 
-	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-			      (const double* const) RadSondeData.tLR, // Y DATA
-			      (unsigned int       ) RadSondeData.nBinsLR,
-			      (unsigned int		  ) orden,
-			      (double*			  ) coeff_Temp	 ) ;
-
-	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-			      (const double* const) RadSondeData.pLR, // Y DATA
-			      (unsigned int       ) RadSondeData.nBinsLR,
-			      (unsigned int		  ) orden,
-			      (double*			  ) coeff_Pres	 ) ;
+	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.tLR, RadSondeData.nBinsLR, spl_t);
+	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.pLR, RadSondeData.nBinsLR, spl_p);
 
 	for (int i =0 ; i <dataMol.nBins ; i++ )
 	{
-		dataMol.tK[i]  = (double)( pow(dataMol.zr[i], 3) *coeff_Temp[3] + pow(dataMol.zr[i], 2) *coeff_Temp[2] + dataMol.zr[i]*coeff_Temp[1] + coeff_Temp[0] ) ;
-		dataMol.pPa[i] = (double)( pow(dataMol.zr[i], 3) *coeff_Pres[3] + pow(dataMol.zr[i], 2) *coeff_Pres[2] + dataMol.zr[i]*coeff_Pres[1] + coeff_Pres[0] ) ;
+		dataMol.tK [i] = evaluate_spline( spl_t, RadSondeData.nBinsLR, dataMol.zr[i] );
+		dataMol.pPa[i] = evaluate_spline( spl_p, RadSondeData.nBinsLR, dataMol.zr[i] );
 	}
-	delete coeff_Temp     ;
-	delete coeff_Pres ;
+
+	free(spl_t);
+	free(spl_p);
 }
 
 void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters *glbParam ) // USED IN lpp2.cpp
 {
+	Spline *spl_n 	  = (Spline *)malloc(sizeof(Spline) * (dataMol.nBins - 1)) ;
+	Spline *spl_alpha = (Spline *)malloc(sizeof(Spline) * (dataMol.nBins - 1)) ;
+	Spline *spl_beta  = (Spline *)malloc(sizeof(Spline) * (dataMol.nBins - 1)) ;
+
+	create_natural_cubic_spline(RadSondeData.zHR, RadSondeData.nHR		, dataMol.nBins, spl_n	  ) ;
+	create_natural_cubic_spline(RadSondeData.zHR, RadSondeData.alpha_mol, dataMol.nBins, spl_alpha ) ;
+	create_natural_cubic_spline(RadSondeData.zHR, RadSondeData.beta_mol , dataMol.nBins, spl_beta  ) ;
+
+	for (int i =0 ; i <dataMol.nBins ; i++ )
+	{
+		dataMol.nMol[i] 	= evaluate_spline( spl_n	, dataMol.nBins, dataMol.zr[i] );
+		dataMol.alphaMol[i] = evaluate_spline( spl_alpha, dataMol.nBins, dataMol.zr[i] );
+		dataMol.betaMol[i] 	= evaluate_spline( spl_beta , dataMol.nBins, dataMol.zr[i] );
+	}
+	free(spl_n)	    ;
+	free(spl_alpha) ;
+	free(spl_beta)  ;
+/*
 	double *coeff_N     = (double*) new double[3 +1] ;
 	double *coeff_alpha = (double*) new double[3 +1] ;
 	double *coeff_beta  = (double*) new double[3 +1] ;
@@ -487,14 +490,11 @@ void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters 
 		dataMol.alphaMol[i] = (double)( pow(dataMol.zr[i], 3) *coeff_alpha[3] + pow(dataMol.zr[i], 2) *coeff_alpha[2] + dataMol.zr[i]*coeff_alpha[1] + coeff_alpha[0] ) ;
 		dataMol.betaMol[i]  = (double)( pow(dataMol.zr[i], 3) *coeff_beta[3]  + pow(dataMol.zr[i], 2) *coeff_beta[2]  + dataMol.zr[i]*coeff_beta[1]  + coeff_beta[0]  ) ;
 	}
-		// printf("\nMolecular_Profile_Resampled_Zenithal() ==> coeff_N= %e  coeff_alpha= %e  coeff_beta= %e", coeff_N[3], coeff_alpha[3], coeff_beta[3]) ;
-		// printf("\nMolecular_Profile_Resampled_Zenithal() ==> dataMol.nMol[1000]     = %e \t dataMol.zenith= %lf \t dataMol.dzr= %f \t dataMol.nBins= %d", dataMol.nMol[1000], dataMol.zenith, dataMol.dzr, dataMol.nBins ) ;
-		// printf("\nMolecular_Profile_Resampled_Zenithal() == %d ==> dataMol.betaMol [1000(%lf)]  = %e" , glbParam->evSel, dataMol.zr[1000], dataMol.betaMol[1000]  ) ;
-		// printf("\nMolecular_Profile_Resampled_Zenithal() == %d ==> dataMol.alphaMol[1000(%lf)] = %e\n", glbParam->evSel, dataMol.zr[1000], dataMol.alphaMol[1000] ) ;
 
 	delete coeff_N 		;
 	delete coeff_alpha 	;
 	delete coeff_beta  	;
+*/
 }
 
 void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( double *pres_PA, double *temp_K, double lambda_m, double co2_ppmv, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
@@ -706,7 +706,10 @@ double alpha_std = Nstd * sigma_std;      // extinction at std pres and temp [m^
 // scaling for each P and T in the column
 for ( int i=0 ; i<nBins ; i++ )
 {
-	alpha_mol[i] = pres_PA[i] /temp_K[i] *Tstd/Pstd * alpha_std ; // molecular extinction [m^-1]
+	// alpha_mol[i] = pres_PA[i] /temp_K[i] *Tstd/Pstd * alpha_std ; // molecular extinction [m^-1]
+	alpha_mol[i] = pres_PA[i] /temp_K[i]    ;
+	alpha_mol[i] = alpha_mol[i] *Tstd/Pstd  ;
+	alpha_mol[i] = alpha_mol[i] * alpha_std ; // molecular extinction [m^-1]
 	N_mol[i]	 = alpha_mol[i] / sigma_std ;
 }
 

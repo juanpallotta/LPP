@@ -16,10 +16,12 @@ void CLicel_DataFile_Handling::ReadLicel_Time_and_Coord( FILE *fid, strcGlobalPa
 {
 	assert( fid !=NULL ) ;
 
-	char strMisc[50] ;
-
+	// char strMisc[50] ;
 // LINE 1: File name
-	fscanf( fid, "%s ", strMisc )  ;
+	// fscanf( fid, "%s ", strMisc )  ;
+	read_Licel_Header_Line( (FILE*)fid, (int)1, (strcGlobalParameters*)glbParam) ;
+		// printf( "\nLINE 1: %s\n", glbParam->fileName ) ;
+
 // LINE 2:
 	read_Licel_Header_Line( (FILE*)fid, (int)2, (strcGlobalParameters*)glbParam) ;
 
@@ -53,18 +55,24 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 {
 	nLineElements =0 ;
 
+	memset( strLine    , 0, sizeof(strLine    ) ) ;
+	memset( strLine_bkp, 0, sizeof(strLine_bkp) ) ;
+
 	fgets(strLine, sizeof(strLine), fid) ;
-	indx_EL = strcspn(strLine, "\r\n") ; // INDEX END LINE (EL)
+	indx_EL = strcspn(strLine, "\r\n") ; // indx_EL: index END LINE 
 	if (indx_EL >= 0) 
-		sprintf(&strLine[indx_EL], " \r\n") ;
+		sprintf(&strLine[indx_EL], " \r\n") ; // FORMAT THE STRING WITH CARRIAGE RETURN AND LINE FEED
 	sprintf( strLine_bkp, "%s", strLine ) ;
 
 	token = (char*) strtok(strLine, " ") ; // token POINTING TO THE FIRST ELEMENT OF THE LINE 
 
 	switch ( header_line_number )
 	{
-		case 2 : // LINE NUMBER 2
+		case 1:
+				sprintf( glbParam->fileName, "%s", token ) ;
+				break;
 
+		case 2 : // LINE NUMBER 2
 				if ( strcmp( token, "Sao" ) ==0 )
 				{
 					strcpy( glbParam->siteName, "Sao Paul" ) ;
@@ -127,7 +135,7 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 				}
 				else
 				{	// WRONG NUMBER OF ELEMENTS IN LINE 2
-					printf("\n\n void read_Licel_Header_Line()--> file %s is not compatible \nNumber of elements (%d) in line number 2... exit\n", glbParam->fileName, nLineElements ) ;
+					printf("\n void read_Licel_Header_Line()--> file %s is not compatible \nNumber of elements (%d) in line number 2... exit\n\n", glbParam->fileName, nLineElements ) ;
 					exit(1) ;
 				}
 				glbParam->aZenithAVG [glbParam->evSel] = glbParam->aZenith [glbParam->evSel] ;
@@ -265,7 +273,9 @@ void CLicel_DataFile_Handling::ReadLicel_GlobalParameters( char *lidarFile, strc
 	if ( strncmp( glbParam->inputDataFileFormat, "LICEL_FILE", 10 ) ==0 )
 	{
 		// HEADER LINE 1: File name
-		fscanf( fid, "%s ", glbParam->fileName )  ;
+		// fscanf( fid, "%s ", glbParam->fileName ) ;
+		read_Licel_Header_Line( (FILE*)fid, (int)1, (strcGlobalParameters*)glbParam) ;
+			// printf( "\nLINE 1: %s\n", glbParam->fileName ) ;
 
 		// HEADER LINE 2: INITALIZED AT 1 SO WE HAVE THE SAME CONVENTION OF THE TEXT EDITORS
 		read_Licel_Header_Line( (FILE*)fid, (int)2, (strcGlobalParameters*)glbParam) ;

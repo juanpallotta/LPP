@@ -34,7 +34,7 @@ class CMolecularData
 
 	private:
 		void Mol_Low_To_High_Res( strcGlobalParameters* ) 	;
-		void Tem_Pres_to_HR() 		;
+		void Tem_Pres_to_HR_pw() 	;
 		void Molecular_Profile_Resampled_Zenithal( strcGlobalParameters* ) ;
 };
 

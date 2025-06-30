@@ -401,6 +401,93 @@ int polyfitCoeff( const double* const dependentValues, // X DATA
     return 0;
 }
 
+/**
+ * @brief Calculates the coefficients for a natural cubic spline.
+ *
+ * @param x The array of x-coordinates (knots), must be sorted.
+ * @param y The array of y-coordinates (values).
+ * @param n The number of data points.
+ * @param spl Output array of Spline structs of size (n-1).
+ */
+void create_natural_cubic_spline(double x[], double y[], int n, Spline spl[])
+{
+    // Algorithm to find the second derivatives (c_i) by solving a tridiagonal system.
+    // This is a standard algorithm for natural cubic splines.
+
+    double *h = (double *)malloc(sizeof(double) * (n - 1));
+    for (int i = 0; i < n - 1; i++) {
+        h[i] = x[i+1] - x[i];
+    }
+
+    double *alpha = (double *)malloc(sizeof(double) * (n - 1));
+    for (int i = 1; i < n - 1; i++) {
+        alpha[i] = (3.0 / h[i]) * (y[i+1] - y[i]) - (3.0 / h[i-1]) * (y[i] - y[i-1]);
+    }
+
+    double *l = (double *)malloc(sizeof(double) * n);
+    double *mu = (double *)malloc(sizeof(double) * n);
+    double *z = (double *)malloc(sizeof(double) * n);
+    l[0] = 1.0;
+    mu[0] = 0.0;
+    z[0] = 0.0;
+
+    for (int i = 1; i < n - 1; i++) {
+        l[i] = 2.0 * (x[i+1] - x[i-1]) - h[i-1] * mu[i-1];
+        mu[i] = h[i] / l[i];
+        z[i] = (alpha[i] - h[i-1] * z[i-1]) / l[i];
+    }
+
+    l[n-1] = 1.0;
+    z[n-1] = 0.0;
+    double *c = (double *)malloc(sizeof(double) * n); // These are the second derivatives
+    c[n-1] = 0.0;
+
+    for (int j = n - 2; j >= 0; j--) {
+        c[j] = z[j] - mu[j] * c[j+1];
+        // Now that we have all c_j, we can calculate the other coefficients for each piece
+        double b = (y[j+1] - y[j]) / h[j] - h[j] * (c[j+1] + 2.0 * c[j]) / 3.0;
+        double d = (c[j+1] - c[j]) / (3.0 * h[j]);
+        spl[j].x_i = x[j];
+        spl[j].a = y[j];
+        spl[j].b = b;
+        spl[j].c = c[j];
+        spl[j].d = d;
+    }
+
+    // Free temporary arrays
+    free(h);
+    free(alpha);
+    free(l);
+    free(mu);
+    free(z);
+    free(c);
+}
+
+/**
+ * @brief Evaluates the value of the spline at a given point x.
+ *
+ * @param spl The array of calculated spline pieces.
+ * @param n The original number of data points.
+ * @param x The point at which to evaluate.
+ * @return The interpolated y-value.
+ */
+double evaluate_spline(Spline spl[], int n, double x) 
+{
+    // Find the correct interval/piece for the given x
+    // For efficiency on large datasets, a binary search would be better here.
+    // For simplicity, a linear search is used.
+    int i = 0;
+    // Note: The last piece is at index n-2.
+    // The condition finds the last interval start point that is less than or equal to x.
+    while (i < n - 2 && x > spl[i+1].x_i) {
+        i++;
+    }
+
+    // Evaluate the polynomial for the identified piece `i`
+    double dx = x - spl[i].x_i;
+    return spl[i].a + spl[i].b * dx + spl[i].c * dx * dx + spl[i].d * dx * dx * dx;
+}
+
 // function that returns correlation coefficient.
 float correlationCoefficient_int(int X[], int Y[], int n)
 {
