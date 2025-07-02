@@ -25,11 +25,11 @@
   - [NetCDF's File Produced for Data Level 1](#netcdfs-file-produced-for-data-level-1)
     - [Dimensions](#dimensions-1)
     - [Variables](#variables-1)
-    - [Group Attributes](#group-attributes)
+      - [Group `Molecular_Data`](#group-molecular_data)
   - [NetCDF's File Produced for Data Level 2](#netcdfs-file-produced-for-data-level-2)
     - [Dimensions](#dimensions-2)
     - [Variables](#variables-2)
-    - [Group Attributes](#group-attributes-1)
+    - [Group Attributes](#group-attributes)
 - [Using LPP in Windows 10/11 OS:](#using-lpp-in-windows-1011-os)
   - [Step 1: Install Windows Subsystem for Linux (WSL)](#step-1-install-windows-subsystem-for-linux-wsl)
   - [Step 2: Install Visual Studio Code](#step-2-install-visual-studio-code)
@@ -43,10 +43,12 @@
 
 # Credits & contributions
 <u>**Juan Pallotta:**</u> Software development, methods, and algorithms.  
+<u>**Silvania Alves De Carvalho:**</u> LPP tester. Comparison of LPP results against other platforms.  
 <u>**Henrique Barbosa:**</u> Methods, algorithms and research supervisor. Dataset used for the testing.  
+<u>**Joaquin Medina Puntero:**</u> Software development for automatic molecular profiles downloader.
+<u>**Juan Luis Guerrero Rascado:**</u> Software development for automatic molecular profiles downloader.
 <u>**Nicolas Neves de Oliveira:**</u> Software development for automatic AERONET downloader. LPP tester.  
 <u>**Fabio Lopez:**</u> Methods, algorithms. Dataset used for the testing.     
-<u>**Silvania Alves De Carvalho:**</u> LPP tester. Comparison of LPP results against other platforms.  
 <u>**Diego Arias:**</u> Methods and algorithms.   
 <u>**Alexandre Cacheffo and Eduardo Landulfo:**</u> reviewed and edited the research paper of the project.  
 
@@ -670,18 +672,26 @@ Following, a brief description of the variables (in alphabetical order), is done
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
 * `Cloud_Mask (time, range)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
 * `Laser_Zero_Bin_Offset (channels)`: Number of points removed from each channel due to the laser offset.
-* `MaxRangeAnalysis (time, channels)`: Maximun range of analysis for each averaged profile and each channels. LPP applies an algorithm to detect the last range where the lidar signal is modulated by the atmosphere. These values are used in later algorthims, like layer-mask and automatic bias correction.
+* `MaxRangeAnalysis (time, channels)`: Maximum range of analysis for each averaged profile and each channels. LPP applies an algorithm to detect the last range where the lidar signal is modulated by the atmosphere. These values are used in later algorithms, like layer-mask and automatic bias correction.
 * `Pressure_Pa (range)`: Pressure profile (in Pascals) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
 * `Temperature_K (range)`: Temperature profile (in Kelvins) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
 * `Pressure_Ground_Level (time)`: Atmospheric pressure at site level (to be used in future versions of LPP).
   <!-- \* `Range_Corrected_Lidar_Signal_L1 (time, channels, range)`:  Range corrected lidar signals. These signals has all the corrections as the time and spatial averaging set for this data level in the corresponding configuration file passed as third argument. -->
-* `Raw_Lidar_Data_L1 (time, channels, range)`: Raw lidar data used in level 1. These signals has the all the corrections need for produce the cloud mask, like zero-bin and bias correction as the time and spatial averaging set for this data level.
-* `Start_Time_L1 (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
-* `Stop_Time_L1 (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also refered as UNIX time.
-* `Temperature_Ground_Level (time)`:  Atmospheric temperature at site level (to be used in future versions of LPP)..
+* `Raw_Lidar_Data_L1 (time, channels, range)`: Raw lidar data used in level 1. These signals have the all the corrections need for produce the cloud mask, like zero-bin and bias correction as the time and spatial averaging set for this data level.
+* `Start_Time_L1 (time)`: Start time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also referred as UNIX time.
+* `Stop_Time_L1 (time)`: Stop time expressed in elapsed seconds since its epoch time (seconds since 1, January 1970). Also referred as UNIX time.
+* `Temperature_Ground_Level (time)`: Atmospheric temperature at site level (to be used in future versions of LPP).
 * `Zenith (time)`: Array with zenith angle of each saved profile (in degrees).
 
+#### Group `Molecular_Data`
+This group contains the molecular profiles (extinction, backscattering and concentration) and the data used for its calculation (temperature and pressure). The profiles are in the same resolution of the lidar signals, and the variables are:
+* `Pressure_Pa (range)`: Array with the atmopheric pressure profile ([Pa]) read from the radiosonde data. Already in the same lidar resolution.
+* `Temperature_K (range)`: Array with the atmopheric temperature profile ([K]) read from the radiosonde data. Already in the same lidar resolution.
+* `N_mol (range)`: Array with the molecular cocentration ([-]), obtained from the temperature and pressure profiles.
+* `alpha_mol (range)`: Array with the molecular extinction ([m<sup>-1</sup>]).
+* `beta_mol (range)`: Array with the molecular extinction ([m<sup>-1</sup> * sr<sup>-1</sup>]).
 
+<!-- \*
 ### Group Attributes
 
 Here, the essentials constants needed for the correction of the lidar signals and cloud mask processing are stored.
@@ -689,6 +699,7 @@ Here, the essentials constants needed for the correction of the lidar signals an
 * `indxChannel_for_Cloud_Mask`: Index number (started from 0) of the channel used to process the cloud mask.
 * `avg_Points_Cloud_Mask`: Number of points used for spatial smoothing to te lidar signal before to apply the cloud masking.
 * `num_Points_Bkg`: Numbers of points used to compute the bias of the raw lidar signal. This value is the same as `nBinsBkg` set in the configuration file passed as argument to `lpp1`.
+-->
 
 ## NetCDF's File Produced for Data Level 2
 

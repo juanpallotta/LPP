@@ -14,10 +14,10 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Potenza/licel_raw/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2024/20240810/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/miniLidar/20230728/" 
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241010/" 
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241002/" 
 # PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240925/2024_09_25_HR0924_A90_data_2CH_L0.nc"
-PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220714/"
-# PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
+# PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220413/RS/"
+PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
 # PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
 
 # CONFIGURATION FILES
@@ -31,14 +31,14 @@ PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220714/"
 # ! CHILE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_ChileSN.conf"
 # ! COLOMBIA 
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Medellin.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Medellin.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Cali.conf"
 # ! BRAZIL
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil_Rio.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
 # ! POTENZA - MUSA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
 # ! ARGENTINA

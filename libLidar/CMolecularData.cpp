@@ -94,6 +94,7 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 			hPa2Pa = 100 ;
 		RadSondeData.pLR[l] = (double)RadSondeData.pLR[l] * hPa2Pa ;
 
+		// NORMALIZE THE TEMPERATURE AND PRESSURE TO THE GROUND LEVEL VALUES
 		RadSondeData.tLR[l] = (double) ( glbParam->temp_K_agl_AVG [0] * RadSondeData.tLR[l]/RadSondeData.tLR[0] ) ;
 		RadSondeData.pLR[l] = (double) ( glbParam->pres_Pa_agl_AVG[0] * RadSondeData.pLR[l]/RadSondeData.pLR[0] ) ;
 	}
@@ -385,43 +386,9 @@ void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // US
 		dataMol.betaMol [i] = evaluate_spline( spl_beta_mol	, RadSondeData.nBinsLR, dataMol.zr[i] );
 	}
 
-	free(spl_n);
-	free(spl_alpha_mol);
-	free(spl_beta_mol);
-
-/*
-	double *coeff_N     = (double*) new double[3 +1] ;
-	double *coeff_alpha = (double*) new double[3 +1] ;
-	double *coeff_beta  = (double*) new double[3 +1] ;
-
-	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-			      (const double* const) RadSondeData.nLR, // Y DATA
-			      (unsigned int       ) RadSondeData.nBinsLR,
-			      (unsigned int		  ) 3,
-			      (double*			  ) coeff_N	 ) ;
-
-	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-			      (const double* const) RadSondeData.alpha_mol, // Y DATA
-			      (unsigned int       ) RadSondeData.nBinsLR,
-			      (unsigned int		  ) 3,
-			      (double*			  ) coeff_alpha	 ) ;
-
-	polyfitCoeff( (const double* const) RadSondeData.zLR, // X DATA
-			      (const double* const) RadSondeData.beta_mol, // Y DATA
-			      (unsigned int       ) RadSondeData.nBinsLR,
-			      (unsigned int		  ) 3,
-			      (double*			  ) coeff_beta	 ) ;
-
-	for (int i =0 ; i <dataMol.nBins ; i++ )
-	{
-		dataMol.nMol    [i] = (double)( pow(dataMol.zr[i], 3) *coeff_N	  [3] + pow(dataMol.zr[i], 2) *coeff_N    [2] + dataMol.zr[i]*coeff_N    [1] + coeff_N    [0] ) ;
-		dataMol.alphaMol[i] = (double)( pow(dataMol.zr[i], 3) *coeff_alpha[3] + pow(dataMol.zr[i], 2) *coeff_alpha[2] + dataMol.zr[i]*coeff_alpha[1] + coeff_alpha[0] ) ;
-		dataMol.betaMol [i] = (double)( pow(dataMol.zr[i], 3) *coeff_beta [3] + pow(dataMol.zr[i], 2) *coeff_beta [2] + dataMol.zr[i]*coeff_beta [1] + coeff_beta [0] ) ;
-	}
-	delete coeff_N     ;
-	delete coeff_alpha ;
-	delete coeff_beta  ;
-*/
+	free(spl_n)			;
+	free(spl_alpha_mol) ;
+	free(spl_beta_mol)  ;
 }
 
 void CMolecularData::Tem_Pres_to_HR_pw() // USED IN lpp1.cpp
@@ -461,40 +428,6 @@ void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters 
 	free(spl_n)	    ;
 	free(spl_alpha) ;
 	free(spl_beta)  ;
-/*
-	double *coeff_N     = (double*) new double[3 +1] ;
-	double *coeff_alpha = (double*) new double[3 +1] ;
-	double *coeff_beta  = (double*) new double[3 +1] ;
-
-	polyfitCoeff( (const double* const) RadSondeData.zHR , // dataMol.zr 	 	 ,
-			      (const double* const) RadSondeData.nHR ,
-			      (unsigned int       ) dataMol.nBins    ,
-			      (unsigned int		  ) 3				 ,
-			      (double*			  ) coeff_N	 ) ;
-
-	polyfitCoeff( (const double* const) RadSondeData.zHR 			, // dataMol.zr     				,
-			      (const double* const) RadSondeData.alpha_mol 		,
-			      (unsigned int       ) dataMol.nBins 	  			,
-			      (unsigned int		  ) 3							,
-			      (double*			  ) coeff_alpha	 ) ;
-
-	polyfitCoeff( (const double* const) RadSondeData.zHR 			, // dataMol.zr    				,
-			      (const double* const) RadSondeData.beta_mol 		,
-			      (unsigned int       ) dataMol.nBins 	 			,
-			      (unsigned int		  ) 3							,
-			      (double*			  ) coeff_beta	 ) ;
-
-	for ( int i =0 ; i <dataMol.nBins ; i++ )
-	{
-		dataMol.nMol[i]     = (double)( pow(dataMol.zr[i], 3) *coeff_N[3]     + pow(dataMol.zr[i], 2) *coeff_N[2]     + dataMol.zr[i]*coeff_N[1]     + coeff_N[0] 	  ) ;
-		dataMol.alphaMol[i] = (double)( pow(dataMol.zr[i], 3) *coeff_alpha[3] + pow(dataMol.zr[i], 2) *coeff_alpha[2] + dataMol.zr[i]*coeff_alpha[1] + coeff_alpha[0] ) ;
-		dataMol.betaMol[i]  = (double)( pow(dataMol.zr[i], 3) *coeff_beta[3]  + pow(dataMol.zr[i], 2) *coeff_beta[2]  + dataMol.zr[i]*coeff_beta[1]  + coeff_beta[0]  ) ;
-	}
-
-	delete coeff_N 		;
-	delete coeff_alpha 	;
-	delete coeff_beta  	;
-*/
 }
 
 void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( double *pres_PA, double *temp_K, double lambda_m, double co2_ppmv, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )

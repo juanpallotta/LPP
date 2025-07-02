@@ -13,3 +13,7 @@ pip install netCDF4
 pip install matplotlib
 pip install scipy
 pip install numpy
+
+pip install pandas
+pip install sounderpy
+pip install cdsapi

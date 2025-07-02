@@ -221,14 +221,16 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 
     glbParam->temp_K_agl      = (double*) new double [glbParam->nEvents]     ;
     glbParam->pres_Pa_agl     = (double*) new double [glbParam->nEvents]     ;
-    glbParam->temp_K_agl_AVG  = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->temp_K_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-    glbParam->pres_Pa_agl_AVG = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->pres_Pa_agl_AVG    , 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl[0] ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"   , (const char*)"double", (int*)&glbParam->pres_Pa_agl[0]     ) ;
+    glbParam->temp_K_agl_AVG  = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->temp_K_agl_AVG , 0, (sizeof(double)*glbParam->nEventsAVG)  ) ;
+    glbParam->pres_Pa_agl_AVG = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->pres_Pa_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG)  ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl_AVG[0]  ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"  , (const char*)"double", (int*)&glbParam->pres_Pa_agl_AVG[0] ) ;
     for (  int i =1 ; i < glbParam->nEvents ; i++ )
     {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
-        glbParam->temp_K_agl[i]  = glbParam->temp_K_agl[0]       ;
-        glbParam->pres_Pa_agl[i] = glbParam->pres_Pa_agl[0] ;
+        glbParam->temp_K_agl[i]      = glbParam->temp_K_agl[0]      ;
+        glbParam->pres_Pa_agl[i]     = glbParam->pres_Pa_agl[0]     ;
+        glbParam->temp_K_agl_AVG[i]  = glbParam->temp_K_agl_AVG[0]  ;
+        glbParam->pres_Pa_agl_AVG[i] = glbParam->pres_Pa_agl_AVG[0] ;
     }
 
     if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution"  , (double*)&glbParam->dr) )            )
@@ -962,19 +964,20 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
 {
     int retval, nc_id ;
     if ( ( retval = nc_open( Path_File_Out, NC_WRITE, &nc_id ) ) )
-    {
         ERR(retval) ;
-    }
+
     if ( ( retval = nc_redef( (int)nc_id ) ) )
-    {
         ERR(retval);
-    }
 
     int nc_id_group_L1 ;
     if ( (retval = nc_def_grp ( (int)nc_id, (const char*)"L1_Data", (int*)&nc_id_group_L1 ) ) )
-    {
         ERR(retval) ;
-    }
+
+    int nc_id_group_L1_MolData ;
+    if ( (retval = nc_def_grp ( (int)nc_id_group_L1, (const char*)"Molecular_Data", (int*)&nc_id_group_L1_MolData ) ) )
+        ERR(retval) ;
+    int id_dims_Mol_range[1] ;
+    DefineDims( (int)nc_id_group_L1_MolData, (char*)"range", (int)glbParam->nBins, (int*)&id_dims_Mol_range[0] ) ;
 
     int var_ids[NVARS_LALINET_L1] ;
     int dim_ids[NDIMS_LALINET_L1] ; // 0: TIME    1: CHANNELS     2:RANGE
@@ -993,17 +996,18 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     DefineVariable( (int)nc_id_group_L1, (char*)"Zenith_AVG_L1"           , (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[4] ) ; // Zenith_AVG_L1"
     DefineVariable( (int)nc_id_group_L1, (char*)"Laser_Zero_Bin_Offset"   , (const char*)"int"   , (int)1, (int*)&dim_ids[1], (int*)&var_ids[5] ) ; // Laser_Zero_Bin_Offset
     DefineVariable( (int)nc_id_group_L1, (char*)"MaxRangeAnalysis"        , (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[6] ) ; // MaxRangeAnalysis
-
-    DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_K"           , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[7] ) ; // Molecular profile
-    DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_Pa"             , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[8] ) ; // Molecular profile
-
+    
     DefineVariable( (int)nc_id_group_L1, (char*)"Temperature_Ground_Level", (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[9]  ) ; // Pressure_Ground_Level
     DefineVariable( (int)nc_id_group_L1, (char*)"Pressure_Ground_Level"   , (const char*)"double", (int)1, (int*)&dim_ids[0], (int*)&var_ids[10] ) ; // Temperature_Ground_Level
-
+    
     DefineVariable( (int)nc_id_group_L1, (char*)"range"                   , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[11] ) ; // range (ex points)
 
-    DefineVariable( (int)nc_id_group_L1, (char*)"alpha_mol"               , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[13] ) ; // range (ex points)
-    DefineVariable( (int)nc_id_group_L1, (char*)"beta_mol"                , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[14] ) ; // range (ex points)
+    // DefineVariable( (int)nc_id_group_L1_MolData, (char*)"range"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[11] ) ; // range (ex points)
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Temperature_K"   , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[7]  ) ; // Temperature profile
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Pressure_Pa"     , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[8]  ) ; // Pressure profile
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"alpha_mol"       , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[13] ) ; // Alpha Mol.
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"beta_mol"        , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[14] ) ; // Beta Mol.
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"N_mol"           , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[15] ) ; // Mol. Concentration
 
     int dim_ids_CM[2] ;
     dim_ids_CM[0] = dim_ids[0] ; // TIME
@@ -1034,12 +1038,14 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     PutVar( (int)nc_id_group_L1, (int)var_ids[5], (const char*)"int", (int*)glbParam->indxOffset ) ;
 
     // WRITE TEMPERATURE AND PRESSURE PROFILES FROM THE RADIOSONDE IN HIGH RESOLUTION
-    PutVar( (int)nc_id_group_L1, (int)var_ids[7], (const char*)"double", (double*)&oMolData->dataMol.tK[0]  ) ;
-    PutVar( (int)nc_id_group_L1, (int)var_ids[8], (const char*)"double", (double*)&oMolData->dataMol.pPa[0] ) ;
+    // PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[17], (const char*)"double", (double*)&glbParam->r[0]                ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[7] , (const char*)"double", (double*)&oMolData->dataMol.tK[0]       ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[8] , (const char*)"double", (double*)&oMolData->dataMol.pPa[0]      ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[13], (const char*)"double", (double*)&oMolData->dataMol.betaMol[0]  ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[14], (const char*)"double", (double*)&oMolData->dataMol.alphaMol[0] ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[15], (const char*)"double", (double*)&oMolData->dataMol.nMol[0]     ) ;
     // PutVar( (int)nc_id_group_L1, (int)var_ids[7], (const char*)"double", (double*)&oMolData->dataMol.prMol[0] ) ;
     // PutVar( (int)nc_id_group_L1, (int)var_ids[8], (const char*)"double", (double*)&oMolData->dataMol.pr2Mol[0] ) ;
-    PutVar( (int)nc_id_group_L1, (int)var_ids[13], (const char*)"double", (double*)&oMolData->dataMol.betaMol[0] ) ;
-    PutVar( (int)nc_id_group_L1, (int)var_ids[14], (const char*)"double", (double*)&oMolData->dataMol.alphaMol[0] ) ;
 
     size_t start_CM[2], count_CM[2];
     size_t start_ES[2], count_ES[2];
