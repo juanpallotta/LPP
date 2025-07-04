@@ -145,8 +145,6 @@ def download_era5_sounding(latitude, longitude, resolution, date, hour, download
     df_csv.to_csv(output_path, index=True, header=True)
     print(f"Reanalysis data save at: {output_path}")
 
-
-
 # MAIN FUNCTION
 if __name__ == "__main__":  
 

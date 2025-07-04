@@ -17,8 +17,9 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241002/" 
 # PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240925/2024_09_25_HR0924_A90_data_2CH_L0.nc"
 # PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220413/RS/"
-PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
-# PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20230830_nCh60/RS_20230830_0315/"
+PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
+# PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240603/2024_06_03_HR0910_A90_data_2CH_L0.nc"
 
 # CONFIGURATION FILES
 # ! SIMULATIONS

@@ -219,18 +219,21 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     ReadVar( (int)ncid, (const char*)"Zenith" , (double*)glbParam->aZenith  ) ;
     ReadVar( (int)ncid, (const char*)"Azimuth", (double*)glbParam->aAzimuth ) ;
 
-    glbParam->temp_K_agl      = (double*) new double [glbParam->nEvents]     ;
-    glbParam->pres_Pa_agl     = (double*) new double [glbParam->nEvents]     ;
+    glbParam->temp_K_agl      = (double*) new double [glbParam->nEvents]     ;   memset( (double*)glbParam->temp_K_agl     , 0, (sizeof(double)*glbParam->nEvents)     ) ;
+    glbParam->pres_Pa_agl     = (double*) new double [glbParam->nEvents]     ;   memset( (double*)glbParam->pres_Pa_agl    , 0, (sizeof(double)*glbParam->nEvents)     ) ;
     glbParam->temp_K_agl_AVG  = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->temp_K_agl_AVG , 0, (sizeof(double)*glbParam->nEventsAVG)  ) ;
     glbParam->pres_Pa_agl_AVG = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->pres_Pa_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG)  ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl_AVG[0]  ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"  , (const char*)"double", (int*)&glbParam->pres_Pa_agl_AVG[0] ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl[0]  ) ;
+    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"  , (const char*)"double", (int*)&glbParam->pres_Pa_agl[0] ) ;
     for (  int i =1 ; i < glbParam->nEvents ; i++ )
     {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
         glbParam->temp_K_agl[i]      = glbParam->temp_K_agl[0]      ;
         glbParam->pres_Pa_agl[i]     = glbParam->pres_Pa_agl[0]     ;
-        glbParam->temp_K_agl_AVG[i]  = glbParam->temp_K_agl_AVG[0]  ;
-        glbParam->pres_Pa_agl_AVG[i] = glbParam->pres_Pa_agl_AVG[0] ;
+    }
+    for (  int i =0 ; i < glbParam->nEventsAVG ; i++ )
+    {
+        glbParam->temp_K_agl_AVG [i] = (double) 0.0 ;
+        glbParam->pres_Pa_agl_AVG[i] = (double) 0.0 ;
     }
 
     if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution"  , (double*)&glbParam->dr) )            )
@@ -381,10 +384,11 @@ void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glb
     ReadVar( (int)ncid_L1_Data, (const char*)"Azimuth_AVG_L1", (double*)glbParam->aAzimuthAVG ) ;
     ReadVar( (int)ncid_L1_Data, (const char*)"Zenith_AVG_L1" , (double*)glbParam->aZenithAVG  ) ;
 
+
     for ( int e =0; e <glbParam->nEventsAVG; e++ )
     {
-        glbParam->temp_K_agl_AVG[e]  = (double)glbParam->temp_K_agl[e] ;
-        glbParam->pres_Pa_agl_AVG[e] = (double)glbParam->pres_Pa_agl[e]     ;
+        // glbParam->temp_K_agl_AVG[e]  = (double)glbParam->temp_K_agl[e] ;
+        // glbParam->pres_Pa_agl_AVG[e] = (double)glbParam->pres_Pa_agl[e]     ;
         for (int c =0; c < glbParam->nCh; c++)
             glbParam->indxEndSig_ev_ch[e][c]   = (int)round(glbParam->rEndSig_ev_ch[e][c] /glbParam->dr) ;
     }

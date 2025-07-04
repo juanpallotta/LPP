@@ -18,19 +18,19 @@ CMolecularData::~CMolecularData()
 
 void CMolecularData::GetMem_dataMol( int nBins )
 {
-		dataMol.nBins	  = (int)nBins ;
-		dataMol.zr		  = (double*) new double [nBins] ; memset( dataMol.zr	    , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.z_asl	  = (double*) new double [nBins] ; memset( dataMol.z_asl	, 0, ( sizeof(double) * nBins) ) ;
-		dataMol.betaMol   = (double*) new double [nBins] ; memset( dataMol.betaMol  , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.alphaMol  = (double*) new double [nBins] ; memset( dataMol.alphaMol , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.nBins	  	 = (int)nBins ;
+		dataMol.zr		  	 = (double*) new double [nBins] ; memset( dataMol.zr	    , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.z_asl	  	 = (double*) new double [nBins] ; memset( dataMol.z_asl	, 0, ( sizeof(double) * nBins) ) ;
+		dataMol.betaMol   	 = (double*) new double [nBins] ; memset( dataMol.betaMol  , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.alphaMol  	 = (double*) new double [nBins] ; memset( dataMol.alphaMol , 0, ( sizeof(double) * nBins) ) ;
 		dataMol.betaMol_avg  = (double*) new double [nBins] ; memset( dataMol.betaMol_avg  , 0, ( sizeof(double) * nBins) ) ;
 		dataMol.alphaMol_avg = (double*) new double [nBins] ; memset( dataMol.alphaMol_avg , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.nMol  	  = (double*) new double [nBins] ; memset( dataMol.nMol     , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.prMol	  = (double*) new double [nBins] ; memset( dataMol.prMol    , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.prMol_avg = (double*) new double [nBins] ; memset( dataMol.prMol_avg, 0, ( sizeof(double) * nBins) ) ;
-		dataMol.pr2Mol	  = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.pr2Mol_avg = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.zenith	  = 0 ;
+		dataMol.nMol  	  	 = (double*) new double [nBins] ; memset( dataMol.nMol     , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.prMol	  	 = (double*) new double [nBins] ; memset( dataMol.prMol    , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.prMol_avg 	 = (double*) new double [nBins] ; memset( dataMol.prMol_avg, 0, ( sizeof(double) * nBins) ) ;
+		dataMol.pr2Mol	  	 = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.pr2Mol_avg 	 = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.zenith	  	 = 0 ;
 
 		dataMol.tK	 = (double*) new double [nBins] ; memset( dataMol.tK , 0, ( sizeof(double) * nBins) ) ;
 		dataMol.pPa	 = (double*) new double [nBins] ; memset( dataMol.pPa, 0, ( sizeof(double) * nBins) ) ;
@@ -99,6 +99,9 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		RadSondeData.pLR[l] = (double) ( glbParam->pres_Pa_agl_AVG[0] * RadSondeData.pLR[l]/RadSondeData.pLR[0] ) ;
 	}
 
+	// printf( "\n Get_Mol_Data_L1: glbParam->temp_K_agl_AVG [0]= %lf\t glbParam->pres_Pa_agl_AVG [0]= %lf", glbParam->temp_K_agl_AVG[0], glbParam->pres_Pa_agl_AVG[0] ) ;
+	// printf( "\n Get_Mol_Data_L1: RadSondeData.pLR[0]= %lf\t RadSondeData.tLR[0]= %lf"					, RadSondeData.pLR[0], RadSondeData.tLR[0] ) ;
+
 	dataMol.z_Mol_Max = round(RadSondeData.zLR[RadSondeData.nBinsLR-1]) ;
 	if ( dataMol.z_Mol_Max > 30000 )
 		dataMol.z_Mol_Max = 30000 ;
@@ -109,12 +112,15 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		// printf("\nUSING A SIMPLER MOLECULAR MODEL SINCE A LIDAR SIGNAL SIMULATION IS USED.\n") ;
 		// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF 
 		// RadSondeData.pLR AND RadSondeData.tLR PASSED AS THE FIRST AND SECOND ARGUMENTS (LR=Low Resolution)
-		TemK_PresPa_to_N_Alpha_Beta_MOL_simple( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9,
+		TemK_PresPa_to_N_Alpha_Beta_MOL_simple( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1],
 												(int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol,
 												(double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 	}
 	else
 	{
+		// TemK_PresPa_to_N_Alpha_Beta_MOL_simple( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1],
+		// 										(int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol,
+		// 										(double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 		double co2_ppmv = 392 ;
 		// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF 
 		// RadSondeData.pLR AND RadSondeData.tLR PASSED AS THE FIRST AND SECOND ARGUMENTS (LR=Low Resolution)
@@ -157,7 +163,7 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam )
 	{
 		// GET RadSondeData.nHR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN HIGH RESOLUTION AND AT THE ZENITHAL ANGLE dataMol.zenith
 		// dataMol.pPa AND dataMol.tK ALREADY IN HIGH RESOLUTION AND ASL, SINCE THEY WERE READ FROM THE NETCDF FILE. HERE ALL THE PROFILES ARE IN THE VERTICAL
-		TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->chSel]*1e-9, (int) dataMol.nBins, 
+		TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->chSel], (int) dataMol.nBins, 
 										(double*)RadSondeData.nHR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 	}
 	else
@@ -379,11 +385,17 @@ void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // US
 	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.alpha_mol, RadSondeData.nBinsLR, spl_alpha_mol ) ;
 	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.beta_mol	, RadSondeData.nBinsLR, spl_beta_mol  ) ;
 
-	for (int i =0 ; i <dataMol.nBins ; i++ )
+	for (int i =0 ; i <RadSondeData.nBinsLR ; i++ )
 	{
 		dataMol.nMol [i] 	= evaluate_spline( spl_n		, RadSondeData.nBinsLR, dataMol.zr[i] );
 		dataMol.alphaMol[i] = evaluate_spline( spl_alpha_mol, RadSondeData.nBinsLR, dataMol.zr[i] );
 		dataMol.betaMol [i] = evaluate_spline( spl_beta_mol	, RadSondeData.nBinsLR, dataMol.zr[i] );
+	}
+	for (int i =RadSondeData.nBinsLR ; i <dataMol.nBins ; i++)
+	{
+		dataMol.nMol [i] 	= (double) dataMol.nMol    [RadSondeData.nBinsLR-1] ;
+		dataMol.alphaMol[i] = (double) dataMol.alphaMol[RadSondeData.nBinsLR-1] ;
+		dataMol.betaMol [i] = (double) dataMol.betaMol [RadSondeData.nBinsLR-1] ;
 	}
 
 	free(spl_n)			;
@@ -399,10 +411,15 @@ void CMolecularData::Tem_Pres_to_HR_pw() // USED IN lpp1.cpp
 	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.tLR, RadSondeData.nBinsLR, spl_t);
 	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.pLR, RadSondeData.nBinsLR, spl_p);
 
-	for (int i =0 ; i <dataMol.nBins ; i++ )
+	for (int i =0 ; i <RadSondeData.nBinsLR ; i++ )
 	{
 		dataMol.tK [i] = evaluate_spline( spl_t, RadSondeData.nBinsLR, dataMol.zr[i] );
 		dataMol.pPa[i] = evaluate_spline( spl_p, RadSondeData.nBinsLR, dataMol.zr[i] );
+	}
+	for (int i =RadSondeData.nBinsLR ; i <dataMol.nBins ; i++)
+	{
+		dataMol.tK [i] = (double) dataMol.tK [RadSondeData.nBinsLR-1] ;
+		dataMol.pPa[i] = (double) dataMol.pPa[RadSondeData.nBinsLR-1] ;
 	}
 
 	free(spl_t);
@@ -563,7 +580,8 @@ double dn300 ;
 if ( (lambda_m*1e6) > 0.23 )
     dn300 = (5791817 /  (238.0185 - 1/ pow(lambda_m*1e6, 2) ) + 167909  / (57.362 - 1 / pow(lambda_m*1e6, 2) ) ) *1e-8 ;
 else
-    dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 14455.7  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8;
+	// dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 14455.7  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8; // 14455.7 --> UTILIZADO EN LPP
+    dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 17456.3  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8; // 17456.3 -> UTILIZADO EN GFATPY
 
 //  Correct for different concentration of CO2
 //  Bodhaine et al (1999), Eq (19)
@@ -664,16 +682,15 @@ for( int i=0 ; i<nBins ; i++ )
 
 }
 
-void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( double *pres_PA, double *temp_K, double lambda_m, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
+void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( double *pres_PA, double *temp_K, double lambda_nm, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
 {
-	double kboltz=1.3807e-23 ;
+	double kboltz = 1.3807e-23 ;
 	*LR_mol = 8*M_PI/3 		 ;
-	
-	lambda_m = lambda_m / 1e-9 ; // [m] to [nm]
+
 	for (int i = 0; i < nBins; i++)
 	{
 		N_mol[i]     = pres_PA[i] / (temp_K[i] *kboltz) ; // PRESSURE IN PASCALS. TEMPERATURE IN KELVIN.
-		beta_mol[i]  = N_mol[i] * pow((550/lambda_m), 4.09) * 5.45*pow(10, -32) ; // [m^-1*sr^-1]
+		beta_mol[i]  = N_mol[i] * pow((550/lambda_nm), 4.09) * 5.45*pow(10, -32) ; // [m^-1*sr^-1]
 		alpha_mol[i] = beta_mol[i] * (*LR_mol) ;
 	}
 }

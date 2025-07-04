@@ -57,10 +57,6 @@ int main( int argc, char *argv[] )
     if ( ( retval = nc_inq_grp_ncid( (int)ncid, (const char*)"L1_Data", (int*)&ncid_L1_Data ) ) )
         ERR(retval);
     
-    int ncid_L1_MolData ;
-    if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_MolData ) ) )
-        ERR(retval);
-
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
 
     ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL1 ) ;
@@ -96,6 +92,10 @@ int main( int argc, char *argv[] )
                     // AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam  ) ;
+
+    int ncid_L1_MolData ;
+    if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_MolData ) ) )
+        ERR(retval);
     oNCL.ReadVar( (int)ncid_L1_MolData, (const char*)"Temperature_K", (double*)&oMolData->dataMol.tK[0]   ) ;
     oNCL.ReadVar( (int)ncid_L1_MolData, (const char*)"Pressure_Pa"  , (double*)&oMolData->dataMol.pPa[0]  ) ;
     oNCL.ReadVar( (int)ncid_L1_MolData, (const char*)"N_mol"        , (double*)&oMolData->dataMol.nMol[0] ) ;

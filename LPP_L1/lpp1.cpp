@@ -125,6 +125,8 @@ int main( int argc, char *argv[] )
                 if ( (retval = nc_get_vara_double((int)ncid, (int)id_var, startDF, countDF, (double*)&data_File_L1[e][c][0] ) ) )
                     ERR(retval);    
             }
+            glbParam.temp_K_agl_AVG [e] = glbParam.temp_K_agl [e] ;
+            glbParam.pres_Pa_agl_AVG[e] = glbParam.pres_Pa_agl[e] ;
         }
     } // if ( glbParam.numEventsToAvg ==1 )
     else // PDL0 --> PDL1 BY AVERAGING glbParam.numEventsToAvg PROFILES

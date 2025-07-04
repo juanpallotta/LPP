@@ -8,6 +8,8 @@ Este repositorio contiene dos ficheros de Python, un script para descargar sonde
 - `numpy`, `pandas` and `sounderpy`
 - [CDS API](https://cds.climate.copernicus.eu/api-how-to)
 
+Para versiones de Ubuntu mayores a la 22, es necesario instalarlo creando previamente un environment.
+
 Instala dependencias con:
 
 ```bash
