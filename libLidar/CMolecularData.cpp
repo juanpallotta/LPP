@@ -446,6 +446,251 @@ void CMolecularData::Molecular_Profile_Resampled_Zenithal( strcGlobalParameters 
 	free(spl_alpha) ;
 	free(spl_beta)  ;
 }
+/*
+// VERSION GFATPY
+void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( double *pres_PA, double *temp_K, double lambda_m, double co2_ppmv, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
+{
+// -----------------------------------------------------------------------
+// Description:
+//
+//    Defines important physic's constants, most of which are used
+//    by the molecular scattering calculation.
+//
+//    Then takes temperature and pressure from the reference sounding and
+//    calculates the refractive index, king's correction factor,
+//    depolarization ratio, molecular phase function and cross-section
+//    and, finally, molecular backscatter and extinction coefficients.
+//
+// Usage:
+//
+//    [alpha_mol,beta_mol,LR_mol,Constants]=alphabeta(pres,temp,lambda_m,co2_ppmv);
+//    Input the desired pressure, temperature, laser wavelength and
+//    CO2 concentration and execute the M-file.
+//
+// Input:
+//
+//    pres           - Atmospheric pressure profile                      [P]
+//    temp           - Atmospheric temperature profile                   [K]
+//    lambda_m         - wavelength vector                                 [m]
+//    co2_ppmv        - CO2 concentration                              [ppmv]
+//
+// Ouput:
+//
+//    alpha_mol        - extinction coefficient                       [m^-1]
+//    beta_mol         - backscatter coefficient                [m^-1 sr^-1]
+//    Constants.k      - Boltzmann constant                 [m^2 kg / s^2 K]
+//    Constants.Na     - Avogadro's number                               [#]
+//    Constants.Mvol   - Molar volume at 1013.25hPa and 273.15K   [L mol^-1]
+//    Constants.Rgas   - Universal gas constant              [J K^-1 mol^-1]
+//    Constants.Rair   - Dry air gas constant                 [J K^-1 kg^-1]
+//    Constants.Tstd   - Temperature of standard atmosphere              [K]
+//    Constants.Pstd   - Pressure of standard atmosphere                [Pa]
+//    Constants.Nstd   - Molecular density at Tstd and Pstd         [# m^-3]
+//
+//    Atmospheric Constituents Concentration [ppv] and
+//    Molecular weight for: N2, O2, Ar, Ne, He, Kr, H2 Xe         [g mol^-1]
+//
+//    Constants.lambda_m - wavelengths                                     [m]
+//    Constants.nAir   - index of refraction                             [-]
+//    Constants.fAir   - King factor of air                              [-]
+//    Constants.rhoAir - depolarization factor of air                    [-]
+//    Constants.Pf_mol - phase function at -180deg                       [-]
+//    Constants.LR_mol - molecular lidar ratio                          [sr]
+//
+// Authors:
+//
+//    H. M. J. Barbosa (hbarbosa@if.usp.br), IF, USP, Brazil
+//    B. Barja         (bbarja@gmail.com), GOAC, CMC, Cuba
+//    R. Costa         (re.dacosta@gmail.com), IPEN, Brazil
+//
+// References:
+//
+//    Seinfeld and Pandis (1998)
+//    Handbook of Physics and Chemistry (CRC 1997)
+//    Wallace and Hobbs, Atmospheric science (2nd Edition)
+//    Bodhaine et al, 1999: J. Atmos. Ocea. Tech, v. 16, p.1854
+//
+//    Bates, 1984: Planet. Space Sci., v. 32, p. 785
+//    Bodhaine et al, 1999: J. Atmos. Ocea. Tech, v. 16, p.1854
+//    Bucholtz, 1995: App. Opt., v. 34 (15), p. 2765
+//    Chandrasekhar, Radiative Transfer (Dover, New York, 1960)
+//    Edlen, 1953: J. Opt. Soc. Amer., v. 43, p. 339
+//    McCartney, E. J., 1976: Optics of the Atmosphere. Wiley, 408 pp.
+//    Peck and Reeder, 1973: J. Opt. Soc. Ame., v 62 (8), p. 958
+//
+// ------------------------------------------------------------------------
+// Fixed definitions
+//------------------------------------------------------------------------
+// Atmospheric Constituents Concentration                              [ppv]
+// ref: Seinfeld and Pandis (1998)
+double N2ppv   =    0.78084;
+double O2ppv   =    0.20946;
+double Arppv   =    0.00934;
+// double Neppv   =    1.80    * 1e-5;
+// double Heppv   =    5.20    * 1e-6;
+// double Krppv   =    1.10    * 1e-6;
+// double H2ppv   =    5.80    * 1e-7;
+// double Xeppv   =    9.00    * 1e-8;
+// double CO2ppv  = 	co2_ppmv* 1e-6;
+
+// Atmospheric Constituents Molecular weight [g mol^-1]
+// ref: Handbook of Physics and Chemistry (CRC 1997)
+// double N2mwt  = 28.013	;
+// double O2mwt  = 31.999	;
+// double Armwt  = 39.948	;
+// double Nemwt  = 20.18	;
+// double Hemwt  = 4.003	;
+// double Krmwt  = 83.8	;
+// double H2mwt  = 2.016	;
+// double Xemwt  = 131.29	;
+// double CO2mwt = 44.01  	;
+
+// Dry air molecular mass [g mol^-1]
+// double Airmwt= 	(N2ppv*N2mwt + O2ppv*O2mwt + Arppv*Armwt + Neppv*Nemwt + Heppv*Hemwt + Krppv*Krmwt + H2ppv*H2mwt + Xeppv*Xemwt + CO2ppv*CO2mwt) /
+		 		// ( N2ppv + O2ppv + Arppv + Neppv + Heppv + Krppv + H2ppv + Xeppv + CO2ppv );
+
+// Physic Constants
+// double k  = 1.3806503e-23; // Boltzmann Constant                           [J K^-1]
+double Na = 6.0221367e+23;  // Avogadro's number                         [# mol^-1]
+
+// Wallace and Hobbs, p. 65
+// double Rgas = k*Na;            // Universal gas constant            [J K^-1 mol^-1]
+// double Rair = Rgas/Airmwt*1e3; // Dry air gas constant               [J K^-1 kg^-1]
+
+// Standard Atmosphere Reference Values
+double T0   = 273.15 ; // zero deg celcius                                     [K]
+double Tstd = 288.15 ; // Temperature 288.15 K = 15 C                          [K]
+double Pstd = 101325 ; // Pressure                                            [Pa]
+
+// Molar volume at Pstd and T0
+// Bodhaine et al, 1999
+double Mvol =  22.4141e-3;                                          // [m^3 mol^-1]
+
+// Molecular density at Tstd and Pstd
+// double Nstd = (Na/Mvol)*(T0/Tstd) ;                                 // [# m^-3]  --> VERSION LPP
+
+//% -----------------------------------------------------------------------
+//  REFRACTIVE INDEX WITH CO2 CORRECTION
+// ------------------------------------------------------------------------
+
+// Calculate (n-1) at 300 ppmv CO2
+// Peck and Reeder (1973), Eqs (2) and (3)
+// or Bucholtz (1995), Eqs (4) and (5)
+// or Bodhaine et al (1999), Eq (4)
+double dn300 ;
+if ( (lambda_m*1e6) > 0.23 )
+    dn300 = (5791817 /  (238.0185 - 1/ pow(lambda_m*1e6, 2) ) + 167909  / (57.362 - 1 / pow(lambda_m*1e6, 2) ) ) *1e-8 ;
+else
+	// dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 14455.7  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8; // 14455.7 --> UTILIZADO EN LPP
+    dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 17456.3  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8; // 17456.3 --> UTILIZADO EN GFATPY
+
+//  Correct for different concentration of CO2
+//  Bodhaine et al (1999), Eq (19)
+double dnAir = dn300 * (1 + (0.54 * (co2_ppmv*1e-6 - 0.0003))) ;
+
+//  Actual index of refraction at 300 ppmv CO2
+double nAir = 1 + dnAir;
+
+// -----------------------------------------------------------------------
+//  KING FACTOR AND DEPOLARIZATION RATIO
+// ------------------------------------------------------------------------
+// Bates (1984), Eqs (13) and (14)
+// or Bodhaine et al (1999), Eqs (5) and (6)
+
+// Nitrogen
+double fN2  = 1.034 + ( 3.17e-4 / pow( lambda_m*1e6, 2 ) ) ;
+// Oxygen
+double fO2  = 1.096 + (1.385e-3 / pow( lambda_m*1e6, 2 ) ) +  (1.448e-4 / pow( lambda_m*1e6, 4 ) );
+// Argon
+double fAr  = 1;
+// Carbon dioxide
+double fCO2 = 1.15;
+
+// Bodhaine et al (1999) Eq (23)
+// NOTE: numerator and denominator are not written in percent
+
+// Standard dry air mixture with co2_ppmv
+double fAir = 	(N2ppv*fN2 + O2ppv*fO2 + Arppv*fAr + co2_ppmv*1e-6*fCO2) /
+    			(N2ppv     + O2ppv     + Arppv     + co2_ppmv*1e-6) ;
+//
+// Depolarization ratio estimated from King's factor
+//
+// hmjb - What is the correct way?
+//rhoN2  = (6*fN2 -6)./(3+7*fN2 );
+//rhoO2  = (6*fO2 -6)./(3+7*fO2 );
+//rhoCO2 = (6*fCO2-6)./(3+7*fCO2);
+//rhoAr  = (6*fAr -6)./(3+7*fAr );
+//rhoAir = (0.78084*rhoN2+0.20946*rhoO2+0.00934*rhoAr+co2_ppmv*1e-6*rhoCO2)/...
+//	  (0.78084      +0.20946      +0.00934      +co2_ppmv*1e-6)
+//
+// hmjb - What is the correct way?
+double rhoAir = (6*fAir-6) /(3+7*fAir);
+
+// -----------------------------------------------------------------------
+//  RAYLEIGH PHASE FUNCTION AT 180deg
+// ------------------------------------------------------------------------
+// Chandrasekhar (Chap. 1, p. 49)
+// or Bucholtz (1995), eqs (12) and (13)
+double gammaAir = rhoAir /(2-rhoAir);
+double Pf_mol = 0.75*( (1+3 *gammaAir) + (1-gammaAir) * (cos(M_PI)*cos(M_PI)) ) / (1 + 2*gammaAir) ;
+// double Pf_mol = 0.75*( (1+3 *gammaAir) + (1-gammaAir) * (cos(180)*cos(180)) ) / (1 + 2*gammaAir) ;
+
+//% -----------------------------------------------------------------------
+//  RAYLEIGH TOTAL SCATERING CROSS SECTION
+//  -----------------------------------------------------------------------
+// McCartney (1976) --> Cross Section [m^2]
+double *Nstd = (double*) new double [ nBins ] ;                              // [# m^-3] --> VERSION GFATPY
+double *sigma_std = (double*) new double [ nBins ] ;                        // [m^2] --> VERSION GFATPY
+for (int i = 0; i < nBins; i++)
+{
+	Nstd[i] 	 = (Na/Mvol)*(T0/Pstd) * (pres_PA[i] /temp_K[i]) ;                              // [# m^-3] --> VERSION GFATPY
+	sigma_std[i] = 24 * (M_PI*M_PI*M_PI) * pow((nAir*nAir-1), 2) * fAir / ( pow(lambda_m, 4) * (Nstd[i]*Nstd[i]) * pow( ((nAir*nAir)+2), 2) );
+}
+
+// -----------------------------------------------------------------------
+//  RAYLEIGH VOLUME-SCATTERING COEFFICIENT
+//  -----------------------------------------------------------------------
+
+// In traditional lidar notation, Bucholtz (1995) eqs (2), (9) and (10)
+// defines the scattering part of the molecular extinction coeficient.
+// Therefore, here the usual greek letter 'alpha' is used instead of
+// 'beta' as in Bucholtz.
+
+// Bucholtz (1995), eq (9)
+// double alpha_std = Nstd * sigma_std;      // extinction at std pres and temp [m^-1]
+// double alpha_std ;      // extinction at std pres and temp [m^-1]
+
+// Bucholtz (1995), eq (10), units [m^-1]
+// scaling for each P and T in the column
+for ( int i=0 ; i<nBins ; i++ )
+{
+	alpha_mol[i] = Nstd[i] * sigma_std[i] ; // molecular extinction [m^-1]
+	N_mol[i]	 = Nstd[i] ;
+}
+
+//% -----------------------------------------------------------------------
+//  RAYLEIGH ANGULAR VOLUME-SCATTERING COEFFICIENT
+// ------------------------------------------------------------------------
+
+// Rayleigh extinction to backscatter ratio
+*LR_mol = (4*M_PI)/Pf_mol;                         //Rayleigh lidar ratio [sr]
+
+// In traditional lidar notation, Bucholtz (1995) eq (14) defines the
+// backscattering coeficient. Here the usual greek letter 'beta' is
+// used as in Bucholtz.
+
+// Multiply by phase function for -180deg and divide by 4pi steradians
+// Units: [m]-1 [sr]-1
+for( int i=0 ; i<nBins ; i++ )
+	beta_mol[i] = alpha_mol[i] /(*LR_mol) ;       // molecular backscatter [m^-1]
+
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> Molecular density at Tstd and Pstd: Nstd= %e [# m^-3]", Nstd[0] ) ;
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> sigma_std= %e \n", sigma_std[0]    ) ;
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> alpha_mol[0]= %e", alpha_mol[0] ) ;
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> beta_mol[0] = %e", beta_mol[0]  ) ;
+}
+*/
+// BACKUP VERSION LPP
 
 void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( double *pres_PA, double *temp_K, double lambda_m, double co2_ppmv, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
 {
@@ -566,7 +811,8 @@ double Pstd = 101325 ; // Pressure                                            [P
 double Mvol =  22.4141e-3;                                          // [m^3 mol^-1]
 
 // Molecular density at Tstd and Pstd
-double Nstd = (Na/Mvol)*(T0/Tstd);                                      // [# m^-3]
+double Nstd = (Na/Mvol)*(T0/Tstd) ;                                 // [# m^-3]  --> VERSION LPP
+// double Nstd = (Na/Mvol)*(T0/Pstd) ;                              // [# m^-3] --> VERSION GFATPY
 
 //% -----------------------------------------------------------------------
 //  REFRACTIVE INDEX WITH CO2 CORRECTION
@@ -581,7 +827,7 @@ if ( (lambda_m*1e6) > 0.23 )
     dn300 = (5791817 /  (238.0185 - 1/ pow(lambda_m*1e6, 2) ) + 167909  / (57.362 - 1 / pow(lambda_m*1e6, 2) ) ) *1e-8 ;
 else
 	// dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 14455.7  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8; // 14455.7 --> UTILIZADO EN LPP
-    dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 17456.3  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8; // 17456.3 -> UTILIZADO EN GFATPY
+    dn300 = (8060.51 + 2480990  / (132.274 - 1 /  pow(lambda_m*1e6, 2) ) + 17456.3  / (39.32957 - 1/  pow(lambda_m*1e6, 2)) ) *1e-8; // 17456.3 --> UTILIZADO EN GFATPY
 
 //  Correct for different concentration of CO2
 //  Bodhaine et al (1999), Eq (19)
@@ -590,10 +836,9 @@ double dnAir = dn300 * (1 + (0.54 * (co2_ppmv*1e-6 - 0.0003))) ;
 //  Actual index of refraction at 300 ppmv CO2
 double nAir = 1 + dnAir;
 
-//% -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 //  KING FACTOR AND DEPOLARIZATION RATIO
 // ------------------------------------------------------------------------
-
 // Bates (1984), Eqs (13) and (14)
 // or Bodhaine et al (1999), Eqs (5) and (6)
 
@@ -651,16 +896,20 @@ double sigma_std = 24 * (M_PI*M_PI*M_PI) * pow((nAir*nAir-1), 2) * fAir / ( pow(
 // 'beta' as in Bucholtz.
 
 // Bucholtz (1995), eq (9)
+
 double alpha_std = Nstd * sigma_std;      // extinction at std pres and temp [m^-1]
 
 // Bucholtz (1995), eq (10), units [m^-1]
 // scaling for each P and T in the column
 for ( int i=0 ; i<nBins ; i++ )
 {
-	// alpha_mol[i] = pres_PA[i] /temp_K[i] *Tstd/Pstd * alpha_std ; // molecular extinction [m^-1]
-	alpha_mol[i] = pres_PA[i] /temp_K[i]    ;
-	alpha_mol[i] = alpha_mol[i] *Tstd/Pstd  ;
-	alpha_mol[i] = alpha_mol[i] * alpha_std ; // molecular extinction [m^-1]
+	// alpha_mol[i] = (pres_PA[i] /temp_K[i]) * alpha_std ; // molecular extinction [m^-1]
+
+	// --> ESTE ES EL DE LALINET --> 
+	alpha_mol[i] = (pres_PA[i] /temp_K[i]) * (Tstd/Pstd) * alpha_std ; // molecular extinction [m^-1]
+	// alpha_mol[i] = pres_PA[i] /temp_K[i]    ;
+	// alpha_mol[i] = alpha_mol[i] *Tstd/Pstd  ;
+	// alpha_mol[i] = alpha_mol[i] * alpha_std ; // molecular extinction [m^-1]
 	N_mol[i]	 = alpha_mol[i] / sigma_std ;
 }
 
@@ -679,6 +928,11 @@ for ( int i=0 ; i<nBins ; i++ )
 // Units: [m]-1 [sr]-1
 for( int i=0 ; i<nBins ; i++ )
 	beta_mol[i] = alpha_mol[i] /(*LR_mol) ;       // molecular backscatter [m^-1]
+
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> Molecular density at Tstd and Pstd: Nstd= %e [# m^-3]", Nstd ) ;
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> sigma_std= %e \n", sigma_std    ) ;
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> alpha_mol[0]= %e", alpha_mol[0] ) ;
+printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> beta_mol[0] = %e", beta_mol[0]  ) ;
 
 }
 

@@ -1045,8 +1045,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     // PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[17], (const char*)"double", (double*)&glbParam->r[0]                ) ;
     PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[7] , (const char*)"double", (double*)&oMolData->dataMol.tK[0]       ) ;
     PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[8] , (const char*)"double", (double*)&oMolData->dataMol.pPa[0]      ) ;
-    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[13], (const char*)"double", (double*)&oMolData->dataMol.betaMol[0]  ) ;
-    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[14], (const char*)"double", (double*)&oMolData->dataMol.alphaMol[0] ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[13], (const char*)"double", (double*)&oMolData->dataMol.alphaMol[0] ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[14], (const char*)"double", (double*)&oMolData->dataMol.betaMol[0]  ) ;
     PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[15], (const char*)"double", (double*)&oMolData->dataMol.nMol[0]     ) ;
     // PutVar( (int)nc_id_group_L1, (int)var_ids[7], (const char*)"double", (double*)&oMolData->dataMol.prMol[0] ) ;
     // PutVar( (int)nc_id_group_L1, (int)var_ids[8], (const char*)"double", (double*)&oMolData->dataMol.pr2Mol[0] ) ;
