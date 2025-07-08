@@ -220,7 +220,7 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 			// indx_integral_max_range_for_AOD = (int)round( (indxRef_Fernald_Start[glbParam->evSel] + indxRef_Fernald_Stop[glbParam->evSel])/2 ) ;
 			// indx_integral_max_range_for_AOD = (int) glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ;
 
-			sum(    (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[glbParam->evSel][l] ) ;
+			sum( (double*)&alpha_Aer[glbParam->evSel][l][0], (int)0, (int)indx_integral_max_range_for_AOD, (double*)&AOD_LR[glbParam->evSel][l] ) ;
 			AOD_LR[glbParam->evSel][l] = AOD_LR[glbParam->evSel][l] * glbParam->dr ;
 			// printf("\nAOD@LR = %lf --> %lf", fabs(LR[l]), AOD_LR[glbParam->evSel][l]) ;
 		} // for ( int l=0 ; l <nLRs ; l++ ) // LOOP ACROSS LRs

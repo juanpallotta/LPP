@@ -1006,12 +1006,12 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     
     DefineVariable( (int)nc_id_group_L1, (char*)"range"                   , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[11] ) ; // range (ex points)
 
-    // DefineVariable( (int)nc_id_group_L1_MolData, (char*)"range"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[11] ) ; // range (ex points)
-    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Temperature_K"   , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[7]  ) ; // Temperature profile
-    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Pressure_Pa"     , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[8]  ) ; // Pressure profile
-    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"alpha_mol"       , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[13] ) ; // Alpha Mol.
-    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"beta_mol"        , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[14] ) ; // Beta Mol.
-    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"N_mol"           , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[15] ) ; // Mol. Concentration
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"range"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[17] ) ; // range (ex points)
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Temperature_K"   , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[7]  ) ; // Temperature profile
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Pressure_Pa"     , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[8]  ) ; // Pressure profile
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"alpha_mol"       , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[13] ) ; // Alpha Mol.
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"beta_mol"        , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[14] ) ; // Beta Mol.
+    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"N_mol"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[15] ) ; // Mol. Concentration
 
     int dim_ids_CM[2] ;
     dim_ids_CM[0] = dim_ids[0] ; // TIME
@@ -1042,7 +1042,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     PutVar( (int)nc_id_group_L1, (int)var_ids[5], (const char*)"int", (int*)glbParam->indxOffset ) ;
 
     // WRITE TEMPERATURE AND PRESSURE PROFILES FROM THE RADIOSONDE IN HIGH RESOLUTION
-    // PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[17], (const char*)"double", (double*)&glbParam->r[0]                ) ;
+    PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[17], (const char*)"double", (double*)&glbParam->r[0]                ) ;
     PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[7] , (const char*)"double", (double*)&oMolData->dataMol.tK[0]       ) ;
     PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[8] , (const char*)"double", (double*)&oMolData->dataMol.pPa[0]      ) ;
     PutVar( (int)nc_id_group_L1_MolData, (int)var_ids[13], (const char*)"double", (double*)&oMolData->dataMol.alphaMol[0] ) ;

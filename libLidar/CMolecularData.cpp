@@ -141,8 +141,7 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		Fill_dataMol_L1( (strcGlobalParameters*)glbParam ) ;
 
 		// RESAMPLE dataMol.pPa AND dataMol.tK IN HIGH RESOLUTION TO BE SAVED LATER
-		// Tem_Pres_to_HR() ;
-		Tem_Pres_to_HR_pw() ;
+		Tem_Pres_to_HR_pw( ) ;
 	}
 		// printf( "\n\nGet_Mol_Data_L1() despues de Tem_Pres_to_HR() --> RadSondeData.tLR[0]= %lf \t dataMol.tK[0]= %lf \n", RadSondeData.tLR[0], dataMol.tK [0] ) ;
 
@@ -199,14 +198,14 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 	// VALUES FROM ASL
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
-		// dataMol.zr[i] = (double) glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith) ; // zr = ASL     *PI/180
 		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
+
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 
  	// RESAMPLED RadSondeData.nLR, RadSondeData.alpha_mol y RadSondeData.beta_mol TO HIGH RESOLUTION: dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol
 	// AND IN THE SLANT PATH DEFINED BY THE ZENITHAL ANGLE dataMol.zenith
-	Mol_Low_To_High_Res( (strcGlobalParameters*)glbParam ) ;
+	Mol_Low_To_High_Res( ) ;
 // printf( "\n Fill_dataMol_L1: dataMol.zenith= %f \t dataMol.alphaMol[1000]= %e", dataMol.zenith, dataMol.alphaMol[1000] ) ;
 
 	// for ( i =0 ; i <glbParam->nBins ; i++ )
@@ -238,7 +237,7 @@ void CMolecularData::Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters *gl
 
  	// RESAMPLED RadSondeData.nLR, RadSondeData.alpha_mol y RadSondeData.beta_mol TO HIGH RESOLUTION: dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol
 	// AND IN THE SLANT PATH DEFINED BY THE ZENITHAL ANGLE dataMol.zenith
-	// Mol_Low_To_High_Res( (strcGlobalParameters*)glbParam ) ;
+	// Mol_Low_To_High__Res( (strcGlobalParameters*)glbParam ) ;
 
 	for ( int i =0 ; i <RadSondeData.nBinsLR ; i++ )
 	{
@@ -375,7 +374,7 @@ void CMolecularData::Elastic_Rayleigh_Lidar_Signal ( double *r )
 	// delete MOD ;
 }
 
-void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // USED IN lpp1.cpp
+void CMolecularData::Mol_Low_To_High_Res( ) // USED IN lpp1.cpp
 {
 	Spline *spl_n 			= (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
 	Spline *spl_alpha_mol 	= (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
@@ -385,17 +384,11 @@ void CMolecularData::Mol_Low_To_High_Res( strcGlobalParameters *glbParam ) // US
 	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.alpha_mol, RadSondeData.nBinsLR, spl_alpha_mol ) ;
 	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.beta_mol	, RadSondeData.nBinsLR, spl_beta_mol  ) ;
 
-	for (int i =0 ; i <RadSondeData.nBinsLR ; i++ )
+	for (int i =0 ; i <dataMol.nBins ; i++ )
 	{
-		dataMol.nMol [i] 	= evaluate_spline( spl_n		, RadSondeData.nBinsLR, dataMol.zr[i] );
-		dataMol.alphaMol[i] = evaluate_spline( spl_alpha_mol, RadSondeData.nBinsLR, dataMol.zr[i] );
-		dataMol.betaMol [i] = evaluate_spline( spl_beta_mol	, RadSondeData.nBinsLR, dataMol.zr[i] );
-	}
-	for (int i =RadSondeData.nBinsLR ; i <dataMol.nBins ; i++)
-	{
-		dataMol.nMol [i] 	= (double) dataMol.nMol    [RadSondeData.nBinsLR-1] ;
-		dataMol.alphaMol[i] = (double) dataMol.alphaMol[RadSondeData.nBinsLR-1] ;
-		dataMol.betaMol [i] = (double) dataMol.betaMol [RadSondeData.nBinsLR-1] ;
+		dataMol.nMol    [i]	= evaluate_spline( spl_n		, RadSondeData.nBinsLR, dataMol.zr[i] ) ;
+		dataMol.alphaMol[i] = evaluate_spline( spl_alpha_mol, RadSondeData.nBinsLR, dataMol.zr[i] ) ;
+		dataMol.betaMol [i] = evaluate_spline( spl_beta_mol	, RadSondeData.nBinsLR, dataMol.zr[i] ) ;
 	}
 
 	free(spl_n)			;
@@ -408,18 +401,13 @@ void CMolecularData::Tem_Pres_to_HR_pw() // USED IN lpp1.cpp
 	Spline *spl_t = (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
 	Spline *spl_p = (Spline *)malloc(sizeof(Spline) * (RadSondeData.nBinsLR - 1)) ;
 
-	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.tLR, RadSondeData.nBinsLR, spl_t);
-	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.pLR, RadSondeData.nBinsLR, spl_p);
+	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.tLR, RadSondeData.nBinsLR, spl_t) ;
+	create_natural_cubic_spline(RadSondeData.zLR, RadSondeData.pLR, RadSondeData.nBinsLR, spl_p) ;
 
-	for (int i =0 ; i <RadSondeData.nBinsLR ; i++ )
+	for (int i =0 ; i <dataMol.nBins ; i++ )
 	{
-		dataMol.tK [i] = evaluate_spline( spl_t, RadSondeData.nBinsLR, dataMol.zr[i] );
-		dataMol.pPa[i] = evaluate_spline( spl_p, RadSondeData.nBinsLR, dataMol.zr[i] );
-	}
-	for (int i =RadSondeData.nBinsLR ; i <dataMol.nBins ; i++)
-	{
-		dataMol.tK [i] = (double) dataMol.tK [RadSondeData.nBinsLR-1] ;
-		dataMol.pPa[i] = (double) dataMol.pPa[RadSondeData.nBinsLR-1] ;
+		dataMol.tK [i] = evaluate_spline( spl_t, RadSondeData.nBinsLR, dataMol.zr[i] ) ;
+		dataMol.pPa[i] = evaluate_spline( spl_p, RadSondeData.nBinsLR, dataMol.zr[i] ) ;
 	}
 
 	free(spl_t);
@@ -691,7 +679,6 @@ printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> beta_mol[0] = %e", beta_mol[0] 
 }
 */
 // BACKUP VERSION LPP
-
 void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( double *pres_PA, double *temp_K, double lambda_m, double co2_ppmv, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )
 {
 // -----------------------------------------------------------------------
@@ -755,8 +742,8 @@ void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL ( double *pres_PA, double *
 //    Bodhaine et al, 1999: J. Atmos. Ocea. Tech, v. 16, p.1854
 //
 //    Bates, 1984: Planet. Space Sci., v. 32, p. 785
-//    Bodhaine et al, 1999: J. Atmos. Ocea. Tech, v. 16, p.1854
-//    Bucholtz, 1995: App. Opt., v. 34 (15), p. 2765
+//    Bodhaine et al, 1999: J. Atmos. Ocea. Tech, v. 16, p.1854  --> https://journals.ametsoc.org/view/journals/atot/16/11/1520-0426_1999_016_1854_orodc_2_0_co_2.xml
+//    Bucholtz, 1995: App. Opt., v. 34 (15), p. 2765  			 --> http://www.lalinet.org/viiiwlmla/Courses/Lecture4/Bucholtz_Applied%20optics_1995.pdf
 //    Chandrasekhar, Radiative Transfer (Dover, New York, 1960)
 //    Edlen, 1953: J. Opt. Soc. Amer., v. 43, p. 339
 //    McCartney, E. J., 1976: Optics of the Atmosphere. Wiley, 408 pp.
@@ -809,10 +796,8 @@ double Pstd = 101325 ; // Pressure                                            [P
 // Molar volume at Pstd and T0
 // Bodhaine et al, 1999
 double Mvol =  22.4141e-3;                                          // [m^3 mol^-1]
-
-// Molecular density at Tstd and Pstd
+// Molecular density. From Eq 24 of Bodhaine et al (1999)
 double Nstd = (Na/Mvol)*(T0/Tstd) ;                                 // [# m^-3]  --> VERSION LPP
-// double Nstd = (Na/Mvol)*(T0/Pstd) ;                              // [# m^-3] --> VERSION GFATPY
 
 //% -----------------------------------------------------------------------
 //  REFRACTIVE INDEX WITH CO2 CORRECTION
@@ -878,7 +863,6 @@ double rhoAir = (6*fAir-6) /(3+7*fAir);
 // or Bucholtz (1995), eqs (12) and (13)
 double gammaAir = rhoAir /(2-rhoAir);
 double Pf_mol = 0.75*( (1+3 *gammaAir) + (1-gammaAir) * (cos(M_PI)*cos(M_PI)) ) / (1 + 2*gammaAir) ;
-// double Pf_mol = 0.75*( (1+3 *gammaAir) + (1-gammaAir) * (cos(180)*cos(180)) ) / (1 + 2*gammaAir) ;
 
 //% -----------------------------------------------------------------------
 //  RAYLEIGH TOTAL SCATERING CROSS SECTION
@@ -896,15 +880,12 @@ double sigma_std = 24 * (M_PI*M_PI*M_PI) * pow((nAir*nAir-1), 2) * fAir / ( pow(
 // 'beta' as in Bucholtz.
 
 // Bucholtz (1995), eq (9)
-
 double alpha_std = Nstd * sigma_std;      // extinction at std pres and temp [m^-1]
 
 // Bucholtz (1995), eq (10), units [m^-1]
 // scaling for each P and T in the column
 for ( int i=0 ; i<nBins ; i++ )
 {
-	// alpha_mol[i] = (pres_PA[i] /temp_K[i]) * alpha_std ; // molecular extinction [m^-1]
-
 	// --> ESTE ES EL DE LALINET --> 
 	alpha_mol[i] = (pres_PA[i] /temp_K[i]) * (Tstd/Pstd) * alpha_std ; // molecular extinction [m^-1]
 	// alpha_mol[i] = pres_PA[i] /temp_K[i]    ;
@@ -918,7 +899,8 @@ for ( int i=0 ; i<nBins ; i++ )
 // ------------------------------------------------------------------------
 
 // Rayleigh extinction to backscatter ratio
-*LR_mol = (4*M_PI)/Pf_mol;                         //Rayleigh lidar ratio [sr]
+// *LR_mol = (4*M_PI)/Pf_mol;                         //Rayleigh lidar ratio [sr]
+*LR_mol = (8*M_PI)/3 ;                         //Rayleigh lidar ratio [sr]
 
 // In traditional lidar notation, Bucholtz (1995) eq (14) defines the
 // backscattering coeficient. Here the usual greek letter 'beta' is
@@ -929,11 +911,10 @@ for ( int i=0 ; i<nBins ; i++ )
 for( int i=0 ; i<nBins ; i++ )
 	beta_mol[i] = alpha_mol[i] /(*LR_mol) ;       // molecular backscatter [m^-1]
 
-printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> Molecular density at Tstd and Pstd: Nstd= %e [# m^-3]", Nstd ) ;
-printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> sigma_std= %e \n", sigma_std    ) ;
-printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> alpha_mol[0]= %e", alpha_mol[0] ) ;
-printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> beta_mol[0] = %e", beta_mol[0]  ) ;
-
+// printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> Molecular density at Tstd and Pstd: Nstd= %e [# m^-3]", Nstd ) ;
+// printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> sigma_std= %e \n", sigma_std    ) ;
+// printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> alpha_mol[0]= %e", alpha_mol[0] ) ;
+// printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> beta_mol[0] = %e", beta_mol[0]  ) ;
 }
 
 void CMolecularData::TemK_PresPa_to_N_Alpha_Beta_MOL_simple ( double *pres_PA, double *temp_K, double lambda_nm, int nBins, double *N_mol, double *alpha_mol, double *beta_mol, double *LR_mol )

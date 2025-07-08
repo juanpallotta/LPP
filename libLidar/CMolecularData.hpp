@@ -33,7 +33,7 @@ class CMolecularData
     	strcRadioSoundingData RadSondeData ;
 
 	private:
-		void Mol_Low_To_High_Res( strcGlobalParameters* ) 	;
+		void Mol_Low_To_High_Res( ) 	;
 		void Tem_Pres_to_HR_pw() 	;
 		void Molecular_Profile_Resampled_Zenithal( strcGlobalParameters* ) ;
 };
