@@ -899,8 +899,8 @@ for ( int i=0 ; i<nBins ; i++ )
 // ------------------------------------------------------------------------
 
 // Rayleigh extinction to backscatter ratio
-// *LR_mol = (4*M_PI)/Pf_mol;                         //Rayleigh lidar ratio [sr]
-*LR_mol = (8*M_PI)/3 ;                         //Rayleigh lidar ratio [sr]
+*LR_mol = (4*M_PI)/Pf_mol;                         //Rayleigh lidar ratio [sr]
+// *LR_mol = (8*M_PI)/3 ;                         //Rayleigh lidar ratio [sr]
 
 // In traditional lidar notation, Bucholtz (1995) eq (14) defines the
 // backscattering coeficient. Here the usual greek letter 'beta' is

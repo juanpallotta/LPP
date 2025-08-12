@@ -595,7 +595,8 @@ void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *gl
 // printf("\n CLidar_Operations::Average_in_Time_Lidar_Profiles() --> glbParam->aZenithAVG[%d]= %lf\n", fC, glbParam->aZenithAVG[fC] ) ;
 	} // for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
 }
-/*
+
+// VERSION CON LA APLICACION DE DARK CURRENT ANTES DE LAS DEMAS CORRECCIONES
 void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbParam, CMolecularData *oMolData, double **ovlp, double **data_Noise, double ***data_File_Lx, double ***pr_corr, double ***pr2 )
 {
     strcLidarSignal 	evSig ;
@@ -806,9 +807,9 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 	} // for ( int c=0 ; c <glbParam->nCh ; c++ )
 	} // for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
 }
-*/
-// BACKUP
 
+// BACKUP - version original con dark-current mal aplicado
+/*
 void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbParam, CMolecularData *oMolData, double **ovlp, double **data_Noise, double ***data_File_Lx, double ***pr_corr, double ***pr2 )
 {
     strcLidarSignal 	evSig ;
@@ -1007,7 +1008,7 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
 	} // for ( int c=0 ; c <glbParam->nCh ; c++ )
 	} // for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
 }
-
+*/
 void CLidar_Operations::GluingLidarSignals( strcGlobalParameters *glbParam, double ***pr_corr )
 {
 	double 	MHz_Max, MHz_Min, a ;

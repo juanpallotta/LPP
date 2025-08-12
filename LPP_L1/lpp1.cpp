@@ -263,8 +263,8 @@ int main( int argc, char *argv[] )
 	glbParam.indx_Ch_Pol_S    = (int*)    new int   [ glbParam.nCh ] ;
 	glbParam.indx_Ch_Pol_P    = (int*)    new int   [ glbParam.nCh ] ;
 	glbParam.Pol_Cal_Constant = (double*) new double[ glbParam.nCh ] ;
-	int nS = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_S"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_S ) ;
-	int nP = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_P"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_P ) ;
+	int nS   = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_S"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_S    ) ;
+	int nP   = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_P"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_P    ) ;
 	int nCal = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pol_Cal_Constant", (const char*)"double", (double*)glbParam.Pol_Cal_Constant ) ;
 
     // CHECK IF THE DEPOLARIZATION INFORMATION IS CORRECTLY SET
@@ -403,7 +403,6 @@ int main( int argc, char *argv[] )
     printf( "\n\n\033[32mSaving the NetCDF file\033[0m %s\n", glbParam.Path_File_Out ) ;  // GREEN
 
     glbParam.evSel = -10 ; // SET THE EVENT SELECTED NEGATIVE TO FILLING OF THE MOLECUALR DATA AT ZENITH=0
-    // oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
     oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
     oNCL.Save_LALINET_NCDF_PDL1( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;

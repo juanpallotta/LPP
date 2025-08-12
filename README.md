@@ -1,3 +1,6 @@
+
+<img src="./Docs/Figures/LPP_logo.png" width="200" />
+
 # Table of content: <!-- omit in toc -->
 
 - [Credits \& contributions](#credits--contributions)
