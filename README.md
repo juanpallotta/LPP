@@ -1,5 +1,7 @@
 
+<div style="text-align: center;">
 <img src="./Docs/Figures/LPP_logo.png" width="200" />
+</div>
 
 # Table of content: <!-- omit in toc -->
 
