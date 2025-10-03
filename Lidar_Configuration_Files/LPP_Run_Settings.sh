@@ -2,7 +2,7 @@
 
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no"
-L0="yes"
+L0="no"
 L1="yes"
 L2="yes"
 
@@ -15,10 +15,11 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2024/20240810/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/miniLidar/20230728/" 
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241002/" 
-# PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240906/2024_09_06_HR1115_A90_data_2CH_L0.nc"
+PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240906/2024_09_06_L0.nc"
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/22/"
 # PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240903/2024_09_03  _L0.nc"
 # PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220413/RS/"
-PATH_IN="/mnt/Disk-1_8TB/Granada/20241021_1816_nCh60/RS/"
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20241021_1816_nCh60/RS/"
 
 # CONFIGURATION FILES
 # ! SIMULATIONS
@@ -38,7 +39,7 @@ PATH_IN="/mnt/Disk-1_8TB/Granada/20241021_1816_nCh60/RS/"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil_Rio.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
 # ! POTENZA - MUSA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
 # ! ARGENTINA
@@ -54,6 +55,6 @@ FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisPa
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_NQN_CALBUCO.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER_CALBUCO.conf"
 #! BOLIVIA
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Bolivia.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Bolivia.conf"
 #! MULTIANGLE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_multRam.conf"

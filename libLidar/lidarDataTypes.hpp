@@ -165,7 +165,7 @@ struct strcGlobalParameters
 	int 	min 					;
 	int 	sec 					;
 	int 	run 					;
-	bool	is_Noise_Data_Loaded =false ;
+	bool	is_Dark_Current_Loaded =false ;
 	bool	is_Ovlp_Data_Loaded  =false ;
 
 	int 	MonteCarlo_N_SigSet_Err	;
@@ -381,6 +381,7 @@ struct strcFitParam
 { // FITTING DATA USED IN FUNCTIONS WHERE RAYLEIGH-FIT IS APPLIED.
 	int 	indxInitFit  ;
 	int 	indxEndFit   ;
+	int 	indxMidFit	 ;
 	int 	nFit		 ;
 // PARAMETERS OF THE FIT TO REDUCE THE RMS ERROR
 	double 	m ;

@@ -20,7 +20,8 @@ public:
 
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
-    void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
+    // void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
+    void    BiasCorrection    ( double*, strcGlobalParameters*, strcMolecularData*                     ) ;
     // void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*        ) ;
     // void 	Bias_Residual_Correction( const double*, strcGlobalParameters*, strcMolecularData*, double*     ) ;
     void    Find_Max_Range    ( double*, strcMolecularData*, strcGlobalParameters*                              ) ;

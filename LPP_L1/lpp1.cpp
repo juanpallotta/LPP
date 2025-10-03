@@ -181,7 +181,7 @@ int main( int argc, char *argv[] )
             data_Noise[c] = (double*) new double[glbParam.nBins] ;
 
         oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
-        glbParam.is_Noise_Data_Loaded = true ;
+        glbParam.is_Dark_Current_Loaded = true ;
     }
 
     double  **ovlp ;
@@ -267,8 +267,7 @@ int main( int argc, char *argv[] )
 	int nP   = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_P"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_P    ) ;
 	int nCal = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pol_Cal_Constant", (const char*)"double", (double*)glbParam.Pol_Cal_Constant ) ;
 
-    // CHECK IF THE DEPOLARIZATION INFORMATION IS CORRECTLY SET
-    if  ( (nS == nP) && (nCal >0) && (nCal == nS) )
+    if  ( (nS == nP) && (nCal >0) && (nCal == nS) ) // CHECK IF THE DEPOLARIZATION INFORMATION IS CORRECTLY SET
     {
         for (int e =0; e <glbParam.nEventsAVG ; e++)
         {

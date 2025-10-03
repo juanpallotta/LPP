@@ -1,7 +1,7 @@
 
-<div style="text-align: center;">
-<img src="./Docs/Figures/LPP_logo.png" width="200" />
-</div>
+<p align="center">
+  <img src="./Docs/Figures/LPP_logo.png" width="200" />
+</p>
 
 # Table of content: <!-- omit in toc -->
 
@@ -46,15 +46,16 @@
     - [On macOS](#on-macos)
   - [Step 3: Install WSL extension in Visual Studio Code](#step-3-install-wsl-extension-in-visual-studio-code)
 # Credits & contributions
-<u>**Juan Pallotta:**</u> Software development, methods, and algorithms.  
-<u>**Silvania Alves De Carvalho:**</u> LPP tester and bug solver. Comparison of LPP results against other platforms.  
-<u>**Henrique Barbosa:**</u> Methods, algorithms and research supervisor. Dataset used for the testing.  
-<u>**Joaquin Medina Puntero:**</u> Software development for automatic molecular profiles downloader. LPP tester and bug solver.
-<u>**Juan Luis Guerrero Rascado:**</u> Software development for automatic molecular profiles downloader. LPP tester and bug solver.
-<u>**Nicolas Neves de Oliveira:**</u> Software development for automatic AERONET downloader. LPP tester.  
-<u>**Fabio Lopez:**</u> Methods, algorithms. Dataset used for the testing.     
-<u>**Diego Arias:**</u> Methods and algorithms.   
-<u>**Alexandre Cacheffo and Eduardo Landulfo:**</u> reviewed and edited the research paper of the project.  
+<u>**Juan Pallotta:**</u> Software development, methods, and algorithms.\
+<u>**Silvania Alves De Carvalho:**</u> LPP tester and bug solver. Comparison of LPP results against other platforms.\
+<u>**Henrique Barbosa:**</u> Methods, algorithms and research supervisor. Dataset used for the testing.\
+<u>**Joaquin Medina Puntero:**</u> Software development for automatic molecular profiles downloader. LPP tester and bug solver.\
+<u>**Juan Luis Guerrero Rascado:**</u> Software development for automatic molecular profiles downloader. LPP tester and bug solver.\
+<u>**Nicolas Neves de Oliveira:**</u> Software development for automatic AERONET downloader. LPP tester.\
+<u>**Fabio Lopez:**</u> Methods, algorithms. Dataset used for the testing.\
+<u>**Diego Arias:**</u> Methods and algorithms.\
+<u>**Elena Montilla:**</u> LPP tester.\
+<u>**Alexandre Cacheffo and Eduardo Landulfo:**</u> Reviewers for the research paper.  
 
 # Introduction
 
@@ -126,7 +127,18 @@ Start by downloading the repository from GitHub <https://www.github.com/juanpall
 # Setting up the code
 
 The first steps after downloading/cloning the LPP's source code are described in this section. After these steps, LPP will be ready to be used.
-These procedures are performed by a set of Linux shell scripts. To prepare them for use, the scripts must be given executable permissions. This can be accomplished by running the following command in the command line while located in the downloaded LPP folder:
+
+<u>**Important Note:</u>** The Linux system must be upgraded before these steps. You can do it issuing this commands in the terminal:
+
+```bash
+sudo apt-get update
+```
+and then
+```bash
+sudo apt-get upgrade
+```
+
+Following, a set of Linux shell scripts are described. To prepare them for the execution, executable permissions must be issued. This can be accomplished by running the following command in the command line while located in the downloaded LPP folder:
 
 ```bash
 find . -type f -name "*.sh" -exec chmod +x {} \;

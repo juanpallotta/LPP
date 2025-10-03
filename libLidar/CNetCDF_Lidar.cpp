@@ -149,7 +149,7 @@ void CNetCDF_Lidar::Read_Bkg_Noise( int ncid, strcGlobalParameters *glbParam, in
                     data_Noise[c][b] = (double)0.0 ;
             }
     }
-    glbParam->is_Noise_Data_Loaded = true ;
+    glbParam->is_Dark_Current_Loaded = true ;
 }
 
 void CNetCDF_Lidar::Read_Overlap( int ncid, strcGlobalParameters *glbParam, int id_var_ovlp, double **ovlp )
@@ -207,8 +207,8 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->nBins_Ch = (int*) new int[ glbParam->nCh ] ;
 
     ReadVar( (int)ncid, (const char*)"nBins_Ch", (int*)&glbParam->nBins_Ch[0] ) ;
-    for (int c =0; c <glbParam->nCh; c++)
-        glbParam->nBins_Ch[c] = (int)glbParam->nBins_Ch[c] - abs(glbParam->indxOffset[c]) -1 ;
+    // for (int c =0; c <glbParam->nCh; c++)
+    //     glbParam->nBins_Ch[c] = (int)glbParam->nBins_Ch[c] - abs(glbParam->indxOffset[c]) -1 ;
 
     glbParam->nEventsAVG     = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
 // printf("\n PDL1: glbParam->nEvents= %d \t glbParam->numEventsToAvg= %d \t glbParam->nEventsAVG= %d \n", glbParam->nEvents, glbParam->numEventsToAvg, glbParam->nEventsAVG) ;
