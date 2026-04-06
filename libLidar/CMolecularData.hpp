@@ -19,7 +19,7 @@ class CMolecularData
     	strcMolecularData dataMol ;
 		void Get_Mol_Data_L1( strcGlobalParameters* ) ;
 		void Get_Mol_Data_L2( strcGlobalParameters* ) ;
-	    void GetMem_dataMol( int ) ;
+	    void GetMem_dataMol( strcGlobalParameters* ) ;
 		void Fill_dataMol_L1( strcGlobalParameters* ) ;
 		void Fill_dataMol_L1_from_RadSondeData( strcGlobalParameters* ) ;
 		void Fill_dataMol_L2_from_RadSondeData( strcGlobalParameters* ) ;

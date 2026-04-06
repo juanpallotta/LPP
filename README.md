@@ -54,8 +54,11 @@
 <u>**Nicolas Neves de Oliveira:**</u> Software development for automatic AERONET downloader. LPP tester.\
 <u>**Fabio Lopez:**</u> Methods, algorithms. Dataset used for the testing.\
 <u>**Diego Arias:**</u> Methods and algorithms.\
-<u>**Elena Montilla:**</u> LPP tester.\
-<u>**Alexandre Cacheffo and Eduardo Landulfo:**</u> Reviewers for the research paper.  
+<u>**Elena Montilla:**</u> LPP tester & bug solver.\
+<u>**Ricardo Forno:**</u> LPP tester & bug solver.\
+<u>**Kenzo Yoshihara:**</u> LPP tester & bug solver.\
+<u>**Alexandre Cacheffo:**</u> Reviewers for the research paper.  
+<u>**Eduardo Landulfo:**</u> Reviewers for the research paper.  
 
 # Introduction
 
@@ -176,8 +179,8 @@ The behavior of each module is based on the parameters written in its configurat
 
 
 1. Comments are defined by "`#`" character. You are free to comment on anything to make the run more understandable for you. The configuration files included in this repository have many comments to explain each variable. <u>**IMPORTANT NOTE: Do not place a comment in the same line of the variable definition after the variable. Comments must be in separate lines of the variables.</u>**
-2. Variables definition must follow the convention typo `VAR_NAME = VALUE`, and a <u>**minimum of 1 space character has to be placed before and after the "**`=`" character</u>. The variable's data type can be integer, float, double, or string, depending on the variable.
-3. Some variables have to be set as vectors. Each element must be separated by a comma character "`,`", for instance: `VAR_NAME = VALUE1 , VALUE2 , VALUE3`, <u>**and a minimum of 1 space has to be placed before and after the comma "**`,`"</u>. The number of elements depends on the variable, and how LPP makes use of it. To minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
+2. Variables definition must follow the convention typo `VAR_NAME = VALUE`. The variable's data type can be integer, float, double, or string, depending on the variable.
+3. Some variables have to be set as vectors. Each element must be separated by a comma character "`,`", for instance: `VAR_NAME = VALUE1 , VALUE2 , VALUE3`. The number of elements depends on the variable, and how LPP makes use of it. To minimize the mistakes related to this, please, read the comments in the lines before the variable definition. In case the number of elements doesn't meet the right values, LPP will show a warning and the execution will be stopped.
 4. The configuration file <u>**must**</u> be the same for all the modules, containing all the variables needed for the run. All these variables are described in this document.
 
 It is worth mentioning that there is no rule for the order of the variables set in this file. The next piece of code shows the general parameters contained in the configuration files:
@@ -331,19 +334,6 @@ Pres_column_index_in_File  = 2
 Temperature_at_Lidar_Station_K = 298.15
 Pressure_at_Lidar_Station_Pa = 94000.0
 
-# LAYER-MASK RETRIEVAL PARAMETERS
-COMPUTE_PBL_MASK = YES
-COMPUTE_CLOUD_MASK = YES
-avg_Points_Cloud_Mask = 11
-stepScanCloud = 1
-nScanMax = 5
-errFactor = 2.0
-thresholdFactor = 5.0
-CLOUD_MIN_THICK = 5
-
-errScanCheckFactor = 1.0
-errCloudCheckFactor = 1.0
-DELTA_RANGE_LIM_BINS = 10
 ```
 
 Below is a description of each of these parameters:
@@ -421,20 +411,6 @@ The first lines of the `US-StdA_DB_m_K_Pa.csv` file contained in this repository
 
 * `Temperature_at_Lidar_Station_K`: Temperature at ground level in Kelvins (K).
 * `Pressure_at_Lidar_Station_Pa`: Pressure at ground level in Pascals (Pa)
-* **LAYER-MASK RETRIEVAL PARAMETERS:** These parameters are required for the layer detection algorithm. We strongly recommend using the values set in the files included in this repository. The algorithm used is robust enough to work with a wide range of elastic-lidar signals using this setup.
-  The first two variables are the ones recommended to be modified: `COMPUTE_PBL_MASK` and `COMPUTE_CLOUD_MASK`, which could be `YES` or `NO` depending if the planetary boundary layer (PBL) or cloud mask is needed to be detected.
-  **<u>IMPORTANT NOTE:</u> PBL height determination is still under development, so the results may not be accurate, showing higher PBL heights than the real ones. It is recommended to set this parameter as** `NO`.
-
-```bash
-COMPUTE_PBL_MASK = NO
-COMPUTE_CLOUD_MASK = YES
-avg_Points_Cloud_Mask = 11
-stepScanCloud = 1
-nScanMax = 5
-errFactor = 2.0
-thresholdFactor = 5.0
-CLOUD_MIN_THICK = 5
-```
 
 # Product Data Level 2 Module: Aerosol optical products
 
@@ -499,7 +475,7 @@ A description of each of these parameters is described below:
 * `avg_Points_Fernald`: Numbers of points used for spatial smoothing to apply to the inverted retrieved profiles (extinction and backscatter).
 * `LR`: Lidar ratio used for the inversion. The current version of LPP invert the elastic lidar signals using a constant LR (non-range dependant). Nonetheless, it can be more than one value, each one sepparated by `,`, with a space before and after `,` (see the example array in the previous lines: `LR = 50 , 60 , 70 , 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
-* `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`: Initial and end reference altitude above sea level (in meters). These ranges are used to calculate the reference height during the inversion procedure. If one of these values is negative, or `heightRef_Inversion_Start_ASL > heightRef_Inversion_Stop_ASL`, the reference range is obtained automatically based on the layer-mask. If `COMPUTE_CLOUD_MASK = NO` in the data level 1 settings, the layer mask is computed anyway in data level 2.
+* `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`: Initial and end reference altitude above sea level (in meters). These ranges are used to calculate the reference height during the inversion procedure. If one of these values is negative, or `heightRef_Inversion_Start_ASL > heightRef_Inversion_Stop_ASL`, the reference range is obtained automatically based on the layer-mask.
 * `reference_method`: Used to define how the reference value is obtained from the lidar signal, having two values to adopt: MEAN and FIT. If MEAN option is set, a mean value is taken between the altitudes `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`. If FIT option is set, a Rayleigh-Fit is done within the same ranges and its middle point is taken from the fitted profile.
 * `R_ref`: Backscatter ratio at reference altitude, being the ratio for the total to the molecular backscatter. This parameter can control the turbidity of the reference altitude, being `R_ref=1` completely molecular, and higher values mean a more polluted reference altitude.
 

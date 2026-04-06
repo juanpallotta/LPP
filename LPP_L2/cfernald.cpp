@@ -85,10 +85,10 @@ void CFernald::FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGl
 		cumtrapz( dataMol->dzr, dataAer->alphaAer, 0, (dataMol->nBins-1), dataAer->VAODr ) ; // VAODr=VAODh
 
 	int 	VAODheigh ;
-	readAnalisysParameter( FILE_PARAMETERS, "VAOD_HEIGH0" , "int" , &VAODheigh ) ;		dataAer->aVAOD[0] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
-	readAnalisysParameter( FILE_PARAMETERS, "VAOD_HEIGH1" , "int" , &VAODheigh ) ;		dataAer->aVAOD[1] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
-	readAnalisysParameter( FILE_PARAMETERS, "VAOD_HEIGH2" , "int" , &VAODheigh ) ;		dataAer->aVAOD[2] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
-	readAnalisysParameter( FILE_PARAMETERS, "VAOD_HEIGH3" , "int" , &VAODheigh ) ;		dataAer->aVAOD[3] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "VAOD_HEIGH0" , "int" , &VAODheigh ) ;		dataAer->aVAOD[0] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "VAOD_HEIGH1" , "int" , &VAODheigh ) ;		dataAer->aVAOD[1] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "VAOD_HEIGH2" , "int" , &VAODheigh ) ;		dataAer->aVAOD[2] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "VAOD_HEIGH3" , "int" , &VAODheigh ) ;		dataAer->aVAOD[3] = dataAer->VAODr[ (int)round(VAODheigh/dataMol->dzr) ] ;
 // VAOD @ VAOD_HEIGH3
 		dataAer->VAOD = dataAer->aVAOD[3] ;
 		dataAer->AOD  = dataAer->VAOD / cos( dataMol->zenith * PI/180 ) ;

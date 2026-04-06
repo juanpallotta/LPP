@@ -24,8 +24,8 @@ int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, s
 
     // GET THE NUMBERS minTime_num AND maxTime_num, WICH REPRESENT minTime AND maxTime STORED IN THE CONFIGURATION FILE
         char 	sMinTime[30], sMaxTime[30] ;
-        ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"minTime", (const char*)"string", (char*)sMinTime ) ;
-        ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"maxTime", (const char*)"string", (char*)sMaxTime ) ;
+        ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"minTime", (const char*)"string", (char*)sMinTime ) ;
+        ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"maxTime", (const char*)"string", (char*)sMaxTime ) ;
         struct tm		tmMin, tmMax ;
         sscanf(sMinTime, "%4d/%2d/%2d-%2d:%2d:%2d", &tmMin.tm_year, &tmMin.tm_mon, &tmMin.tm_mday, &tmMin.tm_hour, &tmMin.tm_min, &tmMin.tm_sec ) ;
         sscanf(sMaxTime, "%4d/%2d/%2d-%2d:%2d:%2d", &tmMax.tm_year, &tmMax.tm_mon, &tmMax.tm_mday, &tmMax.tm_hour, &tmMax.tm_min, &tmMax.tm_sec ) ;
@@ -116,7 +116,180 @@ int findLastCharInString( char *strOrig, const char charToFind )
 	return (offsetLastChar +1) ;
 }
 
-int ReadAnalisysParameter( const char *fileName, const char *varToFind, const char *varType, void *var )
+void get_full_path_to_soft_coded_values_file( strcGlobalParameters *glbParam )
+{
+	char *path_only = (char*) new char[500] ;
+	char *dummy_ptr ;
+    strcpy( path_only, glbParam->FILE_PARAMETERS ) ;
+
+    dummy_ptr = strrchr( path_only, '/' ) ; // FIND THE LAST OCCURRENCE
+
+    if ( dummy_ptr != NULL )
+        *(dummy_ptr+1) = '\0' ;
+    else
+	{
+		strcpy( path_only, "./" ) ;
+		printf("\nNo path to soft_coded_values.conf file.\n") ;
+	}
+		
+	sprintf( glbParam->FILE_soft_coded_values, "%s%s", path_only, "soft_coded_values.conf" ) ;
+
+	delete path_only ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+/**
+ * @brief Trims leading and trailing whitespace from a string (mutates the string)
+ */
+static char* trim_whitespace(char* str) 
+{
+    if (!str) return NULL;
+    
+    // Trim leading whitespace
+    while (isspace((unsigned char)*str)) str++;
+    
+    if (*str == 0) return str;
+    
+    // Trim trailing whitespace
+    char* end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)) end--;
+    
+    // Write new null terminator
+    end[1] = '\0';
+    
+    return str;
+}
+
+/**
+ * @brief Reads a variable from a configuration file.
+ * Returns the number of elements found, or -2000 if variable not found.
+ */
+int ReadAnalysisParameter(const char* filePath, const char* varName, const char* varType, void* result) 
+{
+    if (!filePath || !varName || !varType || !result)
+	{
+        return -2000;
+    }
+    
+    FILE* file = fopen(filePath, "r");
+    if (!file) 
+	{
+        return -2000;
+    }
+    
+    char line[2048]; // Buffer for the line
+    int element_count = -2000;
+    
+    while (fgets(line, sizeof(line), file)) 
+    {
+        // Skip whitespace-only lines or comments
+        char* trimmed_line = line;
+        while (isspace((unsigned char)*trimmed_line)) trimmed_line++;
+        
+        if (*trimmed_line == '\0' || *trimmed_line == '#') 
+        {
+            continue;
+        }
+        
+        // Find the equals sign
+        char* equals = strchr(trimmed_line, '=');
+        if (!equals) 
+        {
+            continue;
+        }
+        
+        // Split key and value
+        *equals = '\0';
+        char* key = trim_whitespace(trimmed_line);
+        char* value_str = trim_whitespace(equals + 1);
+        
+        // Check if this is the variable we're looking for
+        if (strcmp(key, varName) == 0) 
+        {
+            if (!value_str || *value_str == '\0') 
+            {
+                element_count = 0;
+                break;
+            }
+            
+            // Single-pass conversion of comma-separated values
+            int count = 0;
+            char* token = strtok(value_str, ",");
+            
+            while (token) 
+            {
+                char* item = trim_whitespace(token);
+                char* endptr = NULL;
+                
+                if (strcmp(varType, "int") == 0) 
+                {
+                    ((int*)result)[count] = (int)strtol(item, &endptr, 10);
+                } 
+                else if (strcmp(varType, "float") == 0) 
+                {
+                    ((float*)result)[count] = strtof(item, &endptr);
+                } 
+                else if (strcmp(varType, "double") == 0) 
+                {
+                    ((double*)result)[count] = strtod(item, &endptr);
+                } 
+                else if (strcmp(varType, "string") == 0) 
+                {
+                    strcpy((char*)result, item);
+                    endptr = item + strlen(item); 
+                }
+                
+                // Advance count and token
+                count++;
+                token = strtok(NULL, ",");
+            }
+            
+            element_count = count;
+            break;
+        }
+    }
+    
+    fclose(file);
+
+    // If variable was not found, set fallback values as per skills.md
+    if (element_count == -2000) {
+        if (strcmp(varType, "int") == 0) {
+            *(int*)result = -2000;
+        } else if (strcmp(varType, "float") == 0) {
+            *(float*)result = -2000.0f;
+        } else if (strcmp(varType, "double") == 0) {
+            *(double*)result = -2000.0;
+        } else if (strcmp(varType, "string") == 0) {
+            strcpy((char*)result, "NOT_FOUND");
+        }
+    }
+
+    return element_count;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+/*
+int ReadAnalysisParameter( const char *fileName, const char *varToFind, const char *varType, void *var )
 {
     ifstream    myfile (fileName) ;
     bool        found =false ;
@@ -172,7 +345,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 				else if ( strcmp( varType, "string" ) == 0 )
 				{
 					ss >> var_name >> eq >> (char*)var ;
-					// printf("\n ReadAnalisysParameter() --> var: %s \n", (char*)var) ;
+					// printf("\n ReadAnalysisParameter() --> var: %s \n", (char*)var) ;
 					// string var_string ;
 					// ss >> var_name >> eq ;
 					// for ( int e =0 ; e <nElemVec ; e++ )
@@ -181,7 +354,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 						// memcpy( (char*)var, (char*)var_string.c_str(), var_string.size() ) ;
 						// memcpy( (char*)var +e, (char*)var_string.c_str(), var_string.size() ) ;
 					// }
-					// printf("\n ReadAnalisysParameter() tokenize string variable \n") ;
+					// printf("\n ReadAnalysisParameter() tokenize string variable \n") ;
 					// string token ;
 					// while( getline( ss, token, '=') )
 					// {
@@ -195,7 +368,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
     }
     else 
 	{
-		printf("\nReadAnalisysParameter() --> Unable to open file %s \n", fileName) ;
+		printf("\nReadAnalysisParameter() --> Unable to open file %s \n", fileName) ;
 		return 0 ;
 	}
     if ( found == false)
@@ -213,52 +386,7 @@ int ReadAnalisysParameter( const char *fileName, const char *varToFind, const ch
 		return -2000 ;
     }
 	return nElemVec ;
-}
-// int ReadAnalisysParameter FROM ChatGPT
-
-// #include <iostream>
-// #include <fstream>
-// #include <sstream>
-// #include <string>
-// #include <vector>
-
-// int main() {
-//   // Open the file
-//   std::ifstream file("data.csv");
-
-//   // Check if the file is open
-//   if (!file.is_open()) {
-//     std::cerr << "Error opening file" << std::endl;
-//     return 1;
-//   }
-
-//   // Read the file line by line
-//   std::string line;
-//   while (std::getline(file, line)) {
-//     // Create a string stream from the line
-//     std::stringstream lineStream(line);
-
-//     // Declare a vector to store the values
-//     std::vector<std::string> values;
-
-//     // Read the values, separated by commas
-//     std::string value;
-//     while (std::getline(lineStream, value, ',')) {
-//       values.push_back(value);
-//     }
-
-//     // Print the values
-//     for (const auto& val : values) {
-//       std::cout << val << " ";
-//     }
-//     std::cout << std::endl;
-//   }
-
-//   // Close the file
-//   file.close();
-
-//   return 0;
-// }
+}*/
 
 /*
 void RayleighFit( double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFil )
@@ -526,10 +654,10 @@ void GetMem_dataAer( strcAerosolData *dataAer, strcGlobalParameters *glbParam )
 int CheckLidarDataBaseIntegrity( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam, int *evStatus )
 {
 	int nBinsMean ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "meanAmeanBsize", "int" , (int*)&nBinsMean ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "meanAmeanBsize", "int" , (int*)&nBinsMean ) ;
 
 	int 	spamAvgWin ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
 	double *s = (double*) new double[glbParam->nBins] ;
 	double meanA, meanB ;
 	meanA = meanB = 0   ;
@@ -562,7 +690,7 @@ int CheckLidarDataBaseIntegrityAVG( strcLidarDataFile *dataFileAVG, strcGlobalPa
 {
 	double sumOut ;
 	// double nBinsFactor ;
-	// ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "nBinsFactor", "double", (int*)&nBinsFactor ) ;
+	// ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, "nBinsFactor", "double", (int*)&nBinsFactor ) ;
 
 	for ( int c=0 ; c < (glbParam->nEventsAVG) ; c++ )
 	{// THE PROFILES WERE ALREADY CHECKED IN dataFile[]. IF WERE FOUND WRONG, WERE SET TO ZERO
@@ -582,7 +710,7 @@ int CheckLidarDataBaseIntegrityAVG( strcLidarDataFile *dataFileAVG, strcGlobalPa
 			// }
 			// else 
 			// {
-				// ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "deltaUnderShoot", "int" , (int*)&deltaUnderShoot ) ;
+				// ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, "deltaUnderShoot", "int" , (int*)&deltaUnderShoot ) ;
 				// sum( (double*)dataFileAVG[glbParam->chSel].db_mV_TEST[e], (int)(glbParam->nBinsEvnt[e] -deltaUnderShoot), (int)(indxMinPr +deltaUnderShoot), (double*)&sTestSum ) ;
 				// if ( sTestSum <0 )
 				// 	return EVNT_WRONG_USHOOT ;
@@ -602,7 +730,7 @@ void checkUnderShoot( double *pr, strcGlobalParameters *glbParam, strcMolecularD
 	double 			*prFit 		= (double*) new double[glbParam->nBins] ;
 
 	double nBinsFactor ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "nBinsFactor", "double", (int*)&nBinsFactor ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "nBinsFactor", "double", (int*)&nBinsFactor ) ;
 
 SET_NEW_INDX_END_SIG:	
 	fitParam.indxEndFit  = glbParam->indxEndSig -stepIndxEnd;
@@ -668,7 +796,7 @@ SET_NEW_INDX_END_SIG:
 // 	indxEvntToAvg[glbParam->nEventsAVG].indxEvntInit =0 ;
 
 // 	int deltaZenithAvg ;
-// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "deltaZenithAvg", "int", (int*)&deltaZenithAvg ) ;
+// 	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "deltaZenithAvg", "int", (int*)&deltaZenithAvg ) ;
 
 // 	COUNT_nEventsAVG:
 // 						if ( (indxS + dIndx) <glbParam->nEvents )
@@ -784,7 +912,7 @@ int GetBinOffset( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam )
 
 // 	sprintf( strSearch, "%s.%d.used_channel", glbParam->siteName, glbParam->year ) ;
 // 	// printf("\n ReadChannelSelected() --> strSearch: %s \n", strSearch) ;
-// 	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "int" , (int*)&used_channel ) ;
+// 	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, strSearch, "int" , (int*)&used_channel ) ;
 // 	// printf("\n ReadChannelSelected() --> used_channel: %d \n", used_channel) ;
 
 //     return used_channel ;
@@ -837,7 +965,7 @@ void FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGlobalParame
 
 // REFERENCE POINT CALCULATION
 	char sigTypeInversionUsed[10];
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "sigTypeInversionUsed", "string" , (char*)sigTypeInversionUsed ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "sigTypeInversionUsed", "string" , (char*)sigTypeInversionUsed ) ;
 	double pr2RefValue ;
 	if ( strcmp(sigTypeInversionUsed, "Fil") ==0 )
 	{
@@ -870,7 +998,7 @@ void FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGlobalParame
 		dataAer->alphaAer[i] = dataAer->betaAer[i]/ka  ; // r
 	}
 	int 	spamAvgWin ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", &spamAvgWin ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", &spamAvgWin ) ;
 	// smoothGSL( (double*)dataAer->alphaAer, (int)(glbParam->nBins), (int)spamAvgWin, (double*)dataAer->alphaAer ) ;
 	smooth( (double*)dataAer->alphaAer, (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)dataAer->alphaAer ) ;
 	for( int i=0 ; i <glbParam->indxInitSig ; i++ )
@@ -881,11 +1009,11 @@ void FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGlobalParame
 		// cumtrapz( dataMol->dzr, dataAer->alphaAer, 0, indxRef, dataAer->VAODr ) ; // VAODr=VAODh
 
 	int 	VAODheigh ; // ALS: ABOVE LIDAR SITE
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH0"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[0] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH1"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[1] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH2"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[2] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH3"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[3] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH_TOT", "int", (int*)&VAODheigh ) ; dataAer->VAOD     = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH0"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[0] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH1"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[1] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH2"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[2] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH3"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[3] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH_TOT", "int", (int*)&VAODheigh ) ; dataAer->VAOD     = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
 	dataAer->SAOD  = dataAer->VAOD / cos( dataMol->zenith * PI/180 ) ;
 }
 
@@ -896,7 +1024,7 @@ void FernaldInversion_pr( double *pr, strcMolecularData *dataMol, strcGlobalPara
 
 // REFERENCE POINT CALCULATION
 	char sigTypeInversionUsed[10];
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "sigTypeInversionUsed", "string" , (char*)sigTypeInversionUsed ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "sigTypeInversionUsed", "string" , (char*)sigTypeInversionUsed ) ;
 	double prRefValue ;
 	if ( strcmp(sigTypeInversionUsed, "Fil") ==0 )
 		prRefValue = pr[indxRef] ;
@@ -932,7 +1060,7 @@ void FernaldInversion_pr( double *pr, strcMolecularData *dataMol, strcGlobalPara
 		dataAer->alphaAer[i] = dataAer->betaAer[i]/ka  ; // r
 	}
 	int 	spamAvgWin ;
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "spamAvgWin", "int", (int*)&spamAvgWin ) ;
 	// smoothGSL( (double*)dataAer->alphaAer, (int)(glbParam->nBins), (int)spamAvgWin, (double*)dataAer->alphaAer ) ;
 	smooth( (double*)dataAer->alphaAer, (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)dataAer->alphaAer ) ;
 	for( int i=0 ; i <glbParam->indxInitInversion ; i++ ) // for( int i=0 ; i <glbParam->indxInitSig ; i++ )
@@ -943,11 +1071,11 @@ void FernaldInversion_pr( double *pr, strcMolecularData *dataMol, strcGlobalPara
 		trapz   ( glbParam->dr, dataAer->alphaAer, 0, indxRef             , &dataAer->SAOD  ) ; // VAODr=VAODh
 
 	int 	VAODheigh ; // ALS: ABOVE LIDAR SITE
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH0"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[0] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH1"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[1] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH2"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[2] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH3"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[3] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
-	ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH_TOT", "int", (int*)&VAODheigh ) ; dataAer->VAOD     = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH0"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[0] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH1"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[1] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH2"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[2] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH3"	, "int", (int*)&VAODheigh ) ; dataAer->aVAOD[3] = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
+	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "VAOD_HEIGH_TOT", "int", (int*)&VAODheigh ) ; dataAer->VAOD     = dataAer->VAODr[ (int)round((VAODheigh-glbParam->siteASL)/dataMol->dzr) ] ; // OK
 }
 */
 
@@ -1093,7 +1221,7 @@ void FindMolecularRange_v2( double *pr2, strcMolecularData *dataMol, strcGlobalP
 	int	*diffIndxMolON = (int*) new int[glbParam->nBins] ;
 
 	strcFitParam	fitParam ;
-	double 	drFit ;		ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, "drFit", "double", (double*)&drFit ) ;
+	double 	drFit ;		ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "drFit", "double", (double*)&drFit ) ;
 	int 	dNfit[1] ; 
 	//for ( int i=0 ; i<NUMELEM(dNfit) ; i++ )		dNfit[i] = (int) round(dZfit[i]/glbParam->dr); // IN CASE OF USING DIFFERENTS drFit
 	dNfit[0] = (int) round(drFit/glbParam->dr);
@@ -1327,7 +1455,7 @@ void chooseEventNumber	( strcGlobalParameters *glbParam, strcTheta *theta, int *
 // */
 // 	}
 // 		double dr, AOD ;
-// 		ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, "dr", "double", (double*)&dr ) ;
+// 		ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, "dr", "double", (double*)&dr ) ;
 // 		trapz( dr, aAer, 0, glbParam->nBins, &AOD ) ;
 // 		printf("\n\t  Simulated AOD: %f \n", AOD) ;
 

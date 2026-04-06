@@ -28,9 +28,9 @@ int main( int argc, char *argv[] )
     strcGlobalParameters    glbParam  ;
 	sprintf( glbParam.FILE_PARAMETERS, "%s", argv[3] ) ;
     
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"inputDataFileFormat"      , (const char*)"string", (char*)glbParam.inputDataFileFormat  ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"outputDataFileFormat"     , (const char*)"string", (char*)glbParam.outputDataFileFormat ) ;
-    // ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Path_To_Global_Parameters", (const char*)"string", (char*)glbParam.Measurement_Att_File ) ;
+    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"inputDataFileFormat"      , (const char*)"string", (char*)glbParam.inputDataFileFormat  ) ;
+    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"outputDataFileFormat"     , (const char*)"string", (char*)glbParam.outputDataFileFormat ) ;
+    // ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Path_To_Global_Parameters", (const char*)"string", (char*)glbParam.Measurement_Att_File ) ;
 
 	string	Path_In ;
 	string	Path_Out, File_Out, Path_File_Out ;
@@ -52,7 +52,7 @@ int main( int argc, char *argv[] )
     struct stat pathFileInput_stat ;
     stat( Path_In.c_str(), &pathFileInput_stat ) ;
 
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"float", (float*)&glbParam.Time_Zone ) ;
+    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Time_Zone" , (const char*)"float", (float*)&glbParam.Time_Zone ) ;
 
     if ( S_ISDIR(pathFileInput_stat.st_mode) )
     { // A *FOLDER* WAS PASSED AS AN ARGUMENT --> analyze all the files within the time bin set in analysisParameter.dat
@@ -197,7 +197,7 @@ int main( int argc, char *argv[] )
         oNCL->Save_LALINET_NCDF_PDL0( (string)Path_File_Out, (strcGlobalParameters*)&glbParam, (double***)dataToSave,
                                        (long*)Raw_Data_Start_Time, (long*)Raw_Data_Stop_Time, (char**)inputFilesInTime ) ;
         char *path_dark_files = (char*) new char[100] ;
-        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"PATH_DARK_FILES", (const char*)"string", (char*)path_dark_files ) ;
+        ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"PATH_DARK_FILES", (const char*)"string", (char*)path_dark_files ) ;
         if ( strcmp(path_dark_files, "NOT_FOUND") !=0 ) // DARK FILES FOUND
         {
             printf("\n Adding noise files (%s) to NetCDF file \n", path_dark_files ) ;  
@@ -217,7 +217,7 @@ int main( int argc, char *argv[] )
         }
 
         char *overlap_file = (char*) new char[100] ;
-        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"OVERLAP_FILE", (const char*)"string", (char*)overlap_file ) ;
+        ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"OVERLAP_FILE", (const char*)"string", (char*)overlap_file ) ;
         // printf("\n Path to overlap file: %s", overlap_file ) ;
         if ( strcmp(overlap_file, "NOT_FOUND") !=0 ) // OVERLAP FILE FOUND
         {

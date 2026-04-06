@@ -2,7 +2,7 @@
 
 # ---------------------------- EDIT CONFIGURATION START HERE
 # DATA LEVEL TO PRODUCE IN THE RUN - "yes"/"no"
-L0="no"
+L0="yes"
 L1="yes"
 L2="yes"
 
@@ -10,16 +10,20 @@ L2="yes"
 #* DO NOT USE SPACES!!!! 
 
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/MultiAngle/lpp_sim_multiangle_L0.nc"
-
 # PATH_IN="/mnt/Disk-1_8TB/Potenza/licel_raw/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/2024/20240810/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Aeroparque/miniLidar/20230728/" 
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241002/" 
-PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240906/2024_09_06_L0.nc"
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/09/22/"
-# PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240903/2024_09_03  _L0.nc"
-# PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20220413/RS/"
-# PATH_IN="/mnt/Disk-1_8TB/Granada/20241021_1816_nCh60/RS/"
+
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Dorrego/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Pilar/20240910/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Tucuman/"
+
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/07/11/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Dorrego/2024/20240829/" 
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241021/" 
+PATH_IN="/mnt/Disk-1_8TB/Argentina/Tucuman/minilidar/2024/20241021/" 
+# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/08/10/"
+# PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20230131/"
+
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
 
 # CONFIGURATION FILES
 # ! SIMULATIONS
@@ -43,7 +47,7 @@ PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240906/2024_09_06_L0.nc"
 # ! POTENZA - MUSA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
 # ! ARGENTINA
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_COMR.conf"
@@ -55,6 +59,6 @@ PATH_IN="/mnt/Disk-1_8TB/Bolivia/20240906/2024_09_06_L0.nc"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_NQN_CALBUCO.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER_CALBUCO.conf"
 #! BOLIVIA
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Bolivia.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Bolivia.conf"
 #! MULTIANGLE
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_multRam.conf"

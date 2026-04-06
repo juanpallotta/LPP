@@ -197,18 +197,19 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->nCh      = size_dim[1] ; glbParam->nLambda    = glbParam->nCh     ; // IT SHOULD BE CALCULATE BASED ON *DIFFERENTS* WAVELENGHS.
 
     glbParam->indxOffset = (int*) new int [ glbParam->nCh ] ;
-    int num_Ch = ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)    glbParam->indxOffset ) ;
+    int num_Ch = ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxOffset" , (const char*)"int"   , (int*)    glbParam->indxOffset ) ;
     if ( num_Ch != glbParam->nCh )
     {
         printf( "\n ERROR: indxOffset MUST have the same number of elemenst as the number of channels (%d)... bye", glbParam->nCh) ;
         exit(1) ;
     }
-    glbParam->nBins    = size_dim[2] ; // 'range' DIMENSION
-    glbParam->nBins_Ch = (int*) new int[ glbParam->nCh ] ;
+    glbParam->nBins        = size_dim[2] ; // 'range' DIMENSION
+    glbParam->nBins_Ch     = (int*) new int[ glbParam->nCh ] ;
+    glbParam->nBins_Ch_eff = (int*) new int[ glbParam->nCh ] ;
 
     ReadVar( (int)ncid, (const char*)"nBins_Ch", (int*)&glbParam->nBins_Ch[0] ) ;
-    // for (int c =0; c <glbParam->nCh; c++)
-    //     glbParam->nBins_Ch[c] = (int)glbParam->nBins_Ch[c] - abs(glbParam->indxOffset[c]) -1 ;
+    for (int c =0; c <glbParam->nCh; c++)
+        glbParam->nBins_Ch_eff[c] = (int)glbParam->nBins_Ch[c] - abs(glbParam->indxOffset[c]) ;
 
     glbParam->nEventsAVG     = (int)round( glbParam->nEvents /glbParam->numEventsToAvg ) ;
 // printf("\n PDL1: glbParam->nEvents= %d \t glbParam->numEventsToAvg= %d \t glbParam->nEventsAVG= %d \n", glbParam->nEvents, glbParam->numEventsToAvg, glbParam->nEventsAVG) ;
@@ -223,8 +224,8 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     glbParam->pres_Pa_agl     = (double*) new double [glbParam->nEvents]     ;   memset( (double*)glbParam->pres_Pa_agl    , 0, (sizeof(double)*glbParam->nEvents)     ) ;
     glbParam->temp_K_agl_AVG  = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->temp_K_agl_AVG , 0, (sizeof(double)*glbParam->nEventsAVG)  ) ;
     glbParam->pres_Pa_agl_AVG = (double*) new double [glbParam->nEventsAVG]  ;   memset( (double*)glbParam->pres_Pa_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG)  ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl[0]  ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"  , (const char*)"double", (int*)&glbParam->pres_Pa_agl[0] ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (int*)&glbParam->temp_K_agl[0]  ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"  , (const char*)"double", (int*)&glbParam->pres_Pa_agl[0] ) ;
     for (  int i =1 ; i < glbParam->nEvents ; i++ )
     {   //* TO BE UPDATED WITH /GetRadiosounding/get_Meteodata.py
         glbParam->temp_K_agl[i]      = glbParam->temp_K_agl[0]      ;
@@ -238,23 +239,21 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 
     if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution"  , (double*)&glbParam->dr) )            )
         ERR(retval);
-    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl", (int*)&glbParam->siteASL) )       )
+    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl"    , (int*)&glbParam->siteASL) )       )
         ERR(retval);
-    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_1"      , (int*)&glbParam->Laser_Frec[0]) ) )
+    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_1"          , (int*)&glbParam->Laser_Frec[0]) ) )
         ERR(retval);
-    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_2"      , (int*)&glbParam->Laser_Frec[1]) ) )
+    if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Laser_Frec_2"          , (int*)&glbParam->Laser_Frec[1]) ) )
         ERR(retval);
 
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg"        , (const char*)"int"   , (int*)   &glbParam->nBinsBkg        ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"range_Bkg_Start" , (const char*)"double", (double*)&glbParam->range_Bkg_Start ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"range_Bkg_Stop"  , (const char*)"double", (double*)&glbParam->range_Bkg_Stop  ) ;
-    glbParam->indx_range_Bkg_Start = (int)round( glbParam->range_Bkg_Start /glbParam->dr ) ;
-    glbParam->indx_range_Bkg_Stop  = (int)round( glbParam->range_Bkg_Stop  /glbParam->dr ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg"        , (const char*)"int"   , (int*)   &glbParam->nBinsBkg        ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"range_Bkg_Start" , (const char*)"double", (double*)&glbParam->range_Bkg_Start ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"range_Bkg_Stop"  , (const char*)"double", (double*)&glbParam->range_Bkg_Stop  ) ;
     
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam->rInitSig   ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam->rInitSig   ) ;
 
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam->indxWL_PDL1 ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam->indxWL_PDL2 ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam->indxWL_PDL1 ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam->indxWL_PDL2 ) ;
 
     glbParam->indxInitSig = (int)round( glbParam->rInitSig /glbParam->dr ) ;
     glbParam->iLambda = (int*) new int [glbParam->nCh] ;
@@ -276,8 +275,8 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 
         for (int c =0 ; c <glbParam->nCh ; c++)
         {
-            glbParam->rEndSig_ev_ch   [e][c] = (double) -1.0 ; // (glbParam->nBins-1) * glbParam->dr  ;
-            glbParam->indxEndSig_ev_ch[e][c] = (int)    -1   ; // glbParam->nBins-1                  ;
+            glbParam->rEndSig_ev_ch   [e][c] = (double) -1000.0 ; 
+            glbParam->indxEndSig_ev_ch[e][c] = (int)    -1000   ; 
         }
     }
 
@@ -384,7 +383,6 @@ void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glb
     ReadVar( (int)ncid_L1_Data, (const char*)"Azimuth_AVG_L1", (double*)glbParam->aAzimuthAVG ) ;
     ReadVar( (int)ncid_L1_Data, (const char*)"Zenith_AVG_L1" , (double*)glbParam->aZenithAVG  ) ;
 
-
     for ( int e =0; e <glbParam->nEventsAVG; e++ )
     {
         // glbParam->temp_K_agl_AVG[e]  = (double)glbParam->temp_K_agl[e] ;
@@ -398,17 +396,13 @@ void CNetCDF_Lidar::Read_L1_into_L2( int ncid_L1_Data, strcGlobalParameters *glb
     if ( ( retval = nc_inq_varid( (int)ncid_L1_Data, (const char*)"Cloud_Mask", (int*)&id_var_lm ) ) )
         ERR(retval) ;
 
-    oDL2->layer_mask = (int**) new int*[ glbParam->nEventsAVG ] ; // TIME DIMENSION
-    for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
-        oDL2->layer_mask[e] = (int*) new int[ glbParam->nBins ] ; // RANGE DIMESIONS
-
     size_t start_lm[2], count_lm[2] ;
     start_lm[0] = 0;    count_lm[0] = 1 ;
     start_lm[1] = 0;    count_lm[1] = glbParam->nBins ;
     for ( int t=0 ; t <glbParam->nEventsAVG ; t++ )
     {
         start_lm[0] =t ;
-        if ( (retval = nc_get_vara_int((int)ncid_L1_Data, (int)id_var_lm, start_lm, count_lm, (int*)&oDL2->layer_mask[t][0] ) ) )
+        if ( (retval = nc_get_vara_int((int)ncid_L1_Data, (int)id_var_lm, start_lm, count_lm, (int*)&oDL2->oLOp->cloudProfiles[t].clouds_ON[0] ) ) )
             ERR(retval) ;
     }
 }
@@ -565,7 +559,7 @@ void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParame
 
     int     id_timescale[glbParam->nCh], channel_ID[glbParam->nCh], Laser_Shots[glbParam->nEventsAVG][glbParam->nCh], LR_Input[glbParam->nCh], Molecular_Calc, Laser_Pointing_Angle_of_Profiles[glbParam->nCh];
     double  Background_Low[glbParam->nCh], Background_High[glbParam->nCh], Pressure_at_Lidar_Station_Pa, Temperature_at_Lidar_Station_K ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg", (const char*)"int"   , (int*)&glbParam->nBinsBkg ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"nBinsBkg", (const char*)"int"   , (int*)&glbParam->nBinsBkg ) ;
     for( int c=0 ; c <glbParam->nCh ; c++ )
     {
         id_timescale[c]     = (int)0  ;
@@ -577,9 +571,9 @@ void CNetCDF_Lidar::Save_SCC_NCDF_Format( string Path_File_Out, strcGlobalParame
         for (int t =0; t <glbParam->nEventsAVG; t++)
             Laser_Shots[t][c] = (int)glbParam->nShots[c] ;
     }
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Molecular_Calc"              , (const char*)"int"   , (int*)   &Molecular_Calc ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"   , (const char*)"double", (double*)&Pressure_at_Lidar_Station_Pa    ) ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (double*)&Temperature_at_Lidar_Station_K ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Molecular_Calc"              , (const char*)"int"   , (int*)   &Molecular_Calc ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pressure_at_Lidar_Station_Pa"   , (const char*)"double", (double*)&Pressure_at_Lidar_Station_Pa    ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temperature_at_Lidar_Station_K", (const char*)"double", (double*)&Temperature_at_Lidar_Station_K ) ;
 
     // DEFINE Raw_Lidar_Data VARIABLE
     DefineVarDims( (int)ncid, (int)3, (string*)dimsName, (int*)dimsSize, (int*)dim_ids, (char*)strNameVars[0].c_str(), (const char*)"double", (int*)&var_ids[0] ) ;
@@ -1013,6 +1007,9 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"beta_mol"        , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[14] ) ; // Beta Mol.
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"N_mol"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[15] ) ; // Mol. Concentration
 
+    DefineVariable( (int)nc_id_group_L1, (char*)"Range_Bkg_start_L1"      , (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[18] ) ; // dataMol->last_Range_Bkg_Low
+    DefineVariable( (int)nc_id_group_L1, (char*)"Range_Bkg_stop_L1"       , (const char*)"double", (int)2, (int*)&dim_ids[0], (int*)&var_ids[19] ) ; // dataMol->last_Range_Bkg_high
+
     int dim_ids_CM[2] ;
     dim_ids_CM[0] = dim_ids[0] ; // TIME
     dim_ids_CM[1] = dim_ids[2] ; // POINTS
@@ -1021,9 +1018,10 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     string strAttListName[5] ;
     int     intAttList   [5] ;
     int     indxWL_PDL1 ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"          , (const char*)"int", (int*)&indxWL_PDL1           ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"          , (const char*)"int", (int*)&indxWL_PDL1           ) ;
     int avg_Points_Cloud_Mask ;
-    ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
+    // ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_soft_coded_values, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
     strAttListName[0] = "indxChannel_for_Cloud_Mask"; intAttList[0] = (int)indxWL_PDL1                  ;
     strAttListName[1] = "num_Points_Bkg"            ; intAttList[1] = (int)glbParam->nBinsBkg           ;
     strAttListName[2] = "Averaged_Profiles_L1"      ; intAttList[2] = (int)glbParam->numEventsToAvg     ;
@@ -1064,7 +1062,12 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
             ERR(retval);
 
         start_ES[0] =e ;
-        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[6], start_ES, count_ES, (double*)&glbParam->rEndSig_ev_ch[e][0] ) ) )
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[6], start_ES, count_ES, (double*)&oMolData->dataMol.last_Range_Mol_High[e][0] ) ) )
+            ERR(retval);
+
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[18], start_ES, count_ES, (double*)&oMolData->dataMol.last_Range_Bkg_Low[e][0] ) ) )
+            ERR(retval);
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[19], start_ES, count_ES, (double*)&oMolData->dataMol.last_Range_Bkg_High[e][0] ) ) )
             ERR(retval);
     }
 
@@ -1227,8 +1230,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
 
     int     indxWL_PDL2 ;
     double  R_ref       ;
-    ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int"    , (int*)&indxWL_PDL2 ) ;
-    ReadAnalisysParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"R_ref"      , (const char*)"double" , (double*)&R_ref    ) ;
+    ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int"    , (int*)&indxWL_PDL2 ) ;
+    ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"R_ref"      , (const char*)"double" , (double*)&R_ref    ) ;
 
     if ( ( retval = nc_put_att_int( (int)nc_id_group_L2, (int)NC_GLOBAL, (const char*)"indxChannel_for_Fernald_inv", NC_INT, 1, (const int*)&indxWL_PDL2 ) ) )
         ERR(retval);

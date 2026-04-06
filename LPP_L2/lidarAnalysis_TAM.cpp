@@ -80,9 +80,9 @@ else if ( (strstr( glbParam.infoFile, "Zenith"  ) != NULL) && (strstr( glbParam.
 		sprintf( radFile, "./atmospheres/DB-%02d.dat", glbParam.month) ;
 
 	double thetaDiff[3] ;
-	readAnalisysParameter( FILE_PARAMETERS, "thetaDiff1", "double" , (double*)&thetaDiff[0] ) ;
-	readAnalisysParameter( FILE_PARAMETERS, "thetaDiff2", "double" , (double*)&thetaDiff[1] ) ;
-	readAnalisysParameter( FILE_PARAMETERS, "thetaDiff3", "double" , (double*)&thetaDiff[2] ) ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "thetaDiff1", "double" , (double*)&thetaDiff[0] ) ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "thetaDiff2", "double" , (double*)&thetaDiff[1] ) ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "thetaDiff3", "double" , (double*)&thetaDiff[2] ) ;
 	strcTheta	theta ; // LOAD THE THETA TO ANALIZE.
 
 // MOLECULAR DATA INFO. INDEX=0/1 -->DATA       INDEX=2 --> ZENITH=0
@@ -131,7 +131,7 @@ for( int a=0 ; a<3 ; a++ )
 			printf( "\n\t ev[0]: %d \t zen[0]: %f \n\t ev[1]: %d \t zen[1]: %f \n", ev[0], zenEv[0], ev[1], zenEv[1] ) ;
 
 	char	used_channel[20] ;
-	readAnalisysParameter( FILE_PARAMETERS, "used_channel", "string" , (char*)used_channel ) ;
+	ReadAnalysisParameter( FILE_PARAMETERS, "used_channel", "string" , (char*)used_channel ) ;
 
 	int ch = selectChannel( &glbParam, used_channel ) ;
 

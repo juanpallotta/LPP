@@ -19,6 +19,41 @@ double sum( double *y, int binInic, int binEnd, double *sumOut )
     }
 }
 
+double sum_int( int *y, int binInic, int binEnd, int *sumOut )
+{
+	*sumOut = 0 ;
+
+    if ( binInic < binEnd )
+    {
+        for ( int i=binInic ; i <= binEnd ; i++ )
+            *sumOut = *sumOut + (int)y[i] ;
+
+    	return *sumOut ;
+    }
+    else
+    {
+        printf("\n\n Wrong call to sum_int() function (binInic > binEnd)... exit \n\n") ;
+        exit(1) ;
+    }
+}
+
+double mean( double *y, int binInic, int binEnd, double *meanOut )
+{
+    if ( binInic < binEnd )
+    {
+        double sumOut ;
+        sum( (double*)y, (int)binInic, (int)binEnd, (double*)&sumOut ) ;
+        *meanOut = (double)sumOut / (double)(binEnd - binInic +1) ;
+
+        return *meanOut ;
+    }
+    else
+    {
+        printf("\n\n Wrong call to mean() function (binInic > binEnd)... exit \n\n") ;
+        exit(1) ;
+    }
+}
+
 void cumtrapz ( double dx, double *y, int binInic, int binEnd, double *intFunc )
 {
 
@@ -102,18 +137,20 @@ void findIndxMin( double *vec, int indxInic, int indxEnd, int *indxMin, double *
             }
         }
         else
-            printf("\n findIndxMin --> vec[%d] = %lf (NAN)\n", i, vec[i]) ;
+            printf("\n\n\t(1)findIndxMin --> vec[%d] = %lf (NAN)\n", i, vec[i]) ;
 	}
-    
+
     if ( (*indxMin) > indxEnd )
     {
-        printf("\n\n\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n", indxInic, *indxMin, indxEnd) ;
+        printf("\n\n\t(2)findIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n", indxInic, *indxMin, indxEnd) ;
         exit(1) ;
     }
     else if ( (*indxMin) <0 )
     {
-        printf("\tfindIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n", indxInic, *indxMin, indxEnd) ;
-        exit(1) ;
+        printf("\n\n\t(3)findIndxMin(error) --> indxInic= %d \t indxMin = %d \t indxEnd= %d\n\tbye...\n Define indxMin as the first index", indxInic, *indxMin, indxEnd) ;
+        *indxMin = indxInic ;
+        *min = vec[*indxMin] ;
+        // exit(1) ;
     }
 }
 
@@ -208,13 +245,66 @@ void findIndxMax_void( void *vec, const char *varType, int indxInic, int indxEnd
     }
 }
 
+void smooth(double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAvg) 
+{
+    if (indxInit < 0) 
+    {
+        printf("Initial index is lower than 0 in the smooth function.\n");
+        return;
+    }
+
+    if (indxInit > indxEnd) 
+    {
+        printf("Initial index is greater than the final index in the smooth function.\n");
+        return;
+    }
+
+    if (spam < 0) 
+    {
+        for (int i = indxInit; i <= indxEnd; i++) 
+        {
+            sigMeanAvg[i] = sig[i];
+        }
+        return;
+    }
+
+    if (spam % 2 == 0) 
+    {
+        spam++;
+    }
+
+    int half = (spam - 1) / 2;
+
+    for (int i = indxInit; i <= indxEnd; i++) 
+    {
+        double sum = 0.0;
+        int count = 0;
+
+        for (int j = i - half; j <= i + half; j++) 
+        {
+        // Check if within the specified range [indxInit, indxEnd]
+            if (j >= indxInit && j <= indxEnd) 
+            {
+                sum += sig[j];
+                count++;
+            }
+        }
+
+        if (count > 0) 
+        {
+            sigMeanAvg[i] = sum / count;
+        } 
+        else 
+        {
+            sigMeanAvg[i] = sig[i];
+        }
+    }
+}
+
+/* PRIMERA VERSION MIA
 void smooth( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAvg )
 {
 	double  m 	= 0 ;
-
-    // if (spam%2 != 0) // IF SPAM IS ODD, MAKE IT EVEN
-    //     spam++ ;
-    // int halfSpam = (int)floor(spam/2) ;
     
 	if( (indxEnd - indxInit) >= spam )
 	{
@@ -228,7 +318,6 @@ void smooth( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAv
 			for( int b=0 ; b<spam ; b++ )	m = m + sig[i+b] ;
 			m 	= (double)(m/spam) ;
 
-			// avgSig[ i-indxInit +halfSpam ] = (double)m ;
 			avgSig[ i-indxInit ] = (double)m ;
 			m =0 ;
 		}
@@ -240,25 +329,13 @@ void smooth( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAv
         delete avgSig ;
 	}
 }
+*/
 
-// vector<double> smooth(vector<double> arr, int window_size) 
-// {
-//     vector<double> smoothed_arr;
-//     double sum = 0;
 
-//     for(int i = 0; i < window_size; i++) {
-//         sum += arr[i];
-//     }
 
-//     smoothed_arr.push_back(sum / window_size);
 
-//     for(int i = window_size; i < arr.size(); i++) {
-//         sum += arr[i] - arr[i - window_size];
-//         smoothed_arr.push_back(sum / window_size);
-//     }
 
-//     return smoothed_arr;
-// }
+
 
 //----------------------------------------------------
 //

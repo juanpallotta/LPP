@@ -13,15 +13,14 @@ class CDataLevel_1
 		CDataLevel_1( strcGlobalParameters* );
 		~CDataLevel_1();
 
-		void ScanCloud_RayleighFit( const double*, strcGlobalParameters*, strcMolecularData* ) ;
-		void GetCloudLimits( strcGlobalParameters* ) ;
+		// void ScanCloud_RayleighFit( const double*, strcGlobalParameters*, strcMolecularData*    ) ;
+		void Layer_Mask			  ( const double*, strcMolecularData*   , strcGlobalParameters* ) ;
+		void FilterThinClouds( strcGlobalParameters*, double* ) ;
+		void FilterThinClouds( strcGlobalParameters*, int*    ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, strcCloudInfoDB_LPP* ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, int* ) ;
 
-		CLidar_Operations 	*oLOp ;
-
-	    strcCloudProfiles 	*cloudProfiles 			;
-		strcIndexMol      	*indxMol  	 			;
+		CLidar_Operations 	*oLOp 					;
 		double 				**pr_for_cloud_mask		;
 		double 				**SE_lay     			;
 		double				*prS, errRefBkg			;
@@ -30,12 +29,10 @@ class CDataLevel_1
 		string		  		strCompCM, strCompPBL  	;
 
 	private:
-		void	GetMem_indxMol( strcGlobalParameters*) ;
-	    void 	GetMem_cloudProfiles( strcGlobalParameters* ) ;
-
-		double			errFitStage, errFactor, errScanCheckFactor, errCloud, biasRef, sppm, spm, spmpm, m, thresholdFactor, errCloudCheckFactor ;
-		double			*prFit, *prprm, *prmprm ;
-		int 			nScanMax, CLOUD_MIN_THICK, first_cluster_ON, stepScanCloud, scanNumExit, sum_misc, DELTA_RANGE_LIM_BINS ;
+		// double 			errFactor, thresholdFactor, errScanCheckFactor, errCloudCheckFactor, DELTA_RANGE_LIM_BINS ;
+		double			errFitStage, errCloud, biasRef, sppm, spm, spmpm, m ;
+		double			*prFit, *pr2, *prprm, *prmprm ;
+		int 			CLOUD_MIN_THICK, stepScanCloud, first_cluster_ON, scanNumExit, sum_misc ;
 		int				nMaxLoop ;
 		char 			ifODcut[5] ;
 		strcFitParam	fitParam ;

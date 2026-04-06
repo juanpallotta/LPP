@@ -63,6 +63,7 @@ typedef struct{
 struct strcGlobalParameters
 {
 	char 	FILE_PARAMETERS[500] 		; //! MAKE IT string CLASS!!!!!
+	char 	FILE_soft_coded_values[500] ; //! MAKE IT string CLASS!!!!!
 	// char 	Measurement_Att_File[500] 	;
 	char    inputDataFileFormat[50]	;
 	char	*Path_File_In  			;
@@ -87,14 +88,13 @@ struct strcGlobalParameters
 	double  MAX_TOGGLE_RATE_MHZ 	;
 	double  PHO_MAX_COUNT_MHz    	; // [MHz] PHOTONCOUNTING MAXIMUN COUNT RATE 
     int     chSel               	;
-	int 	*nBins_Ch				; // int 	nBins_Ch[MAX_CH_LICEL]	;
+	int 	*nBins_Ch				;
+	int 	*nBins_Ch_eff			;
 	int 	nBinsRaw				;
 	int 	nBins_in_File			;
 	int 	nBinsBkg 				;
 	double 	range_Bkg_Start			;
 	double	range_Bkg_Stop 			;
-	int 	indx_range_Bkg_Start	;
-	int		indx_range_Bkg_Stop 	;
 	int 	nBins					;
 	double 	rInitSig				;
 	int 	indxInitSig				;
@@ -168,6 +168,8 @@ struct strcGlobalParameters
 	bool	is_Dark_Current_Loaded =false ;
 	bool	is_Ovlp_Data_Loaded  =false ;
 
+	float	std_factor_layer_mask	; // FOR LAYER MASK DETECTION, LOADED IN /Lidar_Configuration_Files/soft_coded_values.conf
+
 	int 	MonteCarlo_N_SigSet_Err	;
 
 	double 	drFit					;
@@ -200,10 +202,16 @@ struct strcMolecularData
 	double  LR_mol					;
 	int  	z_Mol_Max				;
 
-	int		last_Indx_Mol_Low  =-1	;
-	int		last_Indx_Mol_High =-1	;
-	int		last_Indx_Bkg_Low  =-1	;
-	int		last_Indx_Bkg_High =-1	;
+	int		**last_Indx_Mol_Low  	;
+	int		**last_Indx_Mol_High 	;
+	int		**last_Indx_Bkg_Low 	;
+	int		**last_Indx_Bkg_High	;
+
+	double	**last_Range_Mol_Low  	;
+	double	**last_Range_Mol_High 	;
+	double	**last_Range_Bkg_Low 	;
+	double	**last_Range_Bkg_High	;
+
 	double	heightRef_Inversion_ASL ;
 } ;
 
@@ -290,11 +298,27 @@ struct strcCloudProfiles
 	int 	*clouds_ON 		;
 	int 	*indxInitClouds	;
 	int 	*indxEndClouds 	;
+
+	int 	indxEndPBL 	;
+	double 	rangeEndPBL 	;
+
 	int 	nClouds			;
 	int 	nRangesMol		;
 	double  *test_1			;
 	double  *test_2			;
 	double 	*VOD_cloud		;
+} ;
+
+struct strcIndexMol
+{
+	int		*indxMolON 	 ; // size(indxMolON) = nBins   1->MOL   0->AER
+	int		nMolRanges 	 ; // CONTAIN THE NUMBER OF MOLECULAR RANGES DETECTED.
+	int 	*indxInicMol ;
+	int 	*indxEndMol  ;
+	double 	*errRMS		 ;
+    int     indxRef      ;
+	double 	ablHeight    ;
+	double 	endRayFit	 ;
 } ;
 
 struct strcCloudInfoDB
@@ -402,18 +426,6 @@ struct strcFitParam
 	// double  cov00    ;
 	// double 	cov01   ;
 	// double 	cov11   ;
-} ;
-
-struct strcIndexMol
-{
-	int		*indxMolON 	 ; // size(indxMolON) = nBins   1->MOL   0->AER
-	int		nMolRanges 	 ; // CONTAIN THE NUMBER OF MOLECULAR RANGES DETECTED.
-	int 	*indxInicMol ;
-	int 	*indxEndMol  ;
-	double 	*errRMS		 ;
-    int     indxRef      ;
-	double 	ablHeight    ;
-	double 	endRayFit	 ;
 } ;
 
 struct strcIndxLimToAvg

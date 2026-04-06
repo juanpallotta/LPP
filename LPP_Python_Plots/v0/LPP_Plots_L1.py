@@ -16,7 +16,7 @@ from scipy.interpolate import interp2d
 import sys
 
 minFactor = 0.00
-maxFactor = 1.00
+maxFactor = 0.03
 maxRange  = 20000
 
 nc_file = sys.argv[1]
@@ -70,8 +70,9 @@ yy, xx = np.meshgrid(r, time_L1)
 
 # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 10))
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(24, 10))
-# ax1.pcolor(xx, yy, RCLS_L1, vmin=minRCLS, vmax=maxRCLS, cmap='jet')
-ax1.pcolor(xx, yy, RCLS_L1, cmap='jet')
+# i need to 
+ax1.pcolor(xx, yy, RCLS_L1, vmin=minRCLS, vmax=maxRCLS, cmap='jet')
+# ax1.pcolor(xx, yy, RCLS_L1, cmap='jet')
 ax2.pcolor(xx, yy, CM)
 
 ax1.set_title('RCLS')

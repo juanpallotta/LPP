@@ -59,24 +59,25 @@ int main( int argc, char *argv[] )
     
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
 
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL1 ) ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL2 ) ;
+    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL1 ) ;
+    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL2 ) ;
     glbParam.numEventsToAvg = glbParam.numEventsToAvg_PDL2 ;
 
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
-    CDataLevel_1    *oDL1 ;
+    CDataLevel_1    *oDL1 ; // IS ONLY USED IF glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
-    int nCh_to_invert = ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
+    int nCh_to_invert = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
     nCh_to_invert = 1 ; // *NUMBER* OF CHANNELS TO INVERT
     assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
     glbParam.chSel  = glbParam.indxWL_PDL2 ;
 
-    ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method"             , "string", (char*)oDL2->reference_method.c_str()         ) ;
-	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Start_ASL", "double", (double*)&oDL2->heightRef_Inversion_Start_ASL ) ;
-	ReadAnalisysParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL" , "double", (double*)&oDL2->heightRef_Inversion_Stop_ASL  ) ;
-// LOADING LIDAR DATA  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method"             , "string", (char*)   oDL2->reference_method.c_str()      ) ;
+	ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Start_ASL", "double", (double*)&oDL2->heightRef_Inversion_Start_ASL ) ;
+	ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL" , "double", (double*)&oDL2->heightRef_Inversion_Stop_ASL  ) ;
+
+    // LOADING LIDAR DATA  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // READ DATA FROM L0 DATA LEVEL AND AVERAGE TO L2 DATA LEVEL
     {
         oNCL.Read_L0_into_L2 ( (int)ncid, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
@@ -89,7 +90,8 @@ int main( int argc, char *argv[] )
     }
     else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2 ===> LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED --> COPY TO L2 OBJECT
         oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
-                    // AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 
+
+        //! AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam  ) ;
 
@@ -107,10 +109,6 @@ int main( int argc, char *argv[] )
 
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0 --> CORRECTIONS MUST BE APPLIED
     {
-        oDL2->layer_mask = (int**) new int*[ glbParam.nEventsAVG ] ; // TIME DIMENSION
-        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-            oDL2->layer_mask[e] = (int*) new int[ glbParam.nBins ] ; // POINTS DIMESIONS
-
         double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
         double  ***pr2     = (double***) new double**[glbParam.nEventsAVG];
         for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
@@ -228,15 +226,12 @@ int main( int argc, char *argv[] )
                 printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
 
             oDL1->strCompPBL.assign("YES") ;
-            oDL1->ScanCloud_RayleighFit( (const double*)&oDL2->pr[t][0], (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-
-            for (int b = 0; b <glbParam.nBins ; b++)
-                oDL2->layer_mask[t][b] = oDL1->cloudProfiles[t].clouds_ON[b] ;
-                // COPIAR TAMBIEN LOS DATOS DE LOS INDICES MOLECULARES
+            oDL1->strCompCM.assign ("YES") ;
+            oDL1->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
         }
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
-        ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MonteCarlo_N_SigSet_Err", (const char*)"int", (int*)&glbParam.MonteCarlo_N_SigSet_Err ) ;
+        ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MonteCarlo_N_SigSet_Err", (const char*)"int", (int*)&glbParam.MonteCarlo_N_SigSet_Err ) ;
         for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 
         {
             if ( glbParam.MonteCarlo_N_SigSet_Err >=1 )

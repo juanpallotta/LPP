@@ -43,10 +43,11 @@ using namespace std;
 
 bool 	isFileInTimeRange			( char*, time_t, time_t, strcGlobalParameters*) ;
 int  	getInputFilesInTimeRange  	( char*, char**, strcGlobalParameters* ) ;
-int 	ReadAnalisysParameter	   	( const char*, const char*, const char*, void* ) ;
+int 	ReadAnalysisParameter	   	( const char*, const char*, const char*, void* ) ;
 // template<typename T>
-// int 	ReadAnalisysParameter_template ( const char*, const char*, const char*, T& ) ;
-int 	findLastCharInString		( char*, const char ) ;
+// int 	ReadAnalysisParameter_template ( const char*, const char*, const char*, T& ) ;
+int 	findLastCharInString		            ( char*, const char     ) ;
+void 	get_full_path_to_soft_coded_values_file ( strcGlobalParameters* ) ;
 
 // void 	Elastic_Rayleigh_Lidar_Signal_ ( strcMolecularData*, double* ) ;
 

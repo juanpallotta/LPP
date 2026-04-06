@@ -8,7 +8,7 @@
 
 CMolecularData::CMolecularData( strcGlobalParameters *glbParam )
 {
-	GetMem_dataMol( (int)glbParam->nBins ) ; // MEMORY ALLOCATION FOR dataMol STRUCTURE.
+	GetMem_dataMol( (strcGlobalParameters*)glbParam ) ; // MEMORY ALLOCATION FOR dataMol STRUCTURE.
 }
 
 CMolecularData::~CMolecularData()
@@ -16,27 +16,46 @@ CMolecularData::~CMolecularData()
 
 }
 
-void CMolecularData::GetMem_dataMol( int nBins )
+void CMolecularData::GetMem_dataMol( strcGlobalParameters *glbParam )
 {
-		dataMol.nBins	  	 = (int)nBins ;
-		dataMol.zr		  	 = (double*) new double [nBins] ; memset( dataMol.zr	    , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.z_asl	  	 = (double*) new double [nBins] ; memset( dataMol.z_asl	, 0, ( sizeof(double) * nBins) ) ;
-		dataMol.betaMol   	 = (double*) new double [nBins] ; memset( dataMol.betaMol  , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.alphaMol  	 = (double*) new double [nBins] ; memset( dataMol.alphaMol , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.betaMol_avg  = (double*) new double [nBins] ; memset( dataMol.betaMol_avg  , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.alphaMol_avg = (double*) new double [nBins] ; memset( dataMol.alphaMol_avg , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.nMol  	  	 = (double*) new double [nBins] ; memset( dataMol.nMol     , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.prMol	  	 = (double*) new double [nBins] ; memset( dataMol.prMol    , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.prMol_avg 	 = (double*) new double [nBins] ; memset( dataMol.prMol_avg, 0, ( sizeof(double) * nBins) ) ;
-		dataMol.pr2Mol	  	 = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.pr2Mol_avg 	 = (double*) new double [nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) * nBins) ) ;
+		dataMol.nBins	  	 = (int)glbParam->nBins ;
+		dataMol.zr		  	 = (double*) new double [glbParam->nBins] ; memset( dataMol.zr	     , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.z_asl	  	 = (double*) new double [glbParam->nBins] ; memset( dataMol.z_asl	 , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.betaMol   	 = (double*) new double [glbParam->nBins] ; memset( dataMol.betaMol  , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.alphaMol  	 = (double*) new double [glbParam->nBins] ; memset( dataMol.alphaMol , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.betaMol_avg  = (double*) new double [glbParam->nBins] ; memset( dataMol.betaMol_avg  , 0, ( sizeof(double) 	* glbParam->nBins) ) ;
+		dataMol.alphaMol_avg = (double*) new double [glbParam->nBins] ; memset( dataMol.alphaMol_avg , 0, ( sizeof(double) 	* glbParam->nBins) ) ;
+		dataMol.nMol  	  	 = (double*) new double [glbParam->nBins] ; memset( dataMol.nMol     , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.prMol	  	 = (double*) new double [glbParam->nBins] ; memset( dataMol.prMol    , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.prMol_avg 	 = (double*) new double [glbParam->nBins] ; memset( dataMol.prMol_avg, 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.pr2Mol	  	 = (double*) new double [glbParam->nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
+		dataMol.pr2Mol_avg 	 = (double*) new double [glbParam->nBins] ; memset( dataMol.pr2Mol   , 0, ( sizeof(double) 		* glbParam->nBins) ) ;
 		dataMol.zenith	  	 = 0 ;
 
-		dataMol.tK	 = (double*) new double [nBins] ; memset( dataMol.tK , 0, ( sizeof(double) * nBins) ) ;
-		dataMol.pPa	 = (double*) new double [nBins] ; memset( dataMol.pPa, 0, ( sizeof(double) * nBins) ) ;
+		dataMol.tK	 = (double*) new double [glbParam->nBins] ; memset( dataMol.tK , 0, ( sizeof(double) * glbParam->nBins) ) ;
+		dataMol.pPa	 = (double*) new double [glbParam->nBins] ; memset( dataMol.pPa, 0, ( sizeof(double) * glbParam->nBins) ) ;
 
-		// dataMol.last_Indx_Mol_Low  =-1 ;
-		// dataMol.last_Indx_Mol_High =-1 ;
+		dataMol.last_Indx_Mol_Low  = (int**) new int* [glbParam->nEventsAVG] ;
+		dataMol.last_Indx_Mol_High = (int**) new int* [glbParam->nEventsAVG] ;
+		dataMol.last_Indx_Bkg_Low  = (int**) new int* [glbParam->nEventsAVG] ;
+		dataMol.last_Indx_Bkg_High = (int**) new int* [glbParam->nEventsAVG] ;
+
+		dataMol.last_Range_Mol_Low  = (double**) new double* [glbParam->nEventsAVG] ;
+		dataMol.last_Range_Mol_High = (double**) new double* [glbParam->nEventsAVG] ;
+		dataMol.last_Range_Bkg_Low  = (double**) new double* [glbParam->nEventsAVG] ;
+		dataMol.last_Range_Bkg_High = (double**) new double* [glbParam->nEventsAVG] ;	
+		for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
+		{
+			dataMol.last_Indx_Mol_Low [e]  = (int*) new int [glbParam->nCh] ;			memset( dataMol.last_Indx_Mol_Low [e] , 0, ( sizeof(int) * glbParam->nCh) ) ;
+			dataMol.last_Indx_Mol_High[e]  = (int*) new int [glbParam->nCh] ;			memset( dataMol.last_Indx_Mol_High[e] , 0, ( sizeof(int) * glbParam->nCh) ) ;
+			dataMol.last_Indx_Bkg_Low [e]  = (int*) new int [glbParam->nCh] ;			memset( dataMol.last_Indx_Bkg_Low [e] , 0, ( sizeof(int) * glbParam->nCh) ) ;
+			dataMol.last_Indx_Bkg_High[e]  = (int*) new int [glbParam->nCh] ;			memset( dataMol.last_Indx_Bkg_High[e] , 0, ( sizeof(int) * glbParam->nCh) ) ;
+
+			dataMol.last_Range_Mol_Low [e]  = (double*) new double [glbParam->nCh] ;	memset( dataMol.last_Range_Mol_Low [e] , 0, ( sizeof(double) * glbParam->nCh) ) ;	
+			dataMol.last_Range_Mol_High[e]  = (double*) new double [glbParam->nCh] ;	memset( dataMol.last_Range_Mol_High[e] , 0, ( sizeof(double) * glbParam->nCh) ) ;
+			dataMol.last_Range_Bkg_Low [e]  = (double*) new double [glbParam->nCh] ;	memset( dataMol.last_Range_Bkg_Low [e] , 0, ( sizeof(double) * glbParam->nCh) ) ;
+			dataMol.last_Range_Bkg_High[e]  = (double*) new double [glbParam->nCh] ;	memset( dataMol.last_Range_Bkg_High[e] , 0, ( sizeof(double) * glbParam->nCh) ) ;	
+		}
 }
 
 // READ THE RADIOSONDE/MODEL DATA, FILL THE dataMol STRUCTURE AND TRANSFORM IT IN HIGH RESOLUTION
@@ -47,7 +66,7 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 	char 	lineaRad[100], strDump[100] ;
 
 	string radFile ;
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Path_To_Molecular_File", (const char*)"string", (char*)radFile.c_str() ) ;
+	ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Path_To_Molecular_File", (const char*)"string", (char*)radFile.c_str() ) ;
 
 	FILE *fid = fopen(radFile.c_str(), "r");
 	if ( fid == NULL )
@@ -76,9 +95,9 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 	double *rad_Data_file = (double*) new double [3] ; 	memset( rad_Data_file, 0, (sizeof(double) *3) ) ;
 
 	int indx_range =0, indx_Temp =0, indx_Pres =0 ;
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Range_column_index_in_File", (const char*)"int", (int*)&indx_range ) ;
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temp_column_index_in_File" , (const char*)"int", (int*)&indx_Temp  ) ;
-	ReadAnalisysParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pres_column_index_in_File" , (const char*)"int", (int*)&indx_Pres  ) ;
+	ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Range_column_index_in_File", (const char*)"int", (int*)&indx_range ) ;
+	ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Temp_column_index_in_File" , (const char*)"int", (int*)&indx_Temp  ) ;
+	ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"Pres_column_index_in_File" , (const char*)"int", (int*)&indx_Pres  ) ;
 
 // printf("\n glbParam.temp_K_agl_AVG[0]= %lf \t glbParam.pres_Pa_agl_AVG[0]= %lf \n", glbParam->temp_K_agl_AVG[0], glbParam->pres_Pa_agl_AVG[0] ) ;
 

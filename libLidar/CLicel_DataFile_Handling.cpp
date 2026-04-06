@@ -27,8 +27,8 @@ void CLicel_DataFile_Handling::ReadLicel_Time_and_Coord( FILE *fid, strcGlobalPa
 
 	// 	//! IMPLEMENT THIS: IF THE FILE IS LICEL TYPE, SET THE TEMP AND PRESSURE FROM THE CONFIGURATION FILE.
 	// 	//! SAVE THIS ARRAYS IN DATA LEVEL 0 
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station_K", "double", (double*)&glbParam->temp_K_agl[glbParam->evSel] ) ;
-		// ReadAnalisysParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station_Pa"   , "double", (double*)&glbParam->pres_Pa_agl[glbParam->evSel]     ) ;
+		// ReadAnalysisParameter( (const char*) glbParam->FILE_PARAMETERS, "Temperature_at_Lidar_Station_K", "double", (double*)&glbParam->temp_K_agl[glbParam->evSel] ) ;
+		// ReadAnalysisParameter( (const char*) glbParam->FILE_PARAMETERS, "Pressure_at_Lidar_Station_Pa"   , "double", (double*)&glbParam->pres_Pa_agl[glbParam->evSel]     ) ;
 		glbParam->temp_K_agl[glbParam->evSel]  = (double)-999.0 ;
 		glbParam->pres_Pa_agl[glbParam->evSel] = (double)-999.0 ;
 

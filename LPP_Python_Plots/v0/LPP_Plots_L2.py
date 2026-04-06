@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import sys
 
-indx_Max = 4000
+indx_Max = 1866
 minFactor = 0.00
 maxFactor = 1.00
 
@@ -38,6 +38,7 @@ AOD_LR    = np.array(fh["/L2_Data/AOD_LR"]).transpose()
 time_L2   = np.array(fh["/L2_Data/Start_Time_AVG_L2"][:])
 time_L2   = np.array(time_L2, dtype='datetime64[s]')
 
+# PLOTTEAR SOLO SI EXISTE EL GRUPO DE AERONET
 # AERONET_AOD_at_LidarTime   = fh["/L2_Data/AERONET_Data/AERONET_AOD_532nm_at_LidarTime"]
 # AOD_Lidar_532nm_vs_AERONET = fh["/L2_Data/LIDAR_AERONET_synergy/AOD_Lidar_532nm_vs_AERONET"]
 # plt.figure(num=4,figsize=(12,3),clear=True)
@@ -86,7 +87,7 @@ for l in np.arange(len(LRs), step=1):
 # COD = 7.5*np.sum( alpha_Aer[indx_Time_to_Plot][0][1000:2000] )
 # print("\nCOD:", COD )
 # plt.xlim(0, 10) ;
-plt.xlabel('Aerosols Extinction [Mm$^{-1}$]')
+plt.xlabel('Particle Extinction [Mm$^{-1}$]')
 plt.ylabel('Range [km]')
 plt.legend(loc='upper right')
 plt.title(time_L2[indx_Time_to_Plot])
@@ -101,7 +102,7 @@ plt.figure(num=1,figsize=(8,6),clear=True)
 for l in np.arange(len(LRs), step=1):
     plt.plot( beta_Aer[indx_Time_to_Plot][l][0:indx_Max]*1e6, r[0:indx_Max], linestyle='-', label=str(LRs[l]) + ' sr')
 
-plt.xlabel('Aerosols Backscattering [Mm$^{-1}$ sr$^{-1}$]')
+plt.xlabel('Particle Backscattering [Mm$^{-1}$ sr$^{-1}$]')
 plt.ylabel('Range [km]')
 plt.legend(loc='upper right')
 plt.title(time_L2[indx_Time_to_Plot])

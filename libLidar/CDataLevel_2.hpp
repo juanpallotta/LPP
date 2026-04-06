@@ -15,7 +15,7 @@ class CDataLevel_2
 		// void 	Fernald_1983    ( strcGlobalParameters*, int, int, strcMolecularData* ) ;
 		void 	FernaldInversion( strcGlobalParameters*, strcMolecularData* 				) ;
 		void 	FernaldInversion( double*, strcMolecularData *, strcGlobalParameters *	 	) ;
-		void 	Find_Ref_Range  (strcGlobalParameters*, strcMolecularData*			  		) ;
+		void 	Find_Ref_Range  (strcGlobalParameters*								  		) ;
 
 		void  	GetMemStrcErrorSigSet( strcErrorSignalSet*, int, int ) 						 ;
 		void 	MonteCarloRandomError( strcGlobalParameters*, strcMolecularData* ) ;
@@ -35,7 +35,6 @@ class CDataLevel_2
 		double  ***data_File_L0, ***data_File_L2    ;
 		int		*Start_Time_AVG_L2, *Stop_Time_AVG_L2 ;
 		int		*Start_Time_L0, *Stop_Time_L0 		;
-		int 	**layer_mask 						;
 		double  *dummy, *pr2_s			 			;
 		// double  *pr2Fit						; // *prFit, 
 		double  dzr									;

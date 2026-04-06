@@ -13,19 +13,27 @@ public:
     ~CLidar_Operations();
 
     strcFitParam    fitParam                ;
+    double          prMean, prMolMean       ;
     double          *dummy, *dummy1         ;
     int 	        nBiasRes_Auto =5        ; 
-    double          bias_pre_trigger = 0.0  ;
+    double          bias_pre_trigger = 0.0, bkg_mean = 0.0, bkg_std = 0.0  ;
     int 	        nLoopFindBias =5        ;
+    int             avg_Points_Cloud_Mask   ;
+
+    strcCloudProfiles 	*cloudProfiles 		;
+    strcIndexMol      	*indxMol  	 		;
+    void    GetCloudLimits        ( strcGlobalParameters*                                                       ) ;
 
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
-    // void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
-    void    BiasCorrection    ( double*, strcGlobalParameters*, strcMolecularData*                     ) ;
-    // void    BiasCorrection    ( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*        ) ;
-    // void 	Bias_Residual_Correction( const double*, strcGlobalParameters*, strcMolecularData*, double*     ) ;
-    void    Find_Max_Range    ( double*, strcMolecularData*, strcGlobalParameters*                              ) ;
-    void    Remove_Cloud_Mol_Range( double*, strcGlobalParameters*, strcMolecularData*                          ) ;
+
+    void    BiasCorrection    ( double*, strcGlobalParameters*, strcMolecularData*                              ) ;
+
+    void    Find_Max_Range        ( double*, strcMolecularData*, strcGlobalParameters*                          ) ;
+    void    Find_Max_Mol_Range    ( double*, strcMolecularData*, strcGlobalParameters*, int                     ) ;
+    
+
+    // void    Remove_Cloud_Mol_Range( double*, strcGlobalParameters*, strcMolecularData*                          ) ;
     void    Remove_Bkg_Mol_Range  ( double*, strcGlobalParameters*, strcMolecularData*                          ) ;
     void    Bias_Substraction_Auto( double*, strcMolecularData*, strcGlobalParameters*, double*, double*        ) ;
     void 	Bias_Substraction_Mean( double*, strcMolecularData*, strcGlobalParameters*, double*                 ) ;
@@ -37,15 +45,18 @@ public:
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
     void    GluingLidarSignals( strcGlobalParameters*, double*** ) ;
 
-    void    Fit ( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
+    void    Fit         ( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
+    void    RayleighFit ( double*, double*, int,                           strcFitParam*, double* ) ;
 
     void 	TransmissionMethod_pr( double*, strcGlobalParameters*, strcMolecularData*, int, int, double* ) ;
 
     void 	ODcut	 			 ( double*, strcMolecularData*, strcGlobalParameters*, strcFitParam*, int* ) ;
 
 private:
-    double  *pr_NObkg_i, *pr2_i ;
-    // double  *errRMS_mol, *errRMS_k, *rate, *k_ones, *R2_array;
+    void	GetMem_indxMol      ( strcGlobalParameters* ) ;
+    void 	GetMem_cloudProfiles( strcGlobalParameters* ) ;
+
+    double  *pr_misc, *pr2_i, *prS ;
 
 	double 	*errRMS_Bias, *coeff ;
 	double  *b_i                 ;

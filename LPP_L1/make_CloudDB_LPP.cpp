@@ -132,12 +132,12 @@ int main( int argc, char *argv[] )
     }
     glbParam.nCh     = size_dim_Raw_Lidar_Data_L1[1] ;
 
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
+    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg ) ;
         CDataLevel_1 oDL1 = CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
 
     double  *pr_VOD = (double*) new double [ glbParam.nBins ] ;     memset( (double*)pr_VOD, 0, (sizeof(double)*glbParam.nBins) ) ;
     int     indxWL_PDL1 ;
-    ReadAnalisysParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
+    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&indxWL_PDL1 ) ;
 
     glbParam.iLambda = (int*) new int [glbParam.nCh] ;
     oNCL.ReadVar( (int)ncid, (const char*)"Wavelengths", (int*)glbParam.iLambda ) ;

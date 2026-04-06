@@ -22,17 +22,19 @@
 
 //void linearPieceWiceFit	( int, double*, double*, int, double*, double* 	) ;
 // void    trapz				( double , double*, int, int, double* 			) ;
-double  sum				( double*, int, int, double* 					    ) ;
-void    smooth	    		( double*, int, int, int, double* 				) ;
-void    cumtrapz			( double, double*, int, int, double* 			) ;
-void    cumtrapz_norm		( double, double*, int, int, int, double* 		) ;
+double  sum				( double*, int, int, double* 				    ) ;
+double  sum_int			( int   *, int, int, int*    				    ) ;
+double  mean			( double*, int, int, double* 				    ) ;
+void    smooth	    	( double*, int, int, int, double* 				) ;
+void    cumtrapz		( double, double*, int, int, double* 			) ;
+void    cumtrapz_norm	( double, double*, int, int, int, double* 		) ;
 // void    trapz               ( double, double*, int, int, double             ) ;
-void    diffPr				( const double*, int, double*			 		) ;
-void    findIndxMin		( double*, int, int, int*, double* 				    ) ;
-void    findIndxFirstNeg   ( double*, int, int, int*, double* 				) ;
-void    findIndxMax		( double*, int, int, int*, double* 				    ) ;
-void    findIndxMax_void	( void*, const char *, int, int, int*, void*    ) ;
-void    findIndxMin_void	( void*, const char *, int, int, int*, void*    ) ;
+void    diffPr			( const double*, int, double*			 		) ;
+void    findIndxMin		( double*, int, int, int*, double* 			    ) ;
+void    findIndxFirstNeg( double*, int, int, int*, double* 				) ;
+void    findIndxMax		( double*, int, int, int*, double* 			    ) ;
+void    findIndxMax_void( void*, const char *, int, int, int*, void*    ) ;
+void    findIndxMin_void( void*, const char *, int, int, int*, void*    ) ;
 int     polyfitCoeff   	(const double* const, const double* const, unsigned int, unsigned int, double*);
 
 float   correlationCoefficient_int( int*, int*, int ) ;

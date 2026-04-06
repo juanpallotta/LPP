@@ -19,7 +19,7 @@ PATH_TO_LPP=`pwd`'/'
 PATH_TO_L0=`dirname $(realpath $(find . -name lpp0.cpp))`'/'
 PATH_TO_L1=`dirname $(realpath $(find . -name lpp1.cpp))`'/'
 PATH_TO_L2=`dirname $(realpath $(find . -name lpp2.cpp))`'/'
-PATH_TO_LPP_PLOT=`dirname $(realpath $(find .. -name LPP_Plots_L1.py))`'/'
+PATH_TO_LPP_PLOT=`dirname $(realpath $(find .. -name plot_LPP.py))`'/'
 
 if [[ -d $PATH_IN ]]
 then # PATH_IN is a directory, so L0=yes must be set
@@ -75,10 +75,10 @@ PROCES_SENTRY=1
             echo -e "\n------------------------------------------------------------\n" 
             # DEFINING THE INPUTS AND OUTPUTS PATHS
             PATH_IN_L0=$paths_In"/" # paths_In IS A FOLDER
-            PATH_OUT_L0=$PATH_IN_L0"LPP_OUT/"
-            echo -e "\nCreating the output folder with the LPP products: "$PATH_OUT_L0
-            mkdir $PATH_OUT_L0
-		    PATH_FILE_OUT_L0=$PATH_OUT_L0$(basename $paths_In)"_L0.nc"
+            PATH_LPP_OUT=$PATH_IN_L0"LPP_OUT/"
+            echo -e "\nCreating the output folder with the LPP products: "$PATH_LPP_OUT
+            mkdir $PATH_LPP_OUT
+		    PATH_FILE_OUT_L0=$PATH_LPP_OUT$(basename $paths_In)"_L0.nc"
 
             PATH_FILE_IN_L1=$PATH_FILE_OUT_L0
             PATH_FILE_OUT_L1=${PATH_FILE_IN_L1%.*}"_L1.nc"
@@ -133,9 +133,11 @@ if [ $PROCES_SENTRY == 1 ]
 then
         if [[ "${L0,,}" == "yes" ]] 
         then
-            echo -e "\n\nRunning PDL0: \n ./lpp0 "$PATH_IN_L0" "$PATH_FILE_OUT_L0" "$FILE_CONF"\n\n"
+            echo -e "\n\nRunning LPP0: Licel files to NetCDF \n\n ./lpp0 "$PATH_IN_L0" "$PATH_FILE_OUT_L0" "$FILE_CONF"\n\n"
             cd $PATH_TO_L0
-            ./lpp0 $PATH_IN_L0 $PATH_FILE_OUT_L0 $FILE_CONF 
+            ./lpp0 $PATH_IN_L0 $PATH_FILE_OUT_L0 $FILE_CONF
+
+            PATH_FILE_OUT=$PATH_FILE_OUT_L0
         fi
 
         if [[ "${L1,,}" == "yes" ]]
@@ -151,18 +153,15 @@ then
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L1 ]]
             then
-                echo -e "\n\nRunning PDL1 \n ./lpp1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF
+                echo -e "\n\nRunning LPP1: Lidar signals corrections and layer masking \n\n ./lpp1 "$PATH_FILE_IN_L1" "$PATH_FILE_OUT_L1 $FILE_CONF
                 cd $PATH_TO_L1
                 ./lpp1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF
 
                 # echo -e "\n\nRunning make_CloudDB_LPP \n ./make_CloudDB_LPP "$PATH_FILE_OUT_L1" "$PATH_FILE_OUT_L1_CLOUD_DATA" "$FILE_CONF
                 # ./make_CloudDB_LPP $PATH_FILE_OUT_L1 $PATH_FILE_OUT_L1_CLOUD_DATA $FILE_CONF
 
-                #   PLOTTING
-                PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"LPP_Plots_L1.py"
-                echo -e "\n\nGenerating plots for L1...\n "
-                echo -e "\n\npython3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L1"
-                python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L1
+                PATH_FILE_OUT=$PATH_FILE_OUT_L1
+
             else # if [[ -f $PATH_FILE_IN_L1 ]]
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L1 ]]
@@ -180,23 +179,23 @@ then
             # CHECK IF THE INPUT FILE EXIST
             if [[ -f $PATH_FILE_IN_L2 ]]
             then
-                #!  AERONET DOWNLOADER HERE.
-
-                echo -e "\n\nRunning PDL2 \n ./lpp2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF
+                echo -e "\n\nRunning LPP2: Aerosols inversion \n\n ./lpp2 "$PATH_FILE_IN_L2" "$PATH_FILE_OUT_L2 $FILE_CONF
                 cd $PATH_TO_L2
                 ./lpp2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF
 
-                #   PLOTTING
-                echo -e "\n\nGenerating plots for L2..."
-                PATH_FILE_TO_PLOT=${PATH_TO_LPP_PLOT%.*}"LPP_Plots_L2.py"
-                echo -e "\n\npython3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 0"
-                python3 $PATH_FILE_TO_PLOT $PATH_FILE_OUT_L2 0
+                PATH_FILE_OUT=$PATH_FILE_OUT_L2
 
             else # if [[ -f $PATH_FILE_IN_L2 ]]
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
             # rm $PATH_FILE_IN_L2
         fi # if [[ "${L2,,}" == "yes" ]]
+
+    #   PLOTTING
+    echo -e "\n\nGenerating plots for"
+    PATH_FILE_TO_LPP_PLOT=${PATH_TO_LPP_PLOT%.*}"plot_LPP.py"
+    echo -e "\n\npython3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 1"
+    python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 1
 
 echo ""
 echo ------------------------------------------------------------ next file...
