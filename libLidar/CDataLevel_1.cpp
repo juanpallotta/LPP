@@ -12,6 +12,7 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "thresholdFactor"	  	 , "double", (double*)&thresholdFactor 	    ) ;
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "DELTA_RANGE_LIM_BINS" , "int"   , (int*)&DELTA_RANGE_LIM_BINS    ) ;
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "errCloudCheckFactor"  , "double", (double*)&errCloudCheckFactor  ) ;
+
 	ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "ifODcut"			  	 , "string", (char*)ifODcut 				) ;
 	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_LAYER_MASK"   , "string", (char*)strCompCM.c_str() 		) ;
 	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_PBL_MASK"     , "string", (char*)strCompPBL.c_str() 		) ;
@@ -26,8 +27,6 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 	dco    = (int*   ) new int    [glbParam->nBins] ;
 
 	oLOp = (CLidar_Operations*) new CLidar_Operations( (strcGlobalParameters*)glbParam ) ;
-
-	nMaxLoop = (int)0 ;
 }
 	
 CDataLevel_1::~CDataLevel_1()
@@ -79,6 +78,7 @@ void CDataLevel_1::GetMem_indxMol( strcGlobalParameters *glbParam )
 
 void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
 {
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "avg_Points_Cloud_Mask", "int", (int*)&avg_Points_Cloud_Mask ) ;
 	// pr IS ALREADY BACKGROUND CORRECTED
 	if ( avg_Points_Cloud_Mask >1 )
 	{
@@ -106,7 +106,6 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 		printf("\nFinding last molecular ranges\n") ;
 		oLOp->Find_Max_Mol_Range( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)0 ) ;
 	}
-
 	// GET THE REFERENCE-STANDARD DEVIATION FOR THE SIGNAL
 	fitParam.indxInitFit = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] + glbParam->nBins_Ch[glbParam->chSel])/2 ) ;
 	fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] -1 						;
@@ -124,8 +123,6 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 	fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
 	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "std_factor_layer_mask", "float", (float*)&glbParam->std_factor_layer_mask ) ;
-
-printf("\nLayer_Mask() --> Fitting between bins %d and %d. indxEndSig_ev_ch= %d\n", fitParam.indxInitFit, fitParam.indxEndFit, glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ) ;
 
 	memset( oLOp->cloudProfiles[glbParam->evSel].clouds_ON, 0, ( sizeof(int) * glbParam->nBins ) ) ;
 
@@ -145,15 +142,25 @@ printf("\nLayer_Mask() --> Fitting between bins %d and %d. indxEndSig_ev_ch= %d\
 		fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
 		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
 	}
-printf("\n(4)\n") ;
+
 	FilterThinClouds( (strcGlobalParameters*)glbParam, (int*)oLOp->cloudProfiles[glbParam->evSel].clouds_ON ) ;
 	oLOp->GetCloudLimits( (strcGlobalParameters*)glbParam ) ; // ONLY LIMITS OF THE CLOUDS, *NOT* PBL!!!!
-printf("\n(5)\n") ;
+
+	//! PBL HEIGH - START
 	fitParam.indxInitFit = (int)-10 ;
 	fitParam.indxEndFit  = (int)-10 ;
 	fitParam.indxMidFit  = (int)-10 ;
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
-	//! PBL HEIGH - START
+
+	if ( strcmp( glbParam->exeFile, "./lpp1" ) ==0 )
+	// 	IF DATA LEVEL 1 IS RUNNING, THE PBL MASK IS IS COMPUTED DEPENDING ON THE CONFIGURATION FILE
+		ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_PBL_MASK", "string", (char*)strCompPBL.c_str() ) ;
+	else if ( strcmp( glbParam->exeFile, "./lpp2" ) ==0 )
+	{  	// 	IF DATA LEVEL 2 IS RUNNING, THE PBL MASK IS ALWAYS COMPUTED, INDEPENDENTLY OF THE CONFIGURATION FILE
+		strCompPBL.assign("YES") ;
+		printf("\n --> Running LPP2, so the PBL mask will be computed independently of the configuration file. \n") ;
+	}
+
 	if ( strcmp( strCompPBL.c_str(), "YES" ) ==0 )
 	{
 		int a, b ;
@@ -195,7 +202,7 @@ printf("\n(5)\n") ;
 				fitParam.indxInitFit = (int)round( 2000/glbParam->dr + b ) 	;
 				fitParam.indxEndFit  = fitParam.indxInitFit + a 			;
 					if (fitParam.indxInitFit == fitParam.indxEndFit )
-						fitParam.indxEndFit = fitParam.indxInitFit + 1 ;
+						fitParam.indxEndFit = fitParam.indxInitFit + 1 		;
 			}
 			fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
 			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
@@ -215,7 +222,6 @@ printf("\n(5)\n") ;
 					oLOp->cloudProfiles[glbParam->evSel].clouds_ON[i] = (int)1 ;
 	} // if ( strcmp( strCompPBL.c_str(), "YES" ) ==0 )
 	//! PBL HEIGH - END
-printf("\n(6)\n") ;
 /*
 	// IF THERE ARE CLOUDS DETECTED --> ADJUST THE BOUNDARIES
 	int sumLay =0 ;

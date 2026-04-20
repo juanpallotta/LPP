@@ -175,7 +175,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
         ERR(retval) ;
     int num_dim_var ;
     if ( ( retval = nc_inq_varndims( (int)ncid, (int)id_var_pr, (int*)&num_dim_var ) ) )
-        ERR(retval);
+        ERR(retval) ;
     // cout << endl << "num_dim_var: " << num_dim_var << "     id_var_pr: " << id_var_pr << endl ;
     assert( num_dim_var ==3 ) ; // SI SE CUMPLE, SIGUE.
 
@@ -237,7 +237,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
         glbParam->pres_Pa_agl_AVG[i] = (double) 0.0 ;
     }
 
-    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution"  , (double*)&glbParam->dr) )            )
+    if ( ( retval = nc_get_att_double(	(int)ncid, (int)NC_GLOBAL, (const char*)"Range_Resolution"  , (double*)&glbParam->dr) )         )
         ERR(retval);
     if ( ( retval = nc_get_att_int(	(int)ncid, (int)NC_GLOBAL, (const char*)"Altitude_meter_asl"    , (int*)&glbParam->siteASL) )       )
         ERR(retval);
@@ -298,6 +298,7 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 // cout<<endl<<"(0) glbParam->r[2]: "<< glbParam->r[2] << endl;
 // cout<<endl<<"(0) glbParam->nEvents: "<< glbParam->nEvents << endl;
 // cout<<endl<<"(0) glbParam->nEventsAVG: "<< glbParam->nEventsAVG << endl;
+// cout<<endl<<"(0) glbParam->numEventsToAvg: "<< glbParam->numEventsToAvg << endl;
 // cout<<endl<<"(0) glbParam->nCh: "<< glbParam->nCh << endl;
 // cout<<endl<<"(0) glbParam->nBins: "<< glbParam->nBins << endl;
 }
@@ -1020,7 +1021,6 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     int     indxWL_PDL1 ;
     ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"          , (const char*)"int", (int*)&indxWL_PDL1           ) ;
     int avg_Points_Cloud_Mask ;
-    // ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
     ReadAnalysisParameter( (char*)glbParam->FILE_soft_coded_values, (const char*)"avg_Points_Cloud_Mask", (const char*)"int", (int*)&avg_Points_Cloud_Mask ) ;
     strAttListName[0] = "indxChannel_for_Cloud_Mask"; intAttList[0] = (int)indxWL_PDL1                  ;
     strAttListName[1] = "num_Points_Bkg"            ; intAttList[1] = (int)glbParam->nBinsBkg           ;
@@ -1062,7 +1062,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
             ERR(retval);
 
         start_ES[0] =e ;
-        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[6], start_ES, count_ES, (double*)&oMolData->dataMol.last_Range_Mol_High[e][0] ) ) )
+        if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[6], start_ES, count_ES, (double*)&glbParam->rEndSig_ev_ch[e][0] ) ) )
             ERR(retval);
 
         if ( (retval = nc_put_vara_double( (int)nc_id_group_L1, (int)var_ids[18], start_ES, count_ES, (double*)&oMolData->dataMol.last_Range_Bkg_Low[e][0] ) ) )

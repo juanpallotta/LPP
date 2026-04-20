@@ -14,7 +14,7 @@ double sum( double *y, int binInic, int binEnd, double *sumOut )
     }
     else
     {
-        printf("\n\n Wrong call to sum() function (binInic > binEnd)... exit \n\n") ;
+        printf("\n\n Wrong call to sum() function (binInic(%d) > binEnd(%d))... exit \n\n", binInic, binEnd) ;
         exit(1) ;
     }
 }
@@ -32,7 +32,7 @@ double sum_int( int *y, int binInic, int binEnd, int *sumOut )
     }
     else
     {
-        printf("\n\n Wrong call to sum_int() function (binInic > binEnd)... exit \n\n") ;
+        printf("\n\n Wrong call to sum_int() function (binInic(%d) > binEnd(%d))... exit \n\n", binInic, binEnd) ;
         exit(1) ;
     }
 }
@@ -49,7 +49,7 @@ double mean( double *y, int binInic, int binEnd, double *meanOut )
     }
     else
     {
-        printf("\n\n Wrong call to mean() function (binInic > binEnd)... exit \n\n") ;
+        printf("\n\n Wrong call to mean() function (binInic(%d) > binEnd(%d))... exit \n\n", binInic, binEnd) ;
         exit(1) ;
     }
 }
@@ -490,7 +490,6 @@ void create_natural_cubic_spline(double x[], double y[], int n, Spline spl[])
 {
     // Algorithm to find the second derivatives (c_i) by solving a tridiagonal system.
     // This is a standard algorithm for natural cubic splines.
-
     double *h = (double *)malloc(sizeof(double) * (n - 1));
     for (int i = 0; i < n - 1; i++) {
         h[i] = x[i+1] - x[i];

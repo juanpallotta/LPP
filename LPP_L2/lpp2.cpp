@@ -44,6 +44,8 @@ int main( int argc, char *argv[] )
     printf("\n Path_File_Out --> %s", glbParam.Path_File_Out ) ;
     printf("\n Settings File --> %s\n", glbParam.FILE_PARAMETERS ) ;
 
+    get_full_path_to_soft_coded_values_file( (strcGlobalParameters*)&glbParam ) ;
+
     char cmdCopy[500] ;
     sprintf( cmdCopy, "cp %s %s", glbParam.Path_File_In, glbParam.Path_File_Out ) ;
     system(cmdCopy) ;
@@ -65,7 +67,8 @@ int main( int argc, char *argv[] )
 
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
-    CDataLevel_1    *oDL1 ; // IS ONLY USED IF glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2
+    // CDataLevel_1    *oDL1 ; // IS ONLY USED IF glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2
+    CDataLevel_1    *oDL1 = (CDataLevel_1*) new CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     int nCh_to_invert = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
@@ -86,11 +89,16 @@ int main( int argc, char *argv[] )
                                                     (int*)oDL2->Start_Time_L0    , (int*)oDL2->Stop_Time_L0, 
                                                     (int*)oDL2->Start_Time_AVG_L2, (int*)oDL2->Stop_Time_AVG_L2
                                                   ) ;
-       oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
     }
     else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2 ===> LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED --> COPY TO L2 OBJECT
+    {
         oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
-
+        // for ( int t = 0 ; t < glbParam.nEventsAVG ; t++ )
+        // {
+        //     for (int b = 0; b < glbParam.nBins_Ch[t] ; b++)
+        //         oDL2->oLOp->cloudProfiles[t].clouds_ON[b] = (int)oDL1->oLOp->cloudProfiles[t].clouds_ON[b] ;
+        // }
+    }
         //! AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam  ) ;
@@ -160,7 +168,7 @@ int main( int argc, char *argv[] )
                 oDL2->pr[e][i] = (double)pr_corr[e][glbParam.indxWL_PDL2][i]  ;
         }
     } // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
-    else // DATA WAS READ FROM L1 (ALREADY CORRECTED) --> SAVE THE RANGE CORRECTED LIDAR SIGNALS
+    else // DATA WAS READ FROM L1 (ALREADY CORRECTED)
     {   // oDL2->data_File_L2 == Raw_Lidar_Data_L1
         printf("\n\n** L2: Due to numEventsToAvg_PDL1 = numEventsToAvg_PDL2 --> Data is taken from L1 group (already corrected) **.\n") ;
         for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
@@ -225,9 +233,12 @@ int main( int argc, char *argv[] )
             if ( t == 0 )
                 printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
 
-            oDL1->strCompPBL.assign("YES") ;
-            oDL1->strCompCM.assign ("YES") ;
-            oDL1->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
+            // oDL1->strCompPBL.assign("YES") ;
+            // oDL1->strCompCM.assign ("YES") ;
+            // oDL1->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
+            oDL2->oLOp->compute_pbl_mask.assign("YES") ;
+            oDL2->oLOp->compute_layer_mask.assign("YES") ;
+            oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
         }
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
@@ -253,7 +264,23 @@ int main( int argc, char *argv[] )
                 strftime(formatted_time_stop, sizeof(formatted_time_stop), "%H:%M:%S", utc_tm);
 
                 printf("\n-----------\n\nInverting:\t Event indx/max_indx: %d/%d (%s - %s UTC) \t Channel: %d \t Wavelenght: %d nm \t Zenith: %lf", t, (glbParam.nEventsAVG-1) , formatted_time_start, formatted_time_stop, glbParam.chSel, glbParam.iLambda[glbParam.chSel], oMolData->dataMol.zenith ) ;
-                    oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+
+                // IF THE PBL WAS NOT CALCULATED...
+                // if ( strcmp( oDL1->strCompPBL.c_str(), "NO" ) ==0 )
+                //     oDL1->strCompPBL.assign("YES") ;
+                if ( strcmp( oDL2->oLOp->compute_pbl_mask.c_str(), "NO" ) ==0 )
+                    oDL1->oLOp->compute_pbl_mask.assign("YES") ;
+
+                oDL2->oLOp->compute_layer_mask.assign("YES") ;
+                oDL2->oLOp->compute_pbl_mask.assign("YES")   ;
+                oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
+                // oDL1->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
+                // for ( int t = 0 ; t < glbParam.nEventsAVG ; t++ )
+                // {
+                //     for (int b = 0; b < glbParam.nBins_Ch[t] ; b++)
+                //         oDL2->oLOp->cloudProfiles[t].clouds_ON[b] = (int)oDL1->oLOp->cloudProfiles[t].clouds_ON[b] ;
+                // }
+                oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 // for (int i = 0; i < glbParam.nBins ; i++)
                 // {
                     // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.nMol[i] ;

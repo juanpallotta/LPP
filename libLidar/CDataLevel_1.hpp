@@ -33,7 +33,6 @@ class CDataLevel_1
 		double			errFitStage, errCloud, biasRef, sppm, spm, spmpm, m ;
 		double			*prFit, *pr2, *prprm, *prmprm ;
 		int 			CLOUD_MIN_THICK, stepScanCloud, first_cluster_ON, scanNumExit, sum_misc ;
-		int				nMaxLoop ;
 		char 			ifODcut[5] ;
 		strcFitParam	fitParam ;
 };

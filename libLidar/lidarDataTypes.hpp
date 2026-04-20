@@ -68,6 +68,7 @@ struct strcGlobalParameters
 	char    inputDataFileFormat[50]	;
 	char	*Path_File_In  			;
 	char	*Path_File_Out 			;
+	char	fileName[200] 			; // LICEL FILENAME
 	char    exeFile[50]				;
 	char    outputDataFileFormat[50];
 	char 	BkgCorrMethod[10]    	;
@@ -132,7 +133,6 @@ struct strcGlobalParameters
 	int 	*indxOffset				;
 	int 	*bin_shift_whole		;
 	int		*bin_shift_decimal		;
-	char	fileName[200] 			;
 	char	infoFile[100] 			;
 	int 	Laser_Frec[3] 			;
 	int		Accum_Pulses[3]			;

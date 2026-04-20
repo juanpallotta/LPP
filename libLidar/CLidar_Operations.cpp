@@ -12,10 +12,18 @@ CLidar_Operations::CLidar_Operations( strcGlobalParameters *glbParam )
 	errRMS_Bias = (double*) new double [ nBiasRes_Auto ] 	;
 	b_i 		= (double*) new double [ nBiasRes_Auto +1 ] ;
 	coeff 		= (double*) new double[2] 					;
-
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "avg_Points_Cloud_Mask", "int", (int*)&avg_Points_Cloud_Mask 	) ;
+	
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "deltaNorm"			, "int"	  , (int*)&deltaNorm 				  ) ;
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "avg_Points_Cloud_Mask", "int"	  , (int*)&avg_Points_Cloud_Mask 	  ) ;
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "std_factor_layer_mask", "double", (double*)&std_factor_layer_mask   ) ; // glbParam->
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "stepScanCloud"		, "int"	  , (int*)&stepScanCloud 			  ) ;
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "DELTA_RANGE_LIM_BINS"	, "int"	  , (int*)&DELTA_RANGE_LIM_BINS 	  ) ;
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "CLOUD_MIN_THICK"		, "int"	  , (int*)&CLOUD_MIN_THICK 			  ) ;
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_PBL_MASK"		, "string", (char*)compute_pbl_mask.c_str()   ) ;
+	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_LAYER_MASK"	, "string", (char*)compute_layer_mask.c_str() ) ;
 
 	GetMem_cloudProfiles( (strcGlobalParameters*)glbParam ) ;
+
 	GetMem_indxMol      ( (strcGlobalParameters*)glbParam ) ;
 }
 
@@ -397,11 +405,205 @@ void CLidar_Operations::Find_Max_Mol_Range( double *pr, strcMolecularData *dataM
 	// printf( "\n CLidar_Operations::Find_Max_Mol_Range() ==> dataMol->last_Indx_Mol_High*dr= %lf \n", dataMol->last_Indx_Mol_High[glbParam->evSel][glbParam->chSel]* glbParam->dr ) ;
 } // void CLidar_Operations::Find_Max_Mol_Range( double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
 
+void CLidar_Operations::Layer_Mask( const double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+{
+	// pr IS ALREADY BACKGROUND CORRECTED
+	if ( avg_Points_Cloud_Mask >1 )
+	{
+		smooth( (double*)pr			    , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)prS 					) ;
+		smooth( (double*)glbParam->r    , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)glbParam->r_avg 		) ;
+		smooth( (double*)dataMol->prMol , (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)dataMol->prMol_avg 	) ;
+		smooth( (double*)dataMol->pr2Mol, (int)0, (int)(glbParam->nBins-1), (int)avg_Points_Cloud_Mask, (double*)dataMol->pr2Mol_avg	) ;
+	}
+	else
+	{
+		for( int b=0 ; b <glbParam->nBins ; b++ )
+		{
+			prS[b] 	  				= (double)pr     [b] ;	
+			dataMol->prMol_avg[b] 	= dataMol->prMol [b] ;
+			dataMol->pr2Mol_avg[b] 	= dataMol->pr2Mol[b] ;
+			glbParam->r_avg[b] 		= glbParam->r    [b] ;
+		}
+	}
+
+	for (int  j =0; j <glbParam->nBins_Ch[glbParam->chSel] ; j++)	
+		pr2_i[j] = (double) prS[j] * glbParam->r[j]*glbParam->r[j] ; // RANGE CORRECTED LIDAR SIGNAL
+
+	if ( glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] <=0 )
+	{
+		printf("\nFinding last molecular ranges\n") ;
+		Find_Max_Mol_Range( (double*)prS, (strcMolecularData*)dataMol, (strcGlobalParameters*)glbParam, (int)0 ) ;
+	}
+	// GET THE REFERENCE-STANDARD DEVIATION FOR THE SIGNAL
+	fitParam.indxInitFit = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] + glbParam->nBins_Ch[glbParam->chSel])/2 ) ;
+	fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] -1 		 ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
+	double std_ref = 0;
+	for ( int j = fitParam.indxInitFit; j <= fitParam.indxEndFit; j++ )
+		fitParam.std += pow( prS[j], 2 ) ; // prS IS ALREADY BACGROUND CORRECTED
+	std_ref = sqrt( fitParam.std / (fitParam.nFit - 1) );
+
+	// SET THE INITIAL FITTING RANGES FOR THE LAYER DETECTION ALGORITHM
+	fitParam.indxEndFit  = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - deltaNorm  ;
+	fitParam.indxInitFit = fitParam.indxEndFit - deltaNorm ;
+	fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
+
+	memset( cloudProfiles[glbParam->evSel].clouds_ON, 0, ( sizeof(int) * glbParam->nBins ) ) ; //! SI SE ESTA EJECUTANDO lpp2 NO SE DEBE LIMPIAR EL VECTOR DE CLOUDS_ON
+
+	// FIRST STAGE OF CLOUD DETECTION
+	while ( fitParam.indxInitFit >= glbParam->indxInitSig )
+	{
+		memset( (double*)pr_misc, 0, sizeof(double) * glbParam->nBins ) ;
+		RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, (strcFitParam*)&fitParam, (double*)pr_misc ) ;
+		// for (int j =fitParam.indxInitFit ; j < glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ; j++)
+		for (int j =fitParam.indxInitFit ; j < glbParam->nBins_Ch[glbParam->chSel] ; j++)
+		{
+			if ( prS[j] >= (pr_misc[j] + std_ref * std_factor_layer_mask ) ) // glbParam->
+				cloudProfiles[glbParam->evSel].clouds_ON[j] = (int)BIN_CLOUD ;
+		}
+		fitParam.indxEndFit  = fitParam.indxEndFit - stepScanCloud ; // glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - deltaNorm -i*stepScanCloud ; // STEP DOWN IN THE SCAN
+		fitParam.indxInitFit = fitParam.indxEndFit - deltaNorm     ; // DELTA NOMALIZATION STABLISHED
+		fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
+		fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
+	}
+
+	FilterThinClouds( (strcGlobalParameters*)glbParam, (int*)cloudProfiles[glbParam->evSel].clouds_ON ) ;
+	GetCloudLimits  ( (strcGlobalParameters*)glbParam ) ; // ONLY LIMITS OF THE CLOUDS, *NOT* PBL!!!!
+
+	//! PBL HEIGH - START
+	fitParam.indxInitFit = (int)-10 ;
+	fitParam.indxEndFit  = (int)-10 ;
+	fitParam.indxMidFit  = (int)-10 ;
+	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
+
+	// if ( strcmp( glbParam->exeFile, "./lpp1" ) ==0 )
+	// // 	IF DATA LEVEL 1 IS RUNNING, THE PBL MASK IS IS COMPUTED DEPENDING ON THE CONFIGURATION FILE
+	// 	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_PBL_MASK", "string", (char*)compute_pbl_mask.c_str() ) ;
+	// else 
+	if ( strcmp( glbParam->exeFile, "./lpp2" ) ==0 )
+	{  	// 	IF DATA LEVEL 2 IS RUNNING, THE PBL MASK IS ALWAYS COMPUTED, INDEPENDENTLY OF THE CONFIGURATION FILE
+		compute_pbl_mask.assign("YES") ;
+		printf("\n --> Running LPP2, so the PBL mask will be computed independently of the configuration file. \n") ;
+	}
+
+	if ( strcmp( compute_pbl_mask.c_str(), "YES" ) ==0 )
+	{
+		int a, b ;
+		printf(" --> Getting PBL layer: \n") ;
+		if ( cloudProfiles[glbParam->evSel].nClouds ==0  )
+		{
+			a = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - glbParam->indxInitSig) *1/4 ) ;
+			b = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - glbParam->indxInitSig) *3/8 ) ;
+			printf(" (1) Fit between the start range and the maximun range (%d, %d).", a, b) ;
+		}
+		else if ( (cloudProfiles[glbParam->evSel].nClouds >=1) )
+		{
+			for (int c =0 ; c <cloudProfiles[glbParam->evSel].nClouds ; c++) // SEARCH FOR A CLOUD BASE HIGHER THAN 3 KM
+			{
+				if ( cloudProfiles[glbParam->evSel].indxInitClouds[c] > (int)round(3000/glbParam->dr) )
+				{
+					a = (int)round( (cloudProfiles[glbParam->evSel].indxInitClouds[c] - round(2000/glbParam->dr)) *1/4 ) ;
+					b = (int)round( (cloudProfiles[glbParam->evSel].indxInitClouds[c] - round(2000/glbParam->dr)) *3/8 ) ;
+					printf(" (2) Fit before the first cloud higher than 3 km (%d, %d).", a, b) ;
+				}
+			}
+			if (fitParam.indxInitFit ==-10 ) // IF THE CLOUDS ARE ALL BELOW 3 KM, THE PBL FIT IS DONE AT 3 KM
+			{
+				a = (int)-10 ;
+				b = (int)-10 ;
+				// a = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - round(2000/glbParam->dr)) *1/4 ) ;
+				// b = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - round(2000/glbParam->dr)) *3/8 ) ;
+				printf(" (3) Fit between the start range and the maximun range (%d, %d).", a, b) ;
+			}
+		} // else if ( (cloudProfiles[glbParam->evSel].nClouds >=1) )
+
+			if ( a == -10 )
+			{
+				fitParam.indxInitFit = (int)round( 3000/glbParam->dr ) 		 ;
+				fitParam.indxEndFit  = fitParam.indxInitFit + (int)deltaNorm ;
+			}
+			else
+			{
+				fitParam.indxInitFit = (int)round( 2000/glbParam->dr + b ) 	;
+				fitParam.indxEndFit  = fitParam.indxInitFit + a 			;
+					if (fitParam.indxInitFit == fitParam.indxEndFit )
+						fitParam.indxEndFit = fitParam.indxInitFit + 1 ;
+			}
+			fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
+			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
+			printf(" --> %f - %f m\n", fitParam.indxInitFit *glbParam->dr, fitParam.indxEndFit *glbParam->dr ) ;
+
+			memset( (double*)pr_misc, 0, sizeof(double) * glbParam->nBins ) ;
+			RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, (strcFitParam*)&fitParam, (double*)pr_misc ) ;
+
+			for (int i =glbParam->indxInitSig ; i < fitParam.indxEndFit ; i++)
+			{
+				if ( prS[i] > (pr_misc[i] + std_ref * std_factor_layer_mask ) ) // glbParam->
+					cloudProfiles[glbParam->evSel].clouds_ON[i] = (int)1 ;
+				else
+					cloudProfiles[glbParam->evSel].clouds_ON[i] = (int)0 ;
+			}
+			for (int i =0 ; i <=glbParam->indxInitSig ; i++)
+				cloudProfiles[glbParam->evSel].clouds_ON[i] = (int)1 ;
+	} // if ( strcmp( strCompPBL.c_str(), "YES" ) ==0 )
+	//! PBL HEIGH - END
+/*
+	// IF THERE ARE CLOUDS DETECTED --> ADJUST THE BOUNDARIES
+	int sumLay =0 ;
+	sum_int( (int*)&oLOp->cloudProfiles[glbParam->evSel].clouds_ON[0], (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int*)&sumLay ) ;
+	if ( sumLay >0 )
+	{
+		oLOp->GetCloudLimits( (strcGlobalParameters*)glbParam ) ; // ONLY LIMITS OF THE CLOUDS, *NOT* PBL!!!!
+
+		for (int c =0; c < oLOp->cloudProfiles[glbParam->evSel].nClouds; c++)
+		{	//! CLOUD *BASE* HEIGH - START //////////////////////////////////////////////////////
+			int 	indxMin =0 ;
+			double	min 	=0 ;
+			findIndxMin( (double*)&pr2[0], (int)glbParam->indxInitSig, (int)oLOp->cloudProfiles[glbParam->evSel].indxInitClouds[c], 
+						   											   (int*)&indxMin, (double*)&min ) ;
+
+			printf("\n BEFORE ADJUSTING CLOUD --> Cloud %d base at %f m\n", c+1, oLOp->cloudProfiles[glbParam->evSel].indxInitClouds[c] * glbParam->dr ) ;
+			for (int j =indxMin; j < oLOp->cloudProfiles[glbParam->evSel].indxInitClouds[c] ; j++)
+				oLOp->cloudProfiles[glbParam->evSel].clouds_ON[j] = (int)1 ;
+			oLOp->cloudProfiles[glbParam->evSel].indxInitClouds[c] = indxMin ;
+			printf(" AFTER ADJUSTING CLOUD--> Cloud %d base at %f m\n", c+1, oLOp->cloudProfiles[glbParam->evSel].indxInitClouds[c] * glbParam->dr ) ;
+			//! CLOUD *BASE* HEIGH - END //////////////////////////////////////////////////////
+	
+			//! CLOUD *TOP*  HEIGH - START //////////////////////////////////////////////////////
+			// FIT BEFORE THE CLOUD
+			fitParam.indxInitFit = oLOp->cloudProfiles[glbParam->evSel].indxInitClouds[c] - round(deltaNorm*1.5) ;
+			fitParam.indxEndFit  = fitParam.indxInitFit + deltaNorm ;
+			fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
+			fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
+			memset( (double*)prFit, 0, sizeof(double) * glbParam->nBins ) ;
+			oLOp->RayleighFit( (double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, (strcFitParam*)&fitParam, (double*)prFit ) ;
+	
+			// for (int j =fitParam.indxMidFit ; j < glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]; j++ )
+			for (int j =fitParam.indxMidFit ; j < oLOp->cloudProfiles[glbParam->evSel].indxEndClouds[c] + deltaNorm ; j++ )
+			{
+				if ( prS[j] < prFit[j] )
+				{
+					oLOp->cloudProfiles[glbParam->evSel].indxEndClouds[c] = j ;
+					break ;
+				}
+			}
+			//! CLOUD *TOP*  HEIGH - END //////////////////////////////////////////////////////
+		} // for (int c =0; c < oLOp->cloudProfiles[glbParam->evSel].nClouds; c++)
+		oLOp->GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
+	} // if ( sumLay >0 ) 
+	else // NO CLOUDS DETECTED
+		memset( (double*)&oLOp->cloudProfiles[glbParam->evSel].clouds_ON[0], 0, sizeof(int)*glbParam->nBins ) ;
+*/
+	FilterThinClouds( (strcGlobalParameters*)glbParam, (int*)cloudProfiles[glbParam->evSel].clouds_ON ) ;
+	GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
+} // void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+
 void CLidar_Operations::GetCloudLimits( strcGlobalParameters *glbParam )
 {
 	int maxCloud, indxMax ;
-	findIndxMax_void( (int*)&cloudProfiles[glbParam->evSel].clouds_ON[0], (const char*)"int", 0, (glbParam->nBins-1), (int*)&indxMax, (int*)&maxCloud ) ;
-	// ( maxCloud == 1 ) ? printf("\nThere *ARE* clouds at event number %d", glbParam->evSel) : printf("There are *NOT* clouds at event number %d", glbParam->evSel) ;
+	findIndxMax_void( (int*)&cloudProfiles[glbParam->evSel].clouds_ON[0], (const char*)"int", 0, (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]), (int*)&indxMax, (int*)&maxCloud ) ;
+	// ( maxCloud == 1 ) ? printf("\nThere *ARE* clouds at event number %d", glbParam->evSel) : printf("\nThere are *NOT* clouds at event number %d", glbParam->evSel) ;
 
 	// BASIC CLOUDLESS SETTINGS
 	memset( cloudProfiles[glbParam->evSel].indxInitClouds, 0, ( sizeof(int) * NMAXCLOUDS ) ) ;
@@ -519,17 +721,40 @@ void CLidar_Operations::GetCloudLimits( strcGlobalParameters *glbParam )
 			break;
 		}
 	}
-/*
-	printf("\n\t CDataLevel_1::GetCloudLimits() " ) ;
-	printf("\n\t cloudProfiles[%d].nClouds: %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].nClouds ) 					;
-	printf("\n\t cloudProfiles[%d].indxInitClouds[0]: %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].indxInitClouds[0] ) ;
-	printf("\n\t cloudProfiles[%d].indxEndClouds[0] : %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].indxEndClouds[0]  ) ;
-	printf("\n\t cloudProfiles[%d].indxEndPBL: %d "    , glbParam->evSel, cloudProfiles[glbParam->evSel].indxEndPBL    ) ;
-	printf("\n\t cloudProfiles[%d].rangeEndPBL: %lf \n", glbParam->evSel, cloudProfiles[glbParam->evSel].rangeEndPBL ) ;
 
-	printf("\n\t CORREGIR!! indxMol[%d].indxInicMol[0]: %d ", glbParam->evSel, indxMol[glbParam->evSel].indxInicMol[0] ) ;
-	printf("\n\t CORREGIR!! indxMol[%d].indxEndMol [0]: %d ", glbParam->evSel, indxMol[glbParam->evSel].indxEndMol[0]  ) ;
-*/
+	// printf("\n\t CDataLevel_1::GetCloudLimits() " ) ;
+	// printf("\n\t cloudProfiles[%d].nClouds: %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].nClouds ) 					;
+	// printf("\n\t cloudProfiles[%d].indxInitClouds[0]: %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].indxInitClouds[0] ) ;
+	// printf("\n\t cloudProfiles[%d].indxEndClouds[0] : %d ", glbParam->evSel, cloudProfiles[glbParam->evSel].indxEndClouds[0]  ) ;
+	// printf("\n\t cloudProfiles[%d].indxEndPBL: %d "    , glbParam->evSel, cloudProfiles[glbParam->evSel].indxEndPBL    ) ;
+	// printf("\n\t cloudProfiles[%d].rangeEndPBL: %lf \n", glbParam->evSel, cloudProfiles[glbParam->evSel].rangeEndPBL ) ;
+
+	// printf("\n\t CORREGIR!! indxMol[%d].indxInicMol[0]: %d ", glbParam->evSel, indxMol[glbParam->evSel].indxInicMol[0] ) ;
+	// printf("\n\t CORREGIR!! indxMol[%d].indxEndMol [0]: %d ", glbParam->evSel, indxMol[glbParam->evSel].indxEndMol[0]  ) ;
+}
+
+void CLidar_Operations::FilterThinClouds( strcGlobalParameters *glbParam, int *layer_mask )
+{
+	for (int b =0 ; b <=(glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] -CLOUD_MIN_THICK -1) ; b++)
+	{
+		if ( (layer_mask[b]   == (int)0		    ) && 
+			 (layer_mask[b+1] == (int)BIN_CLOUD ) ) 
+		{
+			int sum_lay =0 ;
+			sum_int( (int*)layer_mask, (int)(b+1), (int)(b+CLOUD_MIN_THICK), (int*)&sum_lay ) ;
+
+			if ( sum_lay < CLOUD_MIN_THICK )
+			{
+				for (int k =(b+1) ; k <=(b+CLOUD_MIN_THICK); k++)
+						layer_mask[k] = (int)0 ;
+			}
+			else if ( layer_mask[b+CLOUD_MIN_THICK +1] == (int)0 )
+			{
+				for (int k =(b+1) ; k <=(b+CLOUD_MIN_THICK); k++)
+					layer_mask[k] = (int)0 ;
+			}
+		}
+	}
 }
 
 void CLidar_Operations::Remove_Bkg_Mol_Range( double *pr, strcGlobalParameters *glbParam, strcMolecularData *dataMol )
@@ -1236,7 +1461,6 @@ void CLidar_Operations::TransmissionMethod_pr( double *pr, strcGlobalParameters 
 
 	int DELTA_RANGE_LIM_BINS ;
 	ReadAnalysisParameter( (const char*) glbParam->FILE_soft_coded_values, "DELTA_RANGE_LIM_BINS", "int", (int*)&DELTA_RANGE_LIM_BINS ) ;
-	// ReadAnalysisParameter( (const char*) glbParam->FILE_PARAMETERS, "DELTA_RANGE_LIM_BINS", "int", (int*)&DELTA_RANGE_LIM_BINS ) ;
 
 	strcFitParam fitParam_before_cloud ;
 	strcFitParam fitParam_after_cloud  ;

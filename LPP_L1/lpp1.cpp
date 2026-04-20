@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
     sprintf( glbParam.Path_File_In,  "%s", argv[1] ) ;
     sprintf( glbParam.Path_File_Out, "%s", argv[2] ) ;
 
-    printf("\n Path_File_In --> %s "  , glbParam.Path_File_In    ) ;
+    printf("\n Path_File_In  --> %s " , glbParam.Path_File_In    ) ;
     printf("\n Path_File_Out --> %s"  , glbParam.Path_File_Out   ) ;
     printf("\n Settings File --> %s\n", glbParam.FILE_PARAMETERS ) ;
 
@@ -231,7 +231,8 @@ int main( int argc, char *argv[] )
     oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)data_File_L1, (double***)pr_corr, (double***)pr2 ) ;
     printf("\n\n") ;
 
-    if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
+    // if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
+    if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )
     {
         // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
         if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
@@ -247,7 +248,6 @@ int main( int argc, char *argv[] )
     }
 
 // START DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	glbParam.indx_Ch_Pol_S    = (int*)    new int   [ glbParam.nCh ] ;
 	glbParam.indx_Ch_Pol_P    = (int*)    new int   [ glbParam.nCh ] ;
 	glbParam.Pol_Cal_Constant = (double*) new double[ glbParam.nCh ] ;
@@ -271,7 +271,6 @@ int main( int argc, char *argv[] )
     }
 
 // STOP DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 // START GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
@@ -358,14 +357,16 @@ int main( int argc, char *argv[] )
             if ( c == glbParam.indxWL_PDL1 )
             {
                 oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
-                oDL1->strCompPBL.assign("YES") ;
-                oDL1->strCompCM.assign ("YES") ;
-                if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
+                // if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
+                if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )
                 {
                     printf("   --> Getting layers limits") ;
-                        if ( strcmp( oDL1->strCompPBL.c_str(), "YES" ) ==0 )    printf(" and PBL layer. ") ;
-printf("\nmain() --> Max. indx: %d\n", glbParam.indxEndSig_ev_ch[glbParam.evSel][glbParam.chSel] ) ;
-                    oDL1->Layer_Mask( (double*)&oDL1->pr_for_cloud_mask[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
+                        // if ( strcmp( oDL1->strCompPBL.c_str(), "YES" ) ==0 )    printf(" and PBL layer. ") ;
+                        // oDL1->Layer_Mask( (double*)&oDL1->pr_for_cloud_mask[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
+
+                    if ( strcmp(  oDL1->oLOp->compute_pbl_mask.c_str(), "YES" ) ==0 )    printf(" and PBL layer. ") ;
+
+                    oDL1->oLOp->Layer_Mask( (double*)&oDL1->pr_for_cloud_mask[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
                 }
                 else
                     printf("\t Cloud profiles are not computed. \t") ;
@@ -389,11 +390,11 @@ printf("\nmain() --> Max. indx: %d\n", glbParam.indxEndSig_ev_ch[glbParam.evSel]
     // printf("\n\n FIN oMolData->dataMol.pPa[0]= %lf \n", oMolData->dataMol.pPa[0]) ;
 
     printf("\n\n\t\033[34m Lidar Analisys PDL1 Done\033[0m\n\n") ; // BLUE
-
     printf( "\n\n\033[32mSaving the NetCDF file\033[0m %s\n", glbParam.Path_File_Out ) ;  // GREEN
 
     glbParam.evSel = -10 ; // SET THE EVENT SELECTED NEGATIVE TO FILLING OF THE MOLECUALR DATA AT ZENITH=0
     oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
+
     oNCL.Save_LALINET_NCDF_PDL1( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
                                  (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 

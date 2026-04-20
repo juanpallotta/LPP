@@ -190,7 +190,7 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam )
 		// dataMol.pPa AND dataMol.tK ALREADY IN HIGH RESOLUTION AND ASL, SINCE THEY WERE READ FROM THE NETCDF FILE. HERE ALL THE PROFILES ARE IN THE VERTICAL
 		TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)glbParam->iLambda[glbParam->chSel]*1e-9, (double)co2_ppmv, (int) dataMol.nBins, 
 										(double*)RadSondeData.nHR, (double*)RadSondeData.alpha_mol, (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
-	}
+}
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
 		RadSondeData.zHR[i] = (double) glbParam->siteASL + glbParam->r[i] ;
 
@@ -221,7 +221,6 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
-
  	// RESAMPLED RadSondeData.nLR, RadSondeData.alpha_mol y RadSondeData.beta_mol TO HIGH RESOLUTION: dataMol.nMol, dataMol.alphaMol AND dataMol.betaMol
 	// AND IN THE SLANT PATH DEFINED BY THE ZENITHAL ANGLE dataMol.zenith
 	Mol_Low_To_High_Res( ) ;
@@ -409,7 +408,6 @@ void CMolecularData::Mol_Low_To_High_Res( ) // USED IN lpp1.cpp
 		dataMol.alphaMol[i] = evaluate_spline( spl_alpha_mol, RadSondeData.nBinsLR, dataMol.zr[i] ) ;
 		dataMol.betaMol [i] = evaluate_spline( spl_beta_mol	, RadSondeData.nBinsLR, dataMol.zr[i] ) ;
 	}
-
 	free(spl_n)			;
 	free(spl_alpha_mol) ;
 	free(spl_beta_mol)  ;

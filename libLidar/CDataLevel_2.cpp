@@ -130,11 +130,11 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 	for (int i =1; i <glbParam->nBins; i++)
 	{
 		dataMol->alphaMol_avg[i] = dataMol->alphaMol[i] ;
-		dataMol->betaMol_avg[i]  = dataMol->betaMol [i] ;
-		dataMol->pr2Mol_avg [i]  = dataMol->pr2Mol  [i] ;
-		glbParam->r_avg[i] 		 = glbParam->r[i]		;
+		dataMol->betaMol_avg [i] = dataMol->betaMol [i] ;
+		dataMol->pr2Mol_avg  [i] = dataMol->pr2Mol  [i] ;
+		glbParam->r_avg		 [i] = glbParam->r		[i] ;
 	}
-	
+
 	// FIXED REFERENCE HEIGHTS SET IN THE CONFIGURATION FILE
 	if ( (heightRef_Inversion_Start_ASL >0) && (heightRef_Inversion_Stop_ASL >0) && (heightRef_Inversion_Stop_ASL >= heightRef_Inversion_Start_ASL) )
 	{
@@ -469,7 +469,7 @@ void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam )
 		printf("\nnClouds: %d \n",  oLOp->cloudProfiles[glbParam->evSel].nClouds ) ;
 	}
 	else if ( oLOp->cloudProfiles[glbParam->evSel].nClouds ==1 )
-	{ //! IMITAR LO QUE HAGO EN Layer_Mask()
+	{ //! = A LO QUE HAGO EN Layer_Mask()
 		if ( oLOp->cloudProfiles[glbParam->evSel].indxInitClouds[0] <round(5000/glbParam->dr) )
 		{
 			delta = (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - oLOp->cloudProfiles[glbParam->evSel].indxEndClouds[0])/2 ;

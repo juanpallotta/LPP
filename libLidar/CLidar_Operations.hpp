@@ -18,11 +18,15 @@ public:
     int 	        nBiasRes_Auto =5        ; 
     double          bias_pre_trigger = 0.0, bkg_mean = 0.0, bkg_std = 0.0  ;
     int 	        nLoopFindBias =5        ;
-    int             avg_Points_Cloud_Mask   ;
 
+    int                 avg_Points_Cloud_Mask, deltaNorm, stepScanCloud, DELTA_RANGE_LIM_BINS, CLOUD_MIN_THICK ;
+    double              std_factor_layer_mask   ;
+    string	            compute_pbl_mask, compute_layer_mask ;
     strcCloudProfiles 	*cloudProfiles 		;
     strcIndexMol      	*indxMol  	 		;
+    void    Layer_Mask			  ( const double*, strcMolecularData*   , strcGlobalParameters*                 ) ;
     void    GetCloudLimits        ( strcGlobalParameters*                                                       ) ;
+    void    FilterThinClouds      ( strcGlobalParameters*, int*                                                 ) ;
 
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
@@ -56,7 +60,7 @@ private:
     void	GetMem_indxMol      ( strcGlobalParameters* ) ;
     void 	GetMem_cloudProfiles( strcGlobalParameters* ) ;
 
-    double  *pr_misc, *pr2_i, *prS ;
+    double  *pr_misc, *pr2_i, *prS  ;
 
 	double 	*errRMS_Bias, *coeff ;
 	double  *b_i                 ;

@@ -27,7 +27,6 @@ int main( int argc, char *argv[] )
     printf("\n\n---- CLOUD DB (START) -----------------------------------------------------------------------------\n\n") ;
     printf("\n\n Path_File_In: %s \n Path_File_Out: %s\n\n", Path_File_In.c_str(), Path_File_Out.c_str() ) ;
 
-    // printf( "\n filename: %s \n", Path_File_In.substr( Path_File_In.find_last_of("/\\") + 1 ).c_str() ) ;
 
     strcpy( glbParam.fileName, Path_File_In.substr( Path_File_In.find_last_of("/\\") + 1 ).c_str() ) ;
 

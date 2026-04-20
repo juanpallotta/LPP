@@ -23,8 +23,8 @@ int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, s
 	int 	nFilesInTime = 0 ;
 
     // GET THE NUMBERS minTime_num AND maxTime_num, WICH REPRESENT minTime AND maxTime STORED IN THE CONFIGURATION FILE
-        char 	sMinTime[30], sMaxTime[30] ;
-        ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"minTime", (const char*)"string", (char*)sMinTime ) ;
+	char 	sMinTime[30], sMaxTime[30] ;
+		ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"minTime", (const char*)"string", (char*)sMinTime ) ;
         ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"maxTime", (const char*)"string", (char*)sMaxTime ) ;
         struct tm		tmMin, tmMax ;
         sscanf(sMinTime, "%4d/%2d/%2d-%2d:%2d:%2d", &tmMin.tm_year, &tmMin.tm_mon, &tmMin.tm_mday, &tmMin.tm_hour, &tmMin.tm_min, &tmMin.tm_sec ) ;
@@ -125,25 +125,34 @@ void get_full_path_to_soft_coded_values_file( strcGlobalParameters *glbParam )
     dummy_ptr = strrchr( path_only, '/' ) ; // FIND THE LAST OCCURRENCE
 
     if ( dummy_ptr != NULL )
-        *(dummy_ptr+1) = '\0' ;
+    {
+		*(dummy_ptr+1) = '\0' ;
+	}
     else
 	{
 		strcpy( path_only, "./" ) ;
 		printf("\nNo path to soft_coded_values.conf file.\n") ;
 	}
-		
+
 	sprintf( glbParam->FILE_soft_coded_values, "%s%s", path_only, "soft_coded_values.conf" ) ;
+
+    FILE *softFile = fopen( glbParam->FILE_soft_coded_values, "r" ) ;
+    if ( softFile == NULL )
+	{
+		printf("\nsoft_coded_values.conf file not found at: %s... exit", glbParam->FILE_soft_coded_values ) ;
+		exit(1) ;
+	}
+    else
+	{
+		fclose( softFile ) ;
+	}
 
 	delete path_only ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-/**
+/*
  * @brief Trims leading and trailing whitespace from a string (mutates the string)
  */
 static char* trim_whitespace(char* str) 
