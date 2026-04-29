@@ -109,6 +109,7 @@ struct strcGlobalParameters
 	int		*iLambda			  	;
 	int		indxWL_PDL1				;
 	int		indxWL_PDL2				; // TIENE QUE SER UN VECTOR 
+	int		indxWL_Raman			; // INDEX OF THE WAVELENGTH USED FOR RAMAN INVERSION
 	int 	nLambda					;
 	char	*sPol			    	;
 	int		*iPol			    	;
@@ -182,6 +183,7 @@ struct strcMolecularData
 { // IN HIGH RESOLUTION
 	double 	*betaMol   		=NULL 	;
 	double 	*betaMol_avg  	=NULL 	;
+	double 	*alphaRam  		=NULL 	;
 	double 	*betaRam   		=NULL 	;
 	double 	*alphaMol  		=NULL	;
 	double 	*alphaMol_avg 	=NULL	;

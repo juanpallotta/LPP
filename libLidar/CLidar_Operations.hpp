@@ -4,7 +4,8 @@
 #define CLIDAR_OPERATIONS_H
 
 #include "libLidar.hpp" // LIDAR DATA TYPE DEFINITIONS
-#include "CMolecularData.hpp"
+// #include "CMolecularData.hpp"
+class CMolecularData ;
 
 class CLidar_Operations
 {

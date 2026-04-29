@@ -12,15 +12,11 @@
 #include <cstdlib>
 #include <assert.h> 
 
-#include "../libLidar/libLidar.hpp"
-#include "../libLidar/CDataLevel_1.hpp"
-#include "../libLidar/CDataLevel_2.hpp"
-// #include "../libLidar/CMolecularData_USStd.hpp"
-#include "../libLidar/CMolecularData.hpp"
-
-using namespace std;
-using namespace netCDF;
-using namespace netCDF::exceptions;
+#include "libLidar.hpp"
+#include "CDataLevel_1.hpp"
+#include "CDataLevel_2.hpp"
+// #include "CMolecularData.hpp"
+class CMolecularData ;
 
 #define NDIMS_SCC 5
 #define NVARS_SCC 15
@@ -67,7 +63,7 @@ class CNetCDF_Lidar
 		// void Save_LALINET_NCDF_PDL0			( string, strcGlobalParameters*, double***, long*, long*		 ) ;
 		void Add_Noise_LALINET_NCDF_PDL0	( string*, strcGlobalParameters*, double** ) ;
 		void Add_Overlap_LALINET_NCDF_PDL0	( string*, strcGlobalParameters *glbParam, double **ovlp ) ;
-		void Save_LALINET_NCDF_PDL1  		( char*, strcGlobalParameters*, double**, double*, int**, double***, 	  	   int*, int*, CMolecularData* ) ;
+		void Save_LALINET_NCDF_PDL1  		( char*, strcGlobalParameters*, double**, double*, int**, double***, int*, int*, CMolecularData* ) ;
 		void Save_LALINET_NCDF_PDL2		 	( char*  , strcGlobalParameters*, CDataLevel_2* ) ;
 		void CloseFile( int ) ;
 };

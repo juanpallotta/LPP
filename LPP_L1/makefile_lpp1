@@ -5,7 +5,6 @@ NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include -L/usr/lib/x86_64-linu
 lpp1: $(OBJS)
 	g++ -Wall -o lpp1 $(OBJS) $(NETCDF_LIB)
 
-
 lpp1.o: lpp1.cpp
 	g++ -Wall -c lpp1.cpp
 
@@ -28,4 +27,4 @@ CLidar_Operations.o: ../libLidar/CLidar_Operations.cpp
 	g++ -Wall -c ../libLidar/CLidar_Operations.cpp
 
 clean:
-	rm -f core *.o *.gch *.hpp.gch lpp1
+	rm -f core *.o *.gch *.hpp *.gch lpp1

@@ -15,9 +15,6 @@
 #include <vector>
 
 #include <netcdf>
-using namespace std;
-using namespace netCDF;
-using namespace netCDF::exceptions;
 
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"

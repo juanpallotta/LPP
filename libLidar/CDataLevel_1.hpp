@@ -1,3 +1,4 @@
+
 #pragma once
 
 #ifndef CDATALEVEL_1_H
@@ -5,7 +6,8 @@
 
 #include "libLidar.hpp" // LIDAR DATA TYPE DEFINITIONS
 #include "CLidar_Operations.hpp"
-#include "CMolecularData.hpp"
+// #include "CMolecularData.hpp"
+class CMolecularData ;
 
 class CDataLevel_1  
 {

@@ -26,7 +26,8 @@ void CMolecularData_USStd::GetMem_dataMol( int nBins, int nLambda )
 		dataMol[l].nBins	= (int)nBins ;
 		dataMol[l].zr		= (double*) new double [nBins] ; memset( dataMol[l].zr	    , 0, ( sizeof(double) * nBins) ) ;
 		dataMol[l].betaMol  = (double*) new double [nBins] ; memset( dataMol[l].betaMol , 0, ( sizeof(double) * nBins) ) ;
-	 // dataMol[l].betaRam  = (double*) new double [nBins] ; memset( dataMol[l].betaRam , 0, ( sizeof(double) * nBins) ) ;
+	 	dataMol[l].alphaRam = (double*) new double [nBins] ; memset( dataMol[l].alphaRam, 0, ( sizeof(double) * nBins) ) ;
+	 	dataMol[l].betaRam  = (double*) new double [nBins] ; memset( dataMol[l].betaRam , 0, ( sizeof(double) * nBins) ) ;
 		dataMol[l].alphaMol = (double*) new double [nBins] ; memset( dataMol[l].alphaMol, 0, ( sizeof(double) * nBins) ) ;
 		dataMol[l].nMol	 	= (double*) new double [nBins] ; memset( dataMol[l].nMol    , 0, ( sizeof(double) * nBins) ) ;
 		dataMol[l].prMol	= (double*) new double [nBins] ; memset( dataMol[l].prMol   , 0, ( sizeof(double) * nBins) ) ;

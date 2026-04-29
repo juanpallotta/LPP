@@ -5,7 +5,9 @@
 #define CDATALEVEL_2_H
 
 #include "libLidar.hpp" // LIDAR DATA TYPE DEFINITIONS
-#include "CLidar_Operations.hpp" // LIDAR DATA TYPE DEFINITIONS
+#include "CLidar_Operations.hpp"
+// #include "CMolecularData.hpp"
+class CMolecularData ;
 
 class CDataLevel_2  
 {
@@ -15,6 +17,7 @@ class CDataLevel_2
 		// void 	Fernald_1983    ( strcGlobalParameters*, int, int, strcMolecularData* ) ;
 		void 	FernaldInversion( strcGlobalParameters*, strcMolecularData* 				) ;
 		void 	FernaldInversion( double*, strcMolecularData *, strcGlobalParameters *	 	) ;
+		void 	Raman_Inversion ( strcGlobalParameters*, strcMolecularData* 				) ;
 		void 	Find_Ref_Range  (strcGlobalParameters*								  		) ;
 
 		void  	GetMemStrcErrorSigSet( strcErrorSignalSet*, int, int ) 						 ;
@@ -26,7 +29,7 @@ class CDataLevel_2
 		void 	Load_AERONET_Data    ( strcGlobalParameters* ) ;
 		int 	Check_AERONET_Data   ( char* 				 ) ;
 
-		CLidar_Operations 	*oLOp ;
+		CLidar_Operations 	*oLOp 					;
 	    double  ***alpha_Aer					    ;
 	    double  ***beta_Aer 						;
 	    double  **alpha_Aer_synergy					;
@@ -36,11 +39,9 @@ class CDataLevel_2
 		int		*Start_Time_AVG_L2, *Stop_Time_AVG_L2 ;
 		int		*Start_Time_L0, *Stop_Time_L0 		;
 		double  *dummy, *pr2_s			 			;
-		// double  *pr2Fit						; // *prFit, 
 		double  dzr									;
 		double  LRM									;	
 		double  *LR									;
-		// double  LR[100]								;
 		int		LR_loop_Max							;	
 		double  **AOD_LR 							;
 		char	*aeronet_file						;
@@ -50,7 +51,7 @@ class CDataLevel_2
 		int		nLRs 								;
 		int 	indxInitSig, indxEndSig, *indxRef_Fernald;
 		double  R_ref    							;
-		int indx_Top_Cloud = 0 						;
+		// int 	indx_Top_Cloud = 0 					; // INDEX OF THE TOP CLOUD
 
 		double 	*AOD_Lidar_Time	=NULL				;
 		double 	*AERONET_AOD 	=NULL				;

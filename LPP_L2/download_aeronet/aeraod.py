@@ -9,7 +9,8 @@ The direct link is: https://aeronet.gsfc.nasa.gov/new_web/webtool_aod_v3.html
 This will download the rith file format capable to be used in LPP (Lidar Processing Pipeline)
 
 Parameters (str):
-    - site: The name of the AERONET site/station (e.g., 'CUIABA-MIRANDA');
+    - site: The name of the AERONET site/station (e.g., 'CUIABA-MIRANDA'); 
+    See https://aeronet.gsfc.nasa.gov/aeronet_locations_v3.txt for the updatedlist of available sites names, or the file /LPP_L2/download_aeronet/aeronet_locations_v3_2026.txt of this repository.
     - start_date: The start date for the data in 'YYYY-MM-DD' format;
     - end_date: The end date for the data in 'YYYY-MM-DD' format;
     - data_format: The format of the data ('All points', 'daily averages', 'monthly averages');

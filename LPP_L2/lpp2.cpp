@@ -15,9 +15,6 @@
 #include <vector>
 
 #include <netcdf>
-using namespace std;
-using namespace netCDF;
-using namespace netCDF::exceptions;
 
 // LIDAR LIBRARY ANALISYS
 #include "../libLidar/libLidar.hpp"
@@ -51,14 +48,18 @@ int main( int argc, char *argv[] )
     system(cmdCopy) ;
 
 // NETCDF FILE STUFF
-    int  ncid, ncid_L1_Data ;
+    int  ncid, ncid_L1_Data, ncid_L1_Data_MolData ;
     int  retval ;
 
     if ( ( retval = nc_open(glbParam.Path_File_In, NC_NOWRITE, &ncid) ) )
         ERR(retval);
+
     if ( ( retval = nc_inq_grp_ncid( (int)ncid, (const char*)"L1_Data", (int*)&ncid_L1_Data ) ) )
         ERR(retval);
     
+    if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_Data_MolData ) ) )
+        ERR(retval);
+
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
 
     ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL1 ) ;
@@ -67,7 +68,6 @@ int main( int argc, char *argv[] )
 
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
-    // CDataLevel_1    *oDL1 ; // IS ONLY USED IF glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2
     CDataLevel_1    *oDL1 = (CDataLevel_1*) new CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
@@ -93,11 +93,6 @@ int main( int argc, char *argv[] )
     else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2 ===> LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED --> COPY TO L2 OBJECT
     {
         oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
-        // for ( int t = 0 ; t < glbParam.nEventsAVG ; t++ )
-        // {
-        //     for (int b = 0; b < glbParam.nBins_Ch[t] ; b++)
-        //         oDL2->oLOp->cloudProfiles[t].clouds_ON[b] = (int)oDL1->oLOp->cloudProfiles[t].clouds_ON[b] ;
-        // }
     }
         //! AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 
 
@@ -114,6 +109,7 @@ int main( int argc, char *argv[] )
 
     glbParam.evSel = -10 ;
     oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam ) ;
+    oMolData->Get_Mol_Data_L2_v1( (strcGlobalParameters*)&glbParam, (CNetCDF_Lidar*)&oNCL, (int)ncid_L1_Data ) ; // 
 
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0 --> CORRECTIONS MUST BE APPLIED
     {
@@ -281,6 +277,10 @@ int main( int argc, char *argv[] )
                 //         oDL2->oLOp->cloudProfiles[t].clouds_ON[b] = (int)oDL1->oLOp->cloudProfiles[t].clouds_ON[b] ;
                 // }
                 oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                if ( glbParam.indxWL_Raman >=0  ) 
+                {
+                    oDL2->Raman_Inversion ( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
+                }
                 // for (int i = 0; i < glbParam.nBins ; i++)
                 // {
                     // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.nMol[i] ;

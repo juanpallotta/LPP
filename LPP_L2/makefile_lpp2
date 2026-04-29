@@ -5,7 +5,6 @@ NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include -L/usr/lib/x86_64-linu
 lpp2: $(OBJS)
 	g++ -Wall -o lpp2 $(OBJS) $(NETCDF_LIB)
 
-
 lpp2.o: lpp2.cpp
 	g++ -Wall -c lpp2.cpp
 

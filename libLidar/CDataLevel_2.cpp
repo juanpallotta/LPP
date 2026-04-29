@@ -373,6 +373,19 @@ printf("\tRef. ranges: %lf - %lf", glbParam->dzr*indxRef_Fernald_Start[glbParam-
 */
 }
 
+void CDataLevel_2::Raman_Inversion( strcGlobalParameters *glbParam, strcMolecularData *dataMol)
+{
+	printf("Raman_Inversion: glbParam->indxWL_Raman = %d\n", glbParam->indxWL_Raman);
+	printf("Raman_Inversion: data_File_L2[0][%d][%d] = %lf\n", glbParam->indxWL_Raman, glbParam->indxInitSig, data_File_L2[0][glbParam->indxWL_Raman][glbParam->indxInitSig]);
+
+	// for (int i=0 ; i <=glbParam->nBins_Ch[glbParam->indxWL_Raman] ; i++ )
+	// {
+	// 	alpha_Aer[i][i] = (N_N2[i] / pr2[glbParam->evSel][glbParam->indxWL_Raman][i] - dataMol->alphaMol[i] - dataMol->alphaMol_Ram[i]) 
+	// 					/ ( 1 + pow( glbParam->lambda[glbParam->indxWL_Raman] / glbParam->lambda[glbParam->indxWL_PDL2], 1 ) ) ;
+	// }
+
+}
+
 void CDataLevel_2::FernaldInversion_Core( strcGlobalParameters *glbParam, int l, strcMolecularData *dataMol, int indxStart, int indxStop )
 {
 	memset( (double*)phi		  , 0, sizeof(double)*glbParam->nBins ) ;

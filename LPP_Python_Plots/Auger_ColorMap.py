@@ -11,6 +11,7 @@ import argparse
 import numpy as np
 import netCDF4 as nc
 import matplotlib.pyplot as plt
+import re
 from datetime import datetime, timezone
 from matplotlib.colors import ListedColormap, LogNorm
 
@@ -28,6 +29,52 @@ def ensure_dir(path):
     """Ensure directory exists."""
     if not os.path.exists(path):
         os.makedirs(path)
+
+def extract_metadata(filename):
+    """Extract site, date, time, and run number from filename."""
+    basename = os.path.basename(filename)
+    parts = basename.split('-')
+    
+    # Defaults
+    site = "unknown_site"
+    date = "unknown_date"
+    time = "unknown_time"
+    run = "unknown_run"
+    
+    # Following pattern: lidar-<site>-<YYYYMMDD>-<HHMMSS>-<RX>.root
+    if len(parts) >= 5 and parts[0] == "lidar":
+        site = parts[1]
+        date = parts[2]
+        time = parts[3] # HHMMSS
+        # parts[4] contains <RX>.root
+        run_part = parts[4]
+        if ".root" in run_part:
+            run = run_part.split(".root")[0]
+        else:
+            run = run_part
+    else:
+        # Fallback if pattern doesn't match exactly
+        date_match = re.search(r'(\d{8})', basename)
+        if date_match:
+            date = date_match.group(1)
+        
+        # Look for a 6-digit time (HHMMSS) that isn't part of the 8-digit date
+        all_6_digits = re.findall(r'(\d{6})', basename)
+        for d in all_6_digits:
+            if d not in date:
+                time = d
+                break
+        
+        for s in ["ch", "la", "ll", "lm"]:
+            if f"-{s}-" in basename.lower() or basename.lower().startswith(f"{s}_"):
+                site = s
+                break
+        
+        run_match = re.search(r'(R\d+)', basename)
+        if run_match:
+            run = run_match.group(1)
+            
+    return site, date, time, run
 
 def get_edges(centers):
     """Calculate edges for pcolormesh from centers."""
@@ -79,6 +126,8 @@ def plot_fan_scan(ax, r, angles, data, title, ylabel, xlabel='Horizontal Distanc
 
 def process_file(nc_file, out_dir, time_idx):
     ensure_dir(out_dir)
+    site, date, time, run = extract_metadata(nc_file)
+    file_prefix = f"{site}_{date}_{time}_{run}_"
     
     with nc.Dataset(nc_file, 'r') as ds:
         # --- Level 1 Data ---
@@ -99,7 +148,7 @@ def process_file(nc_file, out_dir, time_idx):
                 fig, ax = plt.subplots(figsize=(10, 8))
                 plot_fan_scan(ax, r_km, zenith_l1, cm_plot, 'Cloud Mask', 'Altitude [km]', is_binary=True)
                 
-                out_path = os.path.join(out_dir, 'Cloud_Mask.png')
+                out_path = os.path.join(out_dir, f'{file_prefix}Cloud_Mask.png')
                 plt.savefig(out_path, dpi=300, bbox_inches='tight')
                 plt.close()
                 print(f"Saved: {out_path}")
@@ -134,7 +183,7 @@ def process_file(nc_file, out_dir, time_idx):
                     plot_fan_scan(ax, r_l2_plot, zenith_l2, data_rcls, 
                                   f'RCLS L2 ColorMap - {t_str}\nChannel {chan_idx}', 'Range [km]', 
                                   vmin=v_min, vmax=v_max)
-                    out_path = os.path.join(out_dir, 'Range_Corrected_Lidar_Signal_L2_ColorMap.png')
+                    out_path = os.path.join(out_dir, f'{file_prefix}Range_Corrected_Lidar_Signal_L2_ColorMap.png')
                     plt.savefig(out_path, dpi=300, bbox_inches='tight')
                     plt.close()
                     print(f"Saved: {out_path}")
@@ -147,7 +196,7 @@ def process_file(nc_file, out_dir, time_idx):
                 ax.set_xlabel('Signal')
                 ax.set_ylabel('Range [km]')
                 ax.grid(True, linestyle='--', alpha=0.3)
-                out_path = os.path.join(out_dir, 'Range_Corrected_Lidar_Signal_L2_Time_Slice.png')
+                out_path = os.path.join(out_dir, f'{file_prefix}Range_Corrected_Lidar_Signal_L2_Time_Slice.png')
                 plt.savefig(out_path, dpi=300, bbox_inches='tight')
                 plt.close()
                 print(f"Saved: {out_path}")
@@ -179,7 +228,7 @@ def process_file(nc_file, out_dir, time_idx):
                     if wl == "532nm":
                         save_name = f"{var_name.split('_')[1]}_532nm.png"
                     
-                    out_path = os.path.join(out_dir, save_name)
+                    out_path = os.path.join(out_dir, f"{file_prefix}{save_name}")
                     plt.savefig(out_path, dpi=300, bbox_inches='tight')
                     plt.close()
                     print(f"Saved: {out_path}")
@@ -198,7 +247,7 @@ def process_file(nc_file, out_dir, time_idx):
                                       f'{var_name} ColorMap - {t_str}\nLR index {lr_middle_idx}', 
                                       'Range [km]', vmin=v_min, vmax=v_max)
                         
-                        out_path = os.path.join(out_dir, f"{var_name}_ColorMap.png")
+                        out_path = os.path.join(out_dir, f"{file_prefix}{var_name}_ColorMap.png")
                         plt.savefig(out_path, dpi=300, bbox_inches='tight')
                         plt.close()
                         print(f"Saved: {out_path}")

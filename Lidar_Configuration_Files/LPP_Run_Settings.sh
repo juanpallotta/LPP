@@ -9,8 +9,10 @@ L2="yes"
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
 
+PATH_IN="/mnt/Disk-1_8TB/Potenza/licel_raw"
+# PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
+
 # PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/MultiAngle/lpp_sim_multiangle_L0.nc"
-# PATH_IN="/mnt/Disk-1_8TB/Potenza/licel_raw/"
 
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Dorrego/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Pilar/20240910/"
@@ -19,11 +21,7 @@ L2="yes"
 # PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/07/11/"
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Dorrego/2024/20240829/" 
 # PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241021/" 
-PATH_IN="/mnt/Disk-1_8TB/Argentina/Tucuman/minilidar/2024/20241021/" 
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/08/10/"
-# PATH_IN="/mnt/Disk-1_8TB/Colombia/Medellin/20230131/"
-
-# PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
+# PATH_IN="/mnt/Disk-1_8TB/Argentina/Tucuman/minilidar/2024/20241021/" 
 
 # CONFIGURATION FILES
 # ! SIMULATIONS
@@ -45,9 +43,9 @@ PATH_IN="/mnt/Disk-1_8TB/Argentina/Tucuman/minilidar/2024/20241021/"
 # ! GRANADA - ALHAMBRA
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
 # ! POTENZA - MUSA
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
+FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
 # ! ARGENTINA
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_COMR.conf"

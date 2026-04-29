@@ -265,8 +265,9 @@ int ReadAnalysisParameter(const char* filePath, const char* varName, const char*
     
     fclose(file);
 
-    // If variable was not found, set fallback values as per skills.md
-    if (element_count == -2000) {
+    // If variable was not found, set fallback values
+    if (element_count == -2000) 
+	{
         if (strcmp(varType, "int") == 0) {
             *(int*)result = -2000;
         } else if (strcmp(varType, "float") == 0) {

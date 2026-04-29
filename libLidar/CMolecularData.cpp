@@ -4,7 +4,7 @@
  */
 
 #include "CMolecularData.hpp"
-
+#include "CNetCDF_Lidar.hpp"
 
 CMolecularData::CMolecularData( strcGlobalParameters *glbParam )
 {
@@ -200,6 +200,23 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam )
 		Fill_dataMol_L2_from_RadSondeData( (strcGlobalParameters*)glbParam ) ;
 	else
 		Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ; // ZENITHAL CORRECTION AND dataMol FILLING
+}
+
+// FILL dataMol STRUCTURE FROM dataMol.tK AND dataMol.pPa ALREADY LOADED
+void CMolecularData::Get_Mol_Data_L2_v1( strcGlobalParameters *glbParam, CNetCDF_Lidar *oNCL, int ncid_L1_Data ) // 
+{
+    // int ncid_L1_MolData, retval ;
+    // if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_MolData ) ) )
+    //     ERR(retval);
+    // oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Temperature_K", (double*)&dataMol.tK[0]   ) ;
+    // oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Pressure_Pa"  , (double*)&dataMol.pPa[0]  ) ;
+    // oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"N_mol"        , (double*)&dataMol.nMol[0] ) ;
+
+    // if ( ( retval = nc_get_att_int(	(int)ncid_L1_Data, (int)NC_GLOBAL, (const char*)"Max_Mol_Range", (int*)&dataMol.z_Mol_Max ) ) )
+    //     ERR(retval);
+	
+
+	// Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ; // ZENITHAL CORRECTION AND dataMol FILLING
 }
 
 // FILL dataMol FROM LOW TO HIGH RESOLUTION AND ZENITHAL ANGLE

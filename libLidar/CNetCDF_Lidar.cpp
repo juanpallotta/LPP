@@ -1,5 +1,6 @@
 
-#include "CNetCDF_Lidar.hpp"  
+#include "CNetCDF_Lidar.hpp"
+#include "CMolecularData.hpp"
 
 CNetCDF_Lidar::CNetCDF_Lidar( )
 {
@@ -252,8 +253,9 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     
     ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam->rInitSig   ) ;
 
-    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam->indxWL_PDL1 ) ;
-    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam->indxWL_PDL2 ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1" , (const char*)"int", (int*)&glbParam->indxWL_PDL1 ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&glbParam->indxWL_PDL2 ) ;
+    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_Raman", (const char*)"int", (int*)&glbParam->indxWL_Raman ) ;
 
     glbParam->indxInitSig = (int)round( glbParam->rInitSig /glbParam->dr ) ;
     glbParam->iLambda = (int*) new int [glbParam->nCh] ;

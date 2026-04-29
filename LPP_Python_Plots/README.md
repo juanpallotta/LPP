@@ -24,13 +24,13 @@ pip install -r requirements.txt
 ### Basic Usage
 
 ```bash
-python plot_netcdf.py <path_to_netcdf_file>
+python plot_LPP.py <path_to_netcdf_file>
 ```
 
 ### Example
 
 ```bash
-python plot_netcdf.py A_L0_L1_L2.nc
+python plot_LPP.py A_L0_L1_L2.nc
 ```
 
 ### Advanced Usage
@@ -38,7 +38,7 @@ python plot_netcdf.py A_L0_L1_L2.nc
 Specify an output directory for the plot:
 
 ```bash
-python plot_netcdf.py A_L0_L1_L2.nc -o output_directory
+python plot_LPP.py A_L0_L1_L2.nc -o output_directory
 ```
 
 ### Help
