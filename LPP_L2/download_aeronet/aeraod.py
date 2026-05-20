@@ -82,14 +82,14 @@ if __name__ == "__main__":
         print("Using the hardcoded values")
 
         # Configuration
-        site_name    = "Granada"   # Specify the site/station name
-        date_initial = "2024-09-17"  # Specify the start date in 'YYYY-MM-DD' format
-        date_final   = "2024-09-17"  # Specify the end date in 'YYYY-MM-DD' format
+        site_name    = "Sao_Paulo"   # Specify the site/station name
+        date_initial = "2018-07-18"  # Specify the start date in 'YYYY-MM-DD' format
+        date_final   = "2024-07-18"  # Specify the end date in 'YYYY-MM-DD' format
         data_type    = "Aerosol Optical Depth (AOD) with Precipitable Water and Angstrom Parameter" # or "Total Optical Depth based on AOD Level*"
         data_format  = "all points"  # Choose the data format: 'all points', 'daily averages', or 'monthly averages'
-        aod_level    = "10"          #  Choose the AOD level: '10' for 1.0, '15' for 1.5, or '20' for 2.0
+        aod_level    = "15"          #  Choose the AOD level: '10' for 1.0, '15' for 1.5, or '20' for 2.0
         # download_folder = os.path.join(os.getcwd(), "/mnt/Disk-1_8TB/Colombia/AERONET_LPP/" )  # Specify the folder to save downloaded data
-        download_folder = os.path.join(os.getcwd(), "/mnt/c/Users/jpall/Desktop/Granada_Alhambra_Lidar/AERONET_LPP/" )  # Specify the folder to save downloaded data
+        download_folder = os.path.join(os.getcwd(), "/mnt/c/lidarData/SPU/SCC_biomass/20180718/AERONET_LPP/" )  # Specify the folder to save downloaded data
 
     # Call the download function
     ret_down = download_aeronet_aod(site_name, date_initial, date_final, data_type, data_format, aod_level, download_folder)

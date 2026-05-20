@@ -28,9 +28,9 @@ indx_Ch_L2 = int(fh.groups['L2_Data'].getncattr('indxChannel_for_Fernald_inv'))
 r          = (np.arange(nbins)+1) *resolution*1e-3 - (resolution*1e-3)/2        # r = (np.arange(nbins)+1) *resolution*1e-3 
 
 # alpha_Aer = fh["/L2_Data/Aerosol_Extinction_355nm"][:]
-# beta_Aer  = fh["/L2_Data/Aerosol_Backscattering_355nm"][:]
+# beta_Aer  = fh["/L2_Data/Aerosol_Backscatter_355nm"][:]
 alpha_Aer = fh["/L2_Data/Aerosol_Extinction_532nm"][:]
-beta_Aer  = fh["/L2_Data/Aerosol_Backscattering_532nm"][:]
+beta_Aer  = fh["/L2_Data/Aerosol_Backscatter_532nm"][:]
 RCLS_L2   = fh["/L2_Data/Range_Corrected_Lidar_Signal_L2"][:]
 
 LRs       = fh["/L2_Data/LRs"]

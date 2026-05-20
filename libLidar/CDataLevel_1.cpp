@@ -3,9 +3,9 @@
 
 CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 {
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "avg_Points_Cloud_Mask", "int", (int*)&avg_Points_Cloud_Mask 	) ;
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "CLOUD_MIN_THICK"	  	, "int", (int*)&CLOUD_MIN_THICK 		) ;
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "stepScanCloud" 	  	, "int", (int*)&stepScanCloud 		    ) ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "avg_Points_Cloud_Mask", "int", (int*)&avg_Points_Cloud_Mask 	) ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "CLOUD_MIN_THICK"	  	, "int", (int*)&CLOUD_MIN_THICK 		) ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "stepScanCloud" 	  	, "int", (int*)&stepScanCloud 		    ) ;
 
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "errFactor"			 , "double", (double*)&errFactor    		) ;
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "errScanCheckFactor"   , "double", (double*)&errScanCheckFactor   ) ;
@@ -13,9 +13,13 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "DELTA_RANGE_LIM_BINS" , "int"   , (int*)&DELTA_RANGE_LIM_BINS    ) ;
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "errCloudCheckFactor"  , "double", (double*)&errCloudCheckFactor  ) ;
 
-	ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "ifODcut"			  	 , "string", (char*)ifODcut 				) ;
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_LAYER_MASK"   , "string", (char*)strCompCM.c_str() 		) ;
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_PBL_MASK"     , "string", (char*)strCompPBL.c_str() 		) ;
+	ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "ifODcut", "string", (char*)ifODcut, sizeof(ifODcut) ) ;
+	char compute_layer_mask_buf[128] = {0} ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "COMPUTE_LAYER_MASK", "string", compute_layer_mask_buf, sizeof(compute_layer_mask_buf) ) ;
+	strCompCM.assign(compute_layer_mask_buf) ;
+	char compute_pbl_mask_buf[128] = {0} ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "COMPUTE_PBL_MASK", "string", compute_pbl_mask_buf, sizeof(compute_pbl_mask_buf) ) ;
+	strCompPBL.assign(compute_pbl_mask_buf) ;
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "COMPUTE_LAYER_MASK"   , "string", (char*)strCompCM.c_str() 		) ;
 	// ReadAnalysisParameter( glbParam->FILE_PARAMETERS, "COMPUTE_PBL_MASK"     , "string", (char*)strCompPBL.c_str() 		) ;
 
@@ -31,13 +35,15 @@ CDataLevel_1::CDataLevel_1( strcGlobalParameters *glbParam )
 	
 CDataLevel_1::~CDataLevel_1()
 {
-	delete prS   ;
-	delete prprm  ;
-	delete prmprm ;
-	delete prFit ;
+	delete[] prS   ;
+	delete[] prprm  ;
+	delete[] prmprm ;
+	delete[] prFit ;
+	delete[] dco ;
+	delete oLOp ;
 
-	// for (int i =0; i <nScanMax; i++) delete SE_lay[i] ; 
-	// delete SE_lay ;
+	// for (int i =0; i <nScanMax; i++) delete[] SE_lay[i] ; 
+	// delete[] SE_lay ;
 }
 
 /*
@@ -76,9 +82,10 @@ void CDataLevel_1::GetMem_indxMol( strcGlobalParameters *glbParam )
 }
 */
 
+/*
 void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
 {
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "avg_Points_Cloud_Mask", "int", (int*)&avg_Points_Cloud_Mask ) ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "avg_Points_Cloud_Mask", "int", (int*)&avg_Points_Cloud_Mask ) ;
 	// pr IS ALREADY BACKGROUND CORRECTED
 	if ( avg_Points_Cloud_Mask >1 )
 	{
@@ -117,12 +124,12 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 
 	// SET THE INITIAL FITTING RANGES FOR THE LAYER DETECTION ALGORITHM
 	int 	deltaNorm ; // NUMBER OF BINS FOR THE RAYLEIGH FIT NORMALIZATION
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "deltaNorm", "int", (int*)&deltaNorm )  ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "deltaNorm", "int", (int*)&deltaNorm )  ;
 	fitParam.indxEndFit  = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - deltaNorm  ;
 	fitParam.indxInitFit = fitParam.indxEndFit - deltaNorm ;
 	fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
-	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "std_factor_layer_mask", "float", (float*)&glbParam->std_factor_layer_mask ) ;
+	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "std_factor_layer_mask", "float", (float*)&glbParam->std_factor_layer_mask ) ;
 
 	memset( oLOp->cloudProfiles[glbParam->evSel].clouds_ON, 0, ( sizeof(int) * glbParam->nBins ) ) ;
 
@@ -154,7 +161,11 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 
 	if ( strcmp( glbParam->exeFile, "./lpp1" ) ==0 )
 	// 	IF DATA LEVEL 1 IS RUNNING, THE PBL MASK IS IS COMPUTED DEPENDING ON THE CONFIGURATION FILE
-		ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "COMPUTE_PBL_MASK", "string", (char*)strCompPBL.c_str() ) ;
+	{
+		char compute_pbl_mask_buf[128] = {0} ;
+		ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "COMPUTE_PBL_MASK", "string", compute_pbl_mask_buf, sizeof(compute_pbl_mask_buf) ) ;
+		strCompPBL.assign(compute_pbl_mask_buf) ;
+	}
 	else if ( strcmp( glbParam->exeFile, "./lpp2" ) ==0 )
 	{  	// 	IF DATA LEVEL 2 IS RUNNING, THE PBL MASK IS ALWAYS COMPUTED, INDEPENDENTLY OF THE CONFIGURATION FILE
 		strCompPBL.assign("YES") ;
@@ -188,7 +199,7 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 				b = (int)-10 ;
 				// a = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - round(2000/glbParam->dr)) *1/4 ) ;
 				// b = (int)round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - round(2000/glbParam->dr)) *3/8 ) ;
-				printf(" (3) Fit between the start range and the maximun range (%d, %d).", a, b) ;
+				// printf(" (3) Fit between the start range and the maximun range (%d, %d).", a, b) ;
 			}
 		} // else if ( (oLOp->cloudProfiles[glbParam->evSel].nClouds >=1) )
 
@@ -222,7 +233,7 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 					oLOp->cloudProfiles[glbParam->evSel].clouds_ON[i] = (int)1 ;
 	} // if ( strcmp( strCompPBL.c_str(), "YES" ) ==0 )
 	//! PBL HEIGH - END
-/*
+
 	// IF THERE ARE CLOUDS DETECTED --> ADJUST THE BOUNDARIES
 	int sumLay =0 ;
 	sum_int( (int*)&oLOp->cloudProfiles[glbParam->evSel].clouds_ON[0], (int)0, (int)(glbParam->nBins_Ch[glbParam->chSel]-1), (int*)&sumLay ) ;
@@ -269,9 +280,10 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 	else // NO CLOUDS DETECTED
 		memset( (double*)&oLOp->cloudProfiles[glbParam->evSel].clouds_ON[0], 0, sizeof(int)*glbParam->nBins ) ;
 */
-	FilterThinClouds( (strcGlobalParameters*)glbParam, (int*)oLOp->cloudProfiles[glbParam->evSel].clouds_ON ) ;
-	oLOp->GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
-} // void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+	// FilterThinClouds( (strcGlobalParameters*)glbParam, (int*)oLOp->cloudProfiles[glbParam->evSel].clouds_ON ) ;
+	// oLOp->GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
+// } // void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
+
 
 // void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam )
 // {
@@ -311,12 +323,12 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 
 // 	// SET THE INITIAL FITTING RANGES FOR THE LAYER DETECTION ALGORITHM
 // 	int 	deltaNorm ; // NUMBER OF BINS FOR THE RAYLEIGH FIT NORMALIZATION
-// 	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "deltaNorm", "int", (int*)&deltaNorm )  ;
+// 	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "deltaNorm", "int", (int*)&deltaNorm )  ;
 // 	fitParam.indxEndFit  = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - deltaNorm  ;
 // 	fitParam.indxInitFit = fitParam.indxEndFit - deltaNorm ;
 // 	fitParam.indxMidFit  = (int)round( (fitParam.indxInitFit + fitParam.indxEndFit)/2 ) ;
 // 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1;
-// 	ReadAnalysisParameter( glbParam->FILE_soft_coded_values, "std_factor_layer_mask", "float", (float*)&glbParam->std_factor_layer_mask ) ;
+// 	ReadAnalysisParameter( glbParam->FILE_SOFT_CODED_VALUES, "std_factor_layer_mask", "float", (float*)&glbParam->std_factor_layer_mask ) ;
 
 // 	memset( oLOp->cloudProfiles[glbParam->evSel].clouds_ON, 0, ( sizeof(int) * glbParam->nBins ) ) ;
 // 	// FIRST STAGE OF CLOUD DETECTION
@@ -446,6 +458,7 @@ void CDataLevel_1::Layer_Mask( const double *pr, strcMolecularData *dataMol, str
 // 	oLOp->GetCloudLimits( (strcGlobalParameters*)glbParam ) ;
 // }
 
+/*
 void CDataLevel_1::FilterThinClouds( strcGlobalParameters *glbParam, double *layer_mask )
 {
 	for (int b =0 ; b <=(glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] -CLOUD_MIN_THICK -1) ; b++)
@@ -493,6 +506,7 @@ void CDataLevel_1::FilterThinClouds( strcGlobalParameters *glbParam, int *layer_
 		}
 	}
 }
+*/
 
 /*
 void CDataLevel_1::GetCloudLimits( strcGlobalParameters *glbParam, int *clouds_ON )

@@ -157,6 +157,8 @@ then
                 cd $PATH_TO_L1
                 ./lpp1 $PATH_FILE_IN_L1 $PATH_FILE_OUT_L1 $FILE_CONF
 
+                rm $PATH_FILE_IN_L1
+
                 # echo -e "\n\nRunning make_CloudDB_LPP \n ./make_CloudDB_LPP "$PATH_FILE_OUT_L1" "$PATH_FILE_OUT_L1_CLOUD_DATA" "$FILE_CONF
                 # ./make_CloudDB_LPP $PATH_FILE_OUT_L1 $PATH_FILE_OUT_L1_CLOUD_DATA $FILE_CONF
 
@@ -165,7 +167,6 @@ then
             else # if [[ -f $PATH_FILE_IN_L1 ]]
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L1 ]]
-            # rm $PATH_FILE_IN_L1 
         fi # if [[ "${L1,,}" == "yes" ]]
 
         if [[ "${L2,,}" == "yes" ]]
@@ -183,19 +184,20 @@ then
                 cd $PATH_TO_L2
                 ./lpp2 $PATH_FILE_IN_L2 $PATH_FILE_OUT_L2 $FILE_CONF
 
+                rm $PATH_FILE_IN_L2
+
                 PATH_FILE_OUT=$PATH_FILE_OUT_L2
 
             else # if [[ -f $PATH_FILE_IN_L2 ]]
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
-            # rm $PATH_FILE_IN_L2
         fi # if [[ "${L2,,}" == "yes" ]]
 
     #   PLOTTING
     echo -e "\n\nGenerating plots for"
     PATH_FILE_TO_LPP_PLOT=${PATH_TO_LPP_PLOT%.*}"plot_LPP.py"
-    echo -e "\n\npython3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 1"
-    python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 1
+    echo -e "\n\npython3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0"
+    python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0
 
 echo ""
 echo ------------------------------------------------------------ next file...

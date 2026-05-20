@@ -26,6 +26,7 @@ double  sum				( double*, int, int, double* 				    ) ;
 double  sum_int			( int   *, int, int, int*    				    ) ;
 double  mean			( double*, int, int, double* 				    ) ;
 void    smooth	    	( double*, int, int, int, double* 				) ;
+void    smooth_SplineInterpolation( double*, int, int, int, double* 		) ;
 void    cumtrapz		( double, double*, int, int, double* 			) ;
 void    cumtrapz_norm	( double, double*, int, int, int, double* 		) ;
 // void    trapz               ( double, double*, int, int, double             ) ;
@@ -39,6 +40,7 @@ int     polyfitCoeff   	(const double* const, const double* const, unsigned int,
 
 float   correlationCoefficient_int( int*, int*, int ) ;
 double  correlationCoefficient_dbl( double*, double*, int ) ;
+double  LinearInterpolation(const double x[], const double y[], int n, double x_query, int *idx);
 
 // Structure to hold spline coefficients for each interval
 // S_i(x) = a + b*(x-x_i) + c*(x-x_i)^2 + d*(x-x_i)^3

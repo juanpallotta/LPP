@@ -90,7 +90,6 @@ void CLicel_DataFile_Handling::read_Licel_Header_Line( FILE *fid, int header_lin
 					nLineElements++ ;
 					token = strtok(NULL, " ") ; // GET THE POINTER TO THE NEXT WORD
 				}
-
 				char strDump_1[20], strDump_2[20] ;
 				if ( nLineElements ==9 ) // OLD LICEL FORMAT (IE. SAO PAULO, ARGENTINA)
 				{	// LAST VALUE= ZENITH
@@ -270,14 +269,16 @@ void CLicel_DataFile_Handling::ReadLicel_GlobalParameters( char *lidarFile, strc
 	glbParam->pres_Pa_agl_AVG   = (double*) new double[glbParam->nEventsAVG] ; memset( (double*)glbParam->pres_Pa_agl_AVG, 0, (sizeof(double)*glbParam->nEventsAVG) ) ;
 	// glbParam->indxEndSig_ev   	= (int*   ) new int   [glbParam->nEventsAVG] ;
 
+// printf( "\nReadLicel_GlobalParameters --> glbParam->inputDataFileFormat: %s\n", glbParam->inputDataFileFormat ) ;
+
 	if ( strncmp( glbParam->inputDataFileFormat, "LICEL_FILE", 10 ) ==0 )
 	{
 		// HEADER LINE 1: File name
-		// fscanf( fid, "%s ", glbParam->fileName ) ;
 		read_Licel_Header_Line( (FILE*)fid, (int)1, (strcGlobalParameters*)glbParam) ;
 			// printf( "\nLINE 1: %s\n", glbParam->fileName ) ;
 
 		// HEADER LINE 2: INITALIZED AT 1 SO WE HAVE THE SAME CONVENTION OF THE TEXT EDITORS
+		// glbParam->inputDataFileFormat IS UPDATED HERE
 		read_Licel_Header_Line( (FILE*)fid, (int)2, (strcGlobalParameters*)glbParam) ;
 			// printf( "\nLINE 2: %s %10s %s %s %s %04d %lf %lf %lf \n", glbParam->siteName, glbParam->StartDate, glbParam->StartTime, glbParam->StopDate, glbParam->StopTime,
 			// 					  	   		 				          glbParam->siteASL, glbParam->siteLat, glbParam->siteLong, glbParam->aZenith[0] ) ;
@@ -409,16 +410,17 @@ int CLicel_DataFile_Handling::Read_Bkg_Data_Files( char *path_to_bkg_files, strc
 			{
 				bkg_files[f].assign(path_to_bkg_files) ;
 				bkg_files[f].append(dir->d_name) ;
-				// printf( "\n\tbkg_files[%d]= %s", f, bkg_files[f].c_str() ) ;
+				// printf( "\n\tbkg_files[%02d]= %s", f, bkg_files[f].c_str() ) ;
 				f++ ;
 			}
 		}
-
 		strcGlobalParameters glbParam_bkg ;
 		sprintf( glbParam_bkg.inputDataFileFormat, "%s", glbParam->inputDataFileFormat ) ;
 		sprintf( glbParam_bkg.siteName			 , "%s", glbParam->siteName ) ;
 		glbParam_bkg.nEvents	= (int)nFilesInInputFolder ;
-		glbParam_bkg.nEventsAVG = (int)1 ; // glbParam->nEventsAVG ;
+		glbParam_bkg.nEventsAVG = (int)1 ;
+		glbParam_bkg.chSel = 0 ;
+        glbParam_bkg.evSel = 0 ;
 			ReadLicel_GlobalParameters( (char*)bkg_files[0].c_str(), (strcGlobalParameters*)&glbParam_bkg ) ;
 
 		f=0 ;
@@ -426,12 +428,12 @@ int CLicel_DataFile_Handling::Read_Bkg_Data_Files( char *path_to_bkg_files, strc
 		{
 			strcLidarDataFile	*dataFile    = (strcLidarDataFile*) new strcLidarDataFile[ glbParam_bkg.nEvents ] ;
 			GetMem_DataFile( (strcLidarDataFile*)dataFile, (strcGlobalParameters*)&glbParam_bkg ) ;
-			
+
 			for ( f=0 ; f <nFilesInInputFolder ; f++ )
 			{
 				// printf("\nbkg_files[%d].c_str() = %s", f, bkg_files[f].c_str() ) ;
 				glbParam->evSel = f;
-				ReadLicel_Data ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)&glbParam_bkg, (strcLidarDataFile*)&dataFile[f] ) ;
+					ReadLicel_Data ( (char*)bkg_files[f].c_str(), (strcGlobalParameters*)&glbParam_bkg, (strcLidarDataFile*)&dataFile[f] ) ;
 
 				for (int c=0 ; c <glbParam_bkg.nCh ; c++)
 				{
@@ -439,7 +441,6 @@ int CLicel_DataFile_Handling::Read_Bkg_Data_Files( char *path_to_bkg_files, strc
 						data_Bkg[c][i] = data_Bkg[c][i] + dataFile[f].db_ADC[c][i] ;
 				}
 			}
-
 			for ( int c =0; c <glbParam_bkg.nCh ; c++)
 			{
 				for (int i =0; i <glbParam->nBins; i++) // IT MUST BE glbParam, NOT glbParam_bkg
@@ -449,7 +450,7 @@ int CLicel_DataFile_Handling::Read_Bkg_Data_Files( char *path_to_bkg_files, strc
 			{
 				printf("\n Background files contain %d bins \n Lidar files contain %d \n Background signals are truncated to %d bins.\n\n", glbParam_bkg.nBins, glbParam->nBins, glbParam->nBins ) ;
 			}
-		}
+		} // if ( ( glbParam_bkg.nCh == glbParam->nCh) && ( glbParam_bkg.nBins >= glbParam->nBins )  )
 		else
 		{
 			printf("\n *** Background files with different number of channels and/or bins. Not saved in the NetCDF file ***\n") ;

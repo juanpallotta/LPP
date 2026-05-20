@@ -24,7 +24,7 @@ class CMolecularData_USStd
 		void ReadUSSTDfile( const char*, strcGlobalParameters* ) ;
 		void Get_Mol_Data_L1( strcGlobalParameters* ) ;
 
-		void Mol_Low_To_High_Res() ;
+		void Mol_Low_To_High_Res_Spl() ;
 };
 
 #endif

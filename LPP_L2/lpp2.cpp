@@ -62,13 +62,12 @@ int main( int argc, char *argv[] )
 
     CNetCDF_Lidar   oNCL = CNetCDF_Lidar() ;
 
-    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL1 ) ;
-    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL2 ) ;
-    glbParam.numEventsToAvg = glbParam.numEventsToAvg_PDL2 ;
+    // ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL1", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL1 ) ;
+    // ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"numEventsToAvg_PDL2", (const char*)"int", (int*)&glbParam.numEventsToAvg_PDL2 ) ;
+    // glbParam.numEventsToAvg = glbParam.numEventsToAvg_PDL2 ;
 
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
-    CDataLevel_1    *oDL1 = (CDataLevel_1*) new CDataLevel_1( (strcGlobalParameters*)&glbParam ) ;
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
     int nCh_to_invert = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2 ) ;
@@ -76,7 +75,9 @@ int main( int argc, char *argv[] )
     assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
     glbParam.chSel  = glbParam.indxWL_PDL2 ;
 
-    ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method"             , "string", (char*)   oDL2->reference_method.c_str()      ) ;
+    char reference_method_buf[128] = {0} ;
+    ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method"             , "string", reference_method_buf, sizeof(reference_method_buf) ) ;
+    oDL2->reference_method.assign(reference_method_buf) ;
 	ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Start_ASL", "double", (double*)&oDL2->heightRef_Inversion_Start_ASL ) ;
 	ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "heightRef_Inversion_Stop_ASL" , "double", (double*)&oDL2->heightRef_Inversion_Stop_ASL  ) ;
 
@@ -94,22 +95,13 @@ int main( int argc, char *argv[] )
     {
         oNCL.Read_L1_into_L2( (int)ncid_L1_Data, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
     }
-        //! AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 
+        //! AT THIS POINT, LIDAR DATA LOADED IN oDL2->data_File_L2 WITH THE AVERAGE SET BY numEventsToAvg_PDL2.
+        //! SINCE numEventsToAvg_PDL1 != numEventsToAvg_PDL2 --> CORRECTIONS MUST BE APPLIED AGAIN FROM L0 DATA FILE (BELOW)
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam  ) ;
 
-    int ncid_L1_MolData ;
-    if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_MolData ) ) )
-        ERR(retval);
-    oNCL.ReadVar( (int)ncid_L1_MolData, (const char*)"Temperature_K", (double*)&oMolData->dataMol.tK[0]   ) ;
-    oNCL.ReadVar( (int)ncid_L1_MolData, (const char*)"Pressure_Pa"  , (double*)&oMolData->dataMol.pPa[0]  ) ;
-    oNCL.ReadVar( (int)ncid_L1_MolData, (const char*)"N_mol"        , (double*)&oMolData->dataMol.nMol[0] ) ;
-    if ( ( retval = nc_get_att_int(	(int)ncid_L1_Data, (int)NC_GLOBAL, (const char*)"Max_Mol_Range", (int*)&oMolData->dataMol.z_Mol_Max ) ) )
-        ERR(retval);
-
-    glbParam.evSel = -10 ;
-    oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam ) ;
-    oMolData->Get_Mol_Data_L2_v1( (strcGlobalParameters*)&glbParam, (CNetCDF_Lidar*)&oNCL, (int)ncid_L1_Data ) ; // 
+    glbParam.evSel = -10 ; // TO GET THE PROFILES IN THE VERTICAL DIRECTION (NO ZENITHAL CORRECTION)
+    oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam, (CNetCDF_Lidar*)&oNCL, (int)ncid_L1_Data ) ;
 
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0 --> CORRECTIONS MUST BE APPLIED
     {
@@ -124,6 +116,8 @@ int main( int argc, char *argv[] )
                 {
                     pr2[e][c]     = (double*) new double[glbParam.nBins] ; memset( pr2    [e][c], 0, glbParam.nBins*sizeof(double) ) ;
                     pr_corr[e][c] = (double*) new double[glbParam.nBins] ; memset( pr_corr[e][c], 0, glbParam.nBins*sizeof(double) ) ;
+                    memset( pr2    [e][c], 0, sizeof(double)*glbParam.nBins ) ;
+                    memset( pr_corr[e][c], 0, sizeof(double)*glbParam.nBins ) ;
                 }
         }
 
@@ -150,20 +144,94 @@ int main( int argc, char *argv[] )
         }
 
         printf("\n** L2: Due to numEventsToAvg_PDL1 != numEventsToAvg_PDL2 --> Corrections MUST be applied again from data L0 data **\n") ;
-        oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, 
+        oDL2->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, 
                                                (double***)oDL2->data_File_L2, (double***)pr_corr, (double***)pr2 ) ;
 
-        for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+// START GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
+	glbParam.indx_gluing_High_PHO   = (int*) new int[ glbParam.nCh ] ;
+
+	ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MAX_TOGGLE_RATE_MHZ ) ;
+	ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MIN_TOGGLE_RATE_MHZ ) ;
+
+    int nIndxsToGlue_Low_AN   = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_Low_AN"  , (const char*)"int", (int*)glbParam.indx_gluing_Low_AN   ) ;
+    int nIndxsToGlue_High_PHO = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_High_PHO", (const char*)"int", (int*)glbParam.indx_gluing_High_PHO ) ;
+    // CHECK IF THE GLUING INFORMATION IS CORRECTLY SET
+
+    if  ( ( (nIndxsToGlue_Low_AN == nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
+            &&
+          ( (glbParam.MAX_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ < glbParam.MAX_TOGGLE_RATE_MHZ) )
+        )
+    {
+        printf("\n\n========================================> Gluing <================================================================================\n") ;
+        for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
         {
-            for ( int c=0 ; c <glbParam.nCh ; c++ )
+            if ( ( glbParam.iLambda [glbParam.indx_gluing_Low_AN[c]  ]  == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
+                 ( glbParam.DAQ_Type[glbParam.indx_gluing_Low_AN[c]  ]  == 0 )                                                  &&
+                 ( glbParam.DAQ_Type[glbParam.indx_gluing_High_PHO[c]]  == 1 )     )
             {
-                for ( int i=0 ; i<glbParam.nBins ; i++ )
-                    oDL2->pr2[e][c][i] = (double)pr2[e][c][i] ;
+                glbParam.nPair_Ch_to_Glue = nIndxsToGlue_Low_AN ;
+                for ( int e =0; e <glbParam.nEventsAVG; e++)
+                {
+                    glbParam.evSel = e ;
+                    // oDL2->oLOp->Find_Gluing_Ranges( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
+                    oDL2->oLOp->GluingLidarSignals( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
+
+                    if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL2 )
+                    {
+                        glbParam.chSel = glbParam.indxWL_PDL2 ;
+                        oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
+                        oDL2->oLOp->Find_Max_Mol_Range( (double*)pr_corr[e][glbParam.indxWL_PDL2], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam, (int)oDL2->oLOp->avg_Points_Cloud_Mask ) ;
+                    } // if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL2 )
+                }
+                // COPYING THE CORRECTED AND AVERAGED LIDAR SIGNALS TO THE oDL2->pr2 AND oDL2->pr (USED IN THE INVERSION)
+                for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+                {
+                    for ( int c=0 ; c <glbParam.nCh ; c++ )
+                    {
+                        for ( int i=0 ; i<glbParam.nBins ; i++ )
+                            oDL2->pr2[e][c][i] = (double)pr_corr[e][c][i] * pow(glbParam.r[i], 2) ;
+                    }
+                    for ( int i=0 ; i<glbParam.nBins ; i++ )
+                        oDL2->pr[e][i] = (double)pr_corr[e][glbParam.indxWL_PDL2][i]  ;
+                }
             }
-            for ( int i=0 ; i<glbParam.nBins ; i++ )
-                oDL2->pr[e][i] = (double)pr_corr[e][glbParam.indxWL_PDL2][i]  ;
-        }
-    } // if ( numEventsToAvg_PDL1 != glbParam.numEventsToAvg  )
+            else
+            {
+                printf( "\nGLUING: indexes %d of the gluing data do not correspond to the same wavelength and/or acquitition type.\n", c) ;
+                printf( "\t indx_Gluing_Low_AN[%d]   --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_Low_AN  [c] ] ) ;
+                printf( "\t indx_Gluing_High_PHO[%d] --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_High_PHO[c] ] ) ;
+            }
+        } // for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
+    }
+    else
+    {
+        printf("\nGluing was *NOT* performed due to its configuration variables in: %s", glbParam.FILE_PARAMETERS ) ;
+        if ( nIndxsToGlue_Low_AN <0 )
+            printf("\n\t Variable indx_Gluing_Low_AN is commented or not set in setting file." ) ;
+        if ( nIndxsToGlue_High_PHO <0 )
+            printf("\n\t Variable indx_Gluing_High_PHO is commented or not set in setting file." ) ;
+        if ( (nIndxsToGlue_Low_AN != nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
+            printf("\n\t Different numbers of elements in the arrarys indx_Gluing_Low_AN and indx_Gluing_High_PHO" ) ;
+        printf("\n\t NO gluing is applied for this analysis.\n\n" ) ;
+    }
+
+// END GLUING PROCEDURE ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // FREEING MEMORY of pr_corr and pr2
+        // for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+        // {
+        //     for ( int c=0 ; c <glbParam.nCh ; c++ )
+        //     {
+        //         delete[] pr2[e][c] ;
+        //         delete[] pr_corr[e][c] ;
+        //     }
+        //     delete[] pr2[e] ;
+        //     delete[] pr_corr[e] ;
+        // }
+    } // if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA WAS READ FROM L0 --> CORRECTIONS MUST BE APPLIED
     else // DATA WAS READ FROM L1 (ALREADY CORRECTED)
     {   // oDL2->data_File_L2 == Raw_Lidar_Data_L1
         printf("\n\n** L2: Due to numEventsToAvg_PDL1 = numEventsToAvg_PDL2 --> Data is taken from L1 group (already corrected) **.\n") ;
@@ -177,7 +245,7 @@ int main( int argc, char *argv[] )
                         oDL2->pr2[e][c][i] = (double)oDL2->data_File_L2[e][c][i] * pow(glbParam.r[i], 2) ;
                 }
             }
-            for ( int i=0 ; i<glbParam.nBins ; i++ ) // oDL2->pr[e][i]: USADO EN FernaldInversion()
+            for ( int i=0 ; i<glbParam.nBins ; i++ ) // oDL2->pr[e][i]: USADO EN Fernald_Inversion()
                 oDL2->pr[e][i] = (double)oDL2->data_File_L2[e][glbParam.indxWL_PDL2][i]  ; // oDL2->data_File_L2 == Raw_Lidar_Data_L1
         }
     }
@@ -191,8 +259,8 @@ int main( int argc, char *argv[] )
         glbParam.chSel = glbParam.indxWL_PDL2 ;
     // }
 
-    if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") ==0 )
-    {   // TRY TO DOWNLOAD AND LOAD THE AERONET DATA
+    if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") ==0 ) // oDL2->aeronet_file = AERONET_FILE
+    {   // SINCE THE AERONET DATA FILE IS ALREADY DOWNLOADED, TRY TO LOAD IT
         printf("\nNo AERONET file set in the configuration file (AERONET_FILE variable). Trying to download it...\n") ;
 
         if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_path, "NOT_FOUND") ==0) )
@@ -227,11 +295,8 @@ int main( int argc, char *argv[] )
         if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 )
         {
             if ( t == 0 )
-                printf("\n\n L2 --> Getting cloud profile because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
+                printf("\n\n L2 --> Getting cloud profile again because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
 
-            // oDL1->strCompPBL.assign("YES") ;
-            // oDL1->strCompCM.assign ("YES") ;
-            // oDL1->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
             oDL2->oLOp->compute_pbl_mask.assign("YES") ;
             oDL2->oLOp->compute_layer_mask.assign("YES") ;
             oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
@@ -261,33 +326,18 @@ int main( int argc, char *argv[] )
 
                 printf("\n-----------\n\nInverting:\t Event indx/max_indx: %d/%d (%s - %s UTC) \t Channel: %d \t Wavelenght: %d nm \t Zenith: %lf", t, (glbParam.nEventsAVG-1) , formatted_time_start, formatted_time_stop, glbParam.chSel, glbParam.iLambda[glbParam.chSel], oMolData->dataMol.zenith ) ;
 
-                // IF THE PBL WAS NOT CALCULATED...
-                // if ( strcmp( oDL1->strCompPBL.c_str(), "NO" ) ==0 )
-                //     oDL1->strCompPBL.assign("YES") ;
                 if ( strcmp( oDL2->oLOp->compute_pbl_mask.c_str(), "NO" ) ==0 )
-                    oDL1->oLOp->compute_pbl_mask.assign("YES") ;
+                    oDL2->oLOp->compute_pbl_mask.assign("YES") ;
 
                 oDL2->oLOp->compute_layer_mask.assign("YES") ;
                 oDL2->oLOp->compute_pbl_mask.assign("YES")   ;
                 oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
-                // oDL1->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
-                // for ( int t = 0 ; t < glbParam.nEventsAVG ; t++ )
-                // {
-                //     for (int b = 0; b < glbParam.nBins_Ch[t] ; b++)
-                //         oDL2->oLOp->cloudProfiles[t].clouds_ON[b] = (int)oDL1->oLOp->cloudProfiles[t].clouds_ON[b] ;
-                // }
+
                 oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-                if ( glbParam.indxWL_Raman >=0  ) 
-                {
-                    oDL2->Raman_Inversion ( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
-                }
-                // for (int i = 0; i < glbParam.nBins ; i++)
+
+                // if ( glbParam.indxWL_Raman >=0  ) 
                 // {
-                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.nMol[i] ;
-                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.alphaMol[i] ;
-                    // oDL2->beta_Aer [t][0][i] = oMolData->dataMol.betaMol [i] ;
-                    // oDL2->beta_Aer[t][0][i]  = oMolData->dataMol.pr2Mol[i] ;
-                    // oDL2->alpha_Aer[t][0][i] = oMolData->dataMol.prMol[i] ;
+                //     oDL2->Raman_Inversion ( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
                 // }
             }
         } // for ( int c=0 ; c <nCh_to_invert ; c++ ) // nCh_to_invert =1 

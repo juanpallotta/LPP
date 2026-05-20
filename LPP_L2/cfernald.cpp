@@ -44,7 +44,7 @@ void CFernald::FreeMemVectorsFernaldInversion()
 	free(intAlphaMol_r) ;
 }
 
-void CFernald::FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGlobalParameters *glbParam, int indxRef, double ka, strcFernaldInversion *fernaldVectors, strcAerosolData *dataAer )
+void CFernald::_FernaldInversion_( double *pr2, strcMolecularData *dataMol, strcGlobalParameters *glbParam, int indxRef, double ka, strcFernaldInversion *fernaldVectors, strcAerosolData *dataAer )
 { /*
 	cumtrapz( glbParam->dr, dataMol->alphaMol, 0, (dataMol->nBins-1),  fernaldVectors->intAlphaMol_r   ) ; // INTEGRALS ARE THRU SLANT PATH -> dr
 	fitParam.indxInitFit, dataMol->alphaMol, 0, indxRef		      , &fernaldVectors->intAlphaMol_Ref ) ; // INTEGRALS ARE THRU SLANT PATH -> dr

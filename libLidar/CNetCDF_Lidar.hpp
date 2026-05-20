@@ -22,9 +22,9 @@ class CMolecularData ;
 #define NVARS_SCC 15
 
 #define NDIMS_LALINET_L0 3
-#define NVARS_LALINET_L0 20
+#define NVARS_LALINET_L0 30
 #define NDIMS_LALINET_L1 3
-#define NVARS_LALINET_L1 20
+#define NVARS_LALINET_L1 30
 #define NVARS_LALINET_L2 30
 
 #define ERRCODE 20

@@ -18,7 +18,8 @@ class CDataLevel_2
 		void 	FernaldInversion( strcGlobalParameters*, strcMolecularData* 				) ;
 		void 	FernaldInversion( double*, strcMolecularData *, strcGlobalParameters *	 	) ;
 		void 	Raman_Inversion ( strcGlobalParameters*, strcMolecularData* 				) ;
-		void 	Find_Ref_Range  (strcGlobalParameters*								  		) ;
+		void 	Find_Ref_Range    (strcGlobalParameters*								  	) ;
+		void 	Find_Ref_Range_v1 (strcGlobalParameters*, strcMolecularData *				) ;
 
 		void  	GetMemStrcErrorSigSet( strcErrorSignalSet*, int, int ) 						 ;
 		void 	MonteCarloRandomError( strcGlobalParameters*, strcMolecularData* ) ;
@@ -32,9 +33,10 @@ class CDataLevel_2
 		CLidar_Operations 	*oLOp 					;
 	    double  ***alpha_Aer					    ;
 	    double  ***beta_Aer 						;
+		double  **Ki_Fernald						;
 	    double  **alpha_Aer_synergy					;
 	    double  **beta_Aer_synergy					;
-		double  ***pr2, **pr ;
+		double  ***pr2, **pr 						;
 		double  ***data_File_L0, ***data_File_L2    ;
 		int		*Start_Time_AVG_L2, *Stop_Time_AVG_L2 ;
 		int		*Start_Time_L0, *Stop_Time_L0 		;

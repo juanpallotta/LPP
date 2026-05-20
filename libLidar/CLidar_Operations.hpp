@@ -32,10 +32,11 @@ public:
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
 
-    void    BiasCorrection    ( double*, strcGlobalParameters*, strcMolecularData*                              ) ;
+    void    BiasCorrection      ( double*, strcGlobalParameters*, strcMolecularData*                          ) ;
 
-    void    Find_Max_Range        ( double*, strcMolecularData*, strcGlobalParameters*                          ) ;
-    void    Find_Max_Mol_Range    ( double*, strcMolecularData*, strcGlobalParameters*, int                     ) ;
+    void    Find_Max_Range      ( double*, strcMolecularData*, strcGlobalParameters*                          ) ;
+    void    Find_Max_Mol_Range  ( double*, strcMolecularData*, strcGlobalParameters*, int                     ) ;
+    void 	Find_Ref_Range_op   (strcGlobalParameters*, strcMolecularData *			                          ) ;
     
 
     // void    Remove_Cloud_Mol_Range( double*, strcGlobalParameters*, strcMolecularData*                          ) ;
@@ -49,6 +50,7 @@ public:
 
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
     void    GluingLidarSignals( strcGlobalParameters*, double*** ) ;
+    void    Find_Gluing_Ranges( strcGlobalParameters*, double*** ) ;
 
     void    Fit         ( double*, double*, int, const char*, const char*, strcFitParam*, double* ) ;
     void    RayleighFit ( double*, double*, int,                           strcFitParam*, double* ) ;

@@ -9,19 +9,14 @@ L2="yes"
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
 
-PATH_IN="/mnt/Disk-1_8TB/Potenza/licel_raw"
-# PATH_IN="/mnt/Disk-1_8TB/Granada/20240916_nCh60/RS_20240916_0916/"
+# PATH_IN="/mnt/c/lidarData/Granada/20230214_nCh62/RS_20230214_0925/"
+# PATH_IN="/mnt/c/lidarData/Argentina/Pilar/2026/20260111/"
+PATH_IN="/mnt/c/lidarData/SPU/20180718_biomass/measurements/"
+# PATH_IN="/mnt/c/lidarData/Argentina/Tucuman/20250811/"
+# PATH_IN="/mnt/c/lidarData/Potenza/licel_raw/"
 
-# PATH_IN="/home/juan/LidarAnalysisCode/LPP/signalsTest/LPP_SIM/MultiAngle/lpp_sim_multiangle_L0.nc"
-
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Dorrego/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Pilar/20240910/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/EarthCare/Tucuman/"
-
-# PATH_IN="/mnt/Disk-1_8TB/Brazil/Manaus/2011/07/11/"
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Dorrego/2024/20240829/" 
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Cordoba/2024/20241021/" 
-# PATH_IN="/mnt/Disk-1_8TB/Argentina/Tucuman/minilidar/2024/20241021/" 
+# PATH_IN="/mnt/c/lidarData/SPU/SCC_biomass/20180718/measurements/"
+# PATH_IN="/mnt/c/lidarData/Argentina/EarthCare_Argentina/Dorrego/20240905_clouds/"
 
 # CONFIGURATION FILES
 # ! SIMULATIONS
@@ -37,20 +32,26 @@ PATH_IN="/mnt/Disk-1_8TB/Potenza/licel_raw"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Medellin.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Cali.conf"
 # ! BRAZIL
+FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
+# FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_SPU.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Brazil_Rio.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Manaus.conf"
 # ! GRANADA - ALHAMBRA
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
+# FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
+# FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_Granada.conf"
 # ! POTENZA - MUSA
-FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
+# FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Potenza.conf"
 # ! ARGENTINA
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
+# FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
+# FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_Pilar.conf"
+# FILE_CONF="/home/juan/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_AER.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_COMR.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar_2019_AgoSep.conf"
-# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Pilar.conf"
+# FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_MiniLidar.conf"
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Hector.conf"
 
 # FILE_CONF="/home/juan/LidarAnalysisCode/LPP/Lidar_Configuration_Files/analysisParameters_Argentina_BAR_CALBUCO.conf"

@@ -326,6 +326,8 @@ indxWL_PDL1 = 2
 # - TEMPERATURE UNIT: KELVIN
 # - PRESSURE UNIT: PASCALS
 Path_To_Molecular_File = ./US-StdA_DB_m_K_Pa.csv
+# NUMBER OF LINES IN THE HEADER OF THE MOLECULAR FILE TO BE SKIPPED
+num_Lines_in_Headers_Molecular_File = 1
 # SETTINGS OF THE COLUMN INDEX (0-2) OF THE PARAMETERS: RANGE-TEMPERATURE-PRESSURE IN THE FILE:
 Range_column_index_in_File = 0
 Temp_column_index_in_File  = 1
@@ -393,6 +395,7 @@ It is highly recommended to use absolute paths to avoid errors in the execution.
 * `numEventsToAvg_PDL1`: Time averaging for L1 data level products. This parameters tell to `lpp1` the numbers of the adjacents lidar profiles to average producing one merged profile. After this, the `time` dimension in the NetCDF file for the L1 data products will be reduced by `numEventsToAvg_PDL1` times. The averaging is applied to the L0 lidar profiles matrix.
 * `indxWL_PDL1`: An index (starting from 0) of the channel to use in layer-mask production. It is recommended to use an elastic lidar channel and the highest wavelength in the file for better cloud discrimination.
 * `Path_To_Molecular_File`: Path to the plain-text, comma-sepparated file containing the radiosonde/model data. This file must contain the altitude, temperature and pressure of the radiosonde/model used for the computation of the alpha and beta molecular profiles. The units of these variables are described in the comments of the setting file: altitude in meters (above sea level), temperature in Kelvin and pressure in Pascals. This repository has a sample file of US standard model (file `/LPP/Lidar_Analysis_PDL1/MolData/US-StdA_DB_m_K_Pa.csv`). The radiosonde/model file must be headerless, and the column order of each parameter (height, temperature and pressure) are described in the following variables (`Range_column_index_in_File`, `Temp_column_index_in_File` and `Pres_column_index_in_File`).
+* `num_Lines_in_Headers_Molecular_File`: Number of header lines in the radiosonde/model file to be skipped to find the data.
 * `Range_column_index_in_File`: Column index of the radiosonde/model file containing the range values. For this example, index 0 (first column).
 * `Temp_column_index_in_File`: Column index of the radiosonde/model file containing temperature values. For this example, index 1 (second column).
 * `Pres_column_index_in_File`: Column index of the radiosonde/model file containing the pressure values. For this example, index 2 (third column).
@@ -472,7 +475,7 @@ A description of each of these parameters is described below:
 * `numEventsToAvg_PDL2`: Time averaging for L2 data level products. This parameters tell to `lpp2` the numbers of the adjacents lidar profiles to average and produce one merged profile. After this, the `time` dimension in the NetCDF file for the L2 data products will be reduced by `numEventsToAvg_PDL2` times. The averaging is applied to the L0 lidar profiles matrix. If this parameter is negative, all L0 profiles will be averaged producing only one profile to invert.
   <!-- \* `MonteCarlo_N_SigSet_Err`: Number of lidar signals set generated for the Monte Carlo random error analysis. Those lidar signals will be obtained based on the mean and standar error of the time-averaged lidar signal of the data level 2 using `numEventsToAvg_PDL2` lidar profiles. Once the time-averaged lidar signal for data level 2 is produced, the mean lidar signal is obtained smoothing it with a moving average filter using `spamAvgWin` bins.
   **If** `MonteCarlo_N_SigSet_Err <0`, error analysis won't be computed in the data level 2. -->
-* `avg_Points_Fernald`: Numbers of points used for spatial smoothing to apply to the inverted retrieved profiles (extinction and backscatter).
+* `avg_Points_Fernald`: Numbers of points used for smoothing to apply to the inverted retrieved profiles (extinction and backscatter). If the number is positive, a moving average smoothing is applied, and if it is negative, a cubic-spline is applied. One number per channel.
 * `LR`: Lidar ratio used for the inversion. The current version of LPP invert the elastic lidar signals using a constant LR (non-range dependant). Nonetheless, it can be more than one value, each one sepparated by `,`, with a space before and after `,` (see the example array in the previous lines: `LR = 50 , 60 , 70 , 80`).
 * `indxWL_PDL2`: Index of the channel used for the inversion (starting at 0). This first version, only one channel can be accepted for the inversion, and the aerosol optical output will have dimensions of `time`, `LR` and `points`.
 * `heightRef_Inversion_Start_ASL` and `heightRef_Inversion_Stop_ASL`: Initial and end reference altitude above sea level (in meters). These ranges are used to calculate the reference height during the inversion procedure. If one of these values is negative, or `heightRef_Inversion_Start_ASL > heightRef_Inversion_Stop_ASL`, the reference range is obtained automatically based on the layer-mask.
@@ -719,7 +722,7 @@ The `L2_Data` sub-group data variables can be observed in the next Figure.
 
 The variables (in alphabetical order) are described below. The dimensions of each one are shown between parentheses.
 
-* `Aerosol_Backscattering (time, lrs, range)`: Aerosol backscattering profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lpp2` module.
+* `aerosol_backscatter (time, lrs, range)`: Aerosol backscattering profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lpp2` module.
 * `Aerosol_Extinction (time, lrs, range)`: Aerosol extinction profiles of the channel selected for the inversion. One profile per time and lidar ratio, both set in the configuration file passed as third argument to the `lpp2` module.
 * `AOD_LR (time, lrs)`: Aerosols optical depth obtained by integrating the aerosol extinction profile across the `point` dimmension.
 * `LRs (lrx)`: Lidar ratios used in the inversion. The values are set in the configuration file as the variable `LR`.

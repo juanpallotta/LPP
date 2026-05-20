@@ -155,7 +155,7 @@ def process_file(nc_file, out_dir, time_idx):
             # 2. Aerosol Backscattering and Extinction
             # Iterate through available wavelengths
             for var_name in l2.variables:
-                if 'Aerosol_Backscattering' in var_name or 'Aerosol_Extinction' in var_name:
+                if 'Aerosol_Backscatter' in var_name or 'Aerosol_Extinction' in var_name:
                     data = l2.variables[var_name][:] # (time, LRs, range)
                     unit = l2.variables[var_name].units if hasattr(l2.variables[var_name], 'units') else ""
                     wl = var_name.split('_')[-1] # e.g. 532nm
@@ -185,7 +185,7 @@ def process_file(nc_file, out_dir, time_idx):
                     print(f"Saved: {out_path}")
                     
                     # Colormap Fan Scan for Backscattering
-                    if 'Aerosol_Backscattering' in var_name and 'Zenith_AVG_L2' in l2.variables:
+                    if 'Aerosol_Backscatter' in var_name and 'Zenith_AVG_L2' in l2.variables:
                         zenith_l2 = l2.variables['Zenith_AVG_L2'][:]
                         data_slice = data[:, lr_middle_idx, :bin_limit_l2]
                         

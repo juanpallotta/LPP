@@ -20,12 +20,13 @@ PATH_PROFILE_EXEC = "~/hysplit/exec/profile"
 PATH_MET_DIR = "~/hysplit/metdata"
 PATH_OUTPUT = "./figures"
 # Simulation Parameters -- THESE VARIABLES CAN BE PASSED AS ARGUMENTS
-SIMULATION_DATE = datetime.datetime(2025, 11, 17, 12) 
-START_LAT = -34.56
-START_LON = -58.41
-ALTITUDE = 5000.0    # Altitude (meters AGL)
-PROFILE_RES = 7.5    # Resolution for interpolated profile (meters)
-RUN_HOURS = "-24"    # Duration. Negative for backward run
+# SIMULATION_DATE = datetime.datetime(2025, 11, 17, 12) # INCENDIOS GRUPO FACU
+SIMULATION_DATE = datetime.datetime(2025, 9, 15, 12) 
+START_LAT = -64.1 # 15.72 # -34.56
+START_LON = -31.2 # 40.6  # -58.41
+ALTITUDE = 411 # 5000.0    # Altitude (meters AGL) for the backtrajectory
+PROFILE_RES = 3.75 # 7.5  # Resolution for interpolated profile (meters)
+RUN_HOURS = "-48"    # Duration. Negative for backward run
 # THESE VARIABLES CAN BE PASSED AS ARGUMENTS - END
 
 HYSPLIT_EXEC = os.path.expanduser(PATH_HYSPLIT_EXEC) 

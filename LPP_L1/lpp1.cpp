@@ -58,18 +58,18 @@ int main( int argc, char *argv[] )
     oNCL.Read_GlbParameters( (int)ncid, (strcGlobalParameters*)&glbParam ) ;
 
     // READ VARIABLES FROM DE NETCDF INPUT FILE
-    int id_var ;
-    if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var ) ) )
+    int id_var_raw_lidar ;
+    if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var_raw_lidar ) ) )
         ERR(retval) ;
 
     int num_dim_var ;
-    if ( ( retval = nc_inq_varndims( (int)ncid, (int)id_var, (int*)&num_dim_var ) ) )
+    if ( ( retval = nc_inq_varndims( (int)ncid, (int)id_var_raw_lidar, (int*)&num_dim_var ) ) )
         ERR(retval);
-    // cout << endl << "num_dim_var: " << num_dim_var << "     id_var: " << id_var << endl ;
+    // cout << endl << "num_dim_var: " << num_dim_var << "     id_var_raw_lidar: " << id_var_raw_lidar << endl ;
     assert( num_dim_var ==3 ) ; // SI SE CUMPLE, SIGUE.
 
     int id_dim[num_dim_var] ;
-    if ( ( retval = nc_inq_vardimid( (int)ncid, (int)id_var, (int*)id_dim ) ) )
+    if ( ( retval = nc_inq_vardimid( (int)ncid, (int)id_var_raw_lidar, (int*)id_dim ) ) )
         ERR(retval);
 
     int size_dim[num_dim_var] ;
@@ -119,7 +119,7 @@ int main( int argc, char *argv[] )
             for ( int c=0 ; c <glbParam.nCh ; c++ )
             {
                 startDF[1] =c ;
-                if ( (retval = nc_get_vara_double((int)ncid, (int)id_var, startDF, countDF, (double*)&data_File_L1[e][c][0] ) ) )
+                if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_raw_lidar, startDF, countDF, (double*)&data_File_L1[e][c][0] ) ) )
                     ERR(retval);    
             }
             glbParam.temp_K_agl_AVG [e] = glbParam.temp_K_agl [e] ;
@@ -150,7 +150,7 @@ int main( int argc, char *argv[] )
             for ( int c=0 ; c <glbParam.nCh ; c++ )
             {
                 startDF[1] =c ;
-                if ( (retval = nc_get_vara_double((int)ncid, (int)id_var, startDF, countDF, (double*)&data_File_L0[e][c][0] ) ) )
+                if ( (retval = nc_get_vara_double((int)ncid, (int)id_var_raw_lidar, startDF, countDF, (double*)&data_File_L0[e][c][0] ) ) )
                     ERR(retval);    
             }
         }
@@ -164,12 +164,12 @@ int main( int argc, char *argv[] )
                                         (int*)Raw_Data_Start_Time    , (int*)Raw_Data_Stop_Time, 
                                         (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG
                                     ) ;
-    }
+    } // else // PDL0 --> PDL1 BY AVERAGING glbParam.numEventsToAvg PROFILES
 
     ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam.indxWL_PDL1 ) ;
     assert( glbParam.indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
-    double  **data_Noise ;
+    double  **data_Noise = nullptr ;
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
@@ -178,10 +178,9 @@ int main( int argc, char *argv[] )
             data_Noise[c] = (double*) new double[glbParam.nBins] ;
 
         oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
-        glbParam.is_Dark_Current_Loaded = true ;
     }
 
-    double  **ovlp ;
+    double  **ovlp = nullptr ;
     int id_var_ovlp ;
     if ( ( nc_inq_varid ( (int)ncid, "Overlap", (int*)&id_var_ovlp ) ) == NC_NOERR )
     {
@@ -228,21 +227,21 @@ int main( int argc, char *argv[] )
     oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)data_File_L1, (double***)pr_corr, (double***)pr2 ) ;
     printf("\n\n") ;
 
-    // if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
-    if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )
-    {
-        // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
-        if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
-            printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog\n", glbParam.indxWL_PDL1 ) ;
+    // oDL1->oLOp->compute_layer_mask.assign("YES") ;
+    // if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )
+    // {
+    // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
+    if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
+        printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog\n", glbParam.indxWL_PDL1 ) ;
 
-        oDL1->pr_for_cloud_mask = (double**) new double*[ glbParam.nEventsAVG ] ;
-        for (int e=0 ; e <glbParam.nEventsAVG ; e++)
-        {
-            oDL1->pr_for_cloud_mask[e] = (double*) new double[ glbParam.nBins ] ;
-            for ( int i =0 ; i < glbParam.nBins ; i++ )
-                oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
-        }
+    oDL1->pr_for_cloud_mask = (double**) new double*[ glbParam.nEventsAVG ] ;
+    for (int e=0 ; e <glbParam.nEventsAVG ; e++)
+    {
+        oDL1->pr_for_cloud_mask[e] = (double*) new double[ glbParam.nBins ] ;
+        for ( int i =0 ; i < glbParam.nBins ; i++ )
+            oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
     }
+    // }
 
 // START DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	glbParam.indx_Ch_Pol_S    = (int*)    new int   [ glbParam.nCh ] ;
@@ -258,13 +257,11 @@ int main( int argc, char *argv[] )
         {
             for (int i =0; i <glbParam.nBins; i++)
                 pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] = pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] + glbParam.Pol_Cal_Constant[0] * pr_corr[e][glbParam.indx_Ch_Pol_S[0]][i] ;
-            // for (int i =0; i <glbParam.nBins_Ch[glbParam.indx_Ch_Pol_P[0]]; i++)
-            //     pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] = pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] + glbParam.Pol_Cal_Constant[0] * pr_corr[e][glbParam.indx_Ch_Pol_S[0]][i] ;
         }
     }
     else
     {
-        printf("\n\nDepolarization setting: the information is not correctly set in the configuration file. Total lidar signals are not computed.\n\n") ;
+        printf("\n\nDepolarization setting: No depolarization information provided.\n\n") ;
     }
 
 // STOP DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,11 +281,11 @@ int main( int argc, char *argv[] )
           ( (glbParam.MAX_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ < glbParam.MAX_TOGGLE_RATE_MHZ) )
         )
     {
-        printf("========================================> Gluing <================================================================================") ;
+        printf("========================================> Gluing <================================================================================\n") ;
         for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
         {
-            if ( ( glbParam.iLambda [glbParam.indx_gluing_Low_AN[c]  ]   == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
-                 ( glbParam.DAQ_Type[glbParam.indx_gluing_Low_AN[c]  ]  == 0 )                                                   &&
+            if ( ( glbParam.iLambda [glbParam.indx_gluing_Low_AN[c]  ]  == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
+                 ( glbParam.DAQ_Type[glbParam.indx_gluing_Low_AN[c]  ]  == 0 )                                                  &&
                  ( glbParam.DAQ_Type[glbParam.indx_gluing_High_PHO[c]]  == 1 )     )
             {
                 glbParam.nPair_Ch_to_Glue = nIndxsToGlue_Low_AN ;
@@ -298,6 +295,7 @@ int main( int argc, char *argv[] )
                 // printf("\nEv: %d \t Max range channel %d BEFORE gluing with channel %d: %lf", e, glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
                                                                                             // , glbParam.rEndSig_ev[e] ) ;
 
+                // oDL1->oLOp->Find_Gluing_Ranges( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
                 oDL1->oLOp->GluingLidarSignals( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
 
                     if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL1 )
@@ -332,7 +330,6 @@ int main( int argc, char *argv[] )
 
     int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-        // Cloud_Profiles[e] = (int*) new int[glbParam.nBins_Ch[glbParam.indxWL_PDL1]] ;
         Cloud_Profiles[e] = (int*) new int[glbParam.nBins] ;
     double  **RMSE_lay = (double**) new double*[glbParam.nEventsAVG];
     for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )

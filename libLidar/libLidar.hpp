@@ -44,6 +44,7 @@ using namespace std;
 bool 	isFileInTimeRange			( char*, time_t, time_t, strcGlobalParameters*) ;
 int  	getInputFilesInTimeRange  	( char*, char**, strcGlobalParameters* ) ;
 int 	ReadAnalysisParameter	   	( const char*, const char*, const char*, void* ) ;
+int 	ReadAnalysisParameter	   	( const char*, const char*, const char*, void*, size_t ) ;
 // template<typename T>
 // int 	ReadAnalysisParameter_template ( const char*, const char*, const char*, T& ) ;
 int 	findLastCharInString		            ( char*, const char     ) ;

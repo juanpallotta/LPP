@@ -301,6 +301,83 @@ void smooth(double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAvg
     }
 }
 
+void smooth_SplineInterpolation(double *profile, int indxInit, int indxStop, int nPoints, double *smoothedProfile)
+{
+    if (indxInit < 0)
+    {
+        printf("Initial index is lower than 0 in smooth_SplineInterpolation.\n");
+        return;
+    }
+
+    if (indxStop < indxInit)
+    {
+        printf("Final index is lower than initial index in smooth_SplineInterpolation.\n");
+        return;
+    }
+
+    int n = indxStop - indxInit + 1;
+    if (n <= 0)
+        return;
+
+    if (nPoints <= 0)
+        nPoints = n;
+
+    if (nPoints < 2)
+        nPoints = 2;
+
+    if (nPoints > n)
+        nPoints = n;
+
+    if (n <= 2 || nPoints == n)
+    {
+        for (int i = indxInit; i <= indxStop; i++)
+            smoothedProfile[i] = profile[i];
+        return;
+    }
+
+    double *x = (double *)malloc(sizeof(double) * nPoints);
+    double *y = (double *)malloc(sizeof(double) * nPoints);
+    Spline *spl = (Spline *)malloc(sizeof(Spline) * (nPoints - 1));
+
+    if (x == NULL || y == NULL || spl == NULL)
+    {
+        printf("Allocation failed in smooth_SplineInterpolation.\n");
+        if (x) free(x);
+        if (y) free(y);
+        if (spl) free(spl);
+        return;
+    }
+
+    double step = (double)(n - 1) / (double)(nPoints - 1);
+    for (int i = 0; i < nPoints; i++)
+    {
+        int idx = indxInit + (int)round(i * step);
+        if (idx > indxStop)
+            idx = indxStop;
+
+        x[i] = (double)idx;
+        y[i] = profile[idx];
+    }
+
+    // Guarantee exact endpoints for knot positions.
+    x[0] = (double)indxInit;
+    y[0] = profile[indxInit];
+    x[nPoints - 1] = (double)indxStop;
+    y[nPoints - 1] = profile[indxStop];
+
+    create_natural_cubic_spline(x, y, nPoints, spl);
+
+    for (int i = 0; i < n; i++)
+    {
+        double xi = (double)(indxInit + i);
+        smoothedProfile[indxInit + i] = evaluate_spline(spl, nPoints, xi);
+    }
+
+    free(x);
+    free(y);
+    free(spl);
+}
+
 /* PRIMERA VERSION MIA
 void smooth( double *sig, int indxInit, int indxEnd, int spam, double *sigMeanAvg )
 {
@@ -555,13 +632,66 @@ double evaluate_spline(Spline spl[], int n, double x)
     int i = 0;
     // Note: The last piece is at index n-2.
     // The condition finds the last interval start point that is less than or equal to x.
-    while (i < n - 2 && x > spl[i+1].x_i) {
+    while (i < n - 2 && x > spl[i+1].x_i)
+    {
         i++;
     }
 
     // Evaluate the polynomial for the identified piece `i`
     double dx = x - spl[i].x_i;
     return spl[i].a + spl[i].b * dx + spl[i].c * dx * dx + spl[i].d * dx * dx * dx;
+}
+
+double LinearInterpolation(const double x[], const double y[], int n, double x_query, int *idx)
+{
+    if (n <= 0 || x == NULL || y == NULL)
+        return 0.0;
+
+    if (n == 1)
+        return y[0];
+
+    if (x_query <= x[0])
+    {
+        if (idx)
+            *idx = 0;
+        return y[0];
+    }
+
+    if (x_query >= x[n - 1])
+    {
+        if (idx)
+            *idx = n - 2;
+        return y[n - 1];
+    }
+
+    int currentIdx = 0;
+    if (idx)
+    {
+        currentIdx = *idx;
+        if (currentIdx < 0)
+            currentIdx = 0;
+        else if (currentIdx > n - 2)
+            currentIdx = n - 2;
+
+        while (currentIdx < n - 2 && x_query > x[currentIdx + 1])
+            currentIdx++;
+        while (currentIdx > 0 && x_query < x[currentIdx])
+            currentIdx--;
+
+        *idx = currentIdx;
+    }
+    else
+    {
+        while (currentIdx < n - 2 && x_query > x[currentIdx + 1])
+            currentIdx++;
+    }
+
+    double dx = x[currentIdx + 1] - x[currentIdx];
+    if (dx == 0.0)
+        return y[currentIdx];
+
+    double t = (x_query - x[currentIdx]) / dx;
+    return y[currentIdx] + t * (y[currentIdx + 1] - y[currentIdx]);
 }
 
 // function that returns correlation coefficient.

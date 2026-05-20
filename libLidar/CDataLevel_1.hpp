@@ -16,9 +16,9 @@ class CDataLevel_1
 		~CDataLevel_1();
 
 		// void ScanCloud_RayleighFit( const double*, strcGlobalParameters*, strcMolecularData*    ) ;
-		void Layer_Mask			  ( const double*, strcMolecularData*   , strcGlobalParameters* ) ;
-		void FilterThinClouds( strcGlobalParameters*, double* ) ;
-		void FilterThinClouds( strcGlobalParameters*, int*    ) ;
+		// void Layer_Mask			  ( const double*, strcMolecularData*   , strcGlobalParameters* ) ;
+		// void FilterThinClouds( strcGlobalParameters*, double* ) ;
+		// void FilterThinClouds( strcGlobalParameters*, int*    ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, strcCloudInfoDB_LPP* ) ;
 		void saveCloudsInfoDB( char*, strcGlobalParameters*, int* ) ;
 

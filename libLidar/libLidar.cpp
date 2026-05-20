@@ -24,8 +24,8 @@ int getInputFilesInTimeRange( char *PathFile_IN_FULL, char **inputFilesInTime, s
 
     // GET THE NUMBERS minTime_num AND maxTime_num, WICH REPRESENT minTime AND maxTime STORED IN THE CONFIGURATION FILE
 	char 	sMinTime[30], sMaxTime[30] ;
-		ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"minTime", (const char*)"string", (char*)sMinTime ) ;
-        ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"maxTime", (const char*)"string", (char*)sMaxTime ) ;
+		ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"minTime", (const char*)"string", (char*)sMinTime, sizeof(sMinTime) ) ;
+        ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, (const char*)"maxTime", (const char*)"string", (char*)sMaxTime, sizeof(sMaxTime) ) ;
         struct tm		tmMin, tmMax ;
         sscanf(sMinTime, "%4d/%2d/%2d-%2d:%2d:%2d", &tmMin.tm_year, &tmMin.tm_mon, &tmMin.tm_mday, &tmMin.tm_hour, &tmMin.tm_min, &tmMin.tm_sec ) ;
         sscanf(sMaxTime, "%4d/%2d/%2d-%2d:%2d:%2d", &tmMax.tm_year, &tmMax.tm_mon, &tmMax.tm_mday, &tmMax.tm_hour, &tmMax.tm_min, &tmMax.tm_sec ) ;
@@ -134,12 +134,12 @@ void get_full_path_to_soft_coded_values_file( strcGlobalParameters *glbParam )
 		printf("\nNo path to soft_coded_values.conf file.\n") ;
 	}
 
-	sprintf( glbParam->FILE_soft_coded_values, "%s%s", path_only, "soft_coded_values.conf" ) ;
+	sprintf( glbParam->FILE_SOFT_CODED_VALUES, "%s%s", path_only, "soft_coded_values.conf" ) ;
 
-    FILE *softFile = fopen( glbParam->FILE_soft_coded_values, "r" ) ;
+    FILE *softFile = fopen( glbParam->FILE_SOFT_CODED_VALUES, "r" ) ;
     if ( softFile == NULL )
 	{
-		printf("\nsoft_coded_values.conf file not found at: %s... exit", glbParam->FILE_soft_coded_values ) ;
+		printf("\nsoft_coded_values.conf file not found at: %s... exit", glbParam->FILE_SOFT_CODED_VALUES ) ;
 		exit(1) ;
 	}
     else
@@ -147,7 +147,7 @@ void get_full_path_to_soft_coded_values_file( strcGlobalParameters *glbParam )
 		fclose( softFile ) ;
 	}
 
-	delete path_only ;
+	delete[] path_only ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,96 +178,117 @@ static char* trim_whitespace(char* str)
  * @brief Reads a variable from a configuration file.
  * Returns the number of elements found, or -2000 if variable not found.
  */
-int ReadAnalysisParameter(const char* filePath, const char* varName, const char* varType, void* result) 
+static void safeCopyString(char* dest, const char* src, size_t destSize)
+{
+    if (!dest || !src)
+        return;
+
+    if (destSize == 0)
+    {
+        strcpy(dest, src);
+    }
+    else
+    {
+        strncpy(dest, src, destSize - 1);
+        dest[destSize - 1] = '\0';
+    }
+}
+
+int ReadAnalysisParameter(const char* filePath, const char* varName, const char* varType, void* result)
+{
+    return ReadAnalysisParameter(filePath, varName, varType, result, 0);
+}
+
+int ReadAnalysisParameter(const char* filePath, const char* varName, const char* varType, void* result, size_t resultSize)
 {
     if (!filePath || !varName || !varType || !result)
-	{
+    {
         return -2000;
     }
-    
+
     FILE* file = fopen(filePath, "r");
-    if (!file) 
-	{
+    if (!file)
+    {
         return -2000;
     }
-    
+
     char line[2048]; // Buffer for the line
     int element_count = -2000;
-    
-    while (fgets(line, sizeof(line), file)) 
+
+    while (fgets(line, sizeof(line), file))
     {
         // Skip whitespace-only lines or comments
         char* trimmed_line = line;
         while (isspace((unsigned char)*trimmed_line)) trimmed_line++;
-        
-        if (*trimmed_line == '\0' || *trimmed_line == '#') 
+
+        if (*trimmed_line == '\0' || *trimmed_line == '#')
         {
             continue;
         }
-        
+
         // Find the equals sign
         char* equals = strchr(trimmed_line, '=');
-        if (!equals) 
+        if (!equals)
         {
             continue;
         }
-        
+
         // Split key and value
         *equals = '\0';
         char* key = trim_whitespace(trimmed_line);
         char* value_str = trim_whitespace(equals + 1);
-        
+
         // Check if this is the variable we're looking for
-        if (strcmp(key, varName) == 0) 
+        if (strcmp(key, varName) == 0)
         {
-            if (!value_str || *value_str == '\0') 
+            if (!value_str || *value_str == '\0')
             {
                 element_count = 0;
                 break;
             }
-            
+
             // Single-pass conversion of comma-separated values
             int count = 0;
             char* token = strtok(value_str, ",");
-            
-            while (token) 
+
+            while (token)
             {
                 char* item = trim_whitespace(token);
                 char* endptr = NULL;
-                
-                if (strcmp(varType, "int") == 0) 
+
+                if (strcmp(varType, "int") == 0)
                 {
                     ((int*)result)[count] = (int)strtol(item, &endptr, 10);
-                } 
-                else if (strcmp(varType, "float") == 0) 
+                }
+                else if (strcmp(varType, "float") == 0)
                 {
                     ((float*)result)[count] = strtof(item, &endptr);
-                } 
-                else if (strcmp(varType, "double") == 0) 
+                }
+                else if (strcmp(varType, "double") == 0)
                 {
                     ((double*)result)[count] = strtod(item, &endptr);
-                } 
-                else if (strcmp(varType, "string") == 0) 
-                {
-                    strcpy((char*)result, item);
-                    endptr = item + strlen(item); 
                 }
-                
+                else if (strcmp(varType, "string") == 0)
+                {
+                    safeCopyString((char*)result, item, resultSize);
+                    endptr = item + strlen(item);
+                }
+
                 // Advance count and token
                 count++;
                 token = strtok(NULL, ",");
             }
-            
+
             element_count = count;
             break;
         }
     }
-    
+
     fclose(file);
 
     // If variable was not found, set fallback values
-    if (element_count == -2000) 
-	{
+    if (element_count == -2000)
+    {
         if (strcmp(varType, "int") == 0) {
             *(int*)result = -2000;
         } else if (strcmp(varType, "float") == 0) {
@@ -275,7 +296,7 @@ int ReadAnalysisParameter(const char* filePath, const char* varName, const char*
         } else if (strcmp(varType, "double") == 0) {
             *(double*)result = -2000.0;
         } else if (strcmp(varType, "string") == 0) {
-            strcpy((char*)result, "NOT_FOUND");
+            safeCopyString((char*)result, "NOT_FOUND", resultSize);
         }
     }
 
@@ -865,7 +886,7 @@ int GetBinOffset( strcLidarDataFile *dataFile, strcGlobalParameters *glbParam )
 	for (int c =0 ; c <glbParam->nCh ; c++)
 		glbParam->indxOffset[c] = (int) glbParam->indxOffset[glbParam->chSel] ;
 
-	delete prDiff ;
+	delete[] prDiff ;
 
 	return 0 ;
 }
@@ -957,15 +978,15 @@ void GetMemDataToSave( strcDataToSave *dataToSave, strcGlobalParameters *glbPara
 
 void FreeMemVectorsFernaldInversion( strcFernaldInversion *fernaldVectors )
 {
-	delete fernaldVectors->pr2n  	    ;
-	delete fernaldVectors->phi  		;
-	delete fernaldVectors->p 	   		;
-	delete fernaldVectors->ip	   		;
-	delete fernaldVectors->ipN   		;
-	delete fernaldVectors->betaT 		;
-	delete fernaldVectors->pr2Fit		;
-	delete fernaldVectors->prFit		;
-	delete fernaldVectors->intAlphaMol_r ;
+	delete[] fernaldVectors->pr2n  	    ;
+	delete[] fernaldVectors->phi  		;
+	delete[] fernaldVectors->p 	   		;
+	delete[] fernaldVectors->ip	   		;
+	delete[] fernaldVectors->ipN   		;
+	delete[] fernaldVectors->betaT 		;
+	delete[] fernaldVectors->pr2Fit		;
+	delete[] fernaldVectors->prFit		;
+	delete[] fernaldVectors->intAlphaMol_r ;
 }
 /*
 void FernaldInversion( double *pr2, strcMolecularData *dataMol, strcGlobalParameters *glbParam, int indxRef, double ka, strcFernaldInversion *fernaldVectors, strcAerosolData *dataAer )

@@ -131,7 +131,7 @@ for( int a=0 ; a<3 ; a++ )
 			printf( "\n\t ev[0]: %d \t zen[0]: %f \n\t ev[1]: %d \t zen[1]: %f \n", ev[0], zenEv[0], ev[1], zenEv[1] ) ;
 
 	char	used_channel[20] ;
-	ReadAnalysisParameter( FILE_PARAMETERS, "used_channel", "string" , (char*)used_channel ) ;
+		ReadAnalysisParameter( FILE_PARAMETERS, "used_channel", "string", (char*)used_channel, sizeof(used_channel) ) ;
 
 	int ch = selectChannel( &glbParam, used_channel ) ;
 

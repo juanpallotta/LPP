@@ -4,12 +4,12 @@ These instructions guide you through installing HYSPLIT and the necessary Python
 
 ## 1. Register and Download HYSPLIT
 
-The HYSPLIT model is not open-source and requires registration with NOAA Air Resources Laboratory (ARL).
+The HYSPLIT model requires registration with NOAA Air Resources Laboratory (ARL) for downloading the software, even for trajectory modeling.
 
-1.  Go to the [HYSPLIT Unregistered Download](https://www.ready.noaa.gov/ready2-bin/getlinuxtrial.pl) 
-2.  Complete the registration form.
-3.  Once approved (this may take a few days), you will receive an email with instructions/credentials.
-4.  Download the **Linux** binary distribution (e.g., `hysplit.v5.3.0_Linux_x86_64.tar.gz`).
+1. Go to the [HYSPLIT Registration Page](https://www.ready.noaa.gov/HYSPLIT_register.php).
+2. Complete the registration form. You must have a formal affiliation with an institution engaged in atmospheric sciences (government, commercial, educational, or non-profit), or be sponsored by an existing registered user.
+3. Once approved (this may take a few days), you will receive an email with download instructions and credentials.
+4. Download the **Linux** binary distribution (e.g., `hysplit.v5.3.0_Linux_x86_64.tar.gz`) from the link provided in the email.
 
 ## 2. Install HYSPLIT
 
@@ -30,20 +30,25 @@ The Python script assumes HYSPLIT is installed in your home directory under `~/h
 
 ## 3. Install Python Dependencies
 
-The `run_hysplit_linux.py` script requires Python 3 and the `matplotlib` library for plotting.
+The `run_hysplit_linux.py` script requires Python 3 and several libraries for plotting and scientific computing (matplotlib, cartopy, numpy, and scipy).
 
-1.  Ensure you have `pip` installed.
-2.  Install `matplotlib`:
+**Option A: Using requirements.txt (Recommended)**
+
+1.  Navigate to the `getHYSPLIT` directory:
     ```bash
-    pip install matplotlib
+    cd .../getHYSPLIT/
+    ```
+2.  Install all dependencies from `requirements.txt`:
+    ```bash
+    pip install -r requirements.txt
     ```
     *Or if you are using a virtual environment or conda, install it there.*
 
 ## 4. Run the Script
 
-1.  Navigate to the directory containing the script:
+1.  Navigate to the directory containing the script `run_hysplit_linux.py`:
     ```bash
-    cd /home/juan/LidarAnalysisCode/LPP/LPP_L1/getHYSPLIT/
+    cd ..../getHYSPLIT/
     ```
 2.  Run the script:
     ```bash
