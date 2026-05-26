@@ -227,13 +227,36 @@ int main( int argc, char *argv[] )
     oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)data_File_L1, (double***)pr_corr, (double***)pr2 ) ;
     printf("\n\n") ;
 
-    // oDL1->oLOp->compute_layer_mask.assign("YES") ;
-    // if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )
-    // {
-    // IF THE CHANNEL SELECTED FOR THE CLOUD-MASK IS ANALOG, SAVE THE LIDAR SIGNALS IN oDL1->pr_for_cloud_mask BEFORE THE GLUING
     if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
         printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog\n", glbParam.indxWL_PDL1 ) ;
 
+// GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ----------------------------------------------------------------------------------------------
+        oDL1->oLOp->Gluing_Procedure( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double***)pr_corr ) ;
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// START DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ------------------------------------------------------------------------------------
+        glbParam.indx_Ch_Pol_S    = (int*)    new int   [ glbParam.nCh ] ;
+        glbParam.indx_Ch_Pol_P    = (int*)    new int   [ glbParam.nCh ] ;
+        glbParam.Pol_Cal_Constant = (double*) new double[ glbParam.nCh ] ;
+        int nS   = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_S"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_S    ) ;
+        int nP   = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_P"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_P    ) ;
+        int nCal = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pol_Cal_Constant", (const char*)"double", (double*)glbParam.Pol_Cal_Constant ) ;
+    
+        if  ( (nS == nP) && (nCal >0) && (nCal == nS) ) // CHECK IF THE DEPOLARIZATION INFORMATION IS CORRECTLY SET
+        {
+            for (int e =0; e <glbParam.nEventsAVG ; e++)
+            {
+                for (int i =0; i <glbParam.nBins; i++)
+                    pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] = pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] + glbParam.Pol_Cal_Constant[0] * pr_corr[e][glbParam.indx_Ch_Pol_S[0]][i] ;
+            }
+        }
+        else
+        {
+            printf("\n\nDepolarization setting: No depolarization information provided.\n\n") ;
+        }
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// PREPARE THE PROFILES FOR LAYER MASK DETECTION
     oDL1->pr_for_cloud_mask = (double**) new double*[ glbParam.nEventsAVG ] ;
     for (int e=0 ; e <glbParam.nEventsAVG ; e++)
     {
@@ -241,102 +264,6 @@ int main( int argc, char *argv[] )
         for ( int i =0 ; i < glbParam.nBins ; i++ )
             oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
     }
-    // }
-
-// START DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	glbParam.indx_Ch_Pol_S    = (int*)    new int   [ glbParam.nCh ] ;
-	glbParam.indx_Ch_Pol_P    = (int*)    new int   [ glbParam.nCh ] ;
-	glbParam.Pol_Cal_Constant = (double*) new double[ glbParam.nCh ] ;
-	int nS   = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_S"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_S    ) ;
-	int nP   = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Ch_Pol_P"   , (const char*)"int"   , (int*)   glbParam.indx_Ch_Pol_P    ) ;
-	int nCal = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"Pol_Cal_Constant", (const char*)"double", (double*)glbParam.Pol_Cal_Constant ) ;
-
-    if  ( (nS == nP) && (nCal >0) && (nCal == nS) ) // CHECK IF THE DEPOLARIZATION INFORMATION IS CORRECTLY SET
-    {
-        for (int e =0; e <glbParam.nEventsAVG ; e++)
-        {
-            for (int i =0; i <glbParam.nBins; i++)
-                pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] = pr_corr[e][glbParam.indx_Ch_Pol_P[0]][i] + glbParam.Pol_Cal_Constant[0] * pr_corr[e][glbParam.indx_Ch_Pol_S[0]][i] ;
-        }
-    }
-    else
-    {
-        printf("\n\nDepolarization setting: No depolarization information provided.\n\n") ;
-    }
-
-// STOP DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// START GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	glbParam.indx_gluing_Low_AN     = (int*) new int[ glbParam.nCh ] ;
-	glbParam.indx_gluing_High_PHO   = (int*) new int[ glbParam.nCh ] ;
-
-	ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MAX_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MAX_TOGGLE_RATE_MHZ ) ;
-	ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MIN_TOGGLE_RATE_MHZ", (const char*)"double", (double*)&glbParam.MIN_TOGGLE_RATE_MHZ ) ;
-
-    int nIndxsToGlue_Low_AN   = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_Low_AN"  , (const char*)"int", (int*)glbParam.indx_gluing_Low_AN   ) ;
-    int nIndxsToGlue_High_PHO = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indx_Gluing_High_PHO", (const char*)"int", (int*)glbParam.indx_gluing_High_PHO ) ;
-    // CHECK IF THE GLUING INFORMATION IS CORRECTLY SET
-    if  ( ( (nIndxsToGlue_Low_AN == nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
-            &&
-          ( (glbParam.MAX_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ >0) && (glbParam.MIN_TOGGLE_RATE_MHZ < glbParam.MAX_TOGGLE_RATE_MHZ) )
-        )
-    {
-        printf("========================================> Gluing <================================================================================\n") ;
-        for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
-        {
-            if ( ( glbParam.iLambda [glbParam.indx_gluing_Low_AN[c]  ]  == glbParam.iLambda[glbParam.indx_gluing_High_PHO[c]] ) &&
-                 ( glbParam.DAQ_Type[glbParam.indx_gluing_Low_AN[c]  ]  == 0 )                                                  &&
-                 ( glbParam.DAQ_Type[glbParam.indx_gluing_High_PHO[c]]  == 1 )     )
-            {
-                glbParam.nPair_Ch_to_Glue = nIndxsToGlue_Low_AN ;
-                for ( int e =0; e <glbParam.nEventsAVG; e++)
-                {
-                    glbParam.evSel = e ;
-                // printf("\nEv: %d \t Max range channel %d BEFORE gluing with channel %d: %lf", e, glbParam.indx_gluing_Low_AN[c], glbParam.indx_gluing_High_PHO[c]
-                                                                                            // , glbParam.rEndSig_ev[e] ) ;
-
-                // oDL1->oLOp->Find_Gluing_Ranges( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
-                oDL1->oLOp->GluingLidarSignals( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
-
-                    if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL1 )
-                    {
-                        glbParam.chSel = glbParam.indxWL_PDL1 ;
-                        oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
-
-                        oDL1->oLOp->Find_Max_Mol_Range( (double*)pr_corr[e][glbParam.indxWL_PDL1], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam, (int)oDL1->oLOp->avg_Points_Cloud_Mask ) ;
-                    } // if ( glbParam.indx_gluing_Low_AN[c] == glbParam.indxWL_PDL1 )
-                }
-            }
-            else
-            {
-                printf( "\nGLUING: indexes %d of the gluing data do not correspond to the same wavelength and/or acquitition type.\n", c) ;
-                printf( "\t indx_Gluing_Low_AN[%d]   --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_Low_AN  [c] ] ) ;
-                printf( "\t indx_Gluing_High_PHO[%d] --> %d nm\n", c, glbParam.iLambda[ glbParam.indx_gluing_High_PHO[c] ] ) ;
-            }
-        } // for (int c =0; c <nIndxsToGlue_High_PHO ; c++)
-    }
-    else
-    {
-        printf("\nGluing was *NOT* performed due to its configuration variables in: %s", glbParam.FILE_PARAMETERS ) ;
-        if ( nIndxsToGlue_Low_AN <0 )
-            printf("\n\t Variable indx_Gluing_Low_AN is commented or not set in setting file." ) ;
-        if ( nIndxsToGlue_High_PHO <0 )
-            printf("\n\t Variable indx_Gluing_High_PHO is commented or not set in setting file." ) ;
-        if ( (nIndxsToGlue_Low_AN != nIndxsToGlue_High_PHO) && (nIndxsToGlue_Low_AN >0) && (nIndxsToGlue_High_PHO >0) )
-            printf("\n\t Different numbers of elements in the arrarys indx_Gluing_Low_AN and indx_Gluing_High_PHO" ) ;
-        printf("\n\t NO gluing is applied for this analysis.\n\n" ) ;
-    }
-// END GLUING PROCEDURE ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    int  **Cloud_Profiles = (int**) new int*[glbParam.nEventsAVG];
-    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-        Cloud_Profiles[e] = (int*) new int[glbParam.nBins] ;
-    double  **RMSE_lay = (double**) new double*[glbParam.nEventsAVG];
-    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-        // RMSE_lay[e] = (double*) new double[glbParam.nBins_Ch[glbParam.indxWL_PDL1]] ;
-        RMSE_lay[e] = (double*) new double[glbParam.nBins] ;
-
-    double  *RMSerr_Ref = (double*) new double[glbParam.nEventsAVG ];
 
     printf("\n========================================> Layer detection algorithm <================================================================================") ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
@@ -355,9 +282,6 @@ int main( int argc, char *argv[] )
                 if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )
                 {
                     printf("   --> Getting layers limits") ;
-                        // if ( strcmp( oDL1->strCompPBL.c_str(), "YES" ) ==0 )    printf(" and PBL layer. ") ;
-                        // oDL1->Layer_Mask( (double*)&oDL1->pr_for_cloud_mask[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
-
                     if ( strcmp(  oDL1->oLOp->compute_pbl_mask.c_str(), "YES" ) ==0 )    printf(" and PBL layer. ") ;
 
                     oDL1->oLOp->Layer_Mask( (double*)&oDL1->pr_for_cloud_mask[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
@@ -366,22 +290,13 @@ int main( int argc, char *argv[] )
                     printf("\t Cloud profiles are not computed. \t") ;
 
                 if ( (oDL1->oLOp->cloudProfiles[t].nClouds) >0 )
-                    printf( "\t\t\t\t\t %d layer detected ", oDL1->oLOp->cloudProfiles[t].nClouds ) ;
-                    // printf(" %d layer detected starting with at height %lf m asl ", oDL1->oLOp->cloudProfiles[t].nClouds, oMolData->dataMol.zr[ oDL1->oLOp->cloudProfiles[t].indxInitClouds[0] ] ) ;
+                    // printf( "\t\t\t\t\t %d layer detected ", oDL1->oLOp->cloudProfiles[t].nClouds ) ;
+                    printf(". Lower layer detected at height %lf m asl ", oMolData->dataMol.zr[ oDL1->oLOp->cloudProfiles[t].indxInitClouds[0] ] ) ;
                 else
                     printf(" NO layer detected at %lf zenithal angle ", glbParam.aZenithAVG[t]  ) ;
-
-                for( int b=0 ; b <glbParam.nBins ; b++ )
-                {
-                    Cloud_Profiles[t][b] = (int)    oDL1->oLOp->cloudProfiles[t].clouds_ON[b] ;
-                    // RMSE_lay      [t][b] = (double) oDL1->oLOp->cloudProfiles[t].test_1[b]    ; // RMSE_lay
-                }
-                RMSerr_Ref[t] = (double)oDL1->errRefBkg ;
             }
         } // for ( int c=0 ; c <glbParam.nCh ; c++ )
     } // for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
-
-    // printf("\n\n FIN oMolData->dataMol.pPa[0]= %lf \n", oMolData->dataMol.pPa[0]) ;
 
     printf("\n\n\t\033[34m Lidar Analisys PDL1 Done\033[0m\n\n") ; // BLUE
     printf( "\n\n\033[32mSaving the NetCDF file\033[0m %s\n", glbParam.Path_File_Out ) ;  // GREEN
@@ -389,8 +304,8 @@ int main( int argc, char *argv[] )
     glbParam.evSel = -10 ; // SET THE EVENT SELECTED NEGATIVE TO FILLING OF THE MOLECUALR DATA AT ZENITH=0
     oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
 
-    oNCL.Save_LALINET_NCDF_PDL1( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (double**)RMSE_lay, (double*)RMSerr_Ref, (int**)Cloud_Profiles,
-                                 (double***)pr_corr, (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
+    oNCL.Save_LALINET_NCDF_PDL1( (char*)glbParam.Path_File_Out, (strcGlobalParameters*)&glbParam, (CDataLevel_1*)oDL1, (double***)pr_corr, 
+                                 (int*)Raw_Data_Start_Time_AVG, (int*)Raw_Data_Stop_Time_AVG, (CMolecularData*)oMolData ) ;
 
     printf("\n\n\033[34m---- lidarAnalisys_PDL1 (END) -----------------------------------------------------------------------------\033[0m\n\n") ;  // BLUE
     

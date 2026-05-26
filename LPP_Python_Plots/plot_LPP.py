@@ -959,7 +959,7 @@ def plot_range_corrected_lidar_signal_colormap(dataset, output_dir=None):
     # Start time for title
     start_time_str = time_datetime[0].strftime('%Y-%m-%d %H:%M:%S UTC')
     ax.set_title(
-        f'Range Corrected Lidar Signal ColorMap - Start Time: {start_time_str}, {wavelength_str}',
+        f'Range Corrected Lidar Signal (L2) - Start Time: {start_time_str}, {wavelength_str}',
         fontsize=14, fontweight='bold'
     )
     

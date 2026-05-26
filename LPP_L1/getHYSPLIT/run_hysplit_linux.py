@@ -20,13 +20,12 @@ PATH_PROFILE_EXEC = "~/hysplit/exec/profile"
 PATH_MET_DIR = "~/hysplit/metdata"
 PATH_OUTPUT = "./figures"
 # Simulation Parameters -- THESE VARIABLES CAN BE PASSED AS ARGUMENTS
-# SIMULATION_DATE = datetime.datetime(2025, 11, 17, 12) # INCENDIOS GRUPO FACU
-SIMULATION_DATE = datetime.datetime(2025, 9, 15, 12) 
-START_LAT = -64.1 # 15.72 # -34.56
-START_LON = -31.2 # 40.6  # -58.41
-ALTITUDE = 411 # 5000.0    # Altitude (meters AGL) for the backtrajectory
-PROFILE_RES = 3.75 # 7.5  # Resolution for interpolated profile (meters)
-RUN_HOURS = "-48"    # Duration. Negative for backward run
+SIMULATION_DATE = datetime.datetime(2019, 9, 9, 12) # SPU 
+START_LAT = -23.6 
+START_LON = -46.7 
+ALTITUDE = 5500.0 # Altitude (meters AGL) for the backtrajectory
+PROFILE_RES = 7.5 # Resolution for interpolated profile (meters)
+RUN_HOURS = "-48" # Duration. Negative for backward run
 # THESE VARIABLES CAN BE PASSED AS ARGUMENTS - END
 
 HYSPLIT_EXEC = os.path.expanduser(PATH_HYSPLIT_EXEC) 
@@ -53,6 +52,19 @@ def get_current_met_info():
     mon_str = SIMULATION_DATE.strftime("%b").lower()
     year_str = SIMULATION_DATE.strftime("%y")
     return f"gdas1.{mon_str}{year_str}.w{week}"
+
+def cleanup_old_met_data(current_met_file):
+    """Deletes old meteorological files to save disk space, keeping only the needed one."""
+    if not os.path.exists(MET_DIR):
+        return
+    for f in os.listdir(MET_DIR):
+        if f.startswith("gdas1.") and f != current_met_file:
+            file_path = os.path.join(MET_DIR, f)
+            try:
+                os.remove(file_path)
+                print(f"Cleaned up old weather data: {f}")
+            except Exception as e:
+                print(f"Warning: Could not delete old weather data {f}: {e}")
 
 def download_weather_data(filename):
     """Downloads weather file from NOAA if missing."""
@@ -273,8 +285,33 @@ def plot_trajectory():
     ax1.set_title(f"HYSPLIT Trajectory ({RUN_HOURS} hours)")
     gl = ax1.gridlines(draw_labels=True, linestyle='--', alpha=0.6)
     gl.top_labels = gl.right_labels = False
+    
+    # Relevant South American / Latin American sites
+    relevant_sites = {
+        'São Paulo': (-23.55, -46.63),
+        'Buenos Aires': (-34.60, -58.38),
+        'Rio de Janeiro': (-22.90, -43.20),
+        'Santiago': (-33.45, -70.66),
+        'Manaus': (-3.11, -60.02),
+        'Bariloche': (-41.13, -71.31),
+        'Medellin': (6.24, -75.58),
+        'Pilar': (-31.66, -63.88),
+        'La Paz': (-16.48, -68.11)
+    }
+    
     m = 5.0
-    ax1.set_extent([min(lons)-m, max(lons)+m, min(lats)-m, max(lats)+m], crs=ccrs.PlateCarree())
+    lon_min, lon_max = min(lons)-m, max(lons)+m
+    lat_min, lat_max = min(lats)-m, max(lats)+m
+
+    # Plot sites on the map
+    for site_name, (s_lat, s_lon) in relevant_sites.items():
+        if lon_min <= s_lon <= lon_max and lat_min <= s_lat <= lat_max:
+            ax1.plot(s_lon, s_lat, 'k*', markersize=6, transform=ccrs.PlateCarree())
+            ax1.text(s_lon + 0.5, s_lat + 0.5, site_name, fontsize=8, color='black',
+                     transform=ccrs.PlateCarree(), 
+                     bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', pad=1))
+
+    ax1.set_extent([lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
     ax1.legend()
 
     # Altitude Plot
@@ -328,6 +365,7 @@ if __name__ == "__main__":
 
     setup_hysplit_config()
     met_file = get_current_met_info()
+    cleanup_old_met_data(met_file)
     full_met_path = download_weather_data(met_file)
     create_control_file(full_met_path)
     run_model()

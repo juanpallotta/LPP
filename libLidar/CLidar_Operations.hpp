@@ -17,6 +17,7 @@ public:
     double          prMean, prMolMean       ;
     double          *dummy, *dummy1         ;
     int 	        nBiasRes_Auto =5        ; 
+    int 	        nWinSize = 0            ;
     double          bias_pre_trigger = 0.0, bkg_mean = 0.0, bkg_std = 0.0  ;
     int 	        nLoopFindBias =5        ;
 
@@ -26,6 +27,7 @@ public:
     strcCloudProfiles 	*cloudProfiles 		;
     strcIndexMol      	*indxMol  	 		;
     void    Layer_Mask			  ( const double*, strcMolecularData*   , strcGlobalParameters*                 ) ;
+    void    Get_PBL_Mask          ( double*, strcGlobalParameters*, strcMolecularData*, double                  ) ;
     void    GetCloudLimits        ( strcGlobalParameters*                                                       ) ;
     void    FilterThinClouds      ( strcGlobalParameters*, int*                                                 ) ;
 
@@ -49,6 +51,7 @@ public:
     void    Lidar_Signals_Corrections( strcGlobalParameters*, CMolecularData*, double**, double**, double***, double***, double*** ) ;
 
     void    Average_in_Time_Lidar_Profiles( strcGlobalParameters*, double***, double***, int*, int*, int*, int* ) ;
+    void    Gluing_Procedure   ( strcGlobalParameters*, CMolecularData*, double*** ) ;
     void    GluingLidarSignals( strcGlobalParameters*, double*** ) ;
     void    Find_Gluing_Ranges( strcGlobalParameters*, double*** ) ;
 

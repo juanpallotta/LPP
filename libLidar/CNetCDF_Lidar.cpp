@@ -976,8 +976,7 @@ void CNetCDF_Lidar::Add_Overlap_LALINET_NCDF_PDL0( string *Path_File_Out, strcGl
 
 }
 
-void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParameters *glbParam, double **RMSElay, double *RMSerr_Ref, int **Cloud_Profiles, 
-                                            double ***pr_corr, int *Start_Time_AVG, int *Stop_Time_AVG, CMolecularData *oMolData )
+void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParameters *glbParam, CDataLevel_1 *oDL1, double ***pr_corr, int *Start_Time_AVG, int *Stop_Time_AVG, CMolecularData *oMolData )
 {
     int retval, nc_id ;
     if ( ( retval = nc_open( Path_File_Out, NC_WRITE, &nc_id ) ) )
@@ -1082,7 +1081,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     for( int e=0 ; e <glbParam->nEventsAVG  ; e++ )
     {
         start_CM[0] =e ;
-        if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_ids[12] , start_CM, count_CM, (int*)&Cloud_Profiles[e][0] ) ) )
+        // if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_ids[12] , start_CM, count_CM, (int*)&Cloud_Profiles[e][0] ) ) )
+        if ( (retval = nc_put_vara_int( (int)nc_id_group_L1, (int)var_ids[12] , start_CM, count_CM, (int*)&oDL1->oLOp->cloudProfiles[e].clouds_ON[0] ) ) )
             ERR(retval);
 
         start_ES[0] =e ;

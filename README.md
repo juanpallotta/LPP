@@ -117,10 +117,11 @@ The installation of the LPP software and its dependencies is very straightforwar
 Start by downloading the repository from GitHub <https://www.github.com/juanpallotta/LPP>. Uncompress the ZIP file in the most convenient location of your hard disk, where you will find:
 
 * `/libLidar`: Folder with C/C++ lidar libraries source code.
-* `/Lidar_Analysis_PDL0`: Folder with C/C++ sources code of the module `lpp0` for producing data level 0.
-* `/Lidar_Analysis_PDL1`: Folder with C/C++ sources code of the module `lpp1` for producing data level 1.
-* `/Lidar_Analysis_PDL2`: Folder with C/C++ sources code of the module `lpp2` for producing data level 2.
+* `/LPP_L0`: Folder with C/C++ sources code of the module `lpp0` for producing data level 0.
+* `/LPP_L1`: Folder with C/C++ sources code of the module `lpp1` for producing data level 1.
+* `/LPP_L2`: Folder with C/C++ sources code of the module `lpp2` for producing data level 2.
 * `/Lidar_Configuration_Files`: Folder containing the configuration files (`.conf`) for each module. Also, the settings file for an automatic run (see later [section](#automatizing-lpp) about the LPP automation).
+* `LPP_Python_Plots`: Folder with Python codes for plotting all the data levels products.
 * `/signalsTest`: Lidar test files to test this code. You will find files from Buenos Aires, Argentina (Licel data type files) and Brazil: Sao Paulo (folder `Brazil/SPU/`) and Manaus (folder `Brazil/Manaus`).
 * \`install_Lidar_Dependencies.sh: Linux shell script to install the basic software/libraries needed to use LPP.
 * `/compileAll.sh`: Linux shell script to compile all the modules. Used with the parameter `clean`, all the compiled object files will be removed.

@@ -15,7 +15,6 @@
 #include "libLidar.hpp"
 #include "CDataLevel_1.hpp"
 #include "CDataLevel_2.hpp"
-// #include "CMolecularData.hpp"
 class CMolecularData ;
 
 #define NDIMS_SCC 5
@@ -60,10 +59,9 @@ class CNetCDF_Lidar
 
 		void Save_SCC_NCDF_Format	 		( string, strcGlobalParameters*, double***, long*, string*, long*, string* ) ;
 		void Save_LALINET_NCDF_PDL0			( string, strcGlobalParameters*, double***, long*, long*, char** ) ;
-		// void Save_LALINET_NCDF_PDL0			( string, strcGlobalParameters*, double***, long*, long*		 ) ;
 		void Add_Noise_LALINET_NCDF_PDL0	( string*, strcGlobalParameters*, double** ) ;
 		void Add_Overlap_LALINET_NCDF_PDL0	( string*, strcGlobalParameters *glbParam, double **ovlp ) ;
-		void Save_LALINET_NCDF_PDL1  		( char*, strcGlobalParameters*, double**, double*, int**, double***, int*, int*, CMolecularData* ) ;
+		void Save_LALINET_NCDF_PDL1  		( char*, strcGlobalParameters*, CDataLevel_1*, double***, int*, int*, CMolecularData* ) ;
 		void Save_LALINET_NCDF_PDL2		 	( char*  , strcGlobalParameters*, CDataLevel_2* ) ;
 		void CloseFile( int ) ;
 };

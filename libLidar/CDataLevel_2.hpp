@@ -14,12 +14,11 @@ class CDataLevel_2
 	public:
 		CDataLevel_2( strcGlobalParameters* ) ;
 		~CDataLevel_2()  					  ;
-		// void 	Fernald_1983    ( strcGlobalParameters*, int, int, strcMolecularData* ) ;
-		void 	FernaldInversion( strcGlobalParameters*, strcMolecularData* 				) ;
-		void 	FernaldInversion( double*, strcMolecularData *, strcGlobalParameters *	 	) ;
-		void 	Raman_Inversion ( strcGlobalParameters*, strcMolecularData* 				) ;
-		void 	Find_Ref_Range    (strcGlobalParameters*								  	) ;
-		void 	Find_Ref_Range_v1 (strcGlobalParameters*, strcMolecularData *				) ;
+		void 	FernaldInversion( strcGlobalParameters*, strcMolecularData* 					) ;
+		void 	FernaldInversion( double*, strcMolecularData *, strcGlobalParameters *	 		) ;
+		void 	Raman_Inversion ( strcGlobalParameters*, strcMolecularData* 					) ;
+		void 	Find_Ref_Range    (strcGlobalParameters*								  		) ;
+		void 	Find_Ref_Range_v1 (strcGlobalParameters*, strcMolecularData *					) ;
 
 		void  	GetMemStrcErrorSigSet( strcErrorSignalSet*, int, int ) 						 ;
 		void 	MonteCarloRandomError( strcGlobalParameters*, strcMolecularData* ) ;

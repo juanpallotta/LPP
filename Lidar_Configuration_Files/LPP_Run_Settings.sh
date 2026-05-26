@@ -9,14 +9,19 @@ L2="yes"
 #* ABSOLUTE PATHS!!!
 #* DO NOT USE SPACES!!!! 
 
+# PATH_IN="/mnt/c/lidarData/Potenza/licel_raw/"
 # PATH_IN="/mnt/c/lidarData/Granada/20230214_nCh62/RS_20230214_0925/"
 # PATH_IN="/mnt/c/lidarData/Argentina/Pilar/2026/20260111/"
-PATH_IN="/mnt/c/lidarData/SPU/20180718_biomass/measurements/"
-# PATH_IN="/mnt/c/lidarData/Argentina/Tucuman/20250811/"
-# PATH_IN="/mnt/c/lidarData/Potenza/licel_raw/"
 
-# PATH_IN="/mnt/c/lidarData/SPU/SCC_biomass/20180718/measurements/"
-# PATH_IN="/mnt/c/lidarData/Argentina/EarthCare_Argentina/Dorrego/20240905_clouds/"
+# PATH_IN="/mnt/c/lidarData/SPU/20180718_biomass/measurements/"
+# PATH_IN="/mnt/c/lidarData/SPU/20210730/"
+# PATH_IN="/mnt/c/lidarData/SPU/2017/2017_09_04_dt/data/"
+
+# BIOMASS BURNING PATHS
+PATH_IN="/mnt/c/lidarData/SPU/2019/20190909/data/"
+# PATH_IN="/mnt/c/lidarData/SPU/2019/20190918/measurement_01/data/"
+# PATH_IN="/mnt/c/lidarData/SPU/2019/20190918/measurement_02/data/"
+# PATH_IN="/mnt/c/lidarData/SPU/2019/20190918/measurement_night/data/"
 
 # CONFIGURATION FILES
 # ! SIMULATIONS

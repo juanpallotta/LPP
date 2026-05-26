@@ -149,7 +149,10 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 		// printf("\ndataMol->dzr: %lf - glbParam->siteASL: %d - indxRef_Fernald_Start: %d - indxRef_Fernald_Stop: %d \n\n", dataMol->dzr, glbParam->siteASL, indxRef_Fernald_Start[glbParam->evSel], indxRef_Fernald_Stop[glbParam->evSel] ) ;
 	}
 	else
-		Find_Ref_Range( (strcGlobalParameters*)glbParam ) ; //! MUST BE USED CLidar_Operations::Find_Ref_Range()
+	{
+		Find_Ref_Range( (strcGlobalParameters*)glbParam ) ;
+		oLOp->Find_Ref_Range_op( (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol ) ; //! MUST BE USED CLidar_Operations::Find_Ref_Range()
+	}
 
 	if ( strcmp( reference_method.c_str(), "MEAN" ) ==0 )
 	{
