@@ -777,14 +777,107 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
     PutVar( (int)ncid, (int)var_ids[17], (const char*)"double", (double*)glbParam->r                ) ;
 // printf("\n Save_LALINET_NCDF_PDL0 --> (1) \n") ;
 
-
-
-    // SAVE glbParams->FILE_PARAMETERS
-
-
-    if ( (retval = nc_close(ncid)) )
+        if ( (retval = nc_close(ncid)) )
         ERR(retval);
+
+// SAVE glbParams->FILE_PARAMETERS
+    save_text_to_netcdf( (const char*)glbParam->FILE_PARAMETERS, (const char*)Path_File_Out.c_str() ) ;
 }
+
+/**
+ * Saves a complete text file into a NetCDF file as a character array.
+ * * @param text_filepath Path to the source text file.
+ * @param nc_filepath   Path to the destination NetCDF file to create.
+ * @return NC_NOERR (0) on success, or a NetCDF/System error code on failure.
+ */
+int CNetCDF_Lidar::save_text_to_netcdf(const char* text_filepath, const char* nc_filepath)
+{
+    int ncid, dimid, varid, retval;
+    long fsize;
+    char *buffer = NULL;
+    FILE *f = NULL;
+
+    // 1. Open the text file and determine its size
+    f = fopen(text_filepath, "rb");
+    if (!f) 
+    {
+        return NC_ENOTFOUND; // File not found or couldn't be opened
+    }
+
+    fseek(f, 0, SEEK_END);
+    fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    // 2. Allocate memory and read the text file into a buffer
+    buffer = (char *)malloc(fsize);
+    if (!buffer) 
+    {
+        fclose(f);
+        return NC_ENOMEM; // Out of memory
+    }
+
+    if (fread(buffer, 1, fsize, f) != (size_t)fsize) 
+    {
+        free(buffer);
+        fclose(f);
+        return NC_EIO; // Input/Output error during read
+    }
+    fclose(f);
+
+    // 3. Open the existing NetCDF file for writing
+    if ((retval = nc_open(nc_filepath, NC_WRITE, &ncid))) 
+    {
+        free(buffer);
+        return retval;
+    }
+
+    // Enter define mode to add a new dimension and variable
+    if ((retval = nc_redef(ncid))) 
+    {
+        nc_close(ncid);
+        free(buffer);
+        return retval;
+    }
+
+    // 4. Define the dimension based on file size
+    if ((retval = nc_def_dim(ncid, "Global_Parameters_size", fsize, &dimid))) 
+    {
+        nc_close(ncid);
+        free(buffer);
+        return retval;
+    }
+
+    // 5. Define the NC_CHAR variable
+    if ((retval = nc_def_var(ncid, "Global_Parameters", NC_CHAR, 1, &dimid, &varid))) 
+    {
+        nc_close(ncid);
+        free(buffer);
+        return retval;
+    }
+
+    // End define mode to transition to writing data
+    if ((retval = nc_enddef(ncid))) 
+    {
+        nc_close(ncid);
+        free(buffer);
+        return retval;
+    }
+
+    // 6. Write the text buffer to the NetCDF variable
+    if ((retval = nc_put_var_text(ncid, varid, buffer))) 
+    {
+        nc_close(ncid);
+        free(buffer);
+        return retval;
+    }
+
+    // 7. Cleanup and close
+    nc_close(ncid);
+    free(buffer);
+
+    return NC_NOERR; // Success
+}
+
 /*
 void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalParameters *glbParam, double ***dataToSave, long *Raw_Data_Start_Time_sec, long *Raw_Data_Stop_Time_sec )
 {
