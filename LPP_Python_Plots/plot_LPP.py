@@ -724,7 +724,7 @@ def plot_aerosol_extinction_colormap(dataset, output_dir=None):
 
         start_time_str = time_datetime[0].strftime('%Y-%m-%d %H:%M:%S UTC')
         ax.set_title(
-            f'{var_name.replace("_", " ")} - Start Time: {start_time_str}, Wavelength: {wavelength_str}, LR: {lrs_val}',
+            f'{var_name.replace("_", " ")} (L2)\nStart Time: {start_time_str}, Wavelength: {wavelength_str}, LR: {lrs_val}',
             fontsize=14, fontweight='bold'
         )
 

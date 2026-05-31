@@ -1,0 +1,72 @@
+[
+ {
+  "directory": "/home/juan/LPP/LPP_L1",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "lpp1.cpp"
+  ],
+  "file": "lpp1.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L1",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/libLidar.cpp"
+  ],
+  "file": "../libLidar/libLidar.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L1",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/lidarMathFunc.cpp"
+  ],
+  "file": "../libLidar/lidarMathFunc.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L1",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/CNetCDF_Lidar.cpp"
+  ],
+  "file": "../libLidar/CNetCDF_Lidar.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L1",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/CMolecularData.cpp"
+  ],
+  "file": "../libLidar/CMolecularData.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L1",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/CDataLevel_1.cpp"
+  ],
+  "file": "../libLidar/CDataLevel_1.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L1",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/CLidar_Operations.cpp"
+  ],
+  "file": "../libLidar/CLidar_Operations.cpp"
+ }
+]

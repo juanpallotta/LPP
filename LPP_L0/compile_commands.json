@@ -1,0 +1,52 @@
+[
+ {
+  "directory": "/home/juan/LPP/LPP_L0",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "lpp0.cpp"
+  ],
+  "file": "lpp0.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L0",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/libLidar.cpp"
+  ],
+  "file": "../libLidar/libLidar.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L0",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/lidarMathFunc.cpp"
+  ],
+  "file": "../libLidar/lidarMathFunc.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L0",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/CNetCDF_Lidar.cpp"
+  ],
+  "file": "../libLidar/CNetCDF_Lidar.cpp"
+ },
+ {
+  "directory": "/home/juan/LPP/LPP_L0",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-c",
+   "../libLidar/CLicel_DataFile_Handling.cpp"
+  ],
+  "file": "../libLidar/CLicel_DataFile_Handling.cpp"
+ }
+]
