@@ -1,5 +1,6 @@
 
 #include "libLidar.hpp"
+#include "lidarMathFunc.hpp"
 
 
 // const double DBL_EPS_COMP = 1 - DBL_EPSILON; // DBL_EPSILON is defined in <limits.h>.

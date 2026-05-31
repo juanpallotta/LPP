@@ -1,5 +1,6 @@
 
 #include "CLidar_Operations.hpp"
+#include "lidarMathFunc.hpp"
 #include "CMolecularData.hpp"
 
 CLidar_Operations::CLidar_Operations(strcGlobalParameters *glbParam) 

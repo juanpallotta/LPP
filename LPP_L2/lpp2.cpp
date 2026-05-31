@@ -10,10 +10,7 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <ctime>
-#include <assert.h> 
-#include <iostream> 
-#include <vector>
-
+#include <assert.h>
 #include <netcdf>
 
 // LIDAR LIBRARY ANALISYS

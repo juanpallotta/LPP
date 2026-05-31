@@ -1,6 +1,5 @@
 
 /* GENERAL LIDAR LIBRARY */
-// #pragma once
 
 #ifndef LIBLIDAR_H
 #define LIBLIDAR_H
@@ -10,23 +9,18 @@
 #include <math.h>
 #include <cmath>
 #include <ctime>
-#include <ctype.h>
 #include <limits.h>
 #include <cfloat>
 #include <dirent.h>
 #include <cstdio>
-#include <string>
 #include <cstring>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <stdbool.h>
 #include <assert.h> 
 #include <bits/stdc++.h>
 #include <sys/stat.h>
 
 #include "lidarDataTypes.hpp" // LIDAR DATA TYPE DEFINITIONS
-#include "lidarMathFunc.hpp"
+
 
 // BIT MANIPULATION
 //#define SetBit(A,k)     ( A[(k/32)] |= (1 << (k%32))  )

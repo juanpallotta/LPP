@@ -4,9 +4,12 @@
 #ifndef CDATALEVEL_2_H
 #define CDATALEVEL_2_H
 
-#include "libLidar.hpp" // LIDAR DATA TYPE DEFINITIONS
+#include <string>
+#include <cmath>
+#include <cstdlib>
+#include <cfloat>
+#include "lidarDataTypes.hpp" // LIDAR DATA TYPE DEFINITIONS
 #include "CLidar_Operations.hpp"
-// #include "CMolecularData.hpp"
 class CMolecularData ;
 
 class CDataLevel_2  
@@ -79,7 +82,7 @@ class CDataLevel_2
 
 		int		indxMin_absDiff ;
 		double  minDiff 		;
-		string 	reference_method ;
+		std::string 	reference_method ;
 
 	private:
 		void 	FernaldInversion_Core( strcGlobalParameters*, int, strcMolecularData*, int, int ) ;

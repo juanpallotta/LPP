@@ -1,5 +1,6 @@
 
-#include "CDataLevel_2.hpp"  
+#include "CDataLevel_2.hpp"
+#include "lidarMathFunc.hpp"  
 
 CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 {

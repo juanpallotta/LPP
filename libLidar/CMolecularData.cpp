@@ -4,6 +4,7 @@
  */
 
 #include "CMolecularData.hpp"
+#include "lidarMathFunc.hpp"
 #include "CNetCDF_Lidar.hpp"
 
 CMolecularData::CMolecularData( strcGlobalParameters *glbParam )
