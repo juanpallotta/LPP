@@ -687,16 +687,6 @@ This group contains the molecular profiles (extinction, backscattering and conce
 * `alpha_mol (range)`: Array with the molecular extinction ([m<sup>-1</sup>]).
 * `beta_mol (range)`: Array with the molecular extinction ([m<sup>-1</sup> * sr<sup>-1</sup>]).
 
-<!-- \*
-### Group Attributes
-
-Here, the essentials constants needed for the correction of the lidar signals and cloud mask processing are stored.
-
-* `indxChannel_for_Cloud_Mask`: Index number (started from 0) of the channel used to process the cloud mask.
-* `avg_Points_Cloud_Mask`: Number of points used for spatial smoothing to te lidar signal before to apply the cloud masking.
-* `num_Points_Bkg`: Numbers of points used to compute the bias of the raw lidar signal. This value is the same as `nBinsBkg` set in the configuration file passed as argument to `lpp1`.
--->
-
 ## NetCDF's File Produced for Data Level 2
 
 `lpp2` module produces a copy of the NetCDF file made for `lpp1`, adding the results of this data level in the sub-group called `L2_Data`.

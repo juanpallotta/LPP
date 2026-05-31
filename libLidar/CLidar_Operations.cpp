@@ -5,7 +5,6 @@
 CLidar_Operations::CLidar_Operations(strcGlobalParameters *glbParam) 
 {
   dummy = (double *)new double[glbParam->nBins];
-  dummy1 = (double *)new double[glbParam->nBins];
   pr_misc = (double *)new double[glbParam->nBins];
   pr2_i = (double *)new double[glbParam->nBins];
   prS = (double *)new double[glbParam->nBins];
@@ -33,9 +32,9 @@ CLidar_Operations::CLidar_Operations(strcGlobalParameters *glbParam)
   GetMem_indxMol((strcGlobalParameters *)glbParam);
 }
 
-CLidar_Operations::~CLidar_Operations() {
+CLidar_Operations::~CLidar_Operations()
+{
   delete[] dummy;
-  delete[] dummy1;
   delete[] pr_misc;
   delete[] pr2_i;
   delete[] prS;
@@ -1403,9 +1402,9 @@ void CLidar_Operations::Find_Gluing_Ranges(strcGlobalParameters *glbParam, doubl
                          // RANGES FOR THE GLUING
   ReadAnalysisParameter((char *)glbParam->FILE_SOFT_CODED_VALUES, "winGluing", "int", (int *)&scanWinSize);
 
-  memset(dummy1, 0, (sizeof(double) * glbParam->nBins));
+  memset(dummy, 0, (sizeof(double) * glbParam->nBins));
   for (int i = 0; i < glbParam->nBins; i++)
-    dummy1[i] = DBL_MAX;
+    dummy[i] = DBL_MAX;
 
   for (int c = 0; c < glbParam->nPair_Ch_to_Glue; c++) {
     for (int b = 0; b < glbParam->nBins_Ch[glbParam->chSel] - scanWinSize - 1; b++)
@@ -1417,12 +1416,12 @@ void CLidar_Operations::Find_Gluing_Ranges(strcGlobalParameters *glbParam, doubl
 
       RayleighFit((double *)&pr_corr[glbParam->evSel][glbParam->indx_gluing_Low_AN[c]][0], (double *)&pr_corr[glbParam->evSel][glbParam->indx_gluing_High_PHO[c]][0], glbParam->nBins_Ch[glbParam->chSel], (strcFitParam *)&fitParam, (double *)dummy);
 
-      dummy1[b] = (double)fitParam.std;
+      dummy[b] = (double)fitParam.std;
     }
   }
   int indx_Min;
   double a;
-  findIndxMin((double *)&dummy1[0], 0, glbParam->nBins_Ch[glbParam->chSel] - 1, (int *)&indx_Min, (double *)&a);
+  findIndxMin((double *)&dummy[0], 0, glbParam->nBins_Ch[glbParam->chSel] - 1, (int *)&indx_Min, (double *)&a);
   printf("\nBest fitting range for the gluing: %lf - %lf m\n", (glbParam->indxInitSig + indx_Min) * glbParam->dzr, (glbParam->indxInitSig + indx_Min + scanWinSize) * glbParam->dzr);
 }
 

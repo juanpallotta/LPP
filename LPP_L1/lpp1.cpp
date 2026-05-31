@@ -278,7 +278,6 @@ int main( int argc, char *argv[] )
             if ( c == glbParam.indxWL_PDL1 )
             {
                 oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
-                // if ( strcmp( oDL1->strCompCM.c_str(), "YES" ) ==0 )
                 if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )
                 {
                     printf("   --> Getting layers limits") ;

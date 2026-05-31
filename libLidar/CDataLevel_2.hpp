@@ -52,7 +52,6 @@ class CDataLevel_2
 		int		nLRs 								;
 		int 	indxInitSig, indxEndSig, *indxRef_Fernald;
 		double  R_ref    							;
-		// int 	indx_Top_Cloud = 0 					; // INDEX OF THE TOP CLOUD
 
 		double 	*AOD_Lidar_Time	=NULL				;
 		double 	*Angs_Lidar_Time=NULL				;
@@ -83,7 +82,6 @@ class CDataLevel_2
 		string 	reference_method ;
 
 	private:
-		// void FernaldInversion_Test_Ref_Value( strcGlobalParameters*, int, int, int, strcMolecularData*, double, int, int ) ;
 		void 	FernaldInversion_Core( strcGlobalParameters*, int, strcMolecularData*, int, int ) ;
 		int 	*indxRef_Fernald_Start, *indxRef_Fernald_Stop ;
 
