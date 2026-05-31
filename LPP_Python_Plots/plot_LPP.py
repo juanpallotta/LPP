@@ -967,7 +967,7 @@ def plot_range_corrected_lidar_signal_colormap(dataset, output_dir=None):
     ax.set_ylim(0, 20000)
     
     # Add colorbar
-    plt.colorbar(im, ax=ax, label='Signal Intensity')
+    plt.colorbar(im, ax=ax, label='Range Corrected Lidar Signal')
     
     # Grid for better readability
     ax.grid(True, alpha=0.3, linestyle='--')
@@ -992,23 +992,26 @@ def plot_aeronet_data(dataset, output_dir=None):
     """
     Plot the AERONET_AOD_<X>nm_at_LidarTime variables from the AERONET_Data sub-group in L2_Data.
     """
-    # Check if L2_Data group exists
     if not check_group_exists(dataset, 'L2_Data'):
         return
 
     l2_group = dataset.groups['L2_Data']
 
-    # Check if AERONET_Data sub-group exists
     if 'AERONET_Data' not in l2_group.groups:
         print("Note: Sub-group 'AERONET_Data' not found in L2_Data. Skipping.")
         return
 
     aeronet_group = l2_group.groups['AERONET_Data']
 
-    # Check if AERONET_Time exists
-    if not check_variable_exists(aeronet_group, 'AERONET_Time'):
-        print("Warning: Variable 'AERONET_Time' not found in AERONET_Data.")
+    # Get the time for x-axis as the mean of Start_Time_AVG_L2 and Stop_Time_AVG_L2
+    if not check_variable_exists(l2_group, 'Start_Time_AVG_L2') or not check_variable_exists(l2_group, 'Stop_Time_AVG_L2'):
+        print("Warning: Variables 'Start_Time_AVG_L2' or 'Stop_Time_AVG_L2' not found in L2_Data. Cannot compute x-axis.")
         return
+
+    start_time = l2_group.variables['Start_Time_AVG_L2'][:].astype(np.float64)
+    stop_time = l2_group.variables['Stop_Time_AVG_L2'][:].astype(np.float64)
+    mean_time = (start_time + stop_time) / 2.0
+    time_datetime = unix_to_datetime(mean_time)
 
     # Find matching variables: AERONET_AOD_<X>nm_at_LidarTime
     aeronet_vars = []
@@ -1020,53 +1023,19 @@ def plot_aeronet_data(dataset, output_dir=None):
         print("Note: No AERONET_AOD_<X>nm_at_LidarTime variables found.")
         return
 
-    # Read time data
-    # The variables end with '_at_LidarTime', which indicates they match the Lidar time dimension
-    # (time_LIDAR), while 'AERONET_Time' matches the AERONET time dimension (time_AERONET).
-    # We'll try to get the Lidar time for these specific variables.
-    lidar_time = None
-    if check_variable_exists(l2_group, 'Start_Time_AVG_L2'):
-        lidar_time = l2_group.variables['Start_Time_AVG_L2'][:]
-    
-    # We also read AERONET_Time in case it's needed for other variables
-    aeronet_time = aeronet_group.variables['AERONET_Time'][:]
-
     for var_name in aeronet_vars:
         data = aeronet_group.variables[var_name][:]
         
-        # Determine the correct time vector based on dimensions
-        var_obj = aeronet_group.variables[var_name]
-        # Try to get AERONET_Time first for the x-axis variable
-        # But the prompt says: "In the x-axis must be taken from the variable L2_Data/AERONET_Data/AERONET_Time"
-        # However, it also says the variable "AERONET_AOD_..._at_LidarTime" must be plotted together with 
-        # "L2_Data/LIDAR_AERONET_synergy/AOD_Lidar_532nm_vs_AERONET" and they have the same dimension.
-        # Based on inspection, these variables match 'time_LIDAR' (Start_Time_AVG_L2).
-        
-        target_time = None
-        if 'time_LIDAR' in var_obj.dimensions and lidar_time is not None:
-            target_time = lidar_time
-        elif 'time_AERONET' in var_obj.dimensions:
-            target_time = aeronet_time
-        else:
-            # Match by shape
-            if len(data) == len(lidar_time) if lidar_time is not None else -1:
-                target_time = lidar_time
-            elif len(data) == len(aeronet_time):
-                target_time = aeronet_time
-        
-        if target_time is None:
-            print(f"Warning: Could not find matching time dimension for {var_name}. Skipping.")
+        # Check dimensions
+        if len(data) != len(mean_time):
+            print(f"Warning: Dimension mismatch for {var_name}. Expected {len(mean_time)}, got {len(data)}. Skipping.")
             continue
 
-        # Convert target time to UTC datetime
-        time_datetime = unix_to_datetime(target_time)
+        wavelength = var_name.replace('AERONET_AOD_', '').replace('nm_at_LidarTime', '')
         
-        # Check for synergy variables: 
-        # 1. AOD Lidar: L2_Data/LIDAR_AERONET_synergy/AOD_Lidar_532nm_vs_AERONET
-        # 2. LR Lidar: L2_Data/LIDAR_AERONET_synergy/LR_inv_532nm
+        # Check for synergy variables
         synergy_aod_data = None
         synergy_lr_data = None
-        wavelength = var_name.replace('AERONET_AOD_', '').replace('nm_at_LidarTime', '')
         synergy_aod_var_name = f'AOD_Lidar_{wavelength}nm_vs_AERONET'
         synergy_lr_var_name = f'LR_inv_{wavelength}nm'
         
@@ -1074,8 +1043,12 @@ def plot_aeronet_data(dataset, output_dir=None):
             synergy_group = l2_group.groups['LIDAR_AERONET_synergy']
             if synergy_aod_var_name in synergy_group.variables:
                 synergy_aod_data = synergy_group.variables[synergy_aod_var_name][:]
+                if len(synergy_aod_data) != len(mean_time):
+                    synergy_aod_data = None # Dimension mismatch
             if synergy_lr_var_name in synergy_group.variables:
                 synergy_lr_data = synergy_group.variables[synergy_lr_var_name][:]
+                if len(synergy_lr_data) != len(mean_time):
+                    synergy_lr_data = None
         
         # Filter negative values: "If the value of the variable is negative, do not plot the point."
         aeronet_mask = (data >= 0)
@@ -1101,21 +1074,36 @@ def plot_aeronet_data(dataset, output_dir=None):
             continue
 
         # Find Angstrom Exponent variables
-        angstrom_vars = [v for v in aeronet_group.variables.keys() if v.startswith('AERONET_Angstrom_Exponent_')]
+        angstrom_vars = [v for v in aeronet_group.variables.keys() if v.startswith('AERONET_Angs_') and v.endswith('_at_LidarTime')]
+        
+        # fallback: if not found, try AERONET_Angstrom_Exponent_
+        if not angstrom_vars:
+            angstrom_vars = [v for v in aeronet_group.variables.keys() if v.startswith('AERONET_Angstrom_Exponent_')]
+
         angstrom_data = None
-        angstrom_var_name = ""
+        angstrom_suffix = "X-Y"
+        filtered_angs_time = None
+        filtered_angs_data = None
+
         if angstrom_vars:
             angstrom_var_name = angstrom_vars[0]
             angstrom_data = aeronet_group.variables[angstrom_var_name][:]
-            angstrom_suffix = angstrom_var_name.replace('AERONET_Angstrom_Exponent_', '')
-        else:
-            angstrom_suffix = "X-Y"
+            if angstrom_var_name.startswith('AERONET_Angs_'):
+                angstrom_suffix = angstrom_var_name.replace('AERONET_Angs_', '').replace('_at_LidarTime', '')
+            else:
+                angstrom_suffix = angstrom_var_name.replace('AERONET_Angstrom_Exponent_', '')
+            
+            if len(angstrom_data) == len(mean_time):
+                angs_mask = (angstrom_data >= 0)
+                filtered_angs_time = time_datetime[angs_mask]
+                filtered_angs_data = angstrom_data[angs_mask]
+            else:
+                angstrom_data = None # Dimension mismatch
 
         # Create the plot
-        # We want 3 subplots if both LR and Angstrom are available
         num_subplots = 1
         if filtered_lidar_lr is not None: num_subplots += 1
-        if angstrom_data is not None: num_subplots += 1
+        if filtered_angs_data is not None: num_subplots += 1
 
         if num_subplots > 1:
             fig, axes = plt.subplots(num_subplots, 1, figsize=(12, 4 * num_subplots), sharex=False)
@@ -1129,7 +1117,7 @@ def plot_aeronet_data(dataset, output_dir=None):
             fig, ax1 = plt.subplots(figsize=(12, 6))
             ax2 = ax3 = None
         
-        # Plot AOD comparison on ax1 with distinct markers and colors for AERONET vs Lidar
+        # Plot AOD comparison on ax1
         aeronet_color = '#1f77b4'  # blue
         lidar_color = '#ff7f0e'    # orange
 
@@ -1145,8 +1133,11 @@ def plot_aeronet_data(dataset, output_dir=None):
 
         ax1.legend(loc='best')
         ax1.set_ylabel(f'AOD at {wavelength}nm', fontsize=12, fontweight='bold')
-        date_str = (filtered_aeronet_time[0] if len(filtered_aeronet_time) > 0 else filtered_lidar_time[0]).strftime('%Y-%m-%d')
-        ax1.set_title(f'Synergy Plot at {wavelength}nm - {date_str} (UTC)', fontsize=14, fontweight='bold')
+        
+        # Title with time in human-readable format
+        human_time_start = time_datetime[0].strftime('%Y-%m-%d %H:%M:%S')
+        human_time_end = time_datetime[-1].strftime('%H:%M:%S')
+        ax1.set_title(f'Synergy Plot at {wavelength}nm\nTime: {human_time_start} to {human_time_end} (UTC)', fontsize=14, fontweight='bold')
         
         # Plot LR on ax2 if available
         if ax2 is not None and filtered_lidar_lr is not None and len(filtered_lr_time) > 0:
@@ -1157,13 +1148,9 @@ def plot_aeronet_data(dataset, output_dir=None):
             ax2.legend(loc='best')
             
         # Plot Angstrom Exponent on ax3 if available
-        if ax3 is not None:
-            # Use aeronet_time and filtered data if necessary, but prompt says:
-            # "x-axis must be taken from the variable L2_Data/AERONET_Data/AERONET_Time"
-            aeronet_time_dt = unix_to_datetime(aeronet_time)
-            # Filter negative values for Angstrom as well? Prompt doesn't say, but usually good.
-            # Let's keep it simple as per prompt.
-            ax3.plot(aeronet_time_dt, angstrom_data, 's', linewidth=1.5, color='#8E44AD', label=f'Angstrom Exp {angstrom_suffix}', markersize=6)
+        if ax3 is not None and filtered_angs_data is not None and len(filtered_angs_time) > 0:
+            ax3.scatter(filtered_angs_time, filtered_angs_data, marker='s', color='#8E44AD', 
+                        edgecolor='black', linewidth=0.5, s=40, label=f'Angstrom Exp {angstrom_suffix}')
             ax3.set_ylabel('Angstrom Exp', fontsize=12, fontweight='bold')
             ax3.legend(loc='best')
 
@@ -1178,7 +1165,7 @@ def plot_aeronet_data(dataset, output_dir=None):
             ax.set_xlabel('Time (UTC)', fontsize=12, fontweight='bold')
 
         # Save the plot
-        filename = f'AERONET_vs_LIDAR_AOD_{wavelength}nm_LRsSinergy_Angstrom_Exponent_{angstrom_suffix}_at_LidarTime.png'
+        filename = f'AERONET_vs_LIDAR_AOD_{wavelength}nm_LRs_Sinergy_Angstrom_Exponent_{angstrom_suffix}_at_LidarTime.png'
         if output_dir is None:
             output_path = Path(filename)
         else:

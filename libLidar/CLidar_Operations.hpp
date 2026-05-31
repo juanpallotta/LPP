@@ -34,12 +34,11 @@ public:
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, strcMolecularData*                     ) ;
     void    MakeRangeCorrected( strcLidarSignal*, strcGlobalParameters*, double**, strcMolecularData*           ) ;
 
-    void    BiasCorrection      ( double*, strcGlobalParameters*, strcMolecularData*                          ) ;
+    void    BiasCorrection      ( double*, strcGlobalParameters*, strcMolecularData*                            ) ;
 
-    void    Find_Max_Range      ( double*, strcMolecularData*, strcGlobalParameters*                          ) ;
-    void    Find_Max_Mol_Range  ( double*, strcMolecularData*, strcGlobalParameters*, int                     ) ;
-    void 	Find_Ref_Range_op   (strcGlobalParameters*, strcMolecularData *			                          ) ;
-    
+    void    Find_Max_Range      ( double*, strcMolecularData*, strcGlobalParameters*                            ) ;
+    void    Find_Max_Mol_Range  ( double*, strcMolecularData*, strcGlobalParameters*, int                       ) ;
+    void 	Find_Ref_Range      ( double*, strcGlobalParameters*, strcMolecularData*, int*, int*                ) ;
 
     // void    Remove_Cloud_Mol_Range( double*, strcGlobalParameters*, strcMolecularData*                          ) ;
     void    Remove_Bkg_Mol_Range  ( double*, strcGlobalParameters*, strcMolecularData*                          ) ;

@@ -55,6 +55,7 @@ class CDataLevel_2
 		// int 	indx_Top_Cloud = 0 					; // INDEX OF THE TOP CLOUD
 
 		double 	*AOD_Lidar_Time	=NULL				;
+		double 	*Angs_Lidar_Time=NULL				;
 		double 	*AERONET_AOD 	=NULL				;
 		double 	*AERONET_Angs 	=NULL				;
 		int		*AERONET_time	=NULL				;

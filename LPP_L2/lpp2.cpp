@@ -82,10 +82,8 @@ int main( int argc, char *argv[] )
     {
         oNCL.Read_L0_into_L2 ( (int)ncid, (strcGlobalParameters*)&glbParam, (CDataLevel_2*)oDL2 ) ;
 
-        oDL2->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)oDL2->data_File_L0, (double***)oDL2->data_File_L2, 
-                                                    (int*)oDL2->Start_Time_L0    , (int*)oDL2->Stop_Time_L0, 
-                                                    (int*)oDL2->Start_Time_AVG_L2, (int*)oDL2->Stop_Time_AVG_L2
-                                                  ) ;
+        oDL2->oLOp->Average_in_Time_Lidar_Profiles( (strcGlobalParameters*)&glbParam, (double***)oDL2->data_File_L0, (double***)oDL2->data_File_L2, (int*)oDL2->Start_Time_L0, 
+                                                    (int*)oDL2->Stop_Time_L0, (int*)oDL2->Start_Time_AVG_L2, (int*)oDL2->Stop_Time_AVG_L2 ) ;
     }
     else // numEventsToAvg_PDL1 = numEventsToAvg_PDL2 ===> LIDAR SIGNALS FROM L1 DATASET ARE ALREADY CORRECTED --> COPY TO L2 OBJECT
     {
@@ -211,9 +209,6 @@ int main( int argc, char *argv[] )
         printf("done\n") ;
     }
 
-
-
-
 // INVERSION THROUGH ALL THE AVERAGED LIDAR PROFILES
 
     // for ( int i =0 ; i < nCh_to_invert; i++)
@@ -228,20 +223,34 @@ int main( int argc, char *argv[] )
 
         oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
 
-        if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 )
-        {
-            if ( t == 0 )
-                printf("\n\n L2 --> Getting cloud profile again because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
+        // if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 )
+        // {
+        //     if ( t == 0 )
+        //         printf("\n\n L2 --> Getting cloud profile again because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
 
-            oDL2->oLOp->compute_pbl_mask.assign("YES") ;
-            oDL2->oLOp->compute_layer_mask.assign("YES") ;
-            oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
-        }
-        else
-        {
-            printf("\nCalculando la PBL\n") ;
-            // oDL2->oLOp->( (double*)pr2_i, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (double)std_ref ) ;
-        }
+        //     oDL2->oLOp->compute_pbl_mask.assign("YES") ;
+        //     oDL2->oLOp->compute_layer_mask.assign("YES") ;
+        //     oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
+        // }
+        // else
+        // {
+        //     printf("\nGetting the PBL\n") ;
+ 
+        //     double *pr2_i = (double*) new double[glbParam.nBins] ; memset( pr2_i, 0, glbParam.nBins*sizeof(double) ) ;
+        //     for (int j = 0; j < glbParam.nBins_Ch[glbParam.chSel]; j++)
+        //       pr2_i[j] = (double)oDL2->pr[glbParam.evSel][j] * glbParam.r[j] * glbParam.r[j];
+
+        //     strcFitParam fitParam ;
+        //     fitParam.indxInitFit = (int)round((glbParam.indxEndSig_ev_ch[glbParam.evSel][glbParam.chSel] + glbParam.nBins_Ch[glbParam.chSel]) /2);
+        //     fitParam.indxEndFit  = glbParam.nBins_Ch[glbParam.chSel] - 1  ;
+        //     fitParam.nFit        = fitParam.indxEndFit - fitParam.indxInitFit + 1 ;
+        //     double  rayFit_gap = 0.0 ;
+        //     int     indxMax = 0 ;
+        //     findIndxMax( (double*)& oDL2->pr[glbParam.evSel][0], (int)fitParam.indxInitFit, (int)fitParam.indxEndFit, (int*)&indxMax, (double*)&rayFit_gap ) ;
+
+        //     oDL2->oLOp->Get_PBL_Mask( (double*)pr2_i, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, (double)rayFit_gap ) ;
+        // }
+
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;
         ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"MonteCarlo_N_SigSet_Err", (const char*)"int", (int*)&glbParam.MonteCarlo_N_SigSet_Err ) ;
@@ -266,13 +275,6 @@ int main( int argc, char *argv[] )
                 strftime(formatted_time_stop, sizeof(formatted_time_stop), "%H:%M:%S", utc_tm);
 
                 printf("\n-----------\n\nInverting:\t Event indx/max_indx: %d/%d (%s - %s UTC) \t Channel: %d \t Wavelenght: %d nm \t Zenith: %lf", t, (glbParam.nEventsAVG-1) , formatted_time_start, formatted_time_stop, glbParam.chSel, glbParam.iLambda[glbParam.chSel], oMolData->dataMol.zenith ) ;
-
-                if ( strcmp( oDL2->oLOp->compute_pbl_mask.c_str(), "NO" ) ==0 )
-                    oDL2->oLOp->compute_pbl_mask.assign("YES") ;
-
-                oDL2->oLOp->compute_layer_mask.assign("YES") ;
-                oDL2->oLOp->compute_pbl_mask.assign("YES")   ;
-                oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
 
                 oDL2->FernaldInversion( (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol ) ;
 

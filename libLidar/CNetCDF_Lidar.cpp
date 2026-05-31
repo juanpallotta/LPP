@@ -1188,7 +1188,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Time"                     , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[13] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_340nm"                , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[14] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_355nm_at_LidarTime"   , (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[16] ) ;
-            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_340-440", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angs_340-440nm_at_LidarTime", (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[22] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_340-440nm", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"LR_inv_355nm"                     , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[15] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"AOD_Lidar_355nm_vs_AERONET"       , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[17] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"Aerosol_Extinction_355nm_synergy" , (const char*)"double", (int)2, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[19] ) ;
@@ -1205,7 +1206,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Time"                     , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[13] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_340nm"                , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[14] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_351nm_at_LidarTime"   , (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[16] ) ;
-            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_340-440", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angs_340-440nm_at_LidarTime", (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[22] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_340-440nm", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"LR_inv_351nm"                     , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[15] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"AOD_Lidar_351nm_vs_AERONET"       , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[17] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"Aerosol_Extinction_351nm_synergy" , (const char*)"double", (int)2, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[19] ) ;
@@ -1222,7 +1224,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Time"                     , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[13] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_500nm"                , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[14] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_532nm_at_LidarTime"   , (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[16] ) ;
-            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_440-675", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angs_440-675nm_at_LidarTime", (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[22] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_440-675nm", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"LR_inv_532nm"                     , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[15] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"AOD_Lidar_532nm_vs_AERONET"       , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[17] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"Aerosol_Extinction_532nm_synergy" , (const char*)"double", (int)2, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[19] ) ;
@@ -1239,7 +1242,8 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Time"                     , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[13] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_1020nm"               , (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[14] ) ;
             DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_AOD_1064nm_at_LidarTime"  , (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[16] ) ;
-            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_500-870", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angs_500-870nm_at_LidarTime", (const char*)"double", (int)1, (int*)&id_dims_AERONET[1], (int*)&var_ids[22] ) ;
+            DefineVariable( (int)nc_id_group_L2_AERONET      , (char*)"AERONET_Angstrom_Exponent_500-870nm", (const char*)"double", (int)1, (int*)&id_dims_AERONET[0], (int*)&var_ids[18] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"LR_inv_1064nm"                    , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[15] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"AOD_Lidar_1064nm_vs_AERONET"      , (const char*)"double", (int)1, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[17] ) ;
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"Aerosol_Extinction_1064nm_synergy" , (const char*)"double", (int)2, (int*)&id_dims_LIDAR_AERONET[0], (int*)&var_ids[19] ) ;
@@ -1344,6 +1348,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
         PutVar( (int)nc_id_group_L2_AERONET      , (int)var_ids[14], (const char*)"double", (double*)oDL2->AERONET_AOD    ) ;
         PutVar( (int)nc_id_group_L2_LIDAR_AERONET, (int)var_ids[15], (const char*)"double", (double*)oDL2->LR_inv         ) ;
         PutVar( (int)nc_id_group_L2_AERONET      , (int)var_ids[16], (const char*)"double", (double*)oDL2->AOD_Lidar_Time ) ;
+        PutVar( (int)nc_id_group_L2_AERONET      , (int)var_ids[22], (const char*)"double", (double*)oDL2->Angs_Lidar_Time ) ;
         PutVar( (int)nc_id_group_L2_LIDAR_AERONET, (int)var_ids[17], (const char*)"double", (double*)oDL2->AOD_inv        ) ;
         PutVar( (int)nc_id_group_L2_AERONET      , (int)var_ids[18], (const char*)"double", (double*)oDL2->AERONET_Angs   ) ;
     }
