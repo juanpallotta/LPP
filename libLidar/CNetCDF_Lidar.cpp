@@ -780,13 +780,13 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL0( string Path_File_Out, strcGlobalPara
         if ( (retval = nc_close(ncid)) )
         ERR(retval);
 
-// SAVE glbParams->FILE_PARAMETERS
+    // SAVE glbParams->FILE_PARAMETERS
     save_text_to_netcdf( (const char*)glbParam->FILE_PARAMETERS, (const char*)Path_File_Out.c_str() ) ;
 }
 
 /**
- * Saves a complete text file into a NetCDF file as a character array.
- * * @param text_filepath Path to the source text file.
+ * @brief Saves a complete text file into a NetCDF file as a character array.
+ * @param text_filepath Path to the source text file.
  * @param nc_filepath   Path to the destination NetCDF file to create.
  * @return NC_NOERR (0) on success, or a NetCDF/System error code on failure.
  */

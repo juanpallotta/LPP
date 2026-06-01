@@ -621,14 +621,12 @@ void CLidar_Operations::Layer_Mask(const double *pr, strcMolecularData *dataMol,
   fitParam.nFit = fitParam.indxEndFit - fitParam.indxInitFit + 1 ;
   for (int j = fitParam.indxInitFit; j <= fitParam.indxEndFit; j++)
     fitParam.std += pow(prS[j], 2); // prS IS ALREADY BACGROUND CORRECTED THATS WHY THE MEAN IS NOT SUBSTRACTED TO THE prS.
-  // rayFit_gap = sqrt(fitParam.std / (fitParam.nFit - 1));
-  // printf("\nLayer_Mask(): real rayFit_gap= %2.3e ", rayFit_gap) ;
+  fitParam.std = sqrt(fitParam.std / (fitParam.nFit - 1));
   
   double  rayFit_gap = 0.0 ;
   int     indxMax = 0 ;
   findIndxMax( (double*)&prS[0], (int)fitParam.indxInitFit, (int)fitParam.indxEndFit, (int*)&indxMax, (double*)&rayFit_gap ) ;
-  // printf("\nLayer_Mask(): max diff Pr = %2.3e \n", rayFit_gap) ;
-  // rayFit_gap = ( rayFit_gap + sqrt(fitParam.std / (fitParam.nFit - 1)) ) /2 ;
+  rayFit_gap = ( rayFit_gap + fitParam.std ) /2 ;
 
   // SET THE INITIAL FITTING RANGES FOR THE LAYER DETECTION ALGORITHM
   fitParam.indxEndFit  = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - deltaNorm;
