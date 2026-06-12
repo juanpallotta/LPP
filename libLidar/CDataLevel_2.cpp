@@ -1,4 +1,5 @@
 
+// #include <unistd.h> // Sleep function (ONLY FOR LINUX/UNIX systems) a Leonel se lo pedia
 #include "CDataLevel_2.hpp"
 #include "lidarMathFunc.hpp"  
 
@@ -886,7 +887,7 @@ int CDataLevel_2::Download_AERONET_Data( strcGlobalParameters *glbParam )
 	}
 
 	// FORMATING THE COMMAND TO RUN
-	sprintf(path, "python3 ./download_aeronet/aeraod.py \"%s\" \"%s\" \"%s\" \"Aerosol Optical Depth (AOD) with Precipitable Water and Angstrom Parameter\" \"All points\" \"%s\" \"%s\"", aeronet_site_name, date_initial, date_final, aeronet_data_level, aeronet_path) ;
+	sprintf(path, "../lidar_env/bin/python3 ./download_aeronet/aeraod.py \"%s\" \"%s\" \"%s\" \"Aerosol Optical Depth (AOD) with Precipitable Water and Angstrom Parameter\" \"All points\" \"%s\" \"%s\"", aeronet_site_name, date_initial, date_final, aeronet_data_level, aeronet_path) ;
 	printf("\nRuning AERONET DOWNLOADER:\n%s\n", path) ;
 
 	// Open the command for reading 

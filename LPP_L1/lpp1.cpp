@@ -68,16 +68,17 @@ int main( int argc, char *argv[] )
     // cout << endl << "num_dim_var: " << num_dim_var << "     id_var_raw_lidar: " << id_var_raw_lidar << endl ;
     assert( num_dim_var ==3 ) ; // SI SE CUMPLE, SIGUE.
 
-    int id_dim[num_dim_var] ;
-    if ( ( retval = nc_inq_vardimid( (int)ncid, (int)id_var_raw_lidar, (int*)id_dim ) ) )
+    std::vector<int> id_dim(num_dim_var);
+    if ( ( retval = nc_inq_vardimid( (int)ncid, (int)id_var_raw_lidar, (int*)id_dim.data() ) ) )
         ERR(retval);
 
-    int size_dim[num_dim_var] ;
-        for ( int d=0 ; d <num_dim_var ; d++ ) size_dim[d] =(int)1 ;
+    std::vector<int> size_dim(num_dim_var, 1);
     for( int d=0 ; d <num_dim_var ; d++ )
     {
-        if ( ( retval = nc_inq_dimlen( (int)ncid, (int)id_dim[d], (size_t*)&size_dim[d] ) ) )
+        size_t len;
+        if ( ( retval = nc_inq_dimlen( (int)ncid, (int)id_dim[d], &len ) ) )
             ERR(retval);
+        size_dim[d] = (int)len;
         // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
     }
 

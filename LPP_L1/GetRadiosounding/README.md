@@ -104,7 +104,7 @@ or using the wrapper (recommended):
 <!-- clear ; ./execute.sh -y 2026 -m 1 -i 1400 -e 1500 -r samer -s 87344 -o "/mnt/c/lidarData/Argentina/Pilar/Radiosonde/" -->
 
 <!-- SP -->
-clear ; ./execute.sh -y 2019 -m 9 -i 1800 -e 1900 -r samer -s 83779 -o "/mnt/c/lidarData/SPU/Radiosonde/"
+<!-- clear ; ./execute.sh -y 2019 -m 10 -i 1000 -e 1100 -r samer -s 83779 -o "/mnt/c/lidarData/SPU/Radiosonde/" -->
 
 <!-- PILAR, CORDOBA -->
 <!-- clear ; ./execute.sh -y 2026 -m 1 -i 1000 -e 1100 -r samer -s 87344 -o "/mnt/c/lidarData/Argentina/Pilar/Radiosonde/" -->

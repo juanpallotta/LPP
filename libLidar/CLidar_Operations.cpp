@@ -591,6 +591,13 @@ void CLidar_Operations::Find_Ref_Range( double *pr2_i, strcGlobalParameters *glb
 
 void CLidar_Operations::Layer_Mask(const double *pr, strcMolecularData *dataMol,  strcGlobalParameters *glbParam) 
 {
+  // fitParam.indxInitFit = (int)round((glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] + glbParam->nBins_Ch[glbParam->chSel]) /2);
+  // fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - 1  ;
+  // fitParam.nFit = fitParam.indxEndFit - fitParam.indxInitFit + 1 ;
+  // double  rayFit_gap = 0.0 ;
+  // int     indxMax = 0 ;
+  // findIndxMax( (double*)&pr[0], (int)fitParam.indxInitFit, (int)fitParam.indxEndFit, (int*)&indxMax, (double*)&rayFit_gap ) ;
+
   // pr IS ALREADY BACKGROUND CORRECTED
   if (avg_Points_Cloud_Mask > 1) 
   {
@@ -619,27 +626,25 @@ void CLidar_Operations::Layer_Mask(const double *pr, strcMolecularData *dataMol,
   fitParam.indxInitFit = (int)round((glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] + glbParam->nBins_Ch[glbParam->chSel]) /2);
   fitParam.indxEndFit  = glbParam->nBins_Ch[glbParam->chSel] - 1  ;
   fitParam.nFit = fitParam.indxEndFit - fitParam.indxInitFit + 1 ;
-  for (int j = fitParam.indxInitFit; j <= fitParam.indxEndFit; j++)
-    fitParam.std += pow(prS[j], 2); // prS IS ALREADY BACGROUND CORRECTED THATS WHY THE MEAN IS NOT SUBSTRACTED TO THE prS.
-  fitParam.std = sqrt(fitParam.std / (fitParam.nFit - 1));
-  
+  // for (int j = fitParam.indxInitFit; j <= fitParam.indxEndFit; j++)
+  //   fitParam.std += pow(prS[j], 2); // prS IS ALREADY BACGROUND CORRECTED THATS WHY THE MEAN IS NOT SUBSTRACTED TO THE prS.
+  // fitParam.std = sqrt(fitParam.std / (fitParam.nFit - 1));
+
   double  rayFit_gap = 0.0 ;
   int     indxMax = 0 ;
   findIndxMax( (double*)&prS[0], (int)fitParam.indxInitFit, (int)fitParam.indxEndFit, (int*)&indxMax, (double*)&rayFit_gap ) ;
-  rayFit_gap = ( rayFit_gap + fitParam.std ) /2 ;
+  // rayFit_gap = ( rayFit_gap + fitParam.std ) /2 ;
 
   // SET THE INITIAL FITTING RANGES FOR THE LAYER DETECTION ALGORITHM
   fitParam.indxEndFit  = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - deltaNorm;
   fitParam.indxInitFit = fitParam.indxEndFit - deltaNorm;
   fitParam.indxMidFit  = (int)round((fitParam.indxInitFit + fitParam.indxEndFit) / 2);
   fitParam.nFit        = fitParam.indxEndFit - fitParam.indxInitFit + 1;
-
   memset(cloudProfiles[glbParam->evSel].clouds_ON, 0, (sizeof(int) * glbParam->nBins));
-
   while (fitParam.indxInitFit >= glbParam->indxInitSig)
   {
-    memset((double *)pr_misc, 0, sizeof(double) * glbParam->nBins);
-    RayleighFit((double *)prS, (double *)dataMol->prMol_avg, glbParam->nBins, (strcFitParam *)&fitParam, (double *)pr_misc);
+    memset((double*)pr_misc, 0, sizeof(double)*glbParam->nBins);
+    RayleighFit((double*)prS, (double*)dataMol->prMol_avg, glbParam->nBins, (strcFitParam*)&fitParam, (double*)pr_misc);
 
     for (int j = fitParam.indxInitFit; j < glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]; j++) 
     {
@@ -650,19 +655,16 @@ void CLidar_Operations::Layer_Mask(const double *pr, strcMolecularData *dataMol,
     fitParam.indxInitFit = fitParam.indxEndFit - deltaNorm; // DELTA NOMALIZATION STABLISHED
     fitParam.indxMidFit  = (int)round((fitParam.indxInitFit + fitParam.indxEndFit) / 2);
     fitParam.nFit = fitParam.indxEndFit - fitParam.indxInitFit + 1;
+    FilterThinClouds((strcGlobalParameters *)glbParam, (int *)cloudProfiles[glbParam->evSel].clouds_ON);
   }
 
-  // FilterThinClouds((strcGlobalParameters *)glbParam, (int *)cloudProfiles[glbParam->evSel].clouds_ON);
   GetCloudLimits((strcGlobalParameters *)glbParam); // ONLY LIMITS OF THE CLOUDS, *NOT* PBL!!!!
 
   //! PBL HEIGH - START
   if (strcmp(glbParam->exeFile, "./lpp1") == 0) 
   {
     compute_pbl_mask.assign("NO");
-
-    // for (int j = 0; j < glbParam->nBins_Ch[glbParam->chSel]; j++)
-    //   pr2_i[j] = (double)prS[j] * glbParam->r[j] * glbParam->r[j];
-    // Get_PBL_Mask( (double*)pr2_i, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (double)rayFit_gap ) ;
+    // compute_pbl_mask.assign("YES");
   }
   else if (strcmp(glbParam->exeFile, "./lpp2") == 0) 
   {
@@ -678,10 +680,9 @@ void CLidar_Operations::Layer_Mask(const double *pr, strcMolecularData *dataMol,
     for (int j = 0; j < glbParam->nBins_Ch[glbParam->chSel]; j++)
       pr2_i[j] = (double)prS[j] * glbParam->r[j] * glbParam->r[j]; // RANGE CORRECTED LIDAR SIGNAL
 
-    //! HACER ESTA FUNCION DE MANERA DE QUE DESDE lpp2 SOLO LA LLAME TENIENDO LOS DATOS DEL LAYER MASK CARGADOS EN cloudProfiles[glbParam->evSel].clouds_ON[j]
     Get_PBL_Mask( (double*)pr2_i, (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (double)rayFit_gap ) ;
 
-    // FilterThinClouds((strcGlobalParameters *)glbParam, (int *)cloudProfiles[glbParam->evSel].clouds_ON);
+    FilterThinClouds((strcGlobalParameters *)glbParam, (int *)cloudProfiles[glbParam->evSel].clouds_ON);
     GetCloudLimits((strcGlobalParameters *)glbParam);
   } // if ( strcmp( strCompPBL.c_str(), "YES" ) ==0 )
   //! PBL HEIGH - END
@@ -1054,59 +1055,43 @@ void CLidar_Operations::Bias_Substraction_Pre_Trigger(
       bias_pre_trigger);
 }
 
-void CLidar_Operations::Average_in_Time_Lidar_Profiles(
-    strcGlobalParameters *glbParam, double ***dataFile, double ***dataFile_AVG,
-    int *Raw_Data_Start_Time, int *Raw_Data_Stop_Time,
-    int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG) {
+void CLidar_Operations::Average_in_Time_Lidar_Profiles( strcGlobalParameters *glbParam, double ***dataFile, double ***dataFile_AVG, int *Raw_Data_Start_Time, int *Raw_Data_Stop_Time, int *Raw_Data_Start_Time_AVG, int *Raw_Data_Stop_Time_AVG) 
+{
   printf("\n\n");
-  for (int fC = 0; fC < glbParam->nEventsAVG; fC++) {
+  for (int fC = 0; fC < glbParam->nEventsAVG; fC++) 
+  {
     printf("Averaging in time Cluster Nº %d \n", fC);
-    for (int c = 0; c < glbParam->nCh; c++) {
-      // for ( int b=0 ; b <glbParam->nBins_Ch[c] ; b++ )
-      for (int b = 0; b < glbParam->nBins; b++) {
-        for (int t = 0; t < glbParam->numEventsToAvg; t++) {
-          dataFile_AVG[fC][c][b] =
-              (double)dataFile_AVG[fC][c][b] +
-              dataFile[fC * glbParam->numEventsToAvg + t][c][b];
-          if ((b == 0) && (c == 0)) { // TIME IS *NOT* AVERAGED, ITS SAVED THE
-                                      // START AND END TIME OF EACH CLUSTER
+    for (int c = 0; c < glbParam->nCh; c++) 
+    {
+      for (int b = 0; b < glbParam->nBins; b++) 
+      {
+        for (int t = 0; t < glbParam->numEventsToAvg; t++) 
+        {
+          dataFile_AVG[fC][c][b] = (double)dataFile_AVG[fC][c][b] +  dataFile[fC * glbParam->numEventsToAvg + t][c][b];
+          if ((b == 0) && (c == 0)) 
+          { // TIME IS *NOT* AVERAGED, ITS SAVED THE START AND END TIME OF EACH CLUSTER
             if (t == 0)
-              Raw_Data_Start_Time_AVG[fC] =
-                  (long)Raw_Data_Start_Time[fC * glbParam->numEventsToAvg];
+                Raw_Data_Start_Time_AVG[fC] = (long)Raw_Data_Start_Time[fC * glbParam->numEventsToAvg];
             if (t == (glbParam->numEventsToAvg - 1))
-              Raw_Data_Stop_Time_AVG[fC] =
-                  (long)Raw_Data_Stop_Time[fC * glbParam->numEventsToAvg + t];
+                Raw_Data_Stop_Time_AVG[fC] = (long)Raw_Data_Stop_Time[  fC * glbParam->numEventsToAvg + t];
           }
         }
-        if (glbParam->DAQ_Type[c] == 0) // IF IS A PHOTON-CURRENT CHANNEL, THE
-                                        // SIGNALS HAVE TO BE AVERAGED
-          dataFile_AVG[fC][c][b] =
-              (double)(dataFile_AVG[fC][c][b] / glbParam->numEventsToAvg);
+        if (glbParam->DAQ_Type[c] == 0) // IF IS A PHOTON-CURRENT CHANNEL, THE SIGNALS HAVE TO BE AVERAGED
+          dataFile_AVG[fC][c][b] = (double)(dataFile_AVG[fC][c][b] / glbParam->numEventsToAvg);
       }
     } // for ( int c=0 ; c <glbParam->nCh ; c++ )
 
-    for (int t = 0; t < glbParam->numEventsToAvg; t++) {
-      glbParam->aAzimuthAVG[fC] =
-          glbParam->aAzimuthAVG[fC] +
-          glbParam->aAzimuth[fC * glbParam->numEventsToAvg + t];
-      glbParam->aZenithAVG[fC] =
-          glbParam->aZenithAVG[fC] +
-          glbParam->aZenith[fC * glbParam->numEventsToAvg + t];
-      glbParam->temp_K_agl_AVG[fC] =
-          glbParam->temp_K_agl_AVG[fC] +
-          glbParam->temp_K_agl[fC * glbParam->numEventsToAvg + t];
-      glbParam->pres_Pa_agl_AVG[fC] =
-          glbParam->pres_Pa_agl_AVG[fC] +
-          glbParam->pres_Pa_agl[fC * glbParam->numEventsToAvg + t];
+    for (int t = 0; t < glbParam->numEventsToAvg; t++) 
+    {
+      glbParam->aAzimuthAVG    [fC] = glbParam->aAzimuthAVG    [fC] + glbParam->aAzimuth   [fC * glbParam->numEventsToAvg + t] ;
+      glbParam->aZenithAVG     [fC] = glbParam->aZenithAVG     [fC] + glbParam->aZenith    [fC * glbParam->numEventsToAvg + t] ;
+      glbParam->temp_K_agl_AVG [fC] = glbParam->temp_K_agl_AVG [fC] + glbParam->temp_K_agl [fC * glbParam->numEventsToAvg + t] ;
+      glbParam->pres_Pa_agl_AVG[fC] = glbParam->pres_Pa_agl_AVG[fC] + glbParam->pres_Pa_agl[fC * glbParam->numEventsToAvg + t] ;
     }
-    glbParam->aAzimuthAVG[fC] =
-        glbParam->aAzimuthAVG[fC] / glbParam->numEventsToAvg;
-    glbParam->aZenithAVG[fC] =
-        glbParam->aZenithAVG[fC] / glbParam->numEventsToAvg;
-    glbParam->temp_K_agl_AVG[fC] =
-        glbParam->temp_K_agl_AVG[fC] / glbParam->numEventsToAvg;
-    glbParam->pres_Pa_agl_AVG[fC] =
-        glbParam->pres_Pa_agl_AVG[fC] / glbParam->numEventsToAvg;
+    glbParam->aAzimuthAVG    [fC] = glbParam->aAzimuthAVG    [fC] / glbParam->numEventsToAvg ;
+    glbParam->aZenithAVG     [fC] = glbParam->aZenithAVG     [fC] / glbParam->numEventsToAvg ;
+    glbParam->temp_K_agl_AVG [fC] = glbParam->temp_K_agl_AVG [fC] / glbParam->numEventsToAvg ;
+    glbParam->pres_Pa_agl_AVG[fC] = glbParam->pres_Pa_agl_AVG[fC] / glbParam->numEventsToAvg ;
     // printf("\n CLidar_Operations::Average_in_Time_Lidar_Profiles() -->
     // glbParam->aZenithAVG[%d]= %lf\n", fC, glbParam->aZenithAVG[fC] ) ;
   } // for ( int fC=0 ; fC <glbParam->nEventsAVG ; fC++ )
@@ -1135,24 +1120,24 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
       glbParam->chSel = (int)c;
       switch (glbParam->DAQ_Type[c]) 
       {
-      case 0:
-              printf("\n Channel: %02d - %04d nm - (Analog) - Correction Applied -------------------> ", c, glbParam->iLambda[c]);
-              break;
-      case 1:
-              printf("\n Channel: %02d - %04d nm - (Photon Counting) - Correction Applied ----------> ", c, glbParam->iLambda[c]);
-              break;
-      case 2:
-              printf("\n Channel: %02d - %04d nm - (Analog Squared) - Correction Applied -----------> ", c, glbParam->iLambda[c]);
-              break;
-      case 3:
-              printf("\n Channel: %02d - %04d nm - (Photon Counting Squared) - Correction Applied --> ", c, glbParam->iLambda[c]);
-              break;
-      case 4:
-              printf("\n Channel: %02d - %04d nm - (Power Meter) - Correction Applied --------------> ", c, glbParam->iLambda[c]);
-              break;
-      case 5:
-              printf("\n Channel: %02d - %04d nm - (Overflow) - Correction Applied -----------------> ", c, glbParam->iLambda[c]);
-              break;
+        case 0:
+                printf("\n Channel: %02d - %04d nm - (Analog) - Correction Applied -------------------> ", c, glbParam->iLambda[c]);
+                break;
+        case 1:
+                printf("\n Channel: %02d - %04d nm - (Photon Counting) - Correction Applied ----------> ", c, glbParam->iLambda[c]);
+                break;
+        case 2:
+                printf("\n Channel: %02d - %04d nm - (Analog Squared) - Correction Applied -----------> ", c, glbParam->iLambda[c]);
+                break;
+        case 3:
+                printf("\n Channel: %02d - %04d nm - (Photon Counting Squared) - Correction Applied --> ", c, glbParam->iLambda[c]);
+                break;
+        case 4:
+                printf("\n Channel: %02d - %04d nm - (Power Meter) - Correction Applied --------------> ", c, glbParam->iLambda[c]);
+                break;
+        case 5:
+                printf("\n Channel: %02d - %04d nm - (Overflow) - Correction Applied -----------------> ", c, glbParam->iLambda[c]);
+                break;
       }; // switch ( glbParam->DAQ_Type[c] )
 
       // DARK CURRENT CORRECTIONS
@@ -1171,12 +1156,10 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
       // PHOTON-CURRENT SIGNALS --> THE SIGNAL HAVE TO MOVE *BACKWARD*
       // glbParam->indxOffset[c] BINS
       printf("| Offset | ");
-      if (glbParam->indxOffset[c] >= 5) // PRE-TRIGGER BIAS CORRECTION
+      if (glbParam->indxOffset[c] >= 0) // PRE-TRIGGER BIAS CORRECTION
       {
-        if ((strcmp(glbParam->BkgCorrMethod, "PRE_TRIGGER") == 0) ||
-            (strcmp(glbParam->BkgCorrMethod, "pre_trigger") == 0) ||
-            (strcmp(glbParam->BkgCorrMethod, "AUTO") == 0) ||
-            (strcmp(glbParam->BkgCorrMethod, "auto") ==0))
+        if ((strcmp(glbParam->BkgCorrMethod, "PRE_TRIGGER") == 0) || (strcmp(glbParam->BkgCorrMethod, "pre_trigger") == 0) ||
+            (strcmp(glbParam->BkgCorrMethod, "AUTO"       ) == 0) || (strcmp(glbParam->BkgCorrMethod, "auto"       ) ==0))
         { // BEFORE SHIFTING THE OFFSET, THE BIAS IS CALCULATED FROM THE PRE-TRIGGER REGION
           bias_pre_trigger = 0.0;
           for (int i = 0; i <= glbParam->indxOffset[c]; i++)
@@ -1188,8 +1171,8 @@ void CLidar_Operations::Lidar_Signals_Corrections( strcGlobalParameters *glbPara
           pr_corr[e][c][b] = (double)pr_corr[e][c][b + glbParam->indxOffset[c]];
         for (int b = glbParam->nBins_Ch_eff[c]; b < glbParam->nBins_Ch[c]; b++)
           pr_corr[e][c][b] = (double)0.0;
-      }
-      else // glbParam->indxOffset[c] <=5 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE TO MOVE FORWARD glbParam->indxOffset[c]
+      } // if (glbParam->indxOffset[c] >= 0)
+      else  // glbParam->indxOffset[c] >=0 // PHOTON-COUNTING SIGNALS --> THE SIGNAL HAVE SHIFTED glbParam->indxOffset[c] BINS TO THE RIGHT
       {
         for (int b = (glbParam->nBins_Ch[c] - 1); b >= (-1 * glbParam->indxOffset[c]); b--)
           pr_corr[e][c][b] = (double)pr_corr[e][c][b + glbParam->indxOffset[c]]; // pr_corr[e][c][b] = (double)evSig.pr_no_DarkCur[b + glbParam->indxOffset[c]] ;

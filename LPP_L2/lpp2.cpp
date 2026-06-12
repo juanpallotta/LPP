@@ -192,7 +192,7 @@ int main( int argc, char *argv[] )
         else if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_path, "NOT_FOUND") !=0) )
             oDL2->Download_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
     }
-	else
+    else
     {
         printf("\nLoading AERONET data file: %s...", oDL2->aeronet_file ) ;
 
@@ -208,45 +208,17 @@ int main( int argc, char *argv[] )
 
 // INVERSION THROUGH ALL THE AVERAGED LIDAR PROFILES
 
+for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
+{
+        glbParam.evSel = t ;
+
     // for ( int i =0 ; i < nCh_to_invert; i++)
     // {
         glbParam.chSel = glbParam.indxWL_PDL2 ;
         // PUT ALL THE FOLLOWING CODE HERE
     // }
 
-    for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
-    {
-        glbParam.evSel = t ;
-
         oMolData->Fill_dataMol_L2( (strcGlobalParameters*)&glbParam ) ;
-
-        // if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 )
-        // {
-        //     if ( t == 0 )
-        //         printf("\n\n L2 --> Getting cloud profile again because numEventsToAvg_PDL1 != glbParam.numEventsToAvg ...") ;
-
-        //     oDL2->oLOp->compute_pbl_mask.assign("YES") ;
-        //     oDL2->oLOp->compute_layer_mask.assign("YES") ;
-        //     oDL2->oLOp->Layer_Mask( (double*)&oDL2->pr[t][0], (strcMolecularData*)&oMolData->dataMol, (strcGlobalParameters*)&glbParam ) ;
-        // }
-        // else
-        // {
-        //     printf("\nGetting the PBL\n") ;
- 
-        //     double *pr2_i = (double*) new double[glbParam.nBins] ; memset( pr2_i, 0, glbParam.nBins*sizeof(double) ) ;
-        //     for (int j = 0; j < glbParam.nBins_Ch[glbParam.chSel]; j++)
-        //       pr2_i[j] = (double)oDL2->pr[glbParam.evSel][j] * glbParam.r[j] * glbParam.r[j];
-
-        //     strcFitParam fitParam ;
-        //     fitParam.indxInitFit = (int)round((glbParam.indxEndSig_ev_ch[glbParam.evSel][glbParam.chSel] + glbParam.nBins_Ch[glbParam.chSel]) /2);
-        //     fitParam.indxEndFit  = glbParam.nBins_Ch[glbParam.chSel] - 1  ;
-        //     fitParam.nFit        = fitParam.indxEndFit - fitParam.indxInitFit + 1 ;
-        //     double  rayFit_gap = 0.0 ;
-        //     int     indxMax = 0 ;
-        //     findIndxMax( (double*)& oDL2->pr[glbParam.evSel][0], (int)fitParam.indxInitFit, (int)fitParam.indxEndFit, (int*)&indxMax, (double*)&rayFit_gap ) ;
-
-        //     oDL2->oLOp->Get_PBL_Mask( (double*)pr2_i, (strcGlobalParameters*)&glbParam, (strcMolecularData*)&oMolData->dataMol, (double)rayFit_gap ) ;
-        // }
 
         printf("\n") ;
         oDL2->dzr = oMolData->dataMol.dzr ;

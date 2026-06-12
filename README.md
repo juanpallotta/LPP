@@ -152,10 +152,19 @@ After this, all the scripts will be able to be executed.
 ## Installing dependencies
 
 There are a few prerequisites to be installed prior to building LPP. This job can be done by running the Linux shell script:
+
 ```bash
 ./install_Lidar_Dependencies.sh 
 ```
-It is a simple Linux shell script to install the basic packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials.
+
+<u>**Important Note:**</u> This is a simple Linux shell script to install the basic packages (make, g++, and NetCDF libraries). You will be asked for administrator credentials. It is intended to be as general as possible, taking into account different Linux flavours (Ubuntu/Debian, Fedora, Arch). 
+
+All the Python dependencies are installed inside `lidar_env`, a local Python virtual environment created in the root directory of this repository. 
+
+The compiled C++ pipeline automatically finds and uses this virtual environment. However, if you want to run any of the Python scripts manually (such as `plot_LPP.py`), you must first activate the environment by running:
+```bash
+source <PATH_TO_LIDAR_ENV_FOLDER>/bin/activate
+```
 
 ## Building the code
 
