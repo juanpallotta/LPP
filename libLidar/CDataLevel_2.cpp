@@ -149,7 +149,6 @@ void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecul
 	}
 	else
 	{
-		// Find_Ref_Range( (strcGlobalParameters*)glbParam ) ;
 		oLOp->Find_Ref_Range( (double*)&pr2[glbParam->evSel][glbParam->chSel][0], (strcGlobalParameters*)glbParam, (strcMolecularData*)dataMol, (int*)&indxRef_Fernald_Start[glbParam->evSel], (int*)&indxRef_Fernald_Stop[glbParam->evSel] ) ;
 		heightRef_Inversion_Start_ASL = (double) ( glbParam->siteASL + glbParam->dzr * indxRef_Fernald_Start[glbParam->evSel] ) ;
 		heightRef_Inversion_Stop_ASL  = (double) ( glbParam->siteASL + glbParam->dzr * indxRef_Fernald_Stop [glbParam->evSel] ) ;

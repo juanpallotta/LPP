@@ -566,7 +566,10 @@ void CLidar_Operations::Find_Ref_Range( double *pr2_i, strcGlobalParameters *glb
   if ( nWinSize == 0 )
     nWinSize = (int) round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - glbParam->indxInitSig) /3 ) ;
   if ( nWinSize == 0 )
+  {
     nWinSize = (int) 100 ;
+    printf("\n\033[31mFind_Ref_Range --> WARNING: Window size forced to %d. Problems could happen during the procedure... \nCheck in the NetCDF file the health of the lidar signals (analog and photon-counting channels)\033[0m\n\n", nWinSize) ;
+  }
 
   int   nSteps   = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - nWinSize +1 ;
   strcFitParam	fitParam  ; 
