@@ -7,7 +7,7 @@ echo "Updating package lists and installing system dependencies..."
 # 1. Detect the package manager and install system dependencies
 if command -v apt-get >/dev/null 2>&1; then
     sudo apt-get update
-    sudo apt-get install -y libnetcdf-dev libnetcdff-dev libnetcdf-c++4 libnetcdf-c++4-dev make g++ python3 python3-pip python3-venv
+    sudo apt-get install -y libnetcdf-dev libnetcdff-dev libnetcdf-c++4-dev make g++ python3 python3-pip python3-venv
 elif command -v dnf >/dev/null 2>&1; then
     sudo dnf install -y netcdf-devel netcdf-cxx4-devel make gcc-c++ python3 python3-pip
 elif command -v pacman >/dev/null 2>&1; then
@@ -37,4 +37,3 @@ pip install --upgrade pip
 
 # Install all python packages in one go
 pip install wget netCDF4 matplotlib scipy numpy pandas sounderpy cdsapi
-
