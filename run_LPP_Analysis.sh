@@ -196,8 +196,8 @@ then
     #   PLOTTING
     echo -e "\n\nGenerating plots for"
     PATH_FILE_TO_LPP_PLOT=${PATH_TO_LPP_PLOT%.*}"plot_LPP.py"
-    echo -e "\n\npython3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0"
-    python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0
+    echo -e "\n\n${PATH_TO_LPP}lidar_env/bin/python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0"
+    ${PATH_TO_LPP}lidar_env/bin/python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0
 
 echo ""
 echo ------------------------------------------------------------ next file...
