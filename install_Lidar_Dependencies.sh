@@ -38,9 +38,3 @@ pip install --upgrade pip
 # Install all python packages in one go
 pip install wget netCDF4 matplotlib scipy numpy pandas sounderpy cdsapi
 
-# echo "============================================================"
-# echo "Installation Complete!"
-# echo "To run your Python scripts, remember to activate the virtual environment first using:"
-# echo "source $ENV_DIR/bin/activate"
-# echo "============================================================"
-
