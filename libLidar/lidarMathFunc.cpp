@@ -39,7 +39,7 @@ double sum_int( int *y, int binInic, int binEnd, int *sumOut )
 
 double mean( double *y, int binInic, int binEnd, double *meanOut )
 {
-    if ( binInic < binEnd )
+    if ( binInic <= binEnd )
     {
         double sumOut ;
         sum( (double*)y, (int)binInic, (int)binEnd, (double*)&sumOut ) ;

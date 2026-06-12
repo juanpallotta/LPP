@@ -565,11 +565,12 @@ void CLidar_Operations::Find_Ref_Range( double *pr2_i, strcGlobalParameters *glb
   }
   if ( nWinSize == 0 )
     nWinSize = (int) round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - glbParam->indxInitSig) /3 ) ;
+  if ( nWinSize == 0 )
+    nWinSize = (int) 100 ;
 
   int   nSteps   = glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - nWinSize +1 ;
   strcFitParam	fitParam  ; 
   double		*stdPr2	    		= (double*) new double  [nSteps] 	        ; for (int i = 0; i < nSteps; i++)  stdPr2[i] = DBL_MAX;
-  // double 		*prFit          = (double*) new double  [glbParam->nBins]	; memset( (double*)prFit, 0, sizeof(double)*glbParam->nBins ) ;
   memset( (double*)pr_misc, 0, sizeof(double)*glbParam->nBins) ;
 
   // FIND THE LOWEST MOLECULAR RANGES USING A WINDOWS OF nWinSize
@@ -1419,23 +1420,20 @@ void CLidar_Operations::RayleighFit(double *sig, double *sigMol, int nBins, strc
 
   fitParam->squared_sum_fit = (double)0.0;
   for (int i = fitParam->indxInitFit; i <= fitParam->indxEndFit; i++)
-    fitParam->squared_sum_fit =
-        fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
+    fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
 
   fitParam->var = (double)fitParam->squared_sum_fit / (fitParam->nFit - 1);
   fitParam->std = (double)sqrt(fitParam->var);
 
   fitParam->mean_sig = (double)0.0;
   fitParam->s = (double)0.0;
-  sum((double *)sig, (int)fitParam->indxInitFit, (int)fitParam->indxEndFit,
-      (double *)&fitParam->s);
-  if (fitParam->s != 0) {
+  sum((double *)sig, (int)fitParam->indxInitFit, (int)fitParam->indxEndFit, (double *)&fitParam->s);
+  if (fitParam->s != 0) 
+  {
     fitParam->mean_sig = (double)fitParam->s / fitParam->nFit;
     fitParam->squared_sum_sig_vs_Mean = (double)0.0;
     for (int b = fitParam->indxInitFit; b <= fitParam->indxEndFit; b++)
-      fitParam->squared_sum_sig_vs_Mean =
-          fitParam->squared_sum_sig_vs_Mean +
-          pow((sig[b] - fitParam->mean_sig), 2); // TSS
+      fitParam->squared_sum_sig_vs_Mean = fitParam->squared_sum_sig_vs_Mean + pow((sig[b] - fitParam->mean_sig), 2); // TSS
 
     // R2: COEFFICIENT OF DETERMINATION = 1 - RSS/TSS
     // RSS = Residuals Squared Sum  = ( sig - sigFit   )^2 --> SQUARED SUM OF
@@ -1444,26 +1442,24 @@ void CLidar_Operations::RayleighFit(double *sig, double *sigMol, int nBins, strc
     // -2 -1 R2_adj = 1 - ( RSS / (nFit -2) ) / ( TSS / (nFit -1) )
     double dfTSS = (double)fitParam->nFit - 1;
     double dfRSS = (double)fitParam->nFit - 2 - 1;
-    fitParam->R2 = (double)(fitParam->squared_sum_sig_vs_Mean -
-                            fitParam->squared_sum_fit) /
-                   fitParam->squared_sum_sig_vs_Mean;
-    fitParam->R2_adj =
-        (double)1 - ((fitParam->squared_sum_fit / dfRSS) / (fitParam->squared_sum_sig_vs_Mean / dfTSS));
-    fitParam->F = (double)(fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_fit;
+    fitParam->R2 = (double)(fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_sig_vs_Mean  ;
+    fitParam->R2_adj = (double)1 - ((fitParam->squared_sum_fit / dfRSS) / (fitParam->squared_sum_sig_vs_Mean / dfTSS))          ;
+    fitParam->F = (double)(fitParam->squared_sum_sig_vs_Mean - fitParam->squared_sum_fit) / fitParam->squared_sum_fit           ;
   }
   else
   {
-    fitParam->R2 = (double)0.0;
-    fitParam->F = (double)0.0;
+    fitParam->R2     = (double)0.0;
+    fitParam->F      = (double)0.0;
+    fitParam->R2_adj = (double)0.0;
   }
 }
 
-void CLidar_Operations::Fit(double *sig, double *sigMol, int nBins,
-                            const char *modeBkg, const char *modeRangesFit,
-                            strcFitParam *fitParam, double *sigFit) {
+void CLidar_Operations::Fit(double *sig, double *sigMol, int nBins, const char *modeBkg, const char *modeRangesFit, strcFitParam *fitParam, double *sigFit)
+{
   fitParam->squared_sum_fit = (double)0.0; // RSS
 
-  if (strcmp(modeBkg, "wB") == 0) {
+  if (strcmp(modeBkg, "wB") == 0) 
+  {
     double *coeff = (double *)new double[2];
     polyfitCoeff((const double *const)&sigMol[fitParam->indxInitFit], // X DATA
                  (const double *const)&sig[fitParam->indxInitFit],    // Y DATA
@@ -1473,44 +1469,54 @@ void CLidar_Operations::Fit(double *sig, double *sigMol, int nBins,
     fitParam->b = (double)coeff[0];
     delete[] coeff;
 
-    if (strcmp(modeRangesFit, "all") == 0) {
-      for (int i = 0; i < nBins; i++) {
+    if (strcmp(modeRangesFit, "all") == 0) 
+    {
+      for (int i = 0; i < nBins; i++) 
+      {
         sigFit[i] = (double)(sigMol[i] * fitParam->m + fitParam->b);
-        fitParam->squared_sum_fit =
-            fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
+        fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
       }
-    } else { // "NOTall"
-      for (int i = fitParam->indxInitFit; i <= fitParam->indxEndFit; i++) {
+    } 
+    else
+    {
+      for (int i = fitParam->indxInitFit; i <= fitParam->indxEndFit; i++) 
+      {
         sigFit[i] = (double)(sigMol[i] * fitParam->m + fitParam->b);
-        fitParam->squared_sum_fit =
-            fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
+        fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
       }
     }
-  } else if (strcmp(modeBkg, "wOutB") == 0) {
+  } 
+  else if (strcmp(modeBkg, "wOutB") == 0) 
+  {
     double mNum = 0, mDen = 0;
-    for (int i = fitParam->indxInitFit; i <= fitParam->indxEndFit; i++) {
+    for (int i = fitParam->indxInitFit; i <= fitParam->indxEndFit; i++) 
+    {
       mNum = mNum + sig[i] * sigMol[i];
       mDen = mDen + sigMol[i] * sigMol[i];
     }
     fitParam->m = mNum / mDen;
     fitParam->b = 0;
 
-    if (strcmp(modeRangesFit, "all") == 0) {
-      for (int i = 0; i < nBins; i++) {
+    if (strcmp(modeRangesFit, "all") == 0) 
+    {
+      for (int i = 0; i < nBins; i++) 
+      {
         sigFit[i] = (double)(sigMol[i] * fitParam->m);
-        fitParam->squared_sum_fit =
-            fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
+        fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
       }
-    } else {
-      for (int i = fitParam->indxInitFit; i <= fitParam->indxEndFit; i++) {
+    } 
+    else
+    {
+      for (int i = fitParam->indxInitFit; i <= fitParam->indxEndFit; i++) 
+      {
         sigFit[i] = (double)(sigMol[i] * fitParam->m);
-        fitParam->squared_sum_fit =
-            fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
+        fitParam->squared_sum_fit = fitParam->squared_sum_fit + pow((sigFit[i] - sig[i]), 2); // RSS
       }
     }
   }
 
-  if (fpclassify(fitParam->squared_sum_fit) == FP_NAN) {
+  if (fpclassify(fitParam->squared_sum_fit) == FP_NAN) 
+  {
     fitParam->var = (double)DBL_MAX;
     fitParam->std = (double)DBL_MAX;
     printf("\n\tFit(): a NAN value was obtained during the fit... "
@@ -1523,7 +1529,9 @@ void CLidar_Operations::Fit(double *sig, double *sigMol, int nBins,
         break;
       }
     }
-  } else {
+  } 
+  else 
+  {
     fitParam->var = (double)fitParam->squared_sum_fit / (fitParam->nFit - 1);
     fitParam->std = (double)sqrt(fitParam->var);
   }
@@ -1532,16 +1540,16 @@ void CLidar_Operations::Fit(double *sig, double *sigMol, int nBins,
   fitParam->s = (double)0.0;
   // printf("\n\tFit(): fitParam->indxInitFit = %d \t fitParam->indxEndFit= %d
   // \n", fitParam->indxInitFit , fitParam->indxEndFit ) ;
-  sum((double *)sig, (int)fitParam->indxInitFit, (int)fitParam->indxEndFit,
-      (double *)&fitParam->s);
+  sum((double *)sig, (int)fitParam->indxInitFit, (int)fitParam->indxEndFit, (double *)&fitParam->s);
 
-  if (fitParam->s != 0) {
+  if (fitParam->s != 0) 
+  {
     fitParam->mean_sig = (double)fitParam->s / fitParam->nFit;
     fitParam->squared_sum_sig_vs_Mean = (double)0.0;
     for (int b = fitParam->indxInitFit; b <= fitParam->indxEndFit; b++)
-      fitParam->squared_sum_sig_vs_Mean =
-          fitParam->squared_sum_sig_vs_Mean +
-          pow((sig[b] - fitParam->mean_sig), 2); // TSS
+    {
+      fitParam->squared_sum_sig_vs_Mean = fitParam->squared_sum_sig_vs_Mean + pow((sig[b] - fitParam->mean_sig), 2); // TSS
+    } 
 
     // R2: COEFFICIENT OF DETERMINATION = 1 - RSS/TSS
     // RSS = Residuals Squared Sum  = ( sig - sigFit   )^2 --> SQUARED SUM OF
