@@ -675,7 +675,7 @@ In the next figure, a glimpse of the `L1_Data` are shown using Panoply software.
 Following, a brief description of the variables (in alphabetical order), is done. The dimensions of each one are shown between parentheses.
 
 * `Azimuth (time)`: Array with azimuth angle of each saved profile (in degrees).
-* `Cloud_Mask (time, range)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
+* `Layer_Mask (time, range)`: Matrix with the cloud mask of the measurement. Each point is flagged as cloud free ('0' value) or cloud contaminated ('1' value).
 * `Laser_Zero_Bin_Offset (channels)`: Number of points removed from each channel due to the laser offset.
 * `MaxRangeAnalysis (time, channels)`: Maximum range of analysis for each averaged profile and each channels. LPP applies an algorithm to detect the last range where the lidar signal is modulated by the atmosphere. These values are used in later algorithms, like layer-mask and automatic bias correction.
 * `Pressure_Pa (range)`: Pressure profile (in Pascals) from the radiosonde/model used for the molecular's extinction and backscattering molecular profiles calculation. This array is referenced to the seal level altitude, and it is alredy in the same lidar resolution.
