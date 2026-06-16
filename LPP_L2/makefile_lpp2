@@ -6,7 +6,7 @@ lpp2: $(OBJS)
 	g++ -Wall -o lpp2 $(OBJS) $(NETCDF_LIB)
 
 lpp2.o: lpp2.cpp
-	g++ -Wall -c lpp2.cpp
+	g++ -Wall -I../libLidar -c lpp2.cpp
 
 libLidar.o: ../libLidar/libLidar.cpp
 	g++ -Wall -c ../libLidar/libLidar.cpp

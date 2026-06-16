@@ -7,14 +7,11 @@
 #ifndef _POLIFITGSL_H
 #define _POLIFITGSL_H
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <cmath>
 #include <limits.h>
 #include <cfloat>
-#include <string.h>
-#include <vector>
 
 #include <stdbool.h>
 
@@ -37,6 +34,8 @@ void    findIndxMax		( double*, int, int, int*, double* 			    ) ;
 void    findIndxMax_void( void*, const char *, int, int, int*, void*    ) ;
 void    findIndxMin_void( void*, const char *, int, int, int*, void*    ) ;
 int     polyfitCoeff   	(const double* const, const double* const, unsigned int, unsigned int, double*);
+
+void    allocate_memory_matrix(void* matrix_ptr, int num_dims, const int* sizes, const char* type);
 
 float   correlationCoefficient_int( int*, int*, int ) ;
 double  correlationCoefficient_dbl( double*, double*, int ) ;

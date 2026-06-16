@@ -1,5 +1,7 @@
 
 #include "lidarMathFunc.hpp"
+#include <cstdio>
+#include <cstring>
 
 double sum( double *y, int binInic, int binEnd, double *sumOut )
 {
@@ -753,3 +755,68 @@ double correlationCoefficient_dbl( double X[], double Y[], int n)
   
     return corr;
 }
+
+static void* allocate_nd_matrix_helper(int current_dim, int num_dims, const int* sizes, const char* type)
+{
+    if (sizes[current_dim] <= 0)
+    {
+        printf("Error: Dimension size must be greater than 0.\n");
+        return NULL;
+    }
+
+    if (current_dim == num_dims - 1) // IS LAST DIMENSION -> ALLOCATE MEMORY
+    {
+        int size = sizes[current_dim];
+        if (strcmp(type, "int") == 0)
+            return calloc(size, sizeof(int));
+        else if (strcmp(type, "double") == 0)
+            return calloc(size, sizeof(double));
+        else if (strcmp(type, "float") == 0)
+            return calloc(size, sizeof(float));
+        else if (strcmp(type, "bool") == 0)
+            return calloc(size, sizeof(bool));
+        else
+        {
+            printf("Error: Unsupported type '%s' in allocate_memory_matrix.\n", type);
+            return NULL;
+        }
+    }
+    else
+    {
+        int size = sizes[current_dim];
+        void** ptrs = (void**)malloc(size * sizeof(void*));
+        if (ptrs == NULL)
+        {
+            printf("Error: Memory allocation failed in allocate_memory_matrix.\n");
+            return NULL;
+        }
+        for (int i = 0; i < size; i++)
+        {
+            ptrs[i] = allocate_nd_matrix_helper(current_dim + 1, num_dims, sizes, type);
+        }
+        return ptrs;
+    }
+}
+
+void allocate_memory_matrix(void* matrix_ptr, int num_dims, const int* sizes, const char* type)
+{
+    if (matrix_ptr == NULL)
+    {
+        printf("Error: matrix_ptr is NULL in allocate_memory_matrix.\n");
+        return;
+    }
+    if (num_dims <= 0)
+    {
+        printf("Error: num_dims must be greater than 0 in allocate_memory_matrix.\n");
+        return;
+    }
+    if (sizes == NULL)
+    {
+        printf("Error: sizes array is NULL in allocate_memory_matrix.\n");
+        return;
+    }
+
+    void** dest = (void**)matrix_ptr;
+    *dest = allocate_nd_matrix_helper(0, num_dims, sizes, type);
+}
+

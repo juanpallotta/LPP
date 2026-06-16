@@ -1,51 +1,61 @@
 
 // #include <unistd.h> // Sleep function (ONLY FOR LINUX/UNIX systems) a Leonel se lo pedia
+#include "libLidar.hpp"
 #include "CDataLevel_2.hpp"
 #include "lidarMathFunc.hpp"  
 
 CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 {
-	LRM		   = 8*M_PI/3 ;
-	pr2        = (double***) new double**[glbParam->nEventsAVG] ;
-    alpha_Aer  = (double***) new double**[glbParam->nEventsAVG] ;
-    beta_Aer   = (double***) new double**[glbParam->nEventsAVG] ;
-    alpha_Aer_synergy  = (double**) new double*[glbParam->nEventsAVG] ;
-    beta_Aer_synergy   = (double**) new double*[glbParam->nEventsAVG] ;
-    AOD_LR	   = (double**)  new double *[glbParam->nEventsAVG] ;
-    Ki_Fernald = (double**)  new double *[glbParam->nEventsAVG] ;
-    pr		   = (double**)  new double *[glbParam->nEventsAVG] ;
+	LRM	 = 8*M_PI/3 ;
+	LR   = (double*) new double [100]	;
+	int sizes_t_c_b[] = {glbParam->nEventsAVG, glbParam->nCh, glbParam->nBins} ;
+	allocate_memory_matrix( (void*)&pr2, (int)3, (const int*)sizes_t_c_b, (const char*)"double") ;
+	nLRs = ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "LR", "double", (double*)LR ) ;
+	ReadAnalysisParameter( (const char*)glbParam->FILE_SOFT_CODED_VALUES, "LR_loop_Max", "int", (int*)&LR_loop_Max ) ;
+	if ( nLRs ==-2000 )
+	{
+		double LR_min = 20  ;
+		double LR_max = 150 ;
+		int    dLR = 2 ;
+		nLRs = (int) ( (LR_max - LR_min) / dLR ) +1 ;
+		for (int i =0; i <nLRs; i++) 
+			LR[i] = LR_min + i*dLR ;
+	}
+	int sizes_t_l_b[] = {glbParam->nEventsAVG, nLRs, glbParam->nBins} ;
+	allocate_memory_matrix( (void*)&alpha_Aer,  (int)3, (const int*)sizes_t_l_b, (const char*)"double") ;
+	allocate_memory_matrix( (void*)&beta_Aer,   (int)3, (const int*)sizes_t_l_b, (const char*)"double") ;
+
+	int sizes_t_b[] = { glbParam->nEventsAVG, glbParam->nBins } ;
+	allocate_memory_matrix( (void*)&alpha_Aer_synergy, (int)2, (const int*)sizes_t_b, (const char*)"double" ) ;
+	allocate_memory_matrix( (void*)&beta_Aer_synergy , (int)2, (const int*)sizes_t_b, (const char*)"double" ) ;
+
+	int sizes_t_l[] = { glbParam->nEventsAVG, nLRs } ;
+	allocate_memory_matrix( (void*)&AOD_LR	  , (int)2, (const int*)sizes_t_l, (const char*)"double" ) ;
+	allocate_memory_matrix( (void*)&Ki_Fernald, (int)2, (const int*)sizes_t_l, (const char*)"double" ) ;
+	allocate_memory_matrix( (void*)&Ki_Fernald, (int)2, (const int*)sizes_t_l, (const char*)"double" ) ;
+	allocate_memory_matrix( (void*)&pr, (int)2, (const int*)sizes_t_b, (const char*)"double" ) ;
+
     dummy      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)dummy  , 0, sizeof(double)*glbParam->nBins 	 ) ;
     pr2_s      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)pr2_s  , 0, sizeof(double)*glbParam->nBins 	 ) ;
 	LR_inv	   = (double*)   new double  [glbParam->nEventsAVG] ;	
-	LR		   = (double*)   new double  [100] 					;	
 	AOD_inv	   = (double*)   new double  [glbParam->nEventsAVG] ;	
 	for (int i=0; i<glbParam->nEventsAVG; i++)
 	{
 		LR_inv[i]  = -1 ;
 		AOD_inv[i] = -1 ;
 	}
-
 // FERNALD INVERSION VECTORS
-	pr2n 			= (double*) new double[glbParam->nBins ] ;
-	phi  			= (double*) new double[glbParam->nBins ] ;
-	p 	  			= (double*) new double[glbParam->nBins ] ;
-	ip	   			= (double*) new double[glbParam->nBins ] ;
-	ipN   			= (double*) new double[glbParam->nBins ] ;
-	betaT  			= (double*) new double[glbParam->nBins ] ;
-	betaMol_Fit		= (double*) new double[glbParam->nBins ] ;
+	pr2n 			  = (double*) new double[glbParam->nBins] ;
+	phi  			  = (double*) new double[glbParam->nBins] ;
+	p 	  			  = (double*) new double[glbParam->nBins] ;
+	ip	   			  = (double*) new double[glbParam->nBins] ;
+	ipN   			  = (double*) new double[glbParam->nBins] ;
+	betaT  			  = (double*) new double[glbParam->nBins] ;
+	betaMol_Fit		  = (double*) new double[glbParam->nBins] ;
 	intAlphaMol_Ref_r = (double*) new double[glbParam->nBins] ;
 
-	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
-	{
-		pr2[e] 		 = (double**) new double*[glbParam->nCh] ;
-		for ( int c=0 ; c <glbParam->nCh ; c++ )
-		{
-			pr2[e][c] 		= (double*) new double[glbParam->nBins] ;
-			memset( pr2[e][c], 0, glbParam->nBins*sizeof(double) ) ;
-		}
-	}
-
 	data_File_L2 = (double***) new double**[glbParam->nEventsAVG] ;
+	
 	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
 	{
 		data_File_L2[e] = (double**) new double*[glbParam->nCh] ;
@@ -59,58 +69,15 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	Start_Time_AVG_L2 = (int*) new int [glbParam->nEventsAVG] ;   memset( (int*)Start_Time_AVG_L2, 0, (sizeof(int)*glbParam->nEventsAVG) ) ;
 	Stop_Time_AVG_L2  = (int*) new int [glbParam->nEventsAVG] ;   memset( (int*)Stop_Time_AVG_L2 , 0, (sizeof(int)*glbParam->nEventsAVG) ) ;
 
-	nLRs = ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "LR", "double", (double*)LR ) ;
-	ReadAnalysisParameter( (const char*)glbParam->FILE_SOFT_CODED_VALUES, "LR_loop_Max", "int", (int*)&LR_loop_Max ) ;
-	if ( nLRs ==-2000 )
-	{
-		double LR_min = 20  ;
-		double LR_max = 150 ;
-		int    dLR = 2 ;
-		nLRs = (int) ( (LR_max - LR_min) / dLR ) +1 ;
-		for (int i =0; i <nLRs; i++) 
-			LR[i] = LR_min + i*dLR ;
-	}
-
-	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
-	{
-		pr		  [e] = (double*) new double[glbParam->nBins] ;
-		alpha_Aer [e] = (double**) new double*[nLRs] ;
-		beta_Aer  [e] = (double**) new double*[nLRs] ;
-		AOD_LR    [e] = (double*)  new double [nLRs] ;
-		Ki_Fernald[e] = (double*)  new double [nLRs] ;
-		alpha_Aer_synergy[e] = (double*) new double[glbParam->nBins] ;
-		beta_Aer_synergy [e] = (double*) new double[glbParam->nBins] ;
-		for (int i =0; i <glbParam->nBins; i++)
-		{
-			alpha_Aer_synergy[e][i] = (double) 0.0 ;
-			beta_Aer_synergy [e][i] = (double) 0.0 ;
-		}
-		for ( int l=0 ; l <nLRs ; l++ )
-		{
-			alpha_Aer[e][l] = (double*) new double[glbParam->nBins] ;
-			beta_Aer [e][l] = (double*) new double[glbParam->nBins] ;
-
-			for(int b =0 ; b <glbParam->nBins ; b++)
-			{
-				alpha_Aer[e][l][b] = (double)0 ;
-				beta_Aer [e][l][b] = (double)0 ;
-			}
-		}
-	}
 	indxRef_Fernald 	  = (int*) new int [ glbParam->nEventsAVG ] ;
 	indxRef_Fernald_Start = (int*) new int [ glbParam->nEventsAVG ] ;
 	indxRef_Fernald_Stop  = (int*) new int [ glbParam->nEventsAVG ] ;
-
 	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "R_ref", "double" , (double*)&R_ref ) ;
 	ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "avg_Points_Fernald", "int", (int*)glbParam->avg_Points_Fernald ) ;
 
 	// 	AERONET VARIABLES
 	aeronet_file = (char*) new char [ 400 ] ;
 	ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_FILE", (const char*)"string", (char*)aeronet_file, 400 ) ;
-	// if ( strcmp(aeronet_file, "NOT_FOUND") ==0 )
-	// 	printf("\nNo AERONET data set in the configuration file. ") ;
-	// else
-	// 	printf("\nAERONET data file to use: %s\n", aeronet_file) ;
 	aeronet_path = (char*) new char [ 300 ] ;
 	ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"AERONET_PATH", (const char*)"string", (char*)aeronet_path, 300 ) ;
 
@@ -127,7 +94,7 @@ CDataLevel_2::~CDataLevel_2()
 
 }
 
-// USED IN REGULAR FERNALD INVERSION (NOT IN MONTE CARLO)
+// USED IN REGULAR FERNALD INVERSION
 void CDataLevel_2::FernaldInversion( strcGlobalParameters *glbParam, strcMolecularData *dataMol)
 {
 	LRM = (double) dataMol->LR_mol ;

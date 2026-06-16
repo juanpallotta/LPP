@@ -4,9 +4,9 @@
 #ifndef CDATALEVEL_1_H
 #define CDATALEVEL_1_H
 
-#include "libLidar.hpp" // LIDAR DATA TYPE DEFINITIONS
+#include "lidarDataTypes.hpp" // LIDAR DATA TYPE DEFINITIONS
 #include "CLidar_Operations.hpp"
-// #include "CMolecularData.hpp"
+
 class CMolecularData ;
 
 class CDataLevel_1  
@@ -20,7 +20,7 @@ class CDataLevel_1
 
 		CLidar_Operations 	*oLOp 					;
 		double 				**pr_for_cloud_mask		;
-		string		  		strCompCM, strCompPBL  	;
+		std::string		  	strCompCM, strCompPBL  	;
 
 	private:
 		char 			ifODcut[5] ;

@@ -132,9 +132,9 @@ def parse_wavelength_from_string(text):
     return None
 
 
-def plot_cloud_mask(dataset, output_dir=None):
+def plot_layer_mask(dataset, output_dir=None):
     """
-    Plot the Cloud_Mask variable from the L1_Data group (Data level 1 plots).
+    Plot the Layer_Mask variable from the L1_Data group (Data level 1 plots).
     
     Args:
         dataset: NetCDF4 Dataset object
@@ -147,9 +147,9 @@ def plot_cloud_mask(dataset, output_dir=None):
     
     l1_group = dataset.groups['L1_Data']
     
-    # Check if Cloud_Mask variable exists
-    if not check_variable_exists(l1_group, 'Cloud_Mask'):
-        print("Warning: Variable 'Cloud_Mask' does not exist in group 'L1_Data'.")
+    # Check if Layer_Mask variable exists
+    if not check_variable_exists(l1_group, 'Layer_Mask'):
+        print("Warning: Variable 'Layer_Mask' does not exist in group 'L1_Data'.")
         return
     
     # Check if Start_Time_AVG_L1 variable exists
@@ -163,7 +163,7 @@ def plot_cloud_mask(dataset, output_dir=None):
         return
     
     # Read the data
-    cloud_mask = l1_group.variables['Cloud_Mask'][:]
+    layer_mask = l1_group.variables['Layer_Mask'][:]
     unix_time = l1_group.variables['Start_Time_AVG_L1'][:]
     range_data = l1_group.variables['range'][:]
     
@@ -173,10 +173,10 @@ def plot_cloud_mask(dataset, output_dir=None):
     # Create the plot
     fig, ax = plt.subplots(figsize=(12, 6))
     
-    # Plot Cloud_Mask as 2D image
-    # Use a colormap that highlights clouds (1) vs clear sky (0)
-    # 'Blues' colormap: white for clear sky (0), blue for clouds (1)
-    im = ax.pcolormesh(time_datetime, range_data, cloud_mask.T, 
+    # Plot Layer_Mask as 2D image
+    # Use a colormap that highlights clouds/aerosols (1) vs clear sky (0)
+    # 'Blues' colormap: white for clear sky (0), blue for layers (1)
+    im = ax.pcolormesh(time_datetime, range_data, layer_mask.T, 
                        cmap='Blues', vmin=0, vmax=1, shading='auto')
     
     # Format x-axis to show dates nicely
@@ -187,7 +187,7 @@ def plot_cloud_mask(dataset, output_dir=None):
     # Labels and title
     ax.set_xlabel('Time (UTC)', fontsize=12, fontweight='bold')
     ax.set_ylabel('Range (m)', fontsize=12, fontweight='bold')
-    ax.set_title('Layer Mask', fontsize=14, fontweight='bold')
+    ax.set_title('Layer Mask (L1)', fontsize=14, fontweight='bold')
 
     # Limit range to 20000 meters
     ax.set_ylim(0, 20000)
@@ -195,7 +195,7 @@ def plot_cloud_mask(dataset, output_dir=None):
     # Add colorbar
     cbar = plt.colorbar(im, ax=ax, label='Layer Mask')
     cbar.set_ticks([0, 1])
-    cbar.set_ticklabels(['Clear Sky', 'Cloud'])
+    cbar.set_ticklabels(['Clear Sky', 'Layer'])
     
     # Grid for better readability
     ax.grid(True, alpha=0.3, linestyle='--')
@@ -241,11 +241,16 @@ def plot_range_corrected_lidar_signal_l1_colormap(dataset, output_dir=None):
         print("Warning: Variable 'range' does not exist in group 'L1_Data'.")
         return
 
-    try:
-        channel_index = int(getattr(l1_group, 'indxChannel_for_Cloud_Mask'))
-    except AttributeError:
-        print("Warning: Attribute 'indxChannel_for_Cloud_Mask' not found in L1_Data. Using 0.")
-        channel_index = 0
+    channel_index = 0
+    for attr in ['indxChannel_for_Layer_Mask', 'indxChannel_for_Cloud_Mask']:
+        if hasattr(l1_group, attr):
+            try:
+                channel_index = int(getattr(l1_group, attr))
+                break
+            except (ValueError, TypeError):
+                pass
+    else:
+        print("Warning: Neither 'indxChannel_for_Layer_Mask' nor 'indxChannel_for_Cloud_Mask' found in L1_Data. Using 0.")
 
     data = l1_group.variables['Raw_Lidar_Data_L1'][:]
     unix_time = l1_group.variables['Start_Time_AVG_L1'][:]
@@ -256,6 +261,16 @@ def plot_range_corrected_lidar_signal_l1_colormap(dataset, output_dir=None):
     if channel_index < 0 or channel_index >= chan_dim:
         print(f"Warning: Channel index {channel_index} is out of bounds [0, {chan_dim - 1}]. Using 0.")
         channel_index = 0
+
+    # Get wavelength string from root-level Wavelengths variable
+    wavelength_str = f"Channel {channel_index}"
+    if check_variable_exists(dataset, 'Wavelengths'):
+        wavelengths = dataset.variables['Wavelengths'][:]
+        if channel_index < len(wavelengths):
+            wavelength = wavelengths[channel_index]
+            if isinstance(wavelength, bytes):
+                wavelength = wavelength.decode('utf-8')
+            wavelength_str = f"{wavelength} nm"
 
     signal_map = np.asarray(data[:, channel_index, :], dtype=float)
     range_sq = np.square(np.asarray(range_data, dtype=float))
@@ -292,12 +307,12 @@ def plot_range_corrected_lidar_signal_l1_colormap(dataset, output_dir=None):
 
     start_time_str = time_datetime[0].strftime('%Y-%m-%d %H:%M:%S UTC')
     ax.set_title(
-        f'Range Corrected Lidar Signal (L1) - Start Time: {start_time_str}, Channel: {channel_index}',
+        f'Range Corrected Lidar Signal (L1) - Start Time: {start_time_str}, {wavelength_str}',
         fontsize=14, fontweight='bold',
     )
 
     ax.set_ylim(0, 20000)
-    plt.colorbar(im, ax=ax, label='Range Corrected Signal')
+    plt.colorbar(im, ax=ax, label='Range Corrected Lidar Signal')
     ax.grid(True, alpha=0.3, linestyle='--')
 
     plt.tight_layout()
@@ -1309,8 +1324,8 @@ Examples:
             print(f"Successfully opened NetCDF file.")
             print(f"Available groups: {list(dataset.groups.keys())}")
             
-            # Plot Cloud_Mask
-            plot_cloud_mask(dataset, args.output_dir)
+            # Plot Layer_Mask
+            plot_layer_mask(dataset, args.output_dir)
 
             # Plot range-corrected Raw_Lidar_Data_L1 ColorMap
             plot_range_corrected_lidar_signal_l1_colormap(dataset, args.output_dir)

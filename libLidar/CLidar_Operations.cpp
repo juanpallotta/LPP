@@ -5,10 +5,10 @@
 
 CLidar_Operations::CLidar_Operations(strcGlobalParameters *glbParam) 
 {
-  dummy = (double *)new double[glbParam->nBins];
+  dummy   = (double *)new double[glbParam->nBins];
   pr_misc = (double *)new double[glbParam->nBins];
-  pr2_i = (double *)new double[glbParam->nBins];
-  prS = (double *)new double[glbParam->nBins];
+  pr2_i   = (double *)new double[glbParam->nBins];
+  prS     = (double *)new double[glbParam->nBins];
 
   errRMS_Bias = (double *)new double[nBiasRes_Auto];
   b_i = (double *)new double[nBiasRes_Auto + 1];
@@ -71,36 +71,26 @@ void CLidar_Operations::BiasCorrection(double *pr, strcGlobalParameters *glbPara
   }
 }
 
-void CLidar_Operations::Bias_Substraction_Auto(double *pr,
-                                               strcMolecularData *dataMol,
-                                               strcGlobalParameters *glbParam,
-                                               double *pr_noBias,
-                                               double *Bias_Pr) {
+void CLidar_Operations::Bias_Substraction_Auto(double *pr, strcMolecularData *dataMol, strcGlobalParameters *glbParam, double *pr_noBias, double *Bias_Pr) 
+{
   if (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] < 0)
-    Find_Max_Mol_Range((double *)pr, (strcMolecularData *)dataMol,
-                       (strcGlobalParameters *)glbParam,
-                       (int)avg_Points_Cloud_Mask);
+    Find_Max_Mol_Range((double *)pr, (strcMolecularData *)dataMol,(strcGlobalParameters *)glbParam,(int)avg_Points_Cloud_Mask);
 
   if ((dataMol->last_Indx_Bkg_Low[glbParam->evSel][glbParam->chSel] > 0) &&
       (dataMol->last_Indx_Bkg_High[glbParam->evSel][glbParam->chSel] > 0) &&
       (dataMol->last_Indx_Mol_Low[glbParam->evSel][glbParam->chSel] > 0) &&
-      (dataMol->last_Indx_Mol_High[glbParam->evSel][glbParam->chSel] >
-       0)) { // FIRST BIAS GUESS OBTAINED FROM THE MEAN IN THE RANGES
-             // dataMol->last_Indx_Bkg_Low - dataMol->last_Indx_Bkg_High
+      (dataMol->last_Indx_Mol_High[glbParam->evSel][glbParam->chSel] > 0))
+  {
+    // FIRST BIAS GUESS OBTAINED FROM THE MEAN IN THE RANGES
+    // dataMol->last_Indx_Bkg_Low - dataMol->last_Indx_Bkg_High
     // AND dataMol->last_Indx_Mol_Low - dataMol->last_Indx_Mol_High ARE USED FOR
     // THE FITTING.
     *Bias_Pr = 0.0;
-    for (int j = dataMol->last_Indx_Bkg_Low[glbParam->evSel][glbParam->chSel];
-         j <= dataMol->last_Indx_Bkg_High[glbParam->evSel][glbParam->chSel];
-         j++)
+    for (int j = dataMol->last_Indx_Bkg_Low[glbParam->evSel][glbParam->chSel]; j <= dataMol->last_Indx_Bkg_High[glbParam->evSel][glbParam->chSel]; j++)
       *Bias_Pr = *Bias_Pr + pr[j];
-    *Bias_Pr =
-        *Bias_Pr /
-        (dataMol->last_Indx_Bkg_High[glbParam->evSel][glbParam->chSel] -
-         dataMol->last_Indx_Bkg_Low[glbParam->evSel][glbParam->chSel] + 1);
-    printf("\n CLidar_Operations::Bias_Substraction_Auto() ==> MEAN METHOD IS "
-           "USED ==> bias= %lf.\n",
-           *Bias_Pr);
+    *Bias_Pr = *Bias_Pr / (dataMol->last_Indx_Bkg_High[glbParam->evSel][glbParam->chSel] - dataMol->last_Indx_Bkg_Low[glbParam->evSel][glbParam->chSel] + 1);
+    
+    printf("\n CLidar_Operations::Bias_Substraction_Auto() ==> MEAN METHOD IS " "USED ==> bias= %lf.\n", *Bias_Pr);
     /*
                     double 	b_ref_max = 0.0 ;
                     double 	b_ref_min = 0.0 ;
@@ -147,30 +137,25 @@ void CLidar_Operations::Bias_Substraction_Auto(double *pr,
   } // if 	( 	(dataMol->last_Indx_Bkg_Low >0) &&
     // (dataMol->last_Indx_Bkg_High >0) &&
   else if ((dataMol->last_Indx_Bkg_Low[glbParam->evSel][glbParam->chSel] < 0) &&
-           (dataMol->last_Indx_Bkg_High[glbParam->evSel][glbParam->chSel] <
-            0) &&
+           (dataMol->last_Indx_Bkg_High[glbParam->evSel][glbParam->chSel] < 0) &&
            (dataMol->last_Indx_Mol_Low[glbParam->evSel][glbParam->chSel] > 0) &&
-           (dataMol->last_Indx_Mol_High[glbParam->evSel][glbParam->chSel] >
-            0)) { // IF ONLY MOLECULAR PROFILES WERE DETECTED: THE BIAS IS
-                  // OBTAINED FROM THE PRE-TRIGGER OR RAYLEIGH FIT
-    if (glbParam->indxOffset[glbParam->chSel] > 30) {
+           (dataMol->last_Indx_Mol_High[glbParam->evSel][glbParam->chSel] > 0))
+  { // IF ONLY MOLECULAR PROFILES WERE DETECTED: THE BIAS IS
+    // OBTAINED FROM THE PRE-TRIGGER OR RAYLEIGH FIT
+    if (glbParam->indxOffset[glbParam->chSel] > 30)
+    {
       *Bias_Pr = bias_pre_trigger;
-      printf("\n CLidar_Operations::Bias_Substraction_Auto() ==> PRE-TRIGGER "
-             "METHOD IS USED FOR BIAS CORRECTION ==> bias= %lf.\n",
-             *Bias_Pr);
-    } else {
-      fitParam.indxInitFit =
-          dataMol->last_Indx_Mol_Low[glbParam->evSel][glbParam->chSel];
-      fitParam.indxEndFit =
-          dataMol->last_Indx_Mol_High[glbParam->evSel][glbParam->chSel];
+      printf("\n CLidar_Operations::Bias_Substraction_Auto() ==> PRE-TRIGGER METHOD IS USED FOR BIAS CORRECTION ==> bias= %lf.\n", *Bias_Pr);
+    }
+    else
+    {
+      fitParam.indxInitFit = dataMol->last_Indx_Mol_Low[glbParam->evSel][glbParam->chSel];
+      fitParam.indxEndFit = dataMol->last_Indx_Mol_High[glbParam->evSel][glbParam->chSel];
       fitParam.nFit = fitParam.indxEndFit - fitParam.indxInitFit + 1;
 
-      Fit((double *)pr, (double *)dataMol->pr2Mol, glbParam->nBins, "wOutB",
-          "NOTall", (strcFitParam *)&fitParam, (double *)dummy);
+      Fit((double *)pr, (double *)dataMol->pr2Mol, glbParam->nBins, "wOutB", "NOTall", (strcFitParam *)&fitParam, (double *)dummy);
       *Bias_Pr = fitParam.b;
-      printf("\n CLidar_Operations::Bias_Substraction_Auto() ==> RAYLEIGH-FIT "
-             "METHOD IS USED FOR BIAS DETECTION ==> bias= %lf.\n",
-             *Bias_Pr);
+      printf("\n CLidar_Operations::Bias_Substraction_Auto() ==> RAYLEIGH-FIT METHOD IS USED FOR BIAS DETECTION ==> bias= %lf.\n", *Bias_Pr);
     }
   } else { // LIDAR SIGNAL CORRUPTED, ALL DATA FILLED WITH ZEROS
     *Bias_Pr = 0.0;
@@ -556,7 +541,7 @@ void CLidar_Operations::Find_Ref_Range( double *pr2_i, strcGlobalParameters *glb
 {
   nWinSize = 0 ;
   for( int i=glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] ; i >glbParam->indxInitSig ; i--)
-  {
+  { // SEARCH FOR THE TOP OF THE HIGHEST CLOUD
     if ( cloudProfiles[glbParam->evSel].clouds_ON[i] == BIN_CLOUD )
     {
       nWinSize = (int) round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel] - i) /3 ) ;
@@ -576,7 +561,7 @@ void CLidar_Operations::Find_Ref_Range( double *pr2_i, strcGlobalParameters *glb
   double		*stdPr2	    		= (double*) new double  [nSteps] 	        ; for (int i = 0; i < nSteps; i++)  stdPr2[i] = DBL_MAX;
   memset( (double*)pr_misc, 0, sizeof(double)*glbParam->nBins) ;
 
-  // FIND THE LOWEST MOLECULAR RANGES USING A WINDOWS OF nWinSize
+  // FIND THE LOWEST MOLECULAR RANGES USING A WINDOWS OF nWinSize POINTS
   int indxMin_Std, minStd ;
   for( int i=glbParam->indxInitSig ; i <nSteps ; i++ )
   {
@@ -589,7 +574,7 @@ void CLidar_Operations::Find_Ref_Range( double *pr2_i, strcGlobalParameters *glb
   }
   findIndxMin( (double*)stdPr2, (int)0, (int)(nSteps -1), (int*)&indxMin_Std, (double*)(&minStd) ) ;
   
-  *indxRef_Fernald_Start = indxMin_Std ;
+  *indxRef_Fernald_Start = indxMin_Std + (int) round( (glbParam->indxEndSig_ev_ch[glbParam->evSel][glbParam->chSel]-indxMin_Std)/4.0 ) ;
   *indxRef_Fernald_Stop  = *indxRef_Fernald_Start + nWinSize ;
 }
 

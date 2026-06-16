@@ -11,12 +11,12 @@
 #include <sys/stat.h>
 #include <ctime>
 #include <assert.h> 
-#include <iostream> 
 #include <vector>
 
 #include <netcdf>
 
 // LIDAR LIBRARY ANALISYS
+#include "../libLidar/lidarMathFunc.hpp"
 #include "../libLidar/libLidar.hpp"
 #include "../libLidar/CDataLevel_1.hpp"
 #include "../libLidar/CMolecularData.hpp"
@@ -85,20 +85,13 @@ int main( int argc, char *argv[] )
     CDataLevel_1 *oDL1 = (CDataLevel_1*) new CDataLevel_1 ( (strcGlobalParameters*)&glbParam ) ;
 
     // ONLY USED IF glbParam.numEventsToAvg !=1
-    double  ***data_File_L0      ;
     int *Raw_Data_Start_Time ;
     int *Raw_Data_Stop_Time  ;
 
-    double  ***data_File_L1 = (double***) new double**[glbParam.nEventsAVG] ;
-    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
-    {
-        data_File_L1[e] = (double**) new double*[glbParam.nCh] ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-        {
-            data_File_L1[e][c] = (double*) new double[glbParam.nBins] ;
-            memset( (double*)data_File_L1[e][c], 0, (sizeof(double)*glbParam.nBins) ) ;
-        }
-    }
+    double  ***data_File_L1 ;
+    int     dim_sizes[3] = {glbParam.nEventsAVG, glbParam.nCh, glbParam.nBins} ;
+    allocate_memory_matrix( (void*)&data_File_L1, 3, dim_sizes, "double" ) ;
+
     int *Raw_Data_Start_Time_AVG = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Start_Time_AVG, 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
     int *Raw_Data_Stop_Time_AVG  = (int*) new int [glbParam.nEventsAVG] ;   memset( (int*)Raw_Data_Stop_Time_AVG , 0, (sizeof(int)*glbParam.nEventsAVG) ) ;
 
@@ -129,16 +122,10 @@ int main( int argc, char *argv[] )
     } // if ( glbParam.numEventsToAvg ==1 )
     else // PDL0 --> PDL1 BY AVERAGING glbParam.numEventsToAvg PROFILES
     {
-        data_File_L0 = (double***) new double**[glbParam.nEvents] ;
-        for ( int e=0 ; e <glbParam.nEvents ; e++ )
+        double  ***data_File_L0 = nullptr ;
         {
-            data_File_L0[e] = (double**) new double*[glbParam.nCh] ;
-            for ( int c=0 ; c <glbParam.nCh ; c++ )
-            {
-                data_File_L0[e][c] = (double*) new double[glbParam.nBins] ;
-                for(int b =0 ; b <glbParam.nBins ; b++)
-                    data_File_L0[e][c][b] = (double)0;
-            }
+            int dim_sizes[3] = {glbParam.nEvents, glbParam.nCh, glbParam.nBins} ;
+            allocate_memory_matrix( (void*)&data_File_L0, 3, dim_sizes, "double" ) ;
         }
 
         size_t startDF[3], countDF[3];
@@ -174,10 +161,8 @@ int main( int argc, char *argv[] )
     int id_var_noise ;
     if ( ( nc_inq_varid ( (int)ncid, "Bkg_Noise", (int*)&id_var_noise ) ) == NC_NOERR )
     {
-        data_Noise = (double**) new double*[glbParam.nCh] ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-            data_Noise[c] = (double*) new double[glbParam.nBins] ;
-
+        int dim_sizes[2] = { glbParam.nCh, glbParam.nBins } ;
+        allocate_memory_matrix( (void*)&data_Noise, 2, dim_sizes, "double" ) ;
         oNCL.Read_Bkg_Noise( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_noise, (double**)data_Noise ) ;
     }
 
@@ -185,10 +170,8 @@ int main( int argc, char *argv[] )
     int id_var_ovlp ;
     if ( ( nc_inq_varid ( (int)ncid, "Overlap", (int*)&id_var_ovlp ) ) == NC_NOERR )
     {
-        ovlp = (double**) new double*[glbParam.nCh] ;
-        for ( int c=0 ; c <glbParam.nCh ; c++ )
-            ovlp[c] = (double*) new double[glbParam.nBins] ;
-
+        int dim_sizes[2] = { glbParam.nCh, glbParam.nBins } ;
+        allocate_memory_matrix( (void*)&ovlp, 2, dim_sizes, "double" ) ;
         oNCL.Read_Overlap( (int)ncid, (strcGlobalParameters*)&glbParam, (int)id_var_ovlp, (double**)ovlp ) ;
     }
 
@@ -202,22 +185,16 @@ int main( int argc, char *argv[] )
     glbParam.evSel = -10 ;
     oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
 
-    double  ***pr_corr = (double***) new double**[glbParam.nEventsAVG];
-    double  ***pr2     = (double***) new double**[glbParam.nEventsAVG];
-    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+    double ***pr_corr = nullptr ;
+    double ***pr2     = nullptr ;
     {
-        pr_corr[e] = (double**) new double*[glbParam.nCh] ;
-        pr2[e]     = (double**) new double*[glbParam.nCh] ;
-
-            for ( int c=0 ; c <glbParam.nCh ; c++ )
-            {
-                pr2[e][c]     = (double*) new double[glbParam.nBins] ;  memset( pr2    [e][c], 0, sizeof(double)*glbParam.nBins ) ;
-                pr_corr[e][c] = (double*) new double[glbParam.nBins] ;  //memset( pr_corr[e][c], 0, sizeof(double)*glbParam.nBins ) ;
-
-                for ( int i=0 ; i <glbParam.nBins ; i++ )
-                    pr_corr[e][c][i] = data_File_L1[e][c][i] ;
-            }
+        int dim_sizes[3] = { glbParam.nEventsAVG, glbParam.nCh, glbParam.nBins } ;
+        allocate_memory_matrix( (void*)&pr_corr, 3, dim_sizes, "double" ) ;
+        allocate_memory_matrix( (void*)&pr2,     3, dim_sizes, "double" ) ;
     }
+    for ( int e=0 ; e <glbParam.nEventsAVG ; e++ )
+        for ( int c=0 ; c <glbParam.nCh ; c++ )
+            memcpy(pr_corr[e][c], data_File_L1[e][c], sizeof(double) * glbParam.nBins) ;
 
     // LIDAR SIGNAL CORRECTIONS:
     // - OFFSET
@@ -232,7 +209,7 @@ int main( int argc, char *argv[] )
         printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog\n", glbParam.indxWL_PDL1 ) ;
 
 // GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ----------------------------------------------------------------------------------------------
-        oDL1->oLOp->Gluing_Procedure( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double***)pr_corr ) ;
+    oDL1->oLOp->Gluing_Procedure( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double***)pr_corr ) ;
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // START DEPOLARIZATION PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ------------------------------------------------------------------------------------
@@ -258,13 +235,13 @@ int main( int argc, char *argv[] )
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // PREPARE THE PROFILES FOR LAYER MASK DETECTION
-    oDL1->pr_for_cloud_mask = (double**) new double*[ glbParam.nEventsAVG ] ;
-    for (int e=0 ; e <glbParam.nEventsAVG ; e++)
     {
-        oDL1->pr_for_cloud_mask[e] = (double*) new double[ glbParam.nBins ] ;
-        for ( int i =0 ; i < glbParam.nBins ; i++ )
-            oDL1->pr_for_cloud_mask[e][i] = pr_corr[e][glbParam.indxWL_PDL1][i] ;
+        int dim_sizes[2] = { glbParam.nEventsAVG, glbParam.nBins } ;
+        allocate_memory_matrix( (void*)&oDL1->pr_for_cloud_mask, 2, dim_sizes, "double" ) ;
     }
+
+    for (int e=0 ; e <glbParam.nEventsAVG ; e++)
+        memcpy(oDL1->pr_for_cloud_mask[e], pr_corr[e][glbParam.indxWL_PDL1], sizeof(double) * glbParam.nBins) ;
 
     printf("\n========================================> Layer detection algorithm <================================================================================") ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
