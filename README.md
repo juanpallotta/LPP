@@ -46,11 +46,12 @@
     - [On macOS](#on-macos)
   - [Step 3: Install WSL extension in Visual Studio Code](#step-3-install-wsl-extension-in-visual-studio-code)
 # Credits & contributions
-<u>**Juan Pallotta:**</u> Software development, methods, and algorithms.\
+<u>**Juan Pallotta:**</u> Software development, methods, and algorithms. LPP tester and bug solver.\
 <u>**Silvania Alves De Carvalho:**</u> LPP tester and bug solver. Comparison of LPP results against other platforms.\
 <u>**Henrique Barbosa:**</u> Methods, algorithms and research supervisor. Dataset used for the testing.\
 <u>**Joaquin Medina Puntero:**</u> Software development for automatic molecular profiles downloader. LPP tester and bug solver.\
 <u>**Juan Luis Guerrero Rascado:**</u> Software development for automatic molecular profiles downloader. LPP tester and bug solver.\
+<u>**Veronica Cheaz:**</u> Developer and tester for MacBook compatibility.\
 <u>**Nicolas Neves de Oliveira:**</u> Software development for automatic AERONET downloader. LPP tester.\
 <u>**Fabio Lopez:**</u> Methods, algorithms. Dataset used for the testing.\
 <u>**Diego Arias:**</u> Methods and algorithms.\
