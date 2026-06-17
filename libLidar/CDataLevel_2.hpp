@@ -21,7 +21,7 @@ class CDataLevel_2
 		void 	FernaldInversion( double*, strcMolecularData *, strcGlobalParameters *	 		) ;
 		void 	Raman_Inversion ( strcGlobalParameters*, strcMolecularData* 					) ;
 		void 	Find_Ref_Range    (strcGlobalParameters*								  		) ;
-		void 	Find_Ref_Range_v1 (strcGlobalParameters*, strcMolecularData *					) ;
+		// void 	Find_Ref_Range_v1 (strcGlobalParameters*, strcMolecularData *					) ;
 
 		void  	GetMemStrcErrorSigSet( strcErrorSignalSet*, int, int ) 						 ;
 		void 	MonteCarloRandomError( strcGlobalParameters*, strcMolecularData* ) ;
@@ -34,15 +34,15 @@ class CDataLevel_2
 
 		CLidar_Operations 	*oLOp 					;
 	    double  ***alpha_Aer = nullptr			    ;
-	    double  ***beta_Aer = nullptr				;
+	    double  ***beta_Aer  = nullptr				;
 		double  **Ki_Fernald = nullptr				;
 	    double  **alpha_Aer_synergy = nullptr		;
-	    double  **beta_Aer_synergy = nullptr		;
-		double  ***pr2 = nullptr, **pr = nullptr	;
-		double  ***data_File_L0 = nullptr, ***data_File_L2 = nullptr      ;
+	    double  **beta_Aer_synergy  = nullptr		;
+		double  ***pr2 = nullptr					;
+		double  ***data_File_L0    = nullptr, ***data_File_L2 = nullptr   ;
 		int		*Start_Time_AVG_L2 = nullptr, *Stop_Time_AVG_L2 = nullptr ;
-		int		*Start_Time_L0 = nullptr, *Stop_Time_L0 = nullptr 		  ;
-		double  *dummy = nullptr, *pr2_s = nullptr			 			  ;
+		int		*Start_Time_L0     = nullptr, *Stop_Time_L0 = nullptr 	  ;
+		double  *dummy = nullptr, *pr2_s = nullptr      ;
 		double  dzr = 0									;
 		double  LRM = 0									;	
 		double  *LR = nullptr							;

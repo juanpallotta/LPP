@@ -154,8 +154,8 @@ int main( int argc, char *argv[] )
                                     ) ;
     } // else // PDL0 --> PDL1 BY AVERAGING glbParam.numEventsToAvg PROFILES
 
-    ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam.indxWL_PDL1 ) ;
-    assert( glbParam.indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
+    // ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", (int*)&glbParam.indxWL_PDL1[0] ) ;
+    // assert( glbParam.indxWL_PDL1 <= (glbParam.nCh -1 ) ) ;
 
     double  **data_Noise = nullptr ;
     int id_var_noise ;
@@ -205,8 +205,8 @@ int main( int argc, char *argv[] )
     oDL1->oLOp->Lidar_Signals_Corrections( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double**)ovlp, (double**)data_Noise, (double***)data_File_L1, (double***)pr_corr, (double***)pr2 ) ;
     printf("\n\n") ;
 
-    if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1] !=0 ) 
-        printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog\n", glbParam.indxWL_PDL1 ) ;
+    if ( glbParam.DAQ_Type[glbParam.indxWL_PDL1[0]] !=0 ) 
+        printf( "\nData Level 1 - Cloud-Mask: the channel selected (%d) is not analog\n", glbParam.indxWL_PDL1[0] ) ;
 
 // GLUING PROCEDURE (ONLY IF ITS SET IN THE CONFIGURATION FILE) ----------------------------------------------------------------------------------------------
     oDL1->oLOp->Gluing_Procedure( (strcGlobalParameters*)&glbParam, (CMolecularData*)oMolData, (double***)pr_corr ) ;
@@ -241,7 +241,7 @@ int main( int argc, char *argv[] )
     }
 
     for (int e=0 ; e <glbParam.nEventsAVG ; e++)
-        memcpy(oDL1->pr_for_cloud_mask[e], pr_corr[e][glbParam.indxWL_PDL1], sizeof(double) * glbParam.nBins) ;
+        memcpy(oDL1->pr_for_cloud_mask[e], pr_corr[e][glbParam.indxWL_PDL1[0]], sizeof(double) * glbParam.nBins) ;
 
     printf("\n========================================> Layer detection algorithm <================================================================================") ;
     for ( int t=0 ; t <glbParam.nEventsAVG ; t++ )
@@ -253,7 +253,7 @@ int main( int argc, char *argv[] )
             glbParam.chSel = c ;
             printf("\nEvent: %d/%d \t Ch= %02d - Wavelenght: %04d nm", t, glbParam.nEventsAVG-1, c, glbParam.iLambda[c] ) ;
 
-            if ( c == glbParam.indxWL_PDL1 )
+            if ( c == glbParam.indxWL_PDL1[0] )
             {
                 oMolData->Fill_dataMol_L1( (strcGlobalParameters*)&glbParam ) ;
                 if ( strcmp( oDL1->oLOp->compute_layer_mask.c_str(), "YES" ) ==0 )

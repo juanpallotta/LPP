@@ -54,7 +54,7 @@ class CNetCDF_Lidar
 		void Read_Overlap( int, strcGlobalParameters*, int, double** ) ;
 
 		void Read_GlbParameters( int, strcGlobalParameters* ) ;
-		void Read_L0_into_L2   ( int, strcGlobalParameters*, CDataLevel_2* ) ;
+		void Read_L0_data   ( int, strcGlobalParameters*, CDataLevel_2* ) ;
 		void Read_L1_into_L2   ( int, strcGlobalParameters*, CDataLevel_2* ) ;
 
 		void Save_SCC_NCDF_Format	 		( string, strcGlobalParameters*, double***, long*, string*, long*, string* ) ;

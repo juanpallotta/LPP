@@ -290,13 +290,20 @@ int ReadAnalysisParameter(const char* filePath, const char* varName, const char*
     // If variable was not found, set fallback values
     if (element_count == -2000)
     {
-        if (strcmp(varType, "int") == 0) {
+        if (strcmp(varType, "int") == 0) 
+        {
             *(int*)result = -2000;
-        } else if (strcmp(varType, "float") == 0) {
+        } 
+        else if (strcmp(varType, "float") == 0) 
+        {
             *(float*)result = -2000.0f;
-        } else if (strcmp(varType, "double") == 0) {
+        }
+        else if (strcmp(varType, "double") == 0) 
+        {
             *(double*)result = -2000.0;
-        } else if (strcmp(varType, "string") == 0) {
+        }
+        else if (strcmp(varType, "string") == 0) 
+        {
             safeCopyString((char*)result, "NOT_FOUND", resultSize);
         }
     }

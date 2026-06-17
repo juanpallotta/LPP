@@ -16,7 +16,21 @@
 #include <cstring>
 #include <stdbool.h>
 #include <assert.h> 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <algorithm>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
+#include <queue>
+#include <stack>
+#include <deque>
+#include <list>
+#include <utility>
+#include <unistd.h>
 #include <sys/stat.h>
 
 #include "lidarDataTypes.hpp" // LIDAR DATA TYPE DEFINITIONS

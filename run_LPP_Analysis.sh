@@ -2,6 +2,10 @@
 
 # clear
 
+lower() {
+  echo "$1" | tr '[:upper:]' '[:lower:]'
+}
+
 echo ""
 echo ""
 echo ""
@@ -21,9 +25,17 @@ PATH_TO_L1=`dirname $(realpath $(find . -name lpp1.cpp))`'/'
 PATH_TO_L2=`dirname $(realpath $(find . -name lpp2.cpp))`'/'
 PATH_TO_LPP_PLOT=`dirname $(realpath $(find .. -name plot_LPP.py))`'/'
 
+# Detect Python command (use virtualenv if available)
+PYTHON_CMD="python3"
+if [ -x "${PATH_TO_LPP}lidar_env/bin/python3" ]; then
+    PYTHON_CMD="${PATH_TO_LPP}lidar_env/bin/python3"
+elif [ -x "./lidar_env/bin/python3" ]; then
+    PYTHON_CMD="./lidar_env/bin/python3"
+fi
+
 if [[ -d $PATH_IN ]]
 then # PATH_IN is a directory, so L0=yes must be set
-    if [[ "${L0,,}" == "no" ]]
+    if [[ "$(lower "$L0")" == "no" ]]
     then
         echo -e "\nPATH_IN: $PATH_IN  --> is a DIRECTORY, so L0 must be set as 'yes' in LPP_Run_Settings.sh"
         exit 0
@@ -31,20 +43,20 @@ then # PATH_IN is a directory, so L0=yes must be set
         # PATH_IN_LIST=`find $PATH_IN -type d -links 2`  # SEARCH FOR THE LAST SUB-FOLDERS INSIDE THE INPUT PATH
         PATH_IN_LIST=`find $PATH_IN -type d`  # (WINDOWS - WSL) SEARCH FOR THE LAST SUB-FOLDERS INSIDE THE INPUT PATH
         echo -e "\nPATH_IN_LIST:\n$PATH_IN_LIST"
-        if [[ "${L2,,}" == "yes" ]] && [[ "${L1,,}" == "no" ]]
+        if [[ "$(lower "$L2")" == "yes" ]] && [[ "$(lower "$L1")" == "no" ]]
         then
             L1="yes"
         fi
     fi
 else # if [[ -d $PATH_IN ]] --> PATH_IN is a file --> L0 must be unchecked and either L1 or L2 must be checked
 
-    if [[ "${L0,,}" == "yes" ]] 
+    if [[ "$(lower "$L0")" == "yes" ]] 
     then
         echo -e "\n*WRONG CONFIGURATION*\nIf PATH_IN is a FILE --> L0 must be set as 'no' in LPP_Run_Settings.sh.PATH_IN: $PATH_IN\n"
         exit 0
     fi
     
-    if [[ "${L1,,}" == "yes" ]] || [[ "${L2,,}" == "yes" ]]
+    if [[ "$(lower "$L1")" == "yes" ]] || [[ "$(lower "$L2")" == "yes" ]]
     then
         PATH_IN_LIST=$PATH_IN
         echo -e "\nPATH_IN_LIST: $PATH_IN_LIST --> is a FILE"
@@ -68,7 +80,7 @@ for paths_In in $PATH_IN_LIST
 do
 PROCES_SENTRY=1
     echo -e "\n Analyzing: "$paths_In" \n"
-	if [[ "${L0,,}" == "yes" ]]
+	if [[ "$(lower "$L0")" == "yes" ]]
     then
         if [[ "$paths_In" != *"/LPP_OUT"* ]] # DISCARD ANY FOLDER WITH 'LPP_OUT' IN ITS NAME
         then
@@ -91,8 +103,8 @@ PROCES_SENTRY=1
             echo -e "\nFolder: $paths_In --> skipped because contain a LPP_OUT string in its path."
             PROCES_SENTRY=0
         fi # if [[ "$paths_In" != *"/LPP_OUT"* ]]
-    else  # if [[ "${L0,,}" == "yes" ]]       L0=no
-        if [[ "${L1,,}" == "yes" ]] 
+    else  # if [[ "$(lower "$L0")" == "yes" ]]       L0=no
+        if [[ "$(lower "$L1")" == "yes" ]] 
         then    # L0=no L1=yes L2=?
             PATH_FILE_IN_L1=$paths_In # paths_In IS A FILE
             PATH_FILE_OUT_L1=${paths_In%.*}"_L1.nc"
@@ -102,7 +114,7 @@ PROCES_SENTRY=1
             echo PATH_FILE_IN_L1: $PATH_FILE_IN_L1
             echo PATH_FILE_OUT_L1: $PATH_FILE_OUT_L1
             echo ""
-                if [[ "${L2,,}" == "yes" ]] 
+                if [[ "$(lower "$L2")" == "yes" ]] 
                 then # L0=no L1=yes L2=yes
                     PATH_FILE_IN_L2=$PATH_FILE_OUT_L1
                     PATH_FILE_OUT_L2=${PATH_FILE_IN_L2%.*}"_L2.nc"
@@ -112,7 +124,7 @@ PROCES_SENTRY=1
                     echo ""
                 fi
         else
-            if [[ "${L2,,}" == "yes" ]] 
+            if [[ "$(lower "$L2")" == "yes" ]] 
             then # L0=no L1=no L2=yes
                 PATH_FILE_IN_L2=$paths_In # paths_In IS A FILE
                 PATH_FILE_OUT_L2=${PATH_FILE_IN_L2%.*}"_L2.nc"
@@ -123,7 +135,7 @@ PROCES_SENTRY=1
             fi
         fi
 
-	fi # if [[ "${L0,,}" == "yes" ]]
+	fi # if [[ "$(lower "$L0")" == "yes" ]]
 
 
 # INPUT AND OUTPUTS FILES ARE CONFIGURED PROPERLY ############################################################################
@@ -131,7 +143,7 @@ PROCES_SENTRY=1
 
 if [ $PROCES_SENTRY == 1 ]
 then
-        if [[ "${L0,,}" == "yes" ]] 
+        if [[ "$(lower "$L0")" == "yes" ]] 
         then
             echo -e "\n\nRunning LPP0: Licel files to NetCDF \n\n ./lpp0 "$PATH_IN_L0" "$PATH_FILE_OUT_L0" "$FILE_CONF"\n\n"
             cd $PATH_TO_L0
@@ -140,7 +152,7 @@ then
             PATH_FILE_OUT=$PATH_FILE_OUT_L0
         fi
 
-        if [[ "${L1,,}" == "yes" ]]
+        if [[ "$(lower "$L1")" == "yes" ]]
         then
             # DELETE PREVIOUS VERSION OF THE L1 FILE (IF EXIST)
             if test -f "$PATH_FILE_OUT_L1"
@@ -167,9 +179,9 @@ then
             else # if [[ -f $PATH_FILE_IN_L1 ]]
                 echo -e "L1: input file "$PATH_FILE_IN_L1 "doesn't exist. Set L0=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L1 ]]
-        fi # if [[ "${L1,,}" == "yes" ]]
+        fi # if [[ "$(lower "$L1")" == "yes" ]]
 
-        if [[ "${L2,,}" == "yes" ]]
+        if [[ "$(lower "$L2")" == "yes" ]]
         then
             if test -f "$PATH_FILE_OUT_L2"
             then
@@ -191,13 +203,13 @@ then
             else # if [[ -f $PATH_FILE_IN_L2 ]]
                 echo -e "\n L2: input file "$PATH_FILE_IN_L2 " doesn't exist. Set L1=yes in LPP_Run_Settings.sh file"
             fi # if [[ -f $PATH_FILE_IN_L2 ]]
-        fi # if [[ "${L2,,}" == "yes" ]]
+        fi # if [[ "$(lower "$L2")" == "yes" ]]
 
     #   PLOTTING
     echo -e "\n\nGenerating plots for"
     PATH_FILE_TO_LPP_PLOT=${PATH_TO_LPP_PLOT%.*}"plot_LPP.py"
-    echo -e "\n\n${PATH_TO_LPP}lidar_env/bin/python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0"
-    ${PATH_TO_LPP}lidar_env/bin/python3 $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0
+    echo -e "\n\n$PYTHON_CMD $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0"
+    $PYTHON_CMD $PATH_FILE_TO_LPP_PLOT $PATH_FILE_OUT $PATH_LPP_OUT 0
 
 echo ""
 echo ------------------------------------------------------------ next file...

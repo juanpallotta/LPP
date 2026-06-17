@@ -9,7 +9,8 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	LRM	 = 8*M_PI/3 ;
 	LR   = (double*) new double [100]	;
 	int sizes_t_c_b[] = {glbParam->nEventsAVG, glbParam->nCh, glbParam->nBins} ;
-	allocate_memory_matrix( (void*)&pr2, (int)3, (const int*)sizes_t_c_b, (const char*)"double") ;
+	allocate_memory_matrix( (void*)&data_File_L2, (int)3, (const int*)sizes_t_c_b, (const char*)"double") ;
+	allocate_memory_matrix( (void*)&pr2			, (int)3, (const int*)sizes_t_c_b, (const char*)"double") ;
 	nLRs = ReadAnalysisParameter( (const char*)glbParam->FILE_PARAMETERS, "LR", "double", (double*)LR ) ;
 	ReadAnalysisParameter( (const char*)glbParam->FILE_SOFT_CODED_VALUES, "LR_loop_Max", "int", (int*)&LR_loop_Max ) ;
 	if ( nLRs ==-2000 )
@@ -21,19 +22,18 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 		for (int i =0; i <nLRs; i++) 
 			LR[i] = LR_min + i*dLR ;
 	}
-	int sizes_t_l_b[] = {glbParam->nEventsAVG, nLRs, glbParam->nBins} ;
+	int sizes_t_l_b[3] = {glbParam->nEventsAVG, nLRs, glbParam->nBins} ;
 	allocate_memory_matrix( (void*)&alpha_Aer,  (int)3, (const int*)sizes_t_l_b, (const char*)"double") ;
 	allocate_memory_matrix( (void*)&beta_Aer,   (int)3, (const int*)sizes_t_l_b, (const char*)"double") ;
 
-	int sizes_t_b[] = { glbParam->nEventsAVG, glbParam->nBins } ;
+	int sizes_t_b[2] = { glbParam->nEventsAVG, glbParam->nBins } ;
 	allocate_memory_matrix( (void*)&alpha_Aer_synergy, (int)2, (const int*)sizes_t_b, (const char*)"double" ) ;
 	allocate_memory_matrix( (void*)&beta_Aer_synergy , (int)2, (const int*)sizes_t_b, (const char*)"double" ) ;
 
-	int sizes_t_l[] = { glbParam->nEventsAVG, nLRs } ;
+	int sizes_t_l[2] = { glbParam->nEventsAVG, nLRs } ;
 	allocate_memory_matrix( (void*)&AOD_LR	  , (int)2, (const int*)sizes_t_l, (const char*)"double" ) ;
 	allocate_memory_matrix( (void*)&Ki_Fernald, (int)2, (const int*)sizes_t_l, (const char*)"double" ) ;
 	allocate_memory_matrix( (void*)&Ki_Fernald, (int)2, (const int*)sizes_t_l, (const char*)"double" ) ;
-	allocate_memory_matrix( (void*)&pr, (int)2, (const int*)sizes_t_b, (const char*)"double" ) ;
 
     dummy      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)dummy  , 0, sizeof(double)*glbParam->nBins 	 ) ;
     pr2_s      = (double*)   new double  [glbParam->nBins ]     ;	memset( (double*)pr2_s  , 0, sizeof(double)*glbParam->nBins 	 ) ;
@@ -54,18 +54,6 @@ CDataLevel_2::CDataLevel_2( strcGlobalParameters *glbParam )
 	betaMol_Fit		  = (double*) new double[glbParam->nBins] ;
 	intAlphaMol_Ref_r = (double*) new double[glbParam->nBins] ;
 
-	data_File_L2 = (double***) new double**[glbParam->nEventsAVG] ;
-	
-	for ( int e=0 ; e <glbParam->nEventsAVG ; e++ )
-	{
-		data_File_L2[e] = (double**) new double*[glbParam->nCh] ;
-		for ( int c=0 ; c <glbParam->nCh ; c++ )
-		{
-			data_File_L2[e][c] = (double*) new double[glbParam->nBins] ;
-				for(int b =0 ; b <glbParam->nBins ; b++)
-					data_File_L2[e][c][b] = (double)0.0 ;
-		}
-	}
 	Start_Time_AVG_L2 = (int*) new int [glbParam->nEventsAVG] ;   memset( (int*)Start_Time_AVG_L2, 0, (sizeof(int)*glbParam->nEventsAVG) ) ;
 	Stop_Time_AVG_L2  = (int*) new int [glbParam->nEventsAVG] ;   memset( (int*)Stop_Time_AVG_L2 , 0, (sizeof(int)*glbParam->nEventsAVG) ) ;
 
@@ -522,6 +510,7 @@ void CDataLevel_2::Find_Ref_Range( strcGlobalParameters *glbParam )
 	// 					indxRef_Fernald_Start[glbParam->evSel], glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
 }
 
+/*
 void CDataLevel_2::Find_Ref_Range_v1( strcGlobalParameters *glbParam, strcMolecularData *dataMol )
 {
 	// CHECK IF THERE ARE CLOUDS IN THE PROFILE ANALIZED
@@ -620,7 +609,7 @@ void CDataLevel_2::Find_Ref_Range_v1( strcGlobalParameters *glbParam, strcMolecu
 // printf("\nFind_Ref_Range(): ||| indxRef_Fernald_Start[%d]: %d  ||| indxRef_Fernald_Stop[%d]: %d \n",  glbParam->evSel, indxRef_Fernald_Start[glbParam->evSel], 
 // 																									  glbParam->evSel, indxRef_Fernald_Stop [glbParam->evSel] ) ;
 }
-
+*/
 void CDataLevel_2::MonteCarloRandomError( strcGlobalParameters *glbParam, strcMolecularData *dataMol)
 {
 	strcAerosolData dataAerErr ;
@@ -636,8 +625,8 @@ void CDataLevel_2::MonteCarloRandomError( strcGlobalParameters *glbParam, strcMo
 	fitParam.indxEndFit  = dataMol->nBins -1 						  ;
 	fitParam.nFit	  	 = fitParam.indxEndFit - fitParam.indxInitFit +1 ;
 	double *prFit = (double*) new double[glbParam->nBins] ;
-		// oLOp->Fit( (double*)&dataMol->prMol[0], (double*)&pr[0], fitParam.nFit   , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
-		oLOp->Fit( (double*)&pr[0], (double*)&dataMol->prMol[0], fitParam.nFit   , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+		oLOp->Fit( (double*)&data_File_L2[glbParam->evSel][glbParam->chSel][0], (double*)&dataMol->prMol[0], fitParam.nFit   , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
+		// oLOp->Fit( (double*)&pr[0], (double*)&dataMol->prMol[0], fitParam.nFit   , "wB", "NOTall", (strcFitParam*)&fitParam, (double*)prFit ) ;
 	delete  prFit ;	
 	double 	stdPr = sqrt( fitParam.squared_sum_fit/(fitParam.nFit -1) ) ;
 
@@ -651,7 +640,7 @@ void CDataLevel_2::MonteCarloRandomError( strcGlobalParameters *glbParam, strcMo
 
 	for( int m=0 ; m < glbParam->MonteCarlo_N_SigSet_Err ; m++ )
 	{
-		smooth( (double*)&pr[glbParam->evSel][0], (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)&errSigSet.pr_smooth[m][0] ) ;
+		smooth( (double*)&data_File_L2[glbParam->evSel][glbParam->chSel][0], (int)0, (int)(glbParam->nBins-1), (int)spamAvgWin, (double*)&errSigSet.pr_smooth[m][0] ) ;
 
 		for ( int i=0 ; i < glbParam->nBins ; i++ )
 		{
@@ -954,7 +943,7 @@ void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
 	i_Num_AERONET_data = 0 	;
 
  	FILE *fp = fopen( aeronet_file, "r");
-    if (!fp)
+	if (!fp)
 	{
 		printf( "Can't open %s file... exit\nAERONET data is no used and saved in the output NetCDF file.", aeronet_file );
 		sprintf( aeronet_file, "NOT_FOUND") ;
@@ -981,7 +970,7 @@ void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
         }
 		// printf("\nAERONET lines: %d \t nAero_col: %d\n", i_Num_AERONET_data, nAero_col) ;
 
-		switch ( glbParam->iLambda[glbParam->indxWL_PDL2] )
+		switch ( glbParam->iLambda[glbParam->indxWL_PDL2[0]] ) // glbParam->chSel
 		{
 		case 351:
 					sprintf( sAOD_Aero , "AOD_340nm" ) ;
@@ -1154,7 +1143,7 @@ void CDataLevel_2::Load_AERONET_Data( strcGlobalParameters *glbParam )
 // printf("\n AOD_Lidar_Time= %lf \t lambda= %2.3e \t lambda1= %2.3e \t lambda2= %2.3e ", AOD_Lidar_Time[t], lambda, lambda1, lambda2 ) ;
 
 					// CONVERT TO THE LIDAR WAVELENGTH
-					lambda1 = (double)(glbParam->iLambda[glbParam->indxWL_PDL2]/AERONET_lambda ) ;
+					lambda1 = (double)(glbParam->iLambda[glbParam->indxWL_PDL2[0]]/AERONET_lambda ) ; // glbParam->chSel
 					lambda2 = (double) pow( (double)lambda1, double(-Angs_Lidar_Time[t]) ) ;
 					lambda3 = (double) AOD_Lidar_Time[t] * lambda2 ;
 					AOD_Lidar_Time[t] = double( lambda3 ) ;

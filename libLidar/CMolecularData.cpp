@@ -140,7 +140,7 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		// printf("\nUSING A SIMPLER MOLECULAR MODEL SINCE A LIDAR SIGNAL SIMULATION IS USED.\n") ;
 		// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF 
 		// RadSondeData.pLR AND RadSondeData.tLR PASSED AS THE FIRST AND SECOND ARGUMENTS (LR=Low Resolution)
-		TemK_PresPa_to_N_Alpha_Beta_MOL_simple( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1],
+		TemK_PresPa_to_N_Alpha_Beta_MOL_simple( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1[0]],
 												(int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol,
 												(double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 	}
@@ -153,10 +153,10 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 		// GET RadSondeData.nLR, RadSondeData.alpha_mol AND RadSondeData.beta_mol IN THE SAME RESOLUTION OF 
 		// RadSondeData.pLR AND RadSondeData.tLR PASSED AS THE FIRST AND SECOND ARGUMENTS (LR=Low Resolution)
 		// printf("\nUSING A COMPLEX MOLECULAR MODEL SINCE A REAL LIDAR SIGNAL IS USED.\n") ;
-		TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)(wl_factor*glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9),
+		TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)(wl_factor*glbParam->iLambda[glbParam->indxWL_PDL1[0]]*1e-9),
 										  (double)co2_ppmv,	(int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol,
 										  (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
-		// TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1]*1e-9,
+		// TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)RadSondeData.pLR, (double*)RadSondeData.tLR, (double)glbParam->iLambda[glbParam->indxWL_PDL1[0]]*1e-9,
 		// 								  (double)co2_ppmv,	(int)RadSondeData.nBinsLR, (double*)RadSondeData.nLR, (double*)RadSondeData.alpha_mol,
 		// 								  (double*)RadSondeData.beta_mol, (double*)&dataMol.LR_mol ) ;
 	}

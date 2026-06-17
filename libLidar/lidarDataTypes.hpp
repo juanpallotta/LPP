@@ -107,9 +107,11 @@ struct strcGlobalParameters
 	int 	*nShots				 	;
 	int		lambda					;
 	int		*iLambda			  	;
-	int		indxWL_PDL1				;
-	int		indxWL_PDL2				; // TIENE QUE SER UN VECTOR 
+	int		*indxWL_PDL1			;
+	int		*indxWL_PDL2			; // TIENE QUE SER UN VECTOR 
 	int		indxWL_Raman			; // INDEX OF THE WAVELENGTH USED FOR RAMAN INVERSION
+	int 	nCh_to_process_L1		;
+	int 	nCh_to_process_L2		;
 	int 	nLambda					;
 	char	*sPol			    	;
 	int		*iPol			    	;

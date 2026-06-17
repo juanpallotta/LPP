@@ -1252,11 +1252,11 @@ void CLidar_Operations::Gluing_Procedure(strcGlobalParameters *glbParam, CMolecu
           // Find_Gluing_Ranges( (strcGlobalParameters*)&glbParam, (double***)pr_corr ) ;
           GluingLidarSignals((strcGlobalParameters *)glbParam, (double ***)pr_corr);
 
-          if (glbParam->indx_gluing_Low_AN[c] == glbParam->indxWL_PDL2)
+          if (glbParam->indx_gluing_Low_AN[c] == glbParam->indxWL_PDL2[0])
           {
-            glbParam->chSel = glbParam->indxWL_PDL2; //!!!!!!!! poder seleccionar indxWL_PDL1 tambien
+            glbParam->chSel = glbParam->indxWL_PDL2[0]; //!!!!!!!! poder seleccionar indxWL_PDL1 tambien
             oMolData->Fill_dataMol_L2((strcGlobalParameters *)glbParam);
-            Find_Max_Mol_Range((double *)pr_corr[e][glbParam->indxWL_PDL2], (strcMolecularData *)&oMolData->dataMol, (strcGlobalParameters *)glbParam, (int)avg_Points_Cloud_Mask);
+            Find_Max_Mol_Range((double *)pr_corr[e][glbParam->indxWL_PDL2[0]], (strcMolecularData *)&oMolData->dataMol, (strcGlobalParameters *)glbParam, (int)avg_Points_Cloud_Mask);
           } // if ( glbParam->indx_gluing_Low_AN[c] == glbParam->indxWL_PDL2 )
         }
       }

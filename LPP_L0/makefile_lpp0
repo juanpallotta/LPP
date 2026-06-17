@@ -1,24 +1,33 @@
+BREW_PREFIX := $(shell command -v brew >/dev/null 2>&1 && brew --prefix || echo /usr)
+UNAME_S := $(shell uname -s)
+
+CXXFLAGS = -Wall -std=c++11
+NETCDF_INC = -I$(BREW_PREFIX)/include
+ifeq ($(UNAME_S),Darwin)
+NETCDF_LIB = -L$(BREW_PREFIX)/lib -lnetcdf -lnetcdf-cxx4
+else
+NETCDF_LIB = -L$(BREW_PREFIX)/lib -L/usr/lib/x86_64-linux-gnu -lnetcdf -lnetcdf_c++4
+endif
 
 OBJS = lpp0.o libLidar.o lidarMathFunc.o CNetCDF_Lidar.o CLicel_DataFile_Handling.o
-NETCDF_LIB=-L/usr/local/lib -lnetcdf -I/usr/local/include -L/usr/lib/x86_64-linux-gnu -lnetcdf_c++4
 
 lpp0: $(OBJS)
 	g++ -Wall -o lpp0 $(OBJS) $(NETCDF_LIB)
 
 lpp0.o: lpp0.cpp
-	g++ -Wall -I../libLidar -c lpp0.cpp
+	g++ $(CXXFLAGS) -c lpp0.cpp $(NETCDF_INC)
 
 libLidar.o: ../libLidar/libLidar.cpp
-	g++ -Wall -c ../libLidar/libLidar.cpp
+	g++ $(CXXFLAGS) -c ../libLidar/libLidar.cpp $(NETCDF_INC)
 
 lidarMathFunc.o: ../libLidar/lidarMathFunc.cpp
-	g++ -Wall -c ../libLidar/lidarMathFunc.cpp
+	g++ $(CXXFLAGS) -c ../libLidar/lidarMathFunc.cpp $(NETCDF_INC)
 
 CNetCDF_Lidar.o: ../libLidar/CNetCDF_Lidar.cpp
-	g++ -Wall -c ../libLidar/CNetCDF_Lidar.cpp
+	g++ $(CXXFLAGS) -c ../libLidar/CNetCDF_Lidar.cpp $(NETCDF_INC)
 
 CLicel_DataFile_Handling.o: ../libLidar/CLicel_DataFile_Handling.cpp
-	g++ -Wall -c ../libLidar/CLicel_DataFile_Handling.cpp
+	g++ $(CXXFLAGS) -c ../libLidar/CLicel_DataFile_Handling.cpp $(NETCDF_INC)
 
 clean:
 	rm -f core *.o *.gch *.hpp *.gch lpp0

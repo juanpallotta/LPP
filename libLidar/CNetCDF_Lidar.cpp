@@ -1,6 +1,7 @@
 
 #include "CNetCDF_Lidar.hpp"
 #include "CMolecularData.hpp"
+#include "lidarMathFunc.hpp"
 
 CNetCDF_Lidar::CNetCDF_Lidar( )
 {
@@ -178,16 +179,15 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
         ERR(retval) ;
     // cout << endl << "num_dim_var: " << num_dim_var << "     id_var_pr: " << id_var_pr << endl ;
     assert( num_dim_var ==3 ) ; // SI SE CUMPLE, SIGUE.
-
-    int id_dim[num_dim_var] ;
+    int id_dim[3] ;
     if ( ( retval = nc_inq_vardimid( (int)ncid, (int)id_var_pr, (int*)id_dim ) ) )
         ERR(retval);
 
-    int size_dim[num_dim_var] ;
-        for ( int d=0 ; d <num_dim_var ; d++ ) size_dim[d] =(int)1 ;
+    size_t size_dim[3] ;
+        for ( int d=0 ; d <num_dim_var ; d++ ) size_dim[d] =(size_t)1 ;
     for( int d=0 ; d <num_dim_var ; d++ )
     {
-        if ( ( retval = nc_inq_dimlen( (int)ncid, (int)id_dim[d], (size_t*)&size_dim[d] ) ) )
+        if ( ( retval = nc_inq_dimlen( (int)ncid, (int)id_dim[d], &size_dim[d] ) ) )
             ERR(retval);
         // printf( "\nsize_dim[%d]: %d", d, size_dim[d] ) ;
     }
@@ -263,8 +263,22 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
     
     ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"rInitSig"   , (const char*)"double", (double*)&glbParam->rInitSig   ) ;
 
-    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1" , (const char*)"int", (int*)&glbParam->indxWL_PDL1 ) ;
-    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2" , (const char*)"int", (int*)&glbParam->indxWL_PDL2 ) ;
+    {
+        int *indxWL_PDL1_nCh = (int*) malloc( glbParam->nCh * sizeof(int) ) ;    
+        int nCh1 = ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1", (const char*)"int", indxWL_PDL1_nCh ) ;
+        glbParam->indxWL_PDL1 = (int*) malloc( nCh1 * sizeof(int) ) ;
+        glbParam->nCh_to_process_L1 = nCh1 ;
+        for (int i = 0; i < nCh1; i++) glbParam->indxWL_PDL1[i] = indxWL_PDL1_nCh[i];
+        free(indxWL_PDL1_nCh);
+
+        int *indxWL_PDL2_nCh = (int*) malloc( glbParam->nCh * sizeof(int) ) ;    
+        int nCh2 = ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", indxWL_PDL2_nCh ) ;
+        glbParam->indxWL_PDL2 = (int*) malloc( nCh2 * sizeof(int) ) ;
+        glbParam->nCh_to_process_L2 = nCh2 ;
+        for (int i = 0; i < nCh2; i++) glbParam->indxWL_PDL2[i] = indxWL_PDL2_nCh[i];
+        free(indxWL_PDL2_nCh);
+    }
+
     ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_Raman", (const char*)"int", (int*)&glbParam->indxWL_Raman ) ;
 
     glbParam->indxInitSig = (int)round( glbParam->rInitSig /glbParam->dr ) ;
@@ -315,24 +329,15 @@ void CNetCDF_Lidar::Read_GlbParameters( int ncid, strcGlobalParameters *glbParam
 // cout<<endl<<"(0) glbParam->nBins: "<< glbParam->nBins << endl;
 }
 
-void CNetCDF_Lidar::Read_L0_into_L2( int ncid, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )
+void CNetCDF_Lidar::Read_L0_data( int ncid, strcGlobalParameters *glbParam, CDataLevel_2 *oDL2 )
 {
     // READ VARIABLES FROM THE L0 DATA GROUP INTO L2 OBJECT TO BE AVERAGED LATER
     int id_var_pr ;
     if ( ( retval = nc_inq_varid( (int)ncid, (const char*)"Raw_Lidar_Data", (int*)&id_var_pr ) ) )
         ERR(retval) ;
 
-    oDL2->data_File_L0  = (double***) new double**[glbParam->nEvents];
-    for ( int e=0 ; e <glbParam->nEvents ; e++ )
-    {
-        oDL2->data_File_L0[e] = (double**) new double*[glbParam->nCh] ;
-        for ( int c=0 ; c <glbParam->nCh ; c++ )
-        {
-            oDL2->data_File_L0[e][c] = (double*) new double[glbParam->nBins] ;
-            for(int b =0 ; b <glbParam->nBins ; b++)
-                oDL2->data_File_L0[e][c][b] = (double)0;
-        }
-    }
+    int dim_sizes[3] = { glbParam->nEvents, glbParam->nCh, glbParam->nBins } ;
+    allocate_memory_matrix( (void*)&oDL2->data_File_L0, 3, dim_sizes, "double" ) ;
 
     size_t startDF[3], countDF[3];
     startDF[0] = 0;   countDF[0] = 1 ; // glbParam->nEvents ; 
@@ -1271,7 +1276,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
     DefineVariable( (int)nc_id_group_L2, (char*)"Fernald_smooth_bins"            , (const char*)"int"   , (int)1          , (int*)&id_dims_pr2[1]    , (int*)&var_ids[11] ) ;
     DefineVariable( (int)nc_id_group_L2, (char*)"range"                          , (const char*)"double", (int)1          , (int*)&id_dims_aer[2]    , (int*)&var_ids[12] ) ;
 
-    if ( (glbParam->iLambda[glbParam->indxWL_PDL2] == 355) )
+    if ( glbParam->iLambda[glbParam->indxWL_PDL2[0]] == 355 )
     {
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction_355nm" , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[0] ) ;
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscatter_355nm", (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[1] ) ;
@@ -1289,7 +1294,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"range"                            , (const char*)"double", (int)1, (int*)&id_dims_aer[2], (int*)&var_ids[21] ) ;
         }
     }
-    else if ( (glbParam->iLambda[glbParam->indxWL_PDL2] == 351) )
+    else if ( glbParam->iLambda[glbParam->indxWL_PDL2[0]] == 351 )
     {
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction_351nm"    , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[0]  ) ;
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscatter_351nm", (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[1]  ) ;
@@ -1307,7 +1312,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"range"                            , (const char*)"double", (int)1, (int*)&id_dims_aer[2], (int*)&var_ids[21] ) ;
         }
     }
-    else if ( glbParam->iLambda[glbParam->indxWL_PDL2] == 532 )
+    else if ( glbParam->iLambda[glbParam->indxWL_PDL2[0]] == 532 )
     {
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction_532nm"    , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[0]  ) ;
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscatter_532nm", (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[1]  ) ;
@@ -1325,7 +1330,7 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL2( char *Path_File_Out, strcGlobalParam
             DefineVariable( (int)nc_id_group_L2_LIDAR_AERONET, (char*)"range"                            , (const char*)"double", (int)1, (int*)&id_dims_aer[2], (int*)&var_ids[21] ) ;
         }
     }
-    else if ( glbParam->iLambda[glbParam->indxWL_PDL2] == 1064 )
+    else if ( glbParam->iLambda[glbParam->indxWL_PDL2[0]] == 1064 )
     {
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Extinction_1064nm"    , (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[0]  ) ;
         DefineVariable( (int)nc_id_group_L2, (char*)"Aerosol_Backscatter_1064nm", (const char*)"double", (int)num_dim_var, (int*)&id_dims_aer[0], (int*)&var_ids[1]  ) ;
