@@ -28,6 +28,7 @@ class CDataLevel_2
 		// void 	MonteCarloSystematicError	( double*,          strcGlobalParameters*, strcMolecularData*, strcIndexMol*, strcFernaldInversion*, strcErrorSignalSet* ) ;
 		void 	GetErrSetParam				( char*, int, int, double, strcErrorSignalSet* ) ;
 
+		void	AERONET_Data_Preparation( strcGlobalParameters* ) ;
 		int 	Download_AERONET_Data( strcGlobalParameters* ) ;
 		void 	Load_AERONET_Data    ( strcGlobalParameters* ) ;
 		int 	Check_AERONET_Data   ( char* 				 ) ;

@@ -149,31 +149,32 @@ int main( int argc, char *argv[] )
                             ERR(retval) ;
 
 //! PUT ALL THIS BLOCK IN A METHOD INSIDE oDL2->AERONET ( (strcGlobalParameters*)&glbParam )
-    if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") ==0 ) // oDL2->aeronet_file = AERONET_FILE
-    {   // SINCE THE AERONET DATA FILE IS ALREADY DOWNLOADED, TRY TO LOAD IT
-        printf("\nNo AERONET file set in the configuration file (AERONET_FILE variable). Trying to download it...\n") ;
+    oDL2->AERONET_Data_Preparation( (strcGlobalParameters*)&glbParam ) ;
+    // if ( strcmp( oDL2->aeronet_file, "NOT_FOUND") ==0 ) // oDL2->aeronet_file = AERONET_FILE
+    // {   // SINCE THE AERONET DATA FILE IS ALREADY DOWNLOADED, TRY TO LOAD IT
+    //     printf("\nNo AERONET file set in the configuration file (AERONET_FILE variable). Trying to download it...\n") ;
 
-        if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_path, "NOT_FOUND") ==0) )
-        {
-            printf("*** Since AERONET_FILE is not set, both AERONET_PATH, AERONET_SITE_NAME and AERONET_DATA_LEVEL *must* be set in the configuration file to download the data. ***");
-            printf("\n*** No AERONET data will be used in the run. ***") ;
-        }
-        else if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_path, "NOT_FOUND") !=0) )
-            oDL2->Download_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
-    }
-    else
-    {
-        printf("\nLoading AERONET data file: %s...", oDL2->aeronet_file ) ;
+    //     if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") ==0) || (strcmp(oDL2->aeronet_path, "NOT_FOUND") ==0) )
+    //     {
+    //         printf("*** Since AERONET_FILE is not set, both AERONET_PATH, AERONET_SITE_NAME and AERONET_DATA_LEVEL *must* be set in the configuration file to download the data. ***");
+    //         printf("\n*** No AERONET data will be used in the run. ***") ;
+    //     }
+    //     else if ( (strcmp(oDL2->aeronet_site_name, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_data_level, "NOT_FOUND") !=0) && (strcmp(oDL2->aeronet_path, "NOT_FOUND") !=0) )
+    //         oDL2->Download_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
+    // }
+    // else
+    // {
+    //     printf("\nLoading AERONET data file: %s...", oDL2->aeronet_file ) ;
 
-        if ( oDL2->Check_AERONET_Data( (char*)oDL2->aeronet_file) ==1 )
-            oDL2->Load_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
-        else
-        {
-            printf("\nError in the AERONET data file set in the configuration file. Check %s\n", oDL2->aeronet_file) ;
-            sprintf( oDL2->aeronet_file, "NOT_FOUND") ;
-        }
-        printf("done\n") ;
-    }
+    //     if ( oDL2->Check_AERONET_Data( (char*)oDL2->aeronet_file) ==1 )
+    //         oDL2->Load_AERONET_Data( (strcGlobalParameters*)&glbParam ) ;
+    //     else
+    //     {
+    //         printf("\nError in the AERONET data file set in the configuration file. Check %s\n", oDL2->aeronet_file) ;
+    //         sprintf( oDL2->aeronet_file, "NOT_FOUND") ;
+    //     }
+    //     printf("done\n") ;
+    // }
 
 // INVERSION THROUGH ALL THE AVERAGED LIDAR PROFILES
 

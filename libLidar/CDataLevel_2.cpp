@@ -811,6 +811,35 @@ void CDataLevel_2::GetErrSetParam( char *FILE_PARAMETERS, int MonteCarlo_N_SigSe
 	ReadAnalysisParameter( (const char*)FILE_PARAMETERS, "VAOD_HEIGH3", "float", (float*)&VAODheigh ) ;		errSigSet->hVAOD_stdErrSet[3] = errSigSet->VAODr_stdErrSet[(int)round(VAODheigh/dzr )] ;
 }
 
+void CDataLevel_2::AERONET_Data_Preparation( strcGlobalParameters *glbParam )
+{
+    if ( strcmp( aeronet_file, "NOT_FOUND") ==0 ) // oDL2->aeronet_file = AERONET_FILE
+    {   // SINCE THE AERONET DATA FILE IS ALREADY DOWNLOADED, TRY TO LOAD IT
+        printf("\nNo AERONET file set in the configuration file (AERONET_FILE variable). Trying to download it...\n") ;
+
+        if ( (strcmp(aeronet_site_name, "NOT_FOUND") ==0) || (strcmp(aeronet_data_level, "NOT_FOUND") ==0) || (strcmp(aeronet_path, "NOT_FOUND") ==0) )
+        {
+            printf("*** Since AERONET_FILE is not set, both AERONET_PATH, AERONET_SITE_NAME and AERONET_DATA_LEVEL *must* be set in the configuration file to download the data. ***");
+            printf("\n*** No AERONET data will be used in the run. ***") ;
+        }
+        else if ( (strcmp(aeronet_site_name, "NOT_FOUND") !=0) && (strcmp(aeronet_data_level, "NOT_FOUND") !=0) && (strcmp(aeronet_path, "NOT_FOUND") !=0) )
+            Download_AERONET_Data( (strcGlobalParameters*)glbParam ) ;
+    }
+    else
+    {
+        printf("\nLoading AERONET data file: %s...", aeronet_file ) ;
+
+        if ( Check_AERONET_Data( (char*)aeronet_file) ==1 )
+            Load_AERONET_Data( (strcGlobalParameters*)glbParam ) ;
+        else
+        {
+            printf("\nError in the AERONET data file set in the configuration file. Check %s\n", aeronet_file) ;
+            sprintf( aeronet_file, "NOT_FOUND") ;
+        }
+        printf("done\n") ;
+    }
+}
+
 int CDataLevel_2::Download_AERONET_Data( strcGlobalParameters *glbParam )
 {
 	// RUN THE AERONET DOWNLOADER
