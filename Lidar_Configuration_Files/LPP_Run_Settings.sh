@@ -18,7 +18,6 @@ L2="yes"
 # PATH_IN="/mnt/c/lidarData/SPU/2017/2017_09_04_dt/data/"
 
 # BIOMASS BURNING PATHS
-# PATH_IN="/mnt/c/lidarData/SPU/2020/01jan2020_04april2020/01jan2020/1201/data/"
 # PATH_IN="/mnt/c/lidarData/SPU/2019/20190909/data/"
 PATH_IN="/mnt/c/lidarData/SPU/2019/20190918/day/data/"
 # PATH_IN="/mnt/c/lidarData/SPU/2019/20191001/data/"

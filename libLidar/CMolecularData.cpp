@@ -196,7 +196,6 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam, CNetCDF_Li
     oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"pr2Mol"   , (double*)&dataMol.pr2Mol[0] ) ;
     oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"LR_mol"   , (double*)&dataMol.LR_mol    ) ;
 
-	// Get_Mol_Data_L2( (strcGlobalParameters*)glbParam ) ;
 	Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
 
 	for (int i = 0; i < dataMol.nBins; i++)
@@ -205,8 +204,6 @@ void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam, CNetCDF_Li
 
 void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
 {
-	int 	i ;
-
 	if ( glbParam->evSel <0 )
 		dataMol.zenith = (int)0 ;
 	else
@@ -215,10 +212,10 @@ void CMolecularData::Fill_dataMol_L2( strcGlobalParameters *glbParam )
 		if ( dataMol.zenith == -90 )
 			dataMol.zenith = (int) 0 ;
 	}
+
 	// VALUES ASL
 	dataMol.nBins = glbParam->nBins ;
-
-	for ( i=0 ; i < dataMol.nBins ; i++ )
+	for ( int i=0 ; i < dataMol.nBins ; i++ )
 		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
@@ -245,7 +242,6 @@ void CMolecularData::Fill_dataMol_L1( strcGlobalParameters *glbParam )
 	dataMol.nBins = glbParam->nBins ;
 	for ( int i=0 ; i < glbParam->nBins ; i++ )
 		dataMol.zr[i] = (double)(glbParam->siteASL + glbParam->r[i] * cos(dataMol.zenith *M_PI/180)) ; // zr = ASL
-
 	dataMol.dzr = (double)(dataMol.zr[1] - dataMol.zr[0]) ; // [m]
 	glbParam->dzr = dataMol.dzr ;
 

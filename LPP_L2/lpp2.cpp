@@ -64,18 +64,6 @@ int main( int argc, char *argv[] )
 
     CDataLevel_2    *oDL2 = (CDataLevel_2*) new CDataLevel_2( (strcGlobalParameters*)&glbParam ) ;
 
-    // {
-    //     int *indxWL_PDL2_nCh = nullptr ;
-    //     indxWL_PDL2_nCh = (int*) malloc( glbParam.nCh * sizeof(int) ) ;    
-    //     glbParam.nCh_to_process = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)indxWL_PDL2_nCh ) ;
-    //     glbParam.indxWL_PDL2 = (int*) malloc( glbParam.nCh_to_process * sizeof(int) ) ;
-    // }
-    // glbParam.nCh_to_process = ReadAnalysisParameter( (char*)glbParam.FILE_PARAMETERS, (const char*)"indxWL_PDL2", (const char*)"int", (int*)&glbParam.indxWL_PDL2[0] ) ;
-
-    // nCh_to_process = 1 ; // *NUMBER* OF CHANNELS TO INVERT
-    // assert( glbParam.indxWL_PDL2 <= (glbParam.nCh -1 ) ) ;
-    // glbParam.chSel  = glbParam.indxWL_PDL2[0] ;
-
     char reference_method_buf[128] = {0} ;
     ReadAnalysisParameter( (const char*)glbParam.FILE_PARAMETERS, "reference_method", "string", reference_method_buf, sizeof(reference_method_buf) ) ;
     oDL2->reference_method.assign(reference_method_buf) ;
@@ -84,8 +72,19 @@ int main( int argc, char *argv[] )
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam  ) ;
 
-    glbParam.evSel = -10 ; // TO GET THE PROFILES IN THE VERTICAL DIRECTION (NO ZENITHAL CORRECTION)
-    oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam, (CNetCDF_Lidar*)&oNCL, (int)ncid_L1_Data ) ;
+
+    if ( glbParam.indxWL_PDL1[0] == glbParam.indxWL_PDL2[0] ) // ELASTIC-RAYLEIGH LIDAR SIGNAL
+    {
+        glbParam.evSel = -10 ; // TO GET THE PROFILES IN THE VERTICAL DIRECTION (NO ZENITHAL CORRECTION)
+        oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam, (CNetCDF_Lidar*)&oNCL, (int)ncid_L1_Data ) ;
+    }
+    else
+    {
+        glbParam.evSel = -10 ;
+        glbParam.indxWL_PDL1[0] = glbParam.indxWL_PDL2[0] ;
+        oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
+    }
+
 
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA MUST BE READ FROM L0 AND THE CORRECTIONS MUST BE APPLIED AGAIN
     {
