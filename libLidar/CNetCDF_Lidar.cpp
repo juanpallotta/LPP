@@ -1118,11 +1118,30 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
     
     DefineVariable( (int)nc_id_group_L1, (char*)"range"                   , (const char*)"double", (int)1, (int*)&dim_ids[2], (int*)&var_ids[11] ) ; // range (ex points)
 
+    if ( glbParam->iLambda[glbParam->indxWL_PDL1[0]] == 355 )
+    {
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Extinction_355nm" , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[13] ) ; // Alpha Mol.
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Backscatter_355nm", (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[14] ) ; // Beta Mol.
+    }
+    else if (glbParam->iLambda[glbParam->indxWL_PDL1[0]] == 532)
+    {
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Extinction_532nm" , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[13] ) ; // Alpha Mol.
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Backscatter_532nm", (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[14] ) ; // Beta Mol.
+    }
+    else if (glbParam->iLambda[glbParam->indxWL_PDL1[0]] == 1064)
+    {
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Extinction_1064nm" , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[13] ) ; // Alpha Mol.
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Backscatter_1064nm", (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[14] ) ; // Beta Mol.
+    }
+    else
+    {
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Extinction" , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[13] ) ; // Alpha Mol.
+        DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Backscatter", (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[14] ) ; // Beta Mol.        
+    }    
+
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"range"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[17] ) ; // range (ex points)
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Temperature_K"   , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[7]  ) ; // Temperature profile
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Pressure_Pa"     , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[8]  ) ; // Pressure profile
-    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Extinction" , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[13] ) ; // Alpha Mol.
-    DefineVariable( (int)nc_id_group_L1_MolData, (char*)"Molecular_Backscatter", (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[14] ) ; // Beta Mol.
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"N_mol"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[15] ) ; // Mol. Concentration
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"LR_mol"          , (const char*)"double", (int)1, (int*)&dim_id_single_value , (int*)&var_ids[16] ) ; // Mol. LR
     DefineVariable( (int)nc_id_group_L1_MolData, (char*)"prMol"           , (const char*)"double", (int)1, (int*)&id_dims_Mol_range[0], (int*)&var_ids[20] ) ; // prMol
@@ -1138,11 +1157,11 @@ void CNetCDF_Lidar::Save_LALINET_NCDF_PDL1( char *Path_File_Out, strcGlobalParam
 
     string strAttListName[5] ;
     int     intAttList   [5] ;
-    int     indxWL_PDL1 ;
-    ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"          , (const char*)"int", (int*)&indxWL_PDL1           ) ;
+    // int     indxWL_PDL1 ;
+    // ReadAnalysisParameter( (char*)glbParam->FILE_PARAMETERS, (const char*)"indxWL_PDL1"          , (const char*)"int", (int*)&indxWL_PDL1           ) ;
     int avg_Points_Layer_Mask ;
     ReadAnalysisParameter( (char*)glbParam->FILE_SOFT_CODED_VALUES, (const char*)"avg_Points_Layer_Mask", (const char*)"int", (int*)&avg_Points_Layer_Mask ) ;
-    strAttListName[0] = "indxChannel_for_Layer_Mask"; intAttList[0] = (int)indxWL_PDL1                  ;
+    strAttListName[0] = "indxChannel_for_Layer_Mask"; intAttList[0] = (int)glbParam->indxWL_PDL1[0]     ; //indxWL_PDL1                  ;
     strAttListName[1] = "num_Points_Bkg"            ; intAttList[1] = (int)glbParam->nBinsBkg           ;
     strAttListName[2] = "Averaged_Profiles_L1"      ; intAttList[2] = (int)glbParam->numEventsToAvg     ;
     strAttListName[3] = "avg_Points_Layer_Mask"     ; intAttList[3] = (int)avg_Points_Layer_Mask        ;

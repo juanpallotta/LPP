@@ -186,17 +186,57 @@ void CMolecularData::Get_Mol_Data_L1( strcGlobalParameters *glbParam )
 // FILL dataMol STRUCTURE FROM dataMol.tK AND dataMol.pPa ALREADY LOADED
 void CMolecularData::Get_Mol_Data_L2( strcGlobalParameters *glbParam, CNetCDF_Lidar *oNCL, int ncid_L1_Data )
 {
-    int ncid_L1_MolData, retval ;
-    if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_MolData ) ) )
-        ERR(retval);
-	oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Extinction" , (double*)&dataMol.alphaMol[0] ) ;
-    oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Backscatter", (double*)&dataMol.betaMol [0] ) ;
-    oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"N_mol"    , (double*)&dataMol.nMol  [0] ) ;
-    oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"prMol"    , (double*)&dataMol.prMol [0] ) ;
-    oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"pr2Mol"   , (double*)&dataMol.pr2Mol[0] ) ;
-    oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"LR_mol"   , (double*)&dataMol.LR_mol    ) ;
+	if ( glbParam->indxWL_PDL1[0] == glbParam->indxWL_PDL2[0] )
+    {
+		int ncid_L1_MolData, retval ;
+		if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_MolData ) ) )
+			ERR(retval);
 
-	Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
+		if (glbParam->iLambda[glbParam->indxWL_PDL1[0]] == 355)
+		{
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Extinction_355nm" , (double*)&dataMol.alphaMol[0] ) ;
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Backscatter_355nm", (double*)&dataMol.betaMol [0] ) ;
+		}
+		else if (glbParam->iLambda[glbParam->indxWL_PDL1[0]] == 532)
+		{
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Extinction_532nm" , (double*)&dataMol.alphaMol[0] ) ;
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Backscatter_532nm", (double*)&dataMol.betaMol [0] ) ;
+		}
+		else if (glbParam->iLambda[glbParam->indxWL_PDL1[0]] == 1064)
+		{
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Extinction_1064nm" , (double*)&dataMol.alphaMol[0] ) ;
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Backscatter_1064nm", (double*)&dataMol.betaMol [0] ) ;
+		}
+		else
+		{
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Extinction" , (double*)&dataMol.alphaMol[0] ) ;
+			oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Molecular_Backscatter", (double*)&dataMol.betaMol [0] ) ;
+		}
+		oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"prMol"    , (double*)&dataMol.prMol [0] ) ;
+		oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"pr2Mol"   , (double*)&dataMol.pr2Mol[0] ) ;
+		oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"LR_mol"   , (double*)&dataMol.LR_mol    ) ;
+	}
+	else
+	{
+		int ncid_L1_MolData, retval ;
+		if ( ( retval = nc_inq_grp_ncid( (int)ncid_L1_Data, (const char*)"Molecular_Data", (int*)&ncid_L1_MolData ) ) )
+			ERR(retval);
+		
+		oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"N_mol"        , (double*)&dataMol.nMol[0] ) ;
+		oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Temperature_K", (double*)&dataMol.tK  [0] ) ;
+		oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"Pressure_Pa"  , (double*)&dataMol.pPa [0] ) ;
+		oNCL->ReadVar( (int)ncid_L1_MolData, (const char*)"LR_mol"       , (double*)&dataMol.LR_mol  ) ;
+
+		double co2_ppmv = 392 ;
+		double wl_factor ;
+		ReadAnalysisParameter( (char*)glbParam->FILE_SOFT_CODED_VALUES, (const char*)"wl_factor", (const char*)"double", (double*)&wl_factor ) ;
+
+		TemK_PresPa_to_N_Alpha_Beta_MOL ( (double*)dataMol.pPa, (double*)dataMol.tK, (double)(wl_factor*glbParam->iLambda[glbParam->indxWL_PDL2[0]]*1e-9),
+										  (double)co2_ppmv, (int)dataMol.nBins, (double*)dataMol.nMol, (double*)dataMol.alphaMol,
+										  (double*)dataMol.betaMol, (double*)&dataMol.LR_mol ) ;
+
+		Fill_dataMol_L2( (strcGlobalParameters*)glbParam ) ;
+	}
 
 	for (int i = 0; i < dataMol.nBins; i++)
 		dataMol.betaRam[i]  = (double) dataMol.nMol[i] * 1 ; // RAMAN BACKSCATTER
@@ -861,8 +901,8 @@ for ( int i=0 ; i<nBins ; i++ )
 
 // Multiply by phase function for -180deg and divide by 4pi steradians
 // Units: [m]-1 [sr]-1
-for( int i=0 ; i<nBins ; i++ )
-	beta_mol[i] = alpha_mol[i] /(*LR_mol) ;       // molecular backscatter [m^-1]
+	for( int i=0 ; i<nBins ; i++ )
+		beta_mol[i] = alpha_mol[i] /(*LR_mol) ;       // molecular backscatter [m^-1]
 
 // printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> Molecular density at Tstd and Pstd: Nstd= %e [# m^-3]", Nstd ) ;
 // printf( "\nTemK_PresPa_to_N_Alpha_Beta_MOL() --> sigma_std= %e \n", sigma_std    ) ;

@@ -72,19 +72,8 @@ int main( int argc, char *argv[] )
 
     CMolecularData  *oMolData = (CMolecularData*) new CMolecularData  ( (strcGlobalParameters*)&glbParam  ) ;
 
-
-    if ( glbParam.indxWL_PDL1[0] == glbParam.indxWL_PDL2[0] ) // ELASTIC-RAYLEIGH LIDAR SIGNAL
-    {
-        glbParam.evSel = -10 ; // TO GET THE PROFILES IN THE VERTICAL DIRECTION (NO ZENITHAL CORRECTION)
-        oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam, (CNetCDF_Lidar*)&oNCL, (int)ncid_L1_Data ) ;
-    }
-    else
-    {
-        glbParam.evSel = -10 ;
-        glbParam.indxWL_PDL1[0] = glbParam.indxWL_PDL2[0] ;
-        oMolData->Get_Mol_Data_L1( (strcGlobalParameters*)&glbParam ) ;
-    }
-
+    glbParam.evSel = -10 ; // TO GET THE PROFILES IN THE VERTICAL DIRECTION (NO ZENITHAL CORRECTION)
+    oMolData->Get_Mol_Data_L2( (strcGlobalParameters*)&glbParam, (CNetCDF_Lidar*)&oNCL, (int)ncid_L1_Data ) ;
 
     if ( glbParam.numEventsToAvg_PDL1 != glbParam.numEventsToAvg_PDL2 ) // DATA MUST BE READ FROM L0 AND THE CORRECTIONS MUST BE APPLIED AGAIN
     {
