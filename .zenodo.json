@@ -1,0 +1,70 @@
+{
+  "title": "Lidar Processing Program (LPP)",
+  "description": "A program for processing lidar measurements (Level 0, Level 1, Level 2 data processing).",
+  "creators": [
+    {
+      "name": "Pallotta, Juan",
+      "Contribution": "Software development, methods, and algorithms. LPP tester and bug solver."
+    },
+    {
+      "name": "Alves De Carvalho, Silvania",
+      "Contribution": "LPP tester and bug solver. Comparison of LPP results against other platforms."
+    },
+    {
+      "name": "Barbosa, Henrique",
+      "Contribution": "Methods, algorithms and research supervisor. Dataset used for the testing."
+    },
+    {
+      "name": "Medina Puntero, Joaquin",
+      "Contribution": "Software development for automatic molecular profiles downloader. LPP tester and bug solver."
+    },
+    {
+      "name": "Guerrero Rascado, Juan Luis",
+      "Contribution": "Software development for automatic molecular profiles downloader. LPP tester and bug solver."
+    },
+    {
+      "name": "Cheaz, Veronica",
+      "Contribution": "Developer and tester for MacBook compatibility."
+    },
+    {
+      "name": "Neves de Oliveira, Nicolas",
+      "Contribution": "Software development for automatic AERONET downloader. LPP tester."
+    },
+    {
+      "name": "Lopez, Fabio",
+      "Contribution": "Methods, algorithms. Dataset used for the testing."
+    },
+    {
+      "name": "Arias, Diego",
+      "Contribution": "Methods and algorithms."
+    },
+    {
+      "name": "Montilla, Elena",
+      "Contribution": "LPP tester & bug solver."
+    },
+    {
+      "name": "Forno, Ricardo",
+      "Contribution": "LPP tester & bug solver."
+    },
+    {
+      "name": "Yoshihara, Kenzo",
+      "Contribution": "LPP tester & bug solver."
+    },
+    {
+      "name": "Cacheffo, Alexandre",
+      "Contribution": "Reviewers for the research paper."
+    },
+    {
+      "name": "Landulfo, Eduardo",
+      "Contribution": "Reviewers for the research paper."
+    }
+  ],
+  "keywords": [
+    "lidar",
+    "atmospheric science",
+    "remote sensing",
+    "data processing"
+  ],
+  "license": "MIT",
+  "access_right": "open"
+}

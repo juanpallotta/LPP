@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20753322.svg)](https://doi.org/10.5281/zenodo.20753322)
 
 <p align="center">
   <img src="./Docs/Figures/LPP_logo.png" width="200" />
